@@ -1,0 +1,24 @@
+root = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+charset = utf-8
+insert_final_newline = true
+
+# Блок обязателен у любого оператора, даже с телом из одной строки.
+csharp_prefer_braces = true:warning
+dotnet_diagnostic.IDE0011.severity = warning
+
+# Сборка проверяет только наличие блока (IDE0011). Положение скобок ниже применяет
+# форматтер IDE и dotnet format; сборкой оно не проверяется.
+# Allman: открывающая скобка на своей строке, else/catch/finally - с новой строки.
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+# Namespace объявляется без блока и совпадает с папкой файла.
+csharp_style_namespace_declarations = file_scoped:warning
+dotnet_style_namespace_match_folder = true
+dotnet_diagnostic.IDE0130.severity = warning
