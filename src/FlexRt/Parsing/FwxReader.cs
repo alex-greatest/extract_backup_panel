@@ -13,9 +13,10 @@ public static class FwxReader
     /// Прочитать файл целиком. Ошибка в заголовке или TOC прерывает чтение;
     /// ошибка в отдельной таблице попадает в <see cref="FwxDocument.Warnings"/>,
     /// чтобы остальные экспорты (xlsx, explode) могли отработать.
-    /// После TOC разбирается таблица STRINGSTORE.
+    /// После TOC разбираются таблицы STRINGSTORE и VAR.
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
+    /// <exception cref="IOException">Файл не удалось прочитать.</exception>
     public static FwxDocument Read(string path)
     {
         var b = new FwxBinary(File.ReadAllBytes(path));
@@ -23,6 +24,7 @@ public static class FwxReader
 
         ReadToc(doc);
         TryParse(doc, StringStoreParser.Parse);
+        TryParse(doc, VarParser.Parse);
         return doc;
     }
 
@@ -75,9 +77,9 @@ public static class FwxReader
     {
         b.Section = "HEADER";
         var header = new FwxHeader(
-            // первые 6 слов всегда одинаковые: 0xbeef, 0xc, 0x1, 0x703, 0x1, 0x1
+            // первые 6 слов всегда одинаковые (TIA V17): 0xbeef, 0xc, 0x0, 0x1100, 0x1, 0x1
             b.D2(0), b.D2(2), b.D2(4), b.D2(6), b.D2(8), b.D2(0xa),
-            // размер выравнивания в конце файла
+            // гипотеза: размер буфера значений тегов сразу за таблицами; оба поля всегда равны
             b.D4(0xc), b.D4(0x10),
             // конец таблиц — по нему считается длина последней таблицы
             b.D4(0x14),

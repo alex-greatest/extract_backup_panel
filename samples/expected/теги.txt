@@ -1,0 +1,17 @@
+A1=Name | B1=Data type | C1=Connection | D1=PLC name | E1=PLC tag | F1=Address | G1=Access mode | H1=Acquisition cycle | I1=Logged | J1=Source comment | K1=Comment
+A2=Tag_ScreenNumber | B2=UInt
+A3=Tag_Int | B3=Int
+A4=DateTime | B4=DateTime
+A5=Bool | B5=Bool
+A6=DInt | B6=DInt
+A7=LReal | B7=LReal
+A8=SInt | B8=SInt
+A9=Real | B9=Real
+A10=UDInt | B10=UDInt
+A11=UInt | B11=UInt
+A12=USInt | B12=USInt
+A13=WString | B13=WString
+A14=Array [0..22] of Bool | B14=Array [0..22] of Bool
+A15=@DiagnosticsIndicatorTag | B15=SInt
+A16=Array [0..22] of LReal | B16=Array [0..22] of LReal
+A17=Array [5..22] of Int | B17=Array [0..22] of Int

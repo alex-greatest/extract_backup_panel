@@ -16,13 +16,21 @@ public static class HexExporter
 
     /// <summary>
     /// Папка <c>0x&lt;id&gt;_&lt;имя&gt;</c> на таблицу: <c>header.hex.txt</c> (0x34 байта) и <c>&lt;n&gt;_&lt;всего&gt;.hex.txt</c> на элемент.
+    /// Перед записью каталог <paramref name="dir"/> удаляется целиком со всем содержимым,
+    /// чтобы в нём не оставались файлы прошлого запуска.
     /// Таблица сначала разбирается целиком и только потом пишется. Если она не в формате
     /// «каталог смещений», сохраняется целиком в <c>raw.hex.txt</c>, сообщение попадает
     /// в <paramref name="warnings"/>, остальные таблицы обрабатываются.
     /// </summary>
     /// <returns>Число записанных файлов.</returns>
+    /// <exception cref="IOException">Каталог не удалось удалить или файл не удалось записать.</exception>
     public static int Export(FwxDocument doc, string dir, List<string> warnings)
     {
+        if (Directory.Exists(dir))
+        {
+            Directory.Delete(dir, true);
+        }
+
         var b = doc.Binary;
         var files = 0;
         foreach (var entry in doc.Toc)

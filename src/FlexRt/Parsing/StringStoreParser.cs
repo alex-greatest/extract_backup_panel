@@ -13,7 +13,7 @@ public static class StringStoreParser
     /// если разбор оборвётся, уже прочитанные строки остаются в документе.
     /// Одинаковое смещение (маска <c>0x7fffffff</c>) — одна и та же строка.
     /// </summary>
-    /// <exception cref="FwxFormatException">Каталог или строка выходят за пределы файла.</exception>
+    /// <exception cref="FwxFormatException">Каталог выходит за пределы файла, строка — за пределы таблицы, или до конца таблицы нет нулевого символа.</exception>
     public static void Parse(FwxDocument doc)
     {
         var store = doc.FindTable("STRINGSTORE");
@@ -27,15 +27,15 @@ public static class StringStoreParser
 
         // метаинформация обо всех строках
         var start = store.Offset + 0x40;
-        // размер каталога (смещения строк)
-        var tocSize = b.D4(start + 0xc);
+        // смещение заголовка языков от start: 0x1c + каталог смещений строк
+        var langHeaderOffset = b.D4(start + 0xc);
         // начало самих строк
         var stringsStart = start + b.D4(start + 0x14);
         // сколько строк в каждом словаре
         var stringsCount = b.D4(start + 0x18);
         // начало каталога смещений
         var tocStart = start + 0x1c;
-        var codes = ReadLanguageCodes(b, start + tocSize);
+        var codes = ReadLanguageCodes(b, start + langHeaderOffset);
 
         var total = stringsCount * codes.Length;
         b.Check(tocStart, total * 4);
