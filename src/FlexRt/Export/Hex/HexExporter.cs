@@ -1,8 +1,8 @@
 using FlexRt.Binary;
-using FlexRt.Model;
-using FlexRt.Parsing;
+using FlexRt.Model.Panel;
+using FlexRt.Parsing.Panel;
 
-namespace FlexRt.Export;
+namespace FlexRt.Export.Hex;
 
 /// <summary>Разложить FWX по папкам: таблица TOC = папка, элемент = hex-файл.</summary>
 public static class HexExporter

@@ -1,4 +1,4 @@
-namespace FlexRt.Model;
+namespace FlexRt.Model.Panel;
 
 /// <summary>Таблица из Table Of Contents.</summary>
 public sealed class TocEntry

@@ -1,14 +1,11 @@
 using ClosedXML.Excel;
-using FlexRt.Model;
+using FlexRt.Model.Panel;
 
-namespace FlexRt.Export;
+namespace FlexRt.Export.Strings;
 
 /// <summary>Языковые строки в Excel: лист на каждый LCID.</summary>
 public static class XlsxExporter
 {
-    /// <summary>Предел длины текста в ячейке Excel.</summary>
-    private const int MaxCellLength = 32767;
-
     /// <summary>
     /// Записать книгу: лист <c>0x&lt;lcid&gt;</c> с колонками idx и str. Текст пишется как есть
     /// (<c>=...</c> не становится формулой), строка длиннее предела ячейки обрезается.
@@ -27,7 +24,7 @@ public static class XlsxExporter
             foreach (var s in lang)
             {
                 sheet.Cell(row, 1).Value = s.Idx;
-                sheet.Cell(row, 2).SetValue(s.Str.Length > MaxCellLength ? s.Str[..MaxCellLength] : s.Str);
+                sheet.Cell(row, 2).SetValue(ExcelCell.Text(s.Str));
                 row++;
             }
         }

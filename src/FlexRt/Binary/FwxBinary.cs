@@ -54,6 +54,22 @@ public sealed class FwxBinary(byte[] data)
         return Encoding.Unicode.GetString(data, (int)pos, chars * 2);
     }
 
+    /// <summary>Строка UTF-8 длиной <paramref name="length"/> байт.</summary>
+    /// <exception cref="FwxFormatException">Строка выходит за пределы файла.</exception>
+    public string GetUtf8(long pos, int length)
+    {
+        Check(pos, length);
+        return Encoding.UTF8.GetString(data, (int)pos, length);
+    }
+
+    /// <summary>Байты диапазона без копирования.</summary>
+    /// <exception cref="FwxFormatException">Диапазон выходит за пределы файла.</exception>
+    public ReadOnlySpan<byte> Span(long pos, long length)
+    {
+        Check(pos, length);
+        return data.AsSpan((int)pos, (int)length);
+    }
+
     /// <summary>Строка UTF-16LE, длина (в символах) лежит в первом 16-битном слове.</summary>
     public string GetName(long pos) => GetNameLen(pos + 2, D2(pos));
 

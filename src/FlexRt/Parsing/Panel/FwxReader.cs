@@ -1,7 +1,7 @@
 using FlexRt.Binary;
-using FlexRt.Model;
+using FlexRt.Model.Panel;
 
-namespace FlexRt.Parsing;
+namespace FlexRt.Parsing.Panel;
 
 /// <summary>Каркас FWX: заголовок файла, TOC и обход элементов любой таблицы.</summary>
 public static class FwxReader
@@ -13,7 +13,7 @@ public static class FwxReader
     /// Прочитать файл целиком. Ошибка в заголовке или TOC прерывает чтение;
     /// ошибка в отдельной таблице попадает в <see cref="FwxDocument.Warnings"/>,
     /// чтобы остальные экспорты (xlsx, explode) могли отработать.
-    /// После TOC разбираются таблицы STRINGSTORE и VAR.
+    /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK и CONNECTION_OMSP.
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
     /// <exception cref="IOException">Файл не удалось прочитать.</exception>
@@ -25,6 +25,9 @@ public static class FwxReader
         ReadToc(doc);
         TryParse(doc, StringStoreParser.Parse);
         TryParse(doc, VarParser.Parse);
+        TryParse(doc, DatalinkReadWrParser.Parse);
+        TryParse(doc, DatalinkReadWrParser.ParseAreaPointers);
+        TryParse(doc, ConnectionParser.Parse);
         return doc;
     }
 
@@ -68,6 +71,35 @@ public static class FwxReader
                 throw new FwxFormatException(table.Name, start, $"отрицательная длина элемента {i + 1}");
             }
             yield return new TableItem(i, start, end - start);
+        }
+    }
+
+    /// <summary>
+    /// Как <see cref="Items"/>, но каждый элемент перед выдачей проверяется
+    /// <see cref="CheckInsideTable"/>: для таблиц, где один плохой элемент обрывает разбор.
+    /// </summary>
+    /// <exception cref="FwxFormatException">Смещение вне файла, отрицательная длина или элемент за пределами таблицы.</exception>
+    public static IEnumerable<TableItem> CheckedItems(FwxBinary b, TocEntry table)
+    {
+        foreach (var item in Items(b, table))
+        {
+            CheckInsideTable(table, item);
+            yield return item;
+        }
+    }
+
+    /// <summary>
+    /// Проверить, что элемент целиком лежит в блоке данных своей таблицы: от конца каталога
+    /// смещений до конца таблицы. Байты соседних таблиц в запись не попадают.
+    /// </summary>
+    /// <exception cref="FwxFormatException">Элемент начинается или кончается за пределами таблицы.</exception>
+    public static void CheckInsideTable(TocEntry table, TableItem item)
+    {
+        var dataBlock = table.Offset + TableHeaderSize + table.Entries * 4L;
+        var tableEnd = table.Offset + table.Size;
+        if (item.Offset < dataBlock || item.Offset + item.Length > tableEnd)
+        {
+            throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1} выходит за пределы таблицы");
         }
     }
 

@@ -1,7 +1,7 @@
 using FlexRt.Binary;
-using FlexRt.Model;
+using FlexRt.Model.Panel;
 
-namespace FlexRt.Parsing;
+namespace FlexRt.Parsing.Panel;
 
 /// <summary>Разбор STRINGSTORE: строки всех языков.</summary>
 public static class StringStoreParser

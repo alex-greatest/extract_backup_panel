@@ -1,4 +1,4 @@
-namespace FlexRt.Model;
+namespace FlexRt.Model.Panel;
 
 /// <summary>Строка из STRINGSTORE.</summary>
 /// <param name="Idx">Номер строки в словаре языка, с единицы.</param>

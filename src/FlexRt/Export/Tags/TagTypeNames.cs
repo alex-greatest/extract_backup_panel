@@ -1,6 +1,6 @@
-using FlexRt.Model;
+using FlexRt.Model.Panel;
 
-namespace FlexRt.Export;
+namespace FlexRt.Export.Tags;
 
 /// <summary>Название типа тега для вывода — как в колонке Data type в TIA Portal.</summary>
 public static class TagTypeNames

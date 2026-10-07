@@ -1,4 +1,4 @@
-namespace FlexRt.Model;
+namespace FlexRt.Model.Panel;
 
 /// <summary>
 /// Заголовок FWX. Пары «Entries/Offset» — число элементов и смещение служебного массива.

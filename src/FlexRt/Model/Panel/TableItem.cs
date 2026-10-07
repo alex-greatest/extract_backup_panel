@@ -1,4 +1,4 @@
-namespace FlexRt.Model;
+namespace FlexRt.Model.Panel;
 
 /// <summary>
 /// Элемент таблицы: индекс, смещение и длина — до следующего элемента,
