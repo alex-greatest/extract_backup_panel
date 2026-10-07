@@ -33,10 +33,17 @@ var fwxPath = string.IsNullOrWhiteSpace(inputOverride) ? defaultFwxPath : inputO
 // проект ПЛК: из переменной окружения FLEXRT_PLC, если она задана и не пуста, иначе defaultPlcPath
 var plcOverride = Environment.GetEnvironmentVariable("FLEXRT_PLC");
 var plcPath = string.IsNullOrWhiteSpace(plcOverride) ? defaultPlcPath : plcOverride;
+// каталог результата: из переменной окружения FLEXRT_OUT, если она задана и не пуста, иначе data\out;
+// внутри неё — фиксированные имена, не зависящие от констант выше
+var outOverride = Environment.GetEnvironmentVariable("FLEXRT_OUT");
+var stringsWorkbookPath = OutPath(xlsxPath, "PDATA.xlsx");
+var hexDir = OutPath(explodeDir, "pdata");
+var panelWorkbookPath = OutPath(panelDataPath, "panel_data.xlsx");
+var logFilePath = OutPath(logPath, Path.Combine("logs", "flexrt-.log"));
 
 Console.OutputEncoding = Encoding.UTF8;
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.File(logPath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 14, encoding: Encoding.UTF8,
+    .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 14, encoding: Encoding.UTF8,
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 var clock = Stopwatch.StartNew();
@@ -60,8 +67,9 @@ finally
 // Возвращает код возврата: 0 — без предупреждений и ошибок, 1 — иначе.
 int RunAll()
 {
-    Log.Information("Запуск FlexRt: панель {Panel} (FLEXRT_INPUT: {InputOverride}), проект ПЛК {Plc} (FLEXRT_PLC: {PlcOverride})",
-        fwxPath, inputOverride ?? "не задана", plcPath, plcOverride ?? "не задана");
+    Log.Information("Запуск FlexRt: панель {Panel} (FLEXRT_INPUT: {InputOverride}), проект ПЛК {Plc} (FLEXRT_PLC: {PlcOverride}), каталог результата {Out} (FLEXRT_OUT: {OutOverride})",
+        fwxPath, inputOverride ?? "не задана", plcPath, plcOverride ?? "не задана",
+        Path.GetDirectoryName(stringsWorkbookPath), outOverride ?? "не задана");
 
     FwxDocument doc;
     try
@@ -88,27 +96,34 @@ int RunAll()
         Log.Warning("Файл ПЛК: {Error}", error);
     }
 
-    failed += Run("Языки -> XLSX", () => WriteWorkbook(xlsxPath, doc.Strings.Count == 0, "в STRINGSTORE нет строк, пропуск",
-        () => $"{XlsxExporter.Export(doc.Strings, xlsxPath)} языков, {doc.Strings.Count} строк -> {xlsxPath}"));
+    failed += Run("Языки -> XLSX", () => WriteWorkbook(stringsWorkbookPath, doc.Strings.Count == 0, "в STRINGSTORE нет строк, пропуск",
+        () => $"{XlsxExporter.Export(doc.Strings, stringsWorkbookPath)} языков, {doc.Strings.Count} строк -> {stringsWorkbookPath}"));
 
-    failed += Run("Теги -> XLSX", () => WriteWorkbook(panelDataPath, doc.Tags.Count == 0, "в VAR нет тегов, пропуск",
-        () => $"{PanelDataExporter.Export(doc, matches, plcErrors, panelDataPath)} тегов -> {panelDataPath}"));
+    failed += Run("Теги -> XLSX", () => WriteWorkbook(panelWorkbookPath, doc.Tags.Count == 0, "в VAR нет тегов, пропуск",
+        () => $"{PanelDataExporter.Export(doc, matches, plcErrors, panelWorkbookPath)} тегов -> {panelWorkbookPath}"));
 
     var hexWarnings = new List<string>();
     failed += Run("Explode -> HEX", () =>
     {
-        var files = HexExporter.Export(doc, explodeDir, hexWarnings);
+        var files = HexExporter.Export(doc, hexDir, hexWarnings);
         foreach (var warning in hexWarnings)
         {
             Console.Error.WriteLine($"ПРЕДУПРЕЖДЕНИЕ: таблица сохранена целиком (raw.hex.txt) - {warning}");
             Log.Warning("Таблица сохранена целиком (raw.hex.txt): {Warning}", warning);
         }
-        return $"{files} файлов -> {explodeDir}";
+        return $"{files} файлов -> {hexDir}";
     });
     failed += hexWarnings.Count;
 
     return failed == 0 ? 0 : 1;
 }
+
+// Путь выхода: без FLEXRT_OUT — путь по умолчанию (константа) как есть; с FLEXRT_OUT — фиксированное
+// имя nameInOut внутри FLEXRT_OUT. Константы на результат с FLEXRT_OUT не влияют, поэтому ни один
+// выход не уходит мимо FLEXRT_OUT, даже если константу перенести на другой диск.
+string OutPath(string defaultPath, string nameInOut) => string.IsNullOrWhiteSpace(outOverride)
+    ? defaultPath
+    : Path.Combine(outOverride, nameInOut);
 
 // Напечатать сводку панели: файл, таблицы TOC, строки, теги, предупреждения разбора; то же — в лог.
 void PrintSummary(FwxDocument doc)
