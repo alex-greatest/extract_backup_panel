@@ -43,8 +43,9 @@ public sealed partial class DamagedInputTests
     private static partial Regex StatisticsMinusOne();
 
     /// <summary>
-    /// <c>samples/plc/pdata.fwc</c> без файла ПЛК: код 0, строка «не найден», у PLC-тегов
-    /// колонки ПЛК «неизвестно», тип — по коду панели (<c>USInt/Char</c>, <c>DInt/Time</c>).
+    /// <c>samples/plc/pdata.fwc</c> (два соединения) без файла ПЛК: код 0, строка «не найден», у
+    /// PLC-тегов колонки ПЛК «неизвестно», тип — по коду панели (<c>USInt/Char</c>, <c>DInt/Time</c>);
+    /// 645 строк языков и hex-файлы совпадают с эталоном — без данных ПЛК такая панель читается.
     /// </summary>
     [Fact]
     public void PlcPanel_WithoutPlcFile_PlcColumnsUnknown()
@@ -62,12 +63,14 @@ public sealed partial class DamagedInputTests
         AssertRow(dir.PanelDataWorkbook, "A4=Найдено в ПЛК | B4=0");
         AssertRow(dir.PanelDataWorkbook, "A6=Данные ПЛК неизвестны | B6=50");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, $"Данные ПЛК=не найден: {plc}");
+        RunAssertions.StringsSheet(dir.StringsWorkbook, 645);
+        RunAssertions.HexMatches(dir.HexDir, "samples/expected/plc/pdata.sha256");
     }
 
     /// <summary>
     /// Копия <c>samples/plc/PEData.plf</c> с инвертированным байтом в середине данных первого
-    /// кадра: SHA-256 кадра не совпадает. Код 1, предупреждение в stderr, лист «Ошибки» с
-    /// сообщением, колонки ПЛК «неизвестно».
+    /// кадра, панель <c>samples/card/pdata.fwc</c> (одно соединение): SHA-256 кадра не совпадает.
+    /// Код 1, предупреждение в stderr, лист «Ошибки» с сообщением, колонки ПЛК «неизвестно».
     /// </summary>
     [Fact]
     public void BrokenPlcFrame_WarnsAndPlcColumnsUnknown()
@@ -81,7 +84,7 @@ public sealed partial class DamagedInputTests
         bytes[PlfHeaderSize + size / 2] ^= 0xff;
         File.WriteAllBytes(plc, bytes);
 
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), plc, dir.OutDir);
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/card/pdata.fwc"), plc, dir.OutDir);
 
         var message = $"{plc}: PEData.plf @ 0x{PlfHeaderSize:X}: контрольная сумма кадра не совпала";
         RunAssertions.ExitCode(run, 1);
@@ -91,8 +94,6 @@ public sealed partial class DamagedInputTests
         RunAssertions.ErrorsSheetContains(dir.PanelDataWorkbook, message);
         SummarySheetDump.Contains(dir.PanelDataWorkbook, $"Данные ПЛК=не прочитан: {plc}");
         AssertPlcColumnsUnknown(dir.PanelDataWorkbook);
-        AssertRow(dir.PanelDataWorkbook, CharIb3Row);
-        AssertRow(dir.PanelDataWorkbook, DIntId6Row);
     }
 
     /// <summary>

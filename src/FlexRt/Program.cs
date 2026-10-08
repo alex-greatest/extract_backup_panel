@@ -66,6 +66,24 @@ finally
     Log.CloseAndFlush();
 }
 
+// Сознательно не поддерживается (решение пользователя): у панели больше одного соединения с ПЛК
+// и данные ПЛК заданы — есть файл PEData.plf или папка карты ПЛК. ПЛК для соединения тогда
+// нужно выбирать по IP, а это проверено не на всех источниках. Печатает сообщение и пишет в лог;
+// файлы результата не создаются, старые не трогаются. Без данных ПЛК такая панель читается.
+// Возвращает true, если запуск нужно прекратить.
+bool IsUnsupported(FwxDocument doc)
+{
+    if (doc.Connections.Count <= 1 || (!File.Exists(plcPath) && !Directory.Exists(plcPath)))
+    {
+        return false;
+    }
+    var message = $"не поддерживается: у панели {doc.Connections.Count} соединения с ПЛК, а данные ПЛК заданы ({plcPath}) - "
+        + "сопоставление сделано только для панели с одним соединением; файлы не созданы";
+    Console.Error.WriteLine($"ОШИБКА: {message}");
+    Log.Error("Запуск прекращён: {Message}", message);
+    return true;
+}
+
 // Весь запуск: чтение панели, проекта ПЛК, сопоставление, три независимых экспорта.
 // Возвращает код возврата: 0 — без предупреждений и ошибок, 1 — иначе.
 int RunAll()
@@ -87,6 +105,10 @@ int RunAll()
     }
 
     PrintSummary(doc);
+    if (IsUnsupported(doc))
+    {
+        return 1;
+    }
     var failed = doc.Warnings.Count;
 
     var plcErrors = new List<string>();

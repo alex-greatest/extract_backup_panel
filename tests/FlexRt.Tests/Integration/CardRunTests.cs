@@ -77,6 +77,20 @@ public sealed class CardRunTests
     }
 
     /// <summary>
+    /// Карта с панелью <c>samples/plc/pdata.fwc</c> (два соединения с ПЛК): сознательно не
+    /// поддерживается — код 1, сообщение в stderr, файлы результата не созданы.
+    /// </summary>
+    [Fact]
+    public void CardWithTwoConnectionPanel_Unsupported()
+    {
+        using var dir = new TestDirectory();
+        var card = dir.ExtractFromRepo(CardArchive, CardFolder);
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), card, dir.OutDir);
+
+        RunAssertions.Unsupported(run, 2, card, dir);
+    }
+
+    /// <summary>
     /// Папка без <c>SIMATIC.S7S\OMSSTORE</c>: карта не прочитана — код 1, предупреждение в stderr
     /// и на листе «Ошибки», строка «не прочитан» в stdout, без трассы стека.
     /// </summary>

@@ -11,6 +11,26 @@ namespace FlexRt.Tests.Integration;
 /// </summary>
 public static partial class RunAssertions
 {
+    /// <summary>
+    /// Запуск сознательно не поддерживается (у панели несколько соединений, данные ПЛК заданы):
+    /// код 1, строка «ОШИБКА: не поддерживается…» в stderr, без трассы стека, файлы результата
+    /// (<c>panel_data.xlsx</c>, <c>PDATA.xlsx</c>, папка <c>pdata</c>) не созданы.
+    /// </summary>
+    /// <param name="run">Результат запуска.</param>
+    /// <param name="connections">Число соединений панели.</param>
+    /// <param name="plc">Путь данных ПЛК, как передан программе.</param>
+    /// <param name="dir">Временный каталог теста с каталогом результата.</param>
+    public static void Unsupported(ProgramRun run, int connections, string plc, TestDirectory dir)
+    {
+        ExitCode(run, 1);
+        HasLine(run.StdErr, $"ОШИБКА: не поддерживается: у панели {connections} соединения с ПЛК, а данные ПЛК заданы ({plc}) - "
+            + "сопоставление сделано только для панели с одним соединением; файлы не созданы");
+        NoStackTrace(run);
+        Assert.False(File.Exists(dir.PanelDataWorkbook), "panel_data.xlsx создан");
+        Assert.False(File.Exists(dir.StringsWorkbook), "PDATA.xlsx создан");
+        Assert.False(Directory.Exists(dir.HexDir), "папка pdata создана");
+    }
+
     /// <summary>Строка трассы стека .NET в английской или русской локали.</summary>
     /// <returns>Регулярное выражение, созданное при компиляции.</returns>
     [GeneratedRegex(@"^\s+(at|в) \S", RegexOptions.Multiline)]

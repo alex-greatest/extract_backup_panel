@@ -53,26 +53,27 @@ public sealed class SampleRunTests
     }
 
     /// <summary>
-    /// <c>samples/plc/pdata.fwc</c> с <c>samples/plc/PEData.plf</c> (TIA V21, PLC-теги,
-    /// два соединения): код 0, сводка панели и ПЛК, лист «Теги», 645 строк языков и
-    /// hex-файлы совпадают с эталонами.
+    /// <c>samples/plc/pdata-one-connection.fwc</c> (тот же проект TIA V21 до второго соединения,
+    /// шаг <c>05_absolute</c>) с <c>samples/plc/PEData.plf</c> (2 ПЛК): код 0, все 47 PLC-тегов
+    /// найдены, лист «Теги» совпадает с эталоном (его 67 строк совпали со снятым ранее с
+    /// <c>pdata.fwc</c> эталоном, который сверен с проектом через Openness), сводка — IP панели,
+    /// соединение, оба ПЛК с IP из проекта.
     /// </summary>
     [Fact]
-    public void PlcPanel_WithPlcProject_MatchesExpected()
+    public void PlcPanel_OneConnectionWithPlcProject_MatchesExpected()
     {
         using var dir = new TestDirectory();
         var plc = RepositoryPaths.InRepo("samples/plc/PEData.plf");
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), plc, dir.OutDir);
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata-one-connection.fwc"), plc, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Тегов: 69");
-        RunAssertions.HasLine(run.StdOut, "Строк языков: 645");
+        RunAssertions.HasLine(run.StdOut, "Тегов: 66");
+        RunAssertions.HasLine(run.StdOut, "Строк языков: 641");
         RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} (ПЛК: 2, тегов ПЛК: 51)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook,
             "IP панели=192.168.0.2 / 255.255.255.0",
             "Соединение HMI_Connection_1=IP ПЛК 192.168.0.1",
-            "Соединение HMI_Connection_2=IP ПЛК 192.168.0.3",
             $"Данные ПЛК=PEData.plf: {plc}",
             "ПЛК=PLC_1",
             "IP ПЛК (из данных ПЛК)=192.168.0.1, 192.168.1.1",
@@ -81,7 +82,22 @@ public sealed class SampleRunTests
             "Модель CPU=неизвестно",
             "Тегов ПЛК=51",
             "Блоков данных (DB)=0");
-        RunAssertions.StringsSheet(dir.StringsWorkbook, 645);
-        RunAssertions.HexMatches(dir.HexDir, "samples/expected/plc/pdata.sha256");
+        RunAssertions.StringsSheet(dir.StringsWorkbook, 641);
+    }
+
+    /// <summary>
+    /// <c>samples/plc/pdata.fwc</c> (два соединения с ПЛК) с <c>samples/plc/PEData.plf</c>:
+    /// сознательно не поддерживается — сводка панели напечатана, затем сообщение «не
+    /// поддерживается» в stderr, код 1, файлы результата не созданы.
+    /// </summary>
+    [Fact]
+    public void PlcPanel_TwoConnectionsWithPlcProject_Unsupported()
+    {
+        using var dir = new TestDirectory();
+        var plc = RepositoryPaths.InRepo("samples/plc/PEData.plf");
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), plc, dir.OutDir);
+
+        RunAssertions.Unsupported(run, 2, plc, dir);
+        RunAssertions.HasLine(run.StdOut, "Тегов: 69");
     }
 }

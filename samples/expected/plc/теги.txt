@@ -1,7 +1,7 @@
-A1=Всего тегов | B1=69
+A1=Всего тегов | B1=66
 A2=Внутренних тегов | B2=19
-A3=Тегов с ПЛК | B3=50
-A4=Найдено в ПЛК | B4=50
+A3=Тегов с ПЛК | B3=47
+A4=Найдено в ПЛК | B4=47
 A5=Есть в панели, нет в ПЛК | B5=0
 A6=Данные ПЛК неизвестны | B6=0
 A7=С абсолютной адресацией | B7=10
@@ -72,6 +72,3 @@ A73=ULInt_I22_0 | B73=ULInt | C73=HMI_Connection_1 | D73=PLC_1 | E73=ULInt_I22_0
 A74=USInt_IB40 | B74=USInt | C74=HMI_Connection_1 | D74=PLC_1 | E74=USInt_IB40 | G74=<symbolic access> | H74=1 s
 A75=WChar_IW42 | B75=WChar | C75=HMI_Connection_1 | D75=PLC_1 | E75=WChar_IW42 | G75=<symbolic access> | H75=1 s
 A76=Word_IW44 | B76=Word | C76=HMI_Connection_1 | D76=PLC_1 | E76=Word_IW44 | F76=%IW44 | G76=<absolute access> | H76=1 s
-A77=xxxx_1 | B77=Bool | C77=HMI_Connection_2 | D77=PLC_2 | E77=vvvv | G77=<symbolic access> | H77=1 s
-A78=xxxx_3 | B78=DInt | C78=HMI_Connection_2 | D78=PLC_2 | E78=vvvv(1) | G78=<symbolic access> | H78=1 s
-A79=xxxx_2 | B79=Char | C79=HMI_Connection_2 | D79=PLC_2 | E79=aaa | G79=<symbolic access> | H79=1 s
