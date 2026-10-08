@@ -25,18 +25,22 @@ public sealed partial class DamagedInputTests
     /// панели — неразличимая пара <c>USInt/Char</c>, колонки ПЛК «неизвестно», адреса нет.
     /// </summary>
     private const string CharIb3Row =
-        "A30=Char_IB3 | B30=USInt/Char | C30=HMI_Connection_1 | D30=неизвестно | E30=неизвестно | G30=<symbolic access> | H30=1 s | J30=неизвестно";
+        "A39=Char_IB3 | B39=USInt/Char | C39=HMI_Connection_1 | D39=неизвестно | E39=неизвестно | G39=<symbolic access> | H39=1 s | J39=неизвестно";
 
     /// <summary>
     /// Строка <c>DInt_ID6</c> (абсолютный доступ, код ПЛК 0x04) без данных ПЛК: тип
     /// <c>DInt/Time</c>, адрес из панели <c>%ID6</c>, колонки ПЛК «неизвестно».
     /// </summary>
     private const string DIntId6Row =
-        "A35=DInt_ID6 | B35=DInt/Time | C35=HMI_Connection_1 | D35=неизвестно | E35=неизвестно | F35=%ID6 | G35=<absolute access> | H35=1 s | J35=неизвестно";
+        "A44=DInt_ID6 | B44=DInt/Time | C44=HMI_Connection_1 | D44=неизвестно | E44=неизвестно | F44=%ID6 | G44=<absolute access> | H44=1 s | J44=неизвестно";
 
     /// <summary>Адрес ячейки в начале ячейки слепка: <c>A12=</c>.</summary>
     [GeneratedRegex(@"(?<=^| \| )([A-Z]+)(\d+)=")]
     private static partial Regex CellAddress();
+
+    /// <summary>Строка статистики «Всего тегов» или «Внутренних тегов» и её число: <c>A1=Всего тегов | B1=16</c>.</summary>
+    [GeneratedRegex(@"^(A[12]=(?:Всего|Внутренних) тегов \| B[12]=)(\d+)$")]
+    private static partial Regex StatisticsMinusOne();
 
     /// <summary>
     /// <c>samples/plc/pdata.fwc</c> без файла ПЛК: код 0, строка «не найден», у PLC-тегов
@@ -55,6 +59,9 @@ public sealed partial class DamagedInputTests
         AssertPlcColumnsUnknown(dir.PanelDataWorkbook);
         AssertRow(dir.PanelDataWorkbook, CharIb3Row);
         AssertRow(dir.PanelDataWorkbook, DIntId6Row);
+        AssertRow(dir.PanelDataWorkbook, "A4=Найдено в ПЛК | B4=0");
+        AssertRow(dir.PanelDataWorkbook, "A6=Данные ПЛК неизвестны | B6=50");
+        SummarySheetDump.Contains(dir.PanelDataWorkbook, $"Данные ПЛК=не найден: {plc}");
     }
 
     /// <summary>
@@ -82,6 +89,7 @@ public sealed partial class DamagedInputTests
         RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} не прочитан - данные ПЛК: неизвестно");
         RunAssertions.NoStackTrace(run);
         RunAssertions.ErrorsSheetContains(dir.PanelDataWorkbook, message);
+        SummarySheetDump.Contains(dir.PanelDataWorkbook, $"Данные ПЛК=не прочитан: {plc}");
         AssertPlcColumnsUnknown(dir.PanelDataWorkbook);
         AssertRow(dir.PanelDataWorkbook, CharIb3Row);
         AssertRow(dir.PanelDataWorkbook, DIntId6Row);
@@ -112,8 +120,8 @@ public sealed partial class DamagedInputTests
         RunAssertions.HasLine(run.StdErr,
             $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - VAR: пропущено записей с незнакомой раскладкой: 1, первая — VAR @ 0x{broken.Offset:X}: запись {broken.Index}: первое слово 0x4, ожидалось 0x3");
         RunAssertions.NoStackTrace(run);
-        var expected = WithoutRow(File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/теги.txt")), broken.Index + 1);
-        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, expected, $"samples/expected/теги.txt без строки {broken.Index + 1} ({broken.Name})");
+        var expected = WithoutRow(File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/теги.txt")), TagSheetDump.HeaderRow + broken.Index);
+        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, expected, $"samples/expected/теги.txt без строки {TagSheetDump.HeaderRow + broken.Index} ({broken.Name}), всего и внутренних на 1 меньше");
     }
 
     /// <summary>
@@ -124,7 +132,7 @@ public sealed partial class DamagedInputTests
     private static void AssertPlcColumnsUnknown(string workbookPath)
     {
         using var workbook = new XLWorkbook(workbookPath);
-        var wrong = workbook.Worksheet("Теги").RowsUsed().Skip(1)
+        var wrong = workbook.Worksheet("Теги").RowsUsed().Where(r => r.RowNumber() > TagSheetDump.HeaderRow)
             .Where(r => r.Cell(3).GetString() != "<Internal tag>")
             .Where(r => r.Cell(4).GetString() != Unknown || r.Cell(5).GetString() != Unknown || r.Cell(10).GetString() != Unknown)
             .Select(r => $"строка {r.RowNumber()}: {r.Cell(1).GetString()} | {r.Cell(4).GetString()} | {r.Cell(5).GetString()} | {r.Cell(10).GetString()}")
@@ -144,8 +152,8 @@ public sealed partial class DamagedInputTests
     }
 
     /// <summary>
-    /// Слепок без одной строки листа: строка удаляется, номера строк в адресах ячеек ниже
-    /// неё уменьшаются на 1.
+    /// Слепок без одной строки листа внутреннего тега: строка удаляется, номера строк в адресах
+    /// ячеек ниже неё уменьшаются на 1, в статистике «Всего тегов» и «Внутренних тегов» — на 1 меньше.
     /// </summary>
     /// <param name="lines">Строки слепка эталона.</param>
     /// <param name="row">Номер удаляемой строки листа, с единицы.</param>
@@ -153,7 +161,12 @@ public sealed partial class DamagedInputTests
     private static List<string> WithoutRow(string[] lines, int row) =>
     [
         .. lines
-            .Where((_, i) => i + 1 != row)
-            .Select((line, i) => i + 1 < row ? line : CellAddress().Replace(line, m => $"{m.Groups[1].Value}{i + 1}="))
+            .Where(line => RowOf(line) != row)
+            .Select(line => RowOf(line) < row ? line : CellAddress().Replace(line, m => $"{m.Groups[1].Value}{int.Parse(m.Groups[2].Value) - 1}="))
+            .Select(line => StatisticsMinusOne().Replace(line, m => $"{m.Groups[1].Value}{int.Parse(m.Groups[2].Value) - 1}"))
     ];
+
+    /// <summary>Номер строки листа по первой ячейке строки слепка (<c>A12=…</c> → 12).</summary>
+    /// <returns>Номер строки.</returns>
+    private static int RowOf(string line) => int.Parse(CellAddress().Match(line).Groups[2].Value);
 }

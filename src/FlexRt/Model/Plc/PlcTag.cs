@@ -1,6 +1,6 @@
 namespace FlexRt.Model.Plc;
 
-/// <summary>Тег ПЛК из проекта TIA (PEData.plf).</summary>
+/// <summary>Тег ПЛК из проекта TIA (PEData.plf) или с карты ПЛК; при сопоставлении так же передаётся член DB или сам DB абсолютного адреса.</summary>
 /// <param name="Name">Имя тега ПЛК.</param>
 /// <param name="PlcId">ID объекта ПЛК, которому принадлежит тег.</param>
 /// <param name="DataType">Тип данных, как в TIA (<c>Bool</c>, <c>LTime_Of_Day</c>); <c>null</c>, если не найден.</param>

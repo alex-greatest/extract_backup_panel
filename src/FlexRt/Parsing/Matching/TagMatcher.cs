@@ -66,7 +66,7 @@ public static class TagMatcher
         if (link.Area == PlcArea.DataBlock)
         {
             // абсолютный доступ к DB (%DB80.DBW0) с членом DB не сопоставляется
-            return link.Absolute ? new PlcMatch(PlcLookup.AddressOnly, device.Name, null) : MatchDbMember(project, device, link);
+            return link.Absolute ? MatchDbAddress(project, device, link) : MatchDbMember(project, device, link);
         }
 
         var tag = project.Tags.FirstOrDefault(t => t.PlcId == device.Id && IsSameTag(t, link));
@@ -80,6 +80,19 @@ public static class TagMatcher
         }
         var lookup = project.UnparsedTags > 0 ? PlcLookup.Unknown : PlcLookup.NotInPlcFile;
         return new PlcMatch(lookup, device.Name, null);
+    }
+
+    /// <summary>
+    /// Абсолютный адрес в DB (<c>%DB1000.DBX0.0</c>): тега ПЛК у такого адреса нет —
+    /// <see cref="PlcLookup.AddressOnly"/>. Если DB с этим номером есть в ПЛК, тег результата —
+    /// сам DB: его имя в <see cref="PlcTag.Name"/>, тип не задан, комментарий пустой.
+    /// </summary>
+    /// <returns>Результат поиска.</returns>
+    private static PlcMatch MatchDbAddress(PlcProject project, PlcDevice device, PlcLink link)
+    {
+        var db = project.Dbs.FirstOrDefault(d => d.Number == link.DbNumber && d.PlcId == device.Id && d.Name is not null);
+        var tag = db is null ? null : new PlcTag(db.Name!, device.Id, null, "", PlcArea.DataBlock, 0, "");
+        return new PlcMatch(PlcLookup.AddressOnly, device.Name, tag);
     }
 
     /// <summary>

@@ -53,7 +53,6 @@ public static class ConnectionParser
         }
 
         var name = b.GetNameLen(p + 4, chars);
-        var ip = (uint)((b.D1(p + ipPos) << 24) | (b.D1(p + ipPos + 1) << 16) | (b.D1(p + ipPos + 2) << 8) | b.D1(p + ipPos + 3));
-        return new HmiConnection(item.Index, name, ip);
+        return new HmiConnection(item.Index, name, b.D4BigEndian(p + ipPos));
     }
 }

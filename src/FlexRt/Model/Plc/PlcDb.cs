@@ -1,6 +1,6 @@
 namespace FlexRt.Model.Plc;
 
-/// <summary>Блок данных ПЛК (объект 0x00221002) и деревья его членов.</summary>
+/// <summary>Блок данных ПЛК (объект 0x00221002 в PEData.plf, объект RID 0x8a0eNNNN на карте) и деревья его членов.</summary>
 /// <param name="Name">Имя DB; <c>null</c>, если не найдено.</param>
 /// <param name="Number">Номер DB.</param>
 /// <param name="PlcId">ID объекта ПЛК, которому принадлежит DB; 0, если связи с ПЛК нет.</param>

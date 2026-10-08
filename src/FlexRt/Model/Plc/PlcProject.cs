@@ -1,6 +1,6 @@
 namespace FlexRt.Model.Plc;
 
-/// <summary>Разобранный проект ПЛК (PEData.plf): ПЛК, их теги, блоки данных и объекты, которые не удалось разобрать.</summary>
+/// <summary>Данные ПЛК из проекта TIA (PEData.plf) или с карты ПЛК: ПЛК, их теги, блоки данных и объекты, которые не удалось разобрать.</summary>
 public sealed class PlcProject
 {
     /// <summary>ПЛК проекта.</summary>

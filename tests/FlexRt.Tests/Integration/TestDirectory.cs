@@ -47,6 +47,21 @@ public sealed class TestDirectory : IDisposable
     }
 
     /// <summary>
+    /// Распаковывает zip-архив из репозитория во временный каталог: папки архива оказываются
+    /// прямо в <see cref="Root"/>.
+    /// </summary>
+    /// <param name="relative">Путь архива относительно корня репозитория, части через <c>/</c>.</param>
+    /// <param name="folder">Папка верхнего уровня в архиве, путь к которой нужен тесту.</param>
+    /// <returns>Абсолютный путь распакованной папки <paramref name="folder"/>.</returns>
+    /// <exception cref="DirectoryNotFoundException">В архиве нет папки <paramref name="folder"/>.</exception>
+    public string ExtractFromRepo(string relative, string folder)
+    {
+        System.IO.Compression.ZipFile.ExtractToDirectory(RepositoryPaths.InRepo(relative), Root);
+        var path = Path.Combine(Root, folder);
+        return Directory.Exists(path) ? path : throw new DirectoryNotFoundException($"в архиве {relative} нет папки {folder}");
+    }
+
+    /// <summary>
     /// Путь внутри временного каталога, по которому файла нет: данные ПЛК «неизвестно».
     /// </summary>
     /// <returns>Абсолютный путь несуществующего <c>PEData.plf</c>.</returns>

@@ -43,6 +43,17 @@ public sealed class FwxBinary(byte[] data)
         return (uint)(data[pos] | (data[pos + 1] << 8) | (data[pos + 2] << 16) | (data[pos + 3] << 24));
     }
 
+    /// <summary>
+    /// 32-битное слово без знака, big endian: первый байт — старший. Так в панели хранятся IP-адрес
+    /// и маска (<c>c0 a8 00 01</c> = 192.168.0.1).
+    /// </summary>
+    /// <exception cref="FwxFormatException">Слово выходит за пределы файла.</exception>
+    public uint D4BigEndian(long pos)
+    {
+        Check(pos, 4);
+        return (uint)((data[pos] << 24) | (data[pos + 1] << 16) | (data[pos + 2] << 8) | data[pos + 3]);
+    }
+
     /// <summary>Строка UTF-16LE длиной <paramref name="chars"/> символов.</summary>
     public string GetNameLen(long pos, int chars)
     {

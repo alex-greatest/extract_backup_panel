@@ -1,0 +1,11 @@
+(C) Copyright Siemens AG. 2015, All rights reserved.
+
+Build Information
+Comfort Runtime
+
+Build=2992_17.00.00.07_05.01.0001
+
+
+BRANCHNAME=Classic.Comfort.V17.RT.Ud7
+BuildDate=2023-11-10 18:51:16+01:00
+GetVersion=84809

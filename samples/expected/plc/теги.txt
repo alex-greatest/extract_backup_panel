@@ -1,70 +1,77 @@
-A1=Name | B1=Data type | C1=Connection | D1=PLC name | E1=PLC tag | F1=Address | G1=Access mode | H1=Acquisition cycle | I1=Logged | J1=Source comment | K1=Comment
-A2=Tag_ScreenNumber | B2=UInt | C2=<Internal tag>
-A3=Tag_Int | B3=Int | C3=<Internal tag>
-A4=DateTime | B4=DateTime | C4=<Internal tag>
-A5=Bool | B5=Bool | C5=<Internal tag>
-A6=DInt | B6=DInt | C6=<Internal tag>
-A7=LReal | B7=LReal | C7=<Internal tag>
-A8=SInt | B8=SInt | C8=<Internal tag>
-A9=Real | B9=Real | C9=<Internal tag>
-A10=UDInt | B10=UDInt | C10=<Internal tag>
-A11=UInt | B11=UInt | C11=<Internal tag>
-A12=USInt | B12=USInt | C12=<Internal tag>
-A13=WString | B13=WString | C13=<Internal tag>
-A14=Array [0..22] of Bool | B14=Array [0..22] of Bool | C14=<Internal tag>
-A15=@DiagnosticsIndicatorTag | B15=SInt | C15=<Internal tag>
-A16=Array [0..22] of LReal | B16=Array [0..22] of LReal | C16=<Internal tag>
-A17=Array [5..22] of Int | B17=Array [0..22] of Int | C17=<Internal tag>
-A18=Array [0..22] of Bool_1 | B18=Int | C18=<Internal tag>
-A19=AAAA | B19=WString | C19=<Internal tag>
-A20=xxxx | B20=Array [0..22] of UInt | C20=<Internal tag>
-A21=Bool_I0_0 | B21=Bool | C21=HMI_Connection_1 | D21=PLC_1 | E21=Bool_I0_0 | G21=<symbolic access> | H21=1 s
-A22=Word_IW46 | B22=Word | C22=HMI_Connection_1 | D22=PLC_1 | E22=Word_IW46 | G22=<symbolic access> | H22=1 s
-A23=Acoustic_Alarm | B23=Bool | C23=HMI_Connection_1 | D23=PLC_1 | E23=Bool_I0_1 | G23=<symbolic access> | H23=1 s
-A24=Bool_I1_5 | B24=Bool | C24=HMI_Connection_1 | D24=PLC_1 | E24=Bool_I1_5 | F24=%I1.5 | G24=<absolute access> | H24=1 s
-A25=Bool_Q0_0 | B25=Bool | C25=HMI_Connection_1 | D25=PLC_1 | E25=Bool_Q0_0 | F25=%Q0.0 | G25=<absolute access> | H25=1 s
-A26=Bool_M0_1 | B26=Bool | C26=HMI_Connection_1 | D26=PLC_1 | E26=Bool_M0_1 | F26=%M0.1 | G26=<absolute access> | H26=1 s
-A27=Byte_IB2 | B27=Byte | C27=HMI_Connection_1 | D27=PLC_1 | E27=Byte_IB2 | F27=%IB2 | G27=<absolute access> | H27=1 s
-A28=Byte_QB2 | B28=Byte | C28=HMI_Connection_1 | D28=PLC_1 | E28=Byte_QB2 | G28=<symbolic access> | H28=1 s | J28=Датчик акустики, цех 1
-A29=Byte_MB11 | B29=Byte | C29=HMI_Connection_1 | D29=PLC_1 | E29=Byte_MB11 | G29=<symbolic access> | H29=1 s
-A30=Char_IB3 | B30=Char | C30=HMI_Connection_1 | D30=PLC_1 | E30=Char_IB3 | G30=<symbolic access> | H30=1 s
-A31=Counter_C0 | B31=Counter | C31=HMI_Connection_1 | D31=PLC_1 | E31=Counter_C0 | F31=%C0 | G31=<absolute access> | H31=1 s
-A32=Date_IW4 | B32=Date | C32=HMI_Connection_1 | D32=PLC_1 | E32=Date_IW4 | G32=<symbolic access> | H32=1 s
-A33=Date_QW4 | B33=Date | C33=HMI_Connection_1 | D33=PLC_1 | E33=Date_QW4 | G33=<symbolic access> | H33=1 s
-A34=Date_MW12 | B34=Date | C34=HMI_Connection_1 | D34=PLC_1 | E34=Date_MW12 | F34=%MW12 | G34=<absolute access> | H34=1 s
-A35=DInt_ID6 | B35=DInt | C35=HMI_Connection_1 | D35=PLC_1 | E35=DInt_ID6 | F35=%ID6 | G35=<absolute access> | H35=1 s
-A36=DInt_QD6 | B36=DInt | C36=HMI_Connection_1 | D36=PLC_1 | E36=DInt_QD6 | F36=%QD50 | G36=<absolute access> | H36=1 s
-A37=DInt_MD14 | B37=DInt | C37=HMI_Connection_1 | D37=PLC_1 | E37=DInt_MD14 | G37=<symbolic access> | H37=1 s
-A38=DWord_ID18 | B38=DWord | C38=HMI_Connection_1 | D38=PLC_1 | E38=DWord_ID18 | G38=<symbolic access> | H38=1 s
-A39=DWord_QD22 | B39=DWord | C39=HMI_Connection_1 | D39=PLC_1 | E39=DWord_QD22 | G39=<symbolic access> | H39=100 ms
-A40=DWord_MD26 | B40=DWord | C40=HMI_Connection_1 | D40=PLC_1 | E40=DWord_MD26 | G40=<symbolic access> | H40=10 s
-A41=Int_IW30 | B41=Int | C41=HMI_Connection_1 | D41=PLC_1 | E41=Int_IW30 | G41=<symbolic access> | H41=1 s
-A42=LDT_I32_0 | B42=LDT | C42=HMI_Connection_1 | D42=PLC_1 | E42=LDT_I32_0 | G42=<symbolic access> | H42=1 s
-A43=LDT_Q40_0 | B43=LDT | C43=HMI_Connection_1 | D43=PLC_1 | E43=LDT_Q40_0 | G43=<symbolic access> | H43=1 s
-A44=LDT_M48_0 | B44=LDT | C44=HMI_Connection_1 | D44=PLC_1 | E44=LDT_M48_0 | G44=<symbolic access> | H44=1 s
-A45=LInt_M56_0 | B45=LInt | C45=HMI_Connection_1 | D45=PLC_1 | E45=LInt_M56_0 | G45=<symbolic access> | H45=1 s
-A46=LReal_M64_0 | B46=LReal | C46=HMI_Connection_1 | D46=PLC_1 | E46=LReal_M64_0 | G46=<symbolic access> | H46=1 s
-A47=LTime_I72_0 | B47=LTime | C47=HMI_Connection_1 | D47=PLC_1 | E47=LTime_I72_0 | G47=<symbolic access> | H47=1 s
-A48=LTime_Q80_0 | B48=LTime | C48=HMI_Connection_1 | D48=PLC_1 | E48=LTime_Q80_0 | G48=<symbolic access> | H48=1 s
-A49=LTime_M88_0 | B49=LTime | C49=HMI_Connection_1 | D49=PLC_1 | E49=LTime_M88_0 | G49=<symbolic access> | H49=1 s
-A50=LTime_Of_Day_I96_0 | B50=LTime_Of_Day | C50=HMI_Connection_1 | D50=PLC_1 | E50=LTime_Of_Day_I96_0 | G50=<symbolic access> | H50=1 s
-A51=LTime_Of_Day_Q104_0 | B51=LTime_Of_Day | C51=HMI_Connection_1 | D51=PLC_1 | E51=LTime_Of_Day_Q104_0 | G51=<symbolic access> | H51=1 s
-A52=LTime_Of_Day_M112_0 | B52=LTime_Of_Day | C52=HMI_Connection_1 | D52=PLC_1 | E52=LTime_Of_Day_M112_0 | G52=<symbolic access> | H52=1 s
-A53=Real_MD128 | B53=Real | C53=HMI_Connection_1 | D53=PLC_1 | E53=Real_MD128 | G53=<symbolic access> | H53=1 s
-A54=S5Time_IW132 | B54=S5Time | C54=HMI_Connection_1 | D54=PLC_1 | E54=S5Time_IW132 | G54=<symbolic access> | H54=1 s
-A55=S5Time_QW134 | B55=S5Time | C55=HMI_Connection_1 | D55=PLC_1 | E55=S5Time_QW134 | G55=<symbolic access> | H55=1 s
-A56=S5Time_MW136 | B56=S5Time | C56=HMI_Connection_1 | D56=PLC_1 | E56=S5Time_MW136 | G56=<symbolic access> | H56=1 s
-A57=SInt_MB138 | B57=SInt | C57=HMI_Connection_1 | D57=PLC_1 | E57=SInt_MB138 | G57=<symbolic access> | H57=1 s
-A58=Time_MD140 | B58=Time | C58=HMI_Connection_1 | D58=PLC_1 | E58=Time_MD140 | G58=<symbolic access> | H58=1 s
-A59=Time_Of_Day_MD144 | B59=Time_Of_Day | C59=HMI_Connection_1 | D59=PLC_1 | E59=Time_Of_Day_MD144 | G59=<symbolic access> | H59=1 s
-A60=Timer_T0 | B60=Timer | C60=HMI_Connection_1 | D60=PLC_1 | E60=Timer_T0 | F60=%T0 | G60=<absolute access> | H60=1 s
-A61=Timer_T1 | B61=Timer | C61=HMI_Connection_1 | D61=PLC_1 | E61=Timer_T1 | G61=<symbolic access> | H61=1 s
-A62=UDInt_ID10 | B62=UDInt | C62=HMI_Connection_1 | D62=PLC_1 | E62=UDInt_ID10 | G62=<symbolic access> | H62=1 s
-A63=UInt_IW14 | B63=UInt | C63=HMI_Connection_1 | D63=PLC_1 | E63=UInt_IW14 | G63=<symbolic access> | H63=1 s
-A64=ULInt_I22_0 | B64=ULInt | C64=HMI_Connection_1 | D64=PLC_1 | E64=ULInt_I22_0 | G64=<symbolic access> | H64=1 s
-A65=USInt_IB40 | B65=USInt | C65=HMI_Connection_1 | D65=PLC_1 | E65=USInt_IB40 | G65=<symbolic access> | H65=1 s
-A66=WChar_IW42 | B66=WChar | C66=HMI_Connection_1 | D66=PLC_1 | E66=WChar_IW42 | G66=<symbolic access> | H66=1 s
-A67=Word_IW44 | B67=Word | C67=HMI_Connection_1 | D67=PLC_1 | E67=Word_IW44 | F67=%IW44 | G67=<absolute access> | H67=1 s
-A68=xxxx_1 | B68=Bool | C68=HMI_Connection_2 | D68=PLC_2 | E68=vvvv | G68=<symbolic access> | H68=1 s
-A69=xxxx_3 | B69=DInt | C69=HMI_Connection_2 | D69=PLC_2 | E69=vvvv(1) | G69=<symbolic access> | H69=1 s
-A70=xxxx_2 | B70=Char | C70=HMI_Connection_2 | D70=PLC_2 | E70=aaa | G70=<symbolic access> | H70=1 s
+A1=Всего тегов | B1=69
+A2=Внутренних тегов | B2=19
+A3=Тегов с ПЛК | B3=50
+A4=Найдено в ПЛК | B4=50
+A5=Есть в панели, нет в ПЛК | B5=0
+A6=Данные ПЛК неизвестны | B6=0
+A7=С абсолютной адресацией | B7=10
+A10=Name | B10=Data type | C10=Connection | D10=PLC name | E10=PLC tag | F10=Address | G10=Access mode | H10=Acquisition cycle | I10=Logged | J10=Source comment
+A11=Tag_ScreenNumber | B11=UInt | C11=<Internal tag>
+A12=Tag_Int | B12=Int | C12=<Internal tag>
+A13=DateTime | B13=DateTime | C13=<Internal tag>
+A14=Bool | B14=Bool | C14=<Internal tag>
+A15=DInt | B15=DInt | C15=<Internal tag>
+A16=LReal | B16=LReal | C16=<Internal tag>
+A17=SInt | B17=SInt | C17=<Internal tag>
+A18=Real | B18=Real | C18=<Internal tag>
+A19=UDInt | B19=UDInt | C19=<Internal tag>
+A20=UInt | B20=UInt | C20=<Internal tag>
+A21=USInt | B21=USInt | C21=<Internal tag>
+A22=WString | B22=WString | C22=<Internal tag>
+A23=Array [0..22] of Bool | B23=Array [0..22] of Bool | C23=<Internal tag>
+A24=@DiagnosticsIndicatorTag | B24=SInt | C24=<Internal tag>
+A25=Array [0..22] of LReal | B25=Array [0..22] of LReal | C25=<Internal tag>
+A26=Array [5..22] of Int | B26=Array [0..22] of Int | C26=<Internal tag>
+A27=Array [0..22] of Bool_1 | B27=Int | C27=<Internal tag>
+A28=AAAA | B28=WString | C28=<Internal tag>
+A29=xxxx | B29=Array [0..22] of UInt | C29=<Internal tag>
+A30=Bool_I0_0 | B30=Bool | C30=HMI_Connection_1 | D30=PLC_1 | E30=Bool_I0_0 | G30=<symbolic access> | H30=1 s
+A31=Word_IW46 | B31=Word | C31=HMI_Connection_1 | D31=PLC_1 | E31=Word_IW46 | G31=<symbolic access> | H31=1 s
+A32=Acoustic_Alarm | B32=Bool | C32=HMI_Connection_1 | D32=PLC_1 | E32=Bool_I0_1 | G32=<symbolic access> | H32=1 s
+A33=Bool_I1_5 | B33=Bool | C33=HMI_Connection_1 | D33=PLC_1 | E33=Bool_I1_5 | F33=%I1.5 | G33=<absolute access> | H33=1 s
+A34=Bool_Q0_0 | B34=Bool | C34=HMI_Connection_1 | D34=PLC_1 | E34=Bool_Q0_0 | F34=%Q0.0 | G34=<absolute access> | H34=1 s
+A35=Bool_M0_1 | B35=Bool | C35=HMI_Connection_1 | D35=PLC_1 | E35=Bool_M0_1 | F35=%M0.1 | G35=<absolute access> | H35=1 s
+A36=Byte_IB2 | B36=Byte | C36=HMI_Connection_1 | D36=PLC_1 | E36=Byte_IB2 | F36=%IB2 | G36=<absolute access> | H36=1 s
+A37=Byte_QB2 | B37=Byte | C37=HMI_Connection_1 | D37=PLC_1 | E37=Byte_QB2 | G37=<symbolic access> | H37=1 s | J37=Датчик акустики, цех 1
+A38=Byte_MB11 | B38=Byte | C38=HMI_Connection_1 | D38=PLC_1 | E38=Byte_MB11 | G38=<symbolic access> | H38=1 s
+A39=Char_IB3 | B39=Char | C39=HMI_Connection_1 | D39=PLC_1 | E39=Char_IB3 | G39=<symbolic access> | H39=1 s
+A40=Counter_C0 | B40=Counter | C40=HMI_Connection_1 | D40=PLC_1 | E40=Counter_C0 | F40=%C0 | G40=<absolute access> | H40=1 s
+A41=Date_IW4 | B41=Date | C41=HMI_Connection_1 | D41=PLC_1 | E41=Date_IW4 | G41=<symbolic access> | H41=1 s
+A42=Date_QW4 | B42=Date | C42=HMI_Connection_1 | D42=PLC_1 | E42=Date_QW4 | G42=<symbolic access> | H42=1 s
+A43=Date_MW12 | B43=Date | C43=HMI_Connection_1 | D43=PLC_1 | E43=Date_MW12 | F43=%MW12 | G43=<absolute access> | H43=1 s
+A44=DInt_ID6 | B44=DInt | C44=HMI_Connection_1 | D44=PLC_1 | E44=DInt_ID6 | F44=%ID6 | G44=<absolute access> | H44=1 s
+A45=DInt_QD6 | B45=DInt | C45=HMI_Connection_1 | D45=PLC_1 | E45=DInt_QD6 | F45=%QD50 | G45=<absolute access> | H45=1 s
+A46=DInt_MD14 | B46=DInt | C46=HMI_Connection_1 | D46=PLC_1 | E46=DInt_MD14 | G46=<symbolic access> | H46=1 s
+A47=DWord_ID18 | B47=DWord | C47=HMI_Connection_1 | D47=PLC_1 | E47=DWord_ID18 | G47=<symbolic access> | H47=1 s
+A48=DWord_QD22 | B48=DWord | C48=HMI_Connection_1 | D48=PLC_1 | E48=DWord_QD22 | G48=<symbolic access> | H48=100 ms
+A49=DWord_MD26 | B49=DWord | C49=HMI_Connection_1 | D49=PLC_1 | E49=DWord_MD26 | G49=<symbolic access> | H49=10 s
+A50=Int_IW30 | B50=Int | C50=HMI_Connection_1 | D50=PLC_1 | E50=Int_IW30 | G50=<symbolic access> | H50=1 s
+A51=LDT_I32_0 | B51=LDT | C51=HMI_Connection_1 | D51=PLC_1 | E51=LDT_I32_0 | G51=<symbolic access> | H51=1 s
+A52=LDT_Q40_0 | B52=LDT | C52=HMI_Connection_1 | D52=PLC_1 | E52=LDT_Q40_0 | G52=<symbolic access> | H52=1 s
+A53=LDT_M48_0 | B53=LDT | C53=HMI_Connection_1 | D53=PLC_1 | E53=LDT_M48_0 | G53=<symbolic access> | H53=1 s
+A54=LInt_M56_0 | B54=LInt | C54=HMI_Connection_1 | D54=PLC_1 | E54=LInt_M56_0 | G54=<symbolic access> | H54=1 s
+A55=LReal_M64_0 | B55=LReal | C55=HMI_Connection_1 | D55=PLC_1 | E55=LReal_M64_0 | G55=<symbolic access> | H55=1 s
+A56=LTime_I72_0 | B56=LTime | C56=HMI_Connection_1 | D56=PLC_1 | E56=LTime_I72_0 | G56=<symbolic access> | H56=1 s
+A57=LTime_Q80_0 | B57=LTime | C57=HMI_Connection_1 | D57=PLC_1 | E57=LTime_Q80_0 | G57=<symbolic access> | H57=1 s
+A58=LTime_M88_0 | B58=LTime | C58=HMI_Connection_1 | D58=PLC_1 | E58=LTime_M88_0 | G58=<symbolic access> | H58=1 s
+A59=LTime_Of_Day_I96_0 | B59=LTime_Of_Day | C59=HMI_Connection_1 | D59=PLC_1 | E59=LTime_Of_Day_I96_0 | G59=<symbolic access> | H59=1 s
+A60=LTime_Of_Day_Q104_0 | B60=LTime_Of_Day | C60=HMI_Connection_1 | D60=PLC_1 | E60=LTime_Of_Day_Q104_0 | G60=<symbolic access> | H60=1 s
+A61=LTime_Of_Day_M112_0 | B61=LTime_Of_Day | C61=HMI_Connection_1 | D61=PLC_1 | E61=LTime_Of_Day_M112_0 | G61=<symbolic access> | H61=1 s
+A62=Real_MD128 | B62=Real | C62=HMI_Connection_1 | D62=PLC_1 | E62=Real_MD128 | G62=<symbolic access> | H62=1 s
+A63=S5Time_IW132 | B63=S5Time | C63=HMI_Connection_1 | D63=PLC_1 | E63=S5Time_IW132 | G63=<symbolic access> | H63=1 s
+A64=S5Time_QW134 | B64=S5Time | C64=HMI_Connection_1 | D64=PLC_1 | E64=S5Time_QW134 | G64=<symbolic access> | H64=1 s
+A65=S5Time_MW136 | B65=S5Time | C65=HMI_Connection_1 | D65=PLC_1 | E65=S5Time_MW136 | G65=<symbolic access> | H65=1 s
+A66=SInt_MB138 | B66=SInt | C66=HMI_Connection_1 | D66=PLC_1 | E66=SInt_MB138 | G66=<symbolic access> | H66=1 s
+A67=Time_MD140 | B67=Time | C67=HMI_Connection_1 | D67=PLC_1 | E67=Time_MD140 | G67=<symbolic access> | H67=1 s
+A68=Time_Of_Day_MD144 | B68=Time_Of_Day | C68=HMI_Connection_1 | D68=PLC_1 | E68=Time_Of_Day_MD144 | G68=<symbolic access> | H68=1 s
+A69=Timer_T0 | B69=Timer | C69=HMI_Connection_1 | D69=PLC_1 | E69=Timer_T0 | F69=%T0 | G69=<absolute access> | H69=1 s
+A70=Timer_T1 | B70=Timer | C70=HMI_Connection_1 | D70=PLC_1 | E70=Timer_T1 | G70=<symbolic access> | H70=1 s
+A71=UDInt_ID10 | B71=UDInt | C71=HMI_Connection_1 | D71=PLC_1 | E71=UDInt_ID10 | G71=<symbolic access> | H71=1 s
+A72=UInt_IW14 | B72=UInt | C72=HMI_Connection_1 | D72=PLC_1 | E72=UInt_IW14 | G72=<symbolic access> | H72=1 s
+A73=ULInt_I22_0 | B73=ULInt | C73=HMI_Connection_1 | D73=PLC_1 | E73=ULInt_I22_0 | G73=<symbolic access> | H73=1 s
+A74=USInt_IB40 | B74=USInt | C74=HMI_Connection_1 | D74=PLC_1 | E74=USInt_IB40 | G74=<symbolic access> | H74=1 s
+A75=WChar_IW42 | B75=WChar | C75=HMI_Connection_1 | D75=PLC_1 | E75=WChar_IW42 | G75=<symbolic access> | H75=1 s
+A76=Word_IW44 | B76=Word | C76=HMI_Connection_1 | D76=PLC_1 | E76=Word_IW44 | F76=%IW44 | G76=<absolute access> | H76=1 s
+A77=xxxx_1 | B77=Bool | C77=HMI_Connection_2 | D77=PLC_2 | E77=vvvv | G77=<symbolic access> | H77=1 s
+A78=xxxx_3 | B78=DInt | C78=HMI_Connection_2 | D78=PLC_2 | E78=vvvv(1) | G78=<symbolic access> | H78=1 s
+A79=xxxx_2 | B79=Char | C79=HMI_Connection_2 | D79=PLC_2 | E79=aaa | G79=<symbolic access> | H79=1 s

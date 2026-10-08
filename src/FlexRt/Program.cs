@@ -1,15 +1,18 @@
 using System.Diagnostics;
 using System.Text;
 using FlexRt.Binary;
+using FlexRt.Export;
 using FlexRt.Export.Hex;
+using FlexRt.Export.PanelData;
 using FlexRt.Export.Strings;
-using FlexRt.Export.Tags;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;
+using FlexRt.Model.Summary;
 using FlexRt.Parsing.Matching;
 using FlexRt.Parsing.Panel;
-using FlexRt.Parsing.Plc;
+using FlexRt.Parsing.Plc.Card;
+using FlexRt.Parsing.Plc.Plf;
 using Serilog;
 
 // ---- статичные пути: поменяй под себя ----
@@ -21,7 +24,7 @@ const string xlsxPath = @"D:\projects\extract_backup\data\out\PDATA.xlsx";
 const string explodeDir = @"D:\projects\extract_backup\data\out\pdata";
 // лист «Теги» (и «Ошибки»)
 const string panelDataPath = @"D:\projects\extract_backup\data\out\panel_data.xlsx";
-// проект ПЛК: System\PEData.plf проекта TIA (подменяется FLEXRT_PLC)
+// проект ПЛК: System\PEData.plf проекта TIA или папка карты ПЛК с SIMATIC.S7S (подменяется FLEXRT_PLC)
 const string defaultPlcPath = @"C:\Users\Alexander\Desktop\extract_backup_data\Project1\System\PEData.plf";
 // лог запуска: файл на день (flexrt-20261006.log), хранятся последние 14
 const string logPath = @"D:\projects\extract_backup\data\out\logs\flexrt-.log";
@@ -87,8 +90,9 @@ int RunAll()
     var failed = doc.Warnings.Count;
 
     var plcErrors = new List<string>();
-    var plcProject = ReadPlcProject(plcPath, plcErrors);
+    var (plcProject, plcSource) = ReadPlcProject(plcPath, plcErrors);
     var matches = MatchTags(doc, plcProject, plcErrors);
+    var summary = new RunSummary(fwxPath, PanelFilesReader.Read(fwxPath), plcSource);
     foreach (var error in plcErrors)
     {
         failed++;
@@ -100,7 +104,7 @@ int RunAll()
         () => $"{XlsxExporter.Export(doc.Strings, stringsWorkbookPath)} языков, {doc.Strings.Count} строк -> {stringsWorkbookPath}"));
 
     failed += Run("Теги -> XLSX", () => WriteWorkbook(panelWorkbookPath, doc.Tags.Count == 0, "в VAR нет тегов, пропуск",
-        () => $"{PanelDataExporter.Export(doc, matches, plcErrors, panelWorkbookPath)} тегов -> {panelWorkbookPath}"));
+        () => $"{PanelDataExporter.Export(doc, plcProject, summary, matches, plcErrors, panelWorkbookPath)} тегов -> {panelWorkbookPath}"));
 
     var hexWarnings = new List<string>();
     failed += Run("Explode -> HEX", () =>
@@ -140,8 +144,7 @@ void PrintSummary(FwxDocument doc)
         doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
     foreach (var connection in doc.Connections)
     {
-        Log.Information("Соединение {Index}: {Name}, IP ПЛК {Ip}", connection.Index, connection.Name,
-            $"{connection.Ip >> 24}.{(connection.Ip >> 16) & 0xff}.{(connection.Ip >> 8) & 0xff}.{connection.Ip & 0xff}");
+        Log.Information("Соединение {Index}: {Name}, IP ПЛК {Ip}", connection.Index, connection.Name, IpAddressText.Format(connection.Ip));
     }
     foreach (var warning in doc.Warnings)
     {
@@ -170,36 +173,39 @@ int Run(string title, Func<string> action)
     }
 }
 
-// Прочитать проект ПЛК и напечатать строку сводки. Нет файла — строка «не найден», null,
-// ошибкой не считается. Файл сломан или не открывается — сообщение в errors, null. Любая
+// Прочитать проект ПЛК и напечатать строку сводки. Путь — папка: это карта ПЛК (SIMATIC.S7S),
+// иначе файл PEData.plf. Нет ни папки, ни файла — строка «не найден», null, ошибкой не
+// считается. Файл или карта сломаны или не открываются — сообщение в errors, null. Любая
 // другая (непредвиденная) ошибка разбора — так же, с типом ошибки в сообщении: данные панели
 // всё равно выгружаются; полный стек — в лог. Теги ПЛК, которые не удалось разобрать, —
-// сообщения в errors, проект при этом возвращается.
-PlcProject? ReadPlcProject(string path, List<string> errors)
+// сообщения в errors, проект при этом возвращается. Второе значение — откуда данные ПЛК для
+// листа «Сводка»: «карта ПЛК: путь», «PEData.plf: путь», «не найден: путь», «не прочитан: путь».
+(PlcProject? Project, string Source) ReadPlcProject(string path, List<string> errors)
 {
-    if (!File.Exists(path))
+    var isCard = Directory.Exists(path);
+    if (!isCard && !File.Exists(path))
     {
         Console.WriteLine($"Файл ПЛК: {path} не найден - данные ПЛК: неизвестно");
         Log.Information("Файл ПЛК {Plc} не найден: данные ПЛК неизвестны", path);
-        return null;
+        return (null, $"не найден: {path}");
     }
     var timer = Stopwatch.StartNew();
     try
     {
-        var project = PlfReader.Read(path);
-        Console.WriteLine($"Файл ПЛК: {path} (ПЛК: {project.Devices.Count}, тегов ПЛК: {project.Tags.Count})");
+        var project = isCard ? CardReader.Read(path) : PlfReader.Read(path);
+        Console.WriteLine($"Файл ПЛК: {path} ({(isCard ? "карта ПЛК; " : "")}ПЛК: {project.Devices.Count}, тегов ПЛК: {project.Tags.Count})");
         Log.Information("Проект ПЛК прочитан за {Elapsed} мс: ПЛК {Devices} ({Names}), тегов ПЛК {Tags}, DB {Dbs}, неразобранных объектов {Problems}",
             timer.ElapsedMilliseconds, project.Devices.Count, string.Join(", ", project.Devices.Select(d => d.Name ?? "?")),
             project.Tags.Count, project.Dbs.Count, project.Problems.Count);
         errors.AddRange(project.Problems);
-        return project;
+        return (project, $"{(isCard ? "карта ПЛК" : "PEData.plf")}: {path}");
     }
     catch (Exception e)
     {
         Console.WriteLine($"Файл ПЛК: {path} не прочитан - данные ПЛК: неизвестно");
         Log.Error(e, "Файл ПЛК {Plc} не прочитан", path);
         errors.Add($"{path}: {Describe(e)}");
-        return null;
+        return (null, $"не прочитан: {path}");
     }
 }
 

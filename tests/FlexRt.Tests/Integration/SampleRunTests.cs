@@ -26,6 +26,12 @@ public sealed class SampleRunTests
         RunAssertions.HasLine(run.StdOut, "Строк языков: 625");
         RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} не найден - данные ПЛК: неизвестно");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/теги.txt");
+        SummarySheetDump.Contains(dir.PanelDataWorkbook,
+            "Модель панели=неизвестно",
+            "Версия Runtime=неизвестно",
+            "IP панели=неизвестно",
+            "Соединения с ПЛК=нет",
+            $"Данные ПЛК=не найден: {plc}");
         RunAssertions.StringsSheet(dir.StringsWorkbook, 625);
         RunAssertions.HexMatches(dir.HexDir, "samples/expected/pdata.sha256");
     }
@@ -63,6 +69,18 @@ public sealed class SampleRunTests
         RunAssertions.HasLine(run.StdOut, "Строк языков: 645");
         RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} (ПЛК: 2, тегов ПЛК: 51)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc/теги.txt");
+        SummarySheetDump.Contains(dir.PanelDataWorkbook,
+            "IP панели=192.168.0.2 / 255.255.255.0",
+            "Соединение HMI_Connection_1=IP ПЛК 192.168.0.1",
+            "Соединение HMI_Connection_2=IP ПЛК 192.168.0.3",
+            $"Данные ПЛК=PEData.plf: {plc}",
+            "ПЛК=PLC_1",
+            "IP ПЛК (из данных ПЛК)=192.168.0.1, 192.168.1.1",
+            "ПЛК=PLC_2",
+            "IP ПЛК (из данных ПЛК)=192.168.1.1, 192.168.0.3",
+            "Модель CPU=неизвестно",
+            "Тегов ПЛК=51",
+            "Блоков данных (DB)=0");
         RunAssertions.StringsSheet(dir.StringsWorkbook, 645);
         RunAssertions.HexMatches(dir.HexDir, "samples/expected/plc/pdata.sha256");
     }

@@ -1,4 +1,5 @@
 using ClosedXML.Excel;
+using FlexRt.Export.PanelData;
 
 namespace FlexRt.Tests.Integration;
 
@@ -11,6 +12,9 @@ public static class TagSheetDump
 {
     /// <summary>Имя листа тегов в <c>panel_data.xlsx</c>.</summary>
     private const string SheetName = "Теги";
+
+    /// <summary>Строка заголовка таблицы тегов на листе: над ней статистика и две пустые строки.</summary>
+    public const int HeaderRow = TagsSheet.HeaderRow;
 
     /// <summary>
     /// Читает лист «Теги» и возвращает его слепок.

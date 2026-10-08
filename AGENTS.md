@@ -8,10 +8,12 @@ FlexRt читает скомпилированную конфигурацию п
 `pdata.fwc` из папки `Generates` проекта — и проект ПЛК (`System\PEData.plf`,
 исходный или выгруженный из ПЛК) и извлекает из них данные. Цель — развивать
 извлечение дальше: разбирать новые таблицы и поля. Проверено на TIA Portal
-V17 и V21, панель TP700 Comfort, ПЛК S7-1500 и S7-1200.
+V17 и V21, панель TP700 Comfort, ПЛК S7-1500 и S7-1200. Вместо `PEData.plf`
+можно дать копию карты памяти ПЛК (папка с `SIMATIC.S7S`); проверено на одной
+карте S7-1500F (TIA V19) с панелью TP1500 Comfort.
 
 Форматы закрытые и недокументированные. Всё, что известно о них, записано
-в коде этого проекта, в этом файле, в `docs/формат-fwx/` и `docs/формат-plf/`. Часть полей
+в коде этого проекта, в этом файле, в `docs/формат-fwx/`, `docs/формат-plf/` и `docs/формат-карты/`. Часть полей
 разобрана «по наблюдениям» и помечена комментариями вида «всегда 3».
 
 Каркас формата (заголовок, TOC, каталог смещений, `STRINGSTORE`) исторически
@@ -24,8 +26,10 @@ R-код не эталон и не источник требований, све
 
 - печатает сводку таблиц TOC, числа строк языков, числа тегов и строку
   `Файл ПЛК:` (число ПЛК и тегов ПЛК или «не найден»);
-- пишет `panel_data.xlsx` — лист «Теги» с колонками как в HMI tags в TIA,
-  данные ПЛК сопоставлены по проекту ПЛК; лист «Ошибки» при проблемах проекта ПЛК;
+- пишет `panel_data.xlsx` — первым лист «Сводка» (панель, соединения, ПЛК); лист
+  «Теги»: сверху статистика тегов, ниже таблица с колонками как в HMI tags в
+  TIA, данные ПЛК сопоставлены по проекту ПЛК; лист «Ошибки» при проблемах
+  проекта ПЛК;
 - пишет `PDATA.xlsx` — строки всех языков, лист на каждый LCID;
 - раскладывает каждую таблицу TOC в папку с hex-файлами;
 - пишет лог запуска в `data/out/logs/flexrt-<дата>.log`.
@@ -43,8 +47,9 @@ R-код не эталон и не источник требований, све
 ## Стек проекта
 
 - C#, .NET 10, консольное приложение.
-- ClosedXML для записи XLSX, Serilog и Serilog.Sinks.File для лога. Других
-  пакетов в программе нет.
+- ClosedXML для записи XLSX, Serilog и Serilog.Sinks.File для лога,
+  SharpZipLib для распаковки zlib со словарём (карта ПЛК). Других пакетов в
+  программе нет.
 - Решение `FlexRt.sln`: программа `src/FlexRt/FlexRt.csproj` и тестовый
   проект `tests/FlexRt.Tests/FlexRt.Tests.csproj` (xUnit,
   Microsoft.NET.Test.Sdk, xunit.runner.visualstudio; ссылается на
@@ -53,71 +58,103 @@ R-код не эталон и не источник требований, све
 ## Структура
 
 Исходники в `src/FlexRt/` разложены по папкам-ролям и подпапкам по смыслу,
-namespace совпадает с путём папки (`Parsing/Plc/Tags/` —
-`FlexRt.Parsing.Plc.Tags`):
+namespace совпадает с путём папки (`Parsing/Plc/Plf/Tags/` —
+`FlexRt.Parsing.Plc.Plf.Tags`):
 
 ```
 Binary/                       чтение байтов, FwxFormatException
 Model/    Panel/              данные панели (pdata.fwc)
-          Plc/                данные проекта ПЛК (PEData.plf)
+          Plc/                данные ПЛК (общие для PEData.plf и карты)
+              Plf/ Card/      сырые объекты PEData.plf и потоки карты
           Matching/           результат сопоставления
-Parsing/  Panel/              разбор pdata.fwc
-          Plc/                каркас PEData.plf (кадры, объекты, текст, связи)
-              Tags/ Devices/ DataBlocks/   теги ПЛК, ПЛК и IP, DB
+          Summary/            сведения о запуске для листа «Сводка»
+Parsing/  Panel/              разбор pdata.fwc и файлов рядом с ним
+          Plc/                PlcDbMemberXml (член DB из XML, общий для plf и карты)
+              Plf/            каркас PEData.plf (кадры, объекты, текст, связи)
+                  Tags/ Devices/ DataBlocks/   теги ПЛК, ПЛК и IP, DB
+              Card/           карта ПЛК (SIMATIC.S7S): распаковка, теги, DB, CPU
           Codes/              коды областей, типов, адреса (общие для панели и ПЛК)
           Matching/           TagMatcher, DbPathResolver
-Export/   Tags/ Strings/ Hex/ листы «Теги»/«Ошибки», строки языков, hex; ExcelCell
+Export/   PanelData/          panel_data.xlsx: листы «Сводка», «Теги», «Ошибки»
+          Strings/ Hex/       строки языков, hex
+          ExcelCell, IpAddressText   общие для экспортов (в корне Export/)
 Program.cs
 ```
 
 `Parsing/Panel` и `Parsing/Plc` друг от друга не зависят; общее у них —
 `Parsing/Codes`.
 
-- `Program.cs` — в корне проекта, top-level statements: пять статичных
+- `Program.cs` — в корне проекта, top-level statements: шесть статичных
   путей (входные можно подменить `FLEXRT_INPUT` и `FLEXRT_PLC`, каталог
   выходов `data\out` — `FLEXRT_OUT`), чтение
   проекта ПЛК, сопоставление тегов, сводка в консоль, запуск трёх экспортов.
   Экспорты независимы: сбой одного не отменяет остальные.
 - `Binary/` — чтение байтов файла: `FwxBinary.cs` — примитивы little endian
-  (`D1`, `D2`, `D4`, `GetName`, `GetNameLen`, `GetUtf8`, `Span`, `ToHex`) с
+  (`D1`, `D2`, `D4`, `GetName`, `GetNameLen`, `GetUtf8`, `Span`, `ToHex`) и
+  `D4BigEndian` (IP-адреса панели) с
   проверкой границ, для `.fwc` и `.plf`; `FwxFormatException.cs` — ошибка
   формата с секцией и смещением.
 - `Model/` — данные разбора, по одному типу на файл: панель (`FwxDocument`,
-  `HmiTag`, `PlcLink`, `HmiConnection`, …), проект ПЛК (`PlcProject`,
-  `PlcDevice`, `PlcTag`, `PlcDb`, `PlcDbMember`, `PlfObject`, …), результат
-  сопоставления (`PlcMatch`, `PlcLookup`).
+  `HmiTag`, `PlcLink`, `HmiConnection`, `HmiDevice`, `PanelFiles`, …), проект
+  ПЛК (`PlcProject`, `PlcDevice`, `PlcTag`, `PlcDb`, `PlcDbMember`, …; сырые
+  `Plf/PlfObject`, `Plf/PlfRelation`, `Card/CardStream`, `Card/CardStreamKind`),
+  результат сопоставления (`PlcMatch`, `PlcLookup`, `DbResolution`), сведения о запуске
+  (`Summary/RunSummary`).
 - `Parsing/Panel/` — `FwxReader` (заголовок, TOC, `Items`/`CheckedItems` для
   таблиц «заголовок 0x34 → каталог смещений → блок данных», `TryParse`),
   `StringStoreParser`, `VarParser`, `DatalinkReadWrParser` (`DATALINK_READWR`
   и `DATALINK` — исключение из «одна таблица — один парсер»: раскладка
-  элементов одна), `ConnectionParser` (`CONNECTION_OMSP`).
-- `Parsing/Plc/` — `PlfReader` (единственная точка входа: кадры с SHA-256,
-  актуальные версии объектов), `PlfFile` (байты + живые объекты), `PlfFormat`
-  (общие константы), `PlfText` (varint, строки, мультиязычные тексты),
-  `PlfRelations`; `Tags/` — `PlfTagParser`, `PlfTagNames`; `Devices/` —
-  `PlfDeviceParser`; `DataBlocks/` — `PlfDbReader`, `PlfInterfaceReader`,
-  `PlfInterfaceXml`, `PlfXmlBytes`, `PlfMemberComments`. Всё, кроме
-  `PlfReader`, — `internal`.
+  элементов одна), `ConnectionParser` (`CONNECTION_OMSP`), `DeviceParser`
+  (`DEVICE_OMSP`: IP и маска панели), `PanelFilesReader` (модель панели из
+  `ProjectCharacteristics.rdf` и версия Runtime из `BuildInfo.txt` рядом с
+  `pdata.fwc`).
+- `Parsing/Plc/` — `PlcDbMemberXml` (элемент `<Member>` → `PlcDbMember`, общий
+  для PEData.plf и карты); `Plf/` — `PlfReader` (точка входа PEData.plf: кадры
+  с SHA-256, актуальные версии объектов), `PlfFile` (байты + живые объекты),
+  `PlfFormat` (общие константы), `PlfText` (varint, строки, мультиязычные
+  тексты), `PlfRelations`; `Plf/Tags/` — `PlfTagParser`, `PlfTagNames`;
+  `Plf/Devices/` — `PlfDeviceParser`; `Plf/DataBlocks/` — `PlfDbReader`,
+  `PlfInterfaceReader`, `PlfInterfaceXml`, `PlfXmlBytes`, `PlfMemberComments`;
+  `Card/` —
+  `CardReader` (вход карты), `CardStore` (обход `OMSSTORE`, распаковка),
+  `CardDictionaries` (словари — ресурсы `Card/Dictionaries/*.bin`), `CardHardware`
+  (модель CPU), `CardXml`,
+  `CardTagParser`, `CardDbParser`, `CardBlock`, `CardInterfaceBuilder`,
+  `CardInterfaceWalk`.
+  Всё, кроме `PlfReader` и `CardReader`, — `internal`.
 - `Parsing/Codes/` — `PlcAreaCodes`, `PlcTypeCodes`, `PlcAddress`,
   `PlcMemberTypes`. `Parsing/Matching/` — `TagMatcher`, `DbPathResolver`.
-- `Export/` — `Tags/PanelDataExporter` (листы «Теги» и «Ошибки»),
-  `Tags/TagRowFormatter` (значения колонок), `Tags/TagTypeNames`,
-  `Strings/XlsxExporter` (строки языков), `Hex/HexExporter` (все таблицы TOC),
-  `ExcelCell` (обрезка текста ячейки, общая для двух Excel).
+- `Export/` — `PanelData/PanelDataExporter` (книга `panel_data.xlsx`: листы
+  «Сводка», «Теги» и «Ошибки»), `PanelData/SummarySheet` (лист «Сводка»),
+  `PanelData/TagsSheet` (лист «Теги»), `PanelData/TagRowFormatter` (значения
+  колонок), `PanelData/TagStatistics` (статистика над таблицей),
+  `PanelData/TagTypeNames`, `Strings/XlsxExporter` (строки языков),
+  `Hex/HexExporter` (все таблицы TOC), `ExcelCell` (обрезка текста ячейки,
+  общая для двух Excel), `IpAddressText` (IP в точечной записи).
 - `samples/` — реальный `pdata.fwc` (TIA V17 / TP700 Comfort, 16 записей `VAR`:
   15 тегов из HMI tags и скрытый `@DiagnosticsIndicatorTag`; копия шага 14),
   его обрезанная копия `bad.fwc` и эталонный вывод `expected/` для
   проверки перед завершением. `plc/` — `pdata.fwc` (TIA V21, 69 записей
   `VAR`, PLC-теги, два соединения) и его проект ПЛК `PEData.plf` (2 ПЛК,
-  51 тег ПЛК). Эталоны: `expected/теги.txt` и `expected/plc/теги.txt` —
+  51 тег ПЛК). `card/` — `pdata.fwc` реального бэкапа панели CCB-A13
+  (TP1500 Comfort, Runtime V17, 517 записей `VAR`) с его
+  `ProjectCharacteristics.rdf` и `BuildInfo.txt` и копия карты ПЛК одним
+  архивом `CCB-A03.zip` (S7-1500F, TIA V19, 591 тег ПЛК, 95 DB; 128 файлов
+  карты в архиве, чтобы не засорять git — тесты распаковывают его во временный
+  каталог). Эталоны:
+  `expected/теги.txt`, `expected/plc/теги.txt` и `expected/card/теги.txt` —
   слепки листа «Теги»; `expected/pdata.sha256` (264 файла) и
   `expected/plc/pdata.sha256` (386) — манифесты hex-вывода в формате
   `sha256sum` (`<хэш>  <путь через />`). Папка `expected/pdata/` с самими
   hex-файлами исключена из git и необязательна.
 - `tests/FlexRt.Tests/` — `Unit/` (чистые функции: `FwxBinary`, коды и
-  адреса ПЛК, `PlfText`, `ExcelCell`, `TagTypeNames`, `TagRowFormatter`) и
-  `Integration/` (программа отдельным процессом на файлах `samples/`;
-  испорченные входы — копии `samples/`, изменённые в рантайме). Каждый
+  адреса ПЛК, `Plc/Plf/PlfText`, `ExcelCell`, `Export/PanelData/TagTypeNames`
+  и `TagRowFormatter`; `Plc/Card/` — `CardXml`, `CardTagParser`,
+  `CardDbParser`, `CardInterfaceBuilder`; `Panel/PanelFilesReader` — копии
+  файлов `samples/card/` во временном каталоге) и `Integration/` (программа
+  отдельным процессом на файлах `samples/`, карта — распаковкой
+  `CCB-A03.zip` во временный каталог; испорченные входы — копии `samples/`,
+  изменённые в рантайме; листы «Теги» и «Сводка»). Каждый
   интеграционный тест пишет в свой временный каталог через `FLEXRT_OUT` и
   удаляет его; `data/out` тесты не трогают. Хост — `DOTNET_HOST_PATH`, иначе
   `dotnet` из PATH.
@@ -149,7 +186,7 @@ Program.cs
 ## Источники фактов о формате
 
 1. Код этого проекта и комментарии в нём.
-2. Этот файл, `docs/формат-fwx/` и `docs/формат-plf/`.
+2. Этот файл, `docs/формат-fwx/`, `docs/формат-plf/` и `docs/формат-карты/`.
 3. Байты реального `pdata.fwc`, сопоставленные с известным проектом TIA, —
    единственный способ установить назначение нового поля. Лучший способ —
    пошаговые копии: пользователь меняет одно свойство, компилирует и
@@ -159,7 +196,9 @@ Program.cs
 168-байтный зашифрованный файл администрирования пользователей, а не
 конфигурация. Проверено на копиях одного тестового проекта (V17 и V21) и на
 реальном проекте A603A0097 (V21, S7-1500, 3 языка); проект ПЛК — ещё на
-S7-1200 без панели. Называй вывод проверенным именно на этом.
+S7-1200 без панели; карта ПЛК — на одной карте CCB-A03 (S7-1500F, TIA V19) с
+бэкапом панели CCB-A13 (TP1500 Comfort, Runtime V17). Называй вывод
+проверенным именно на этом.
 
 ## Установленное поведение
 
@@ -201,13 +240,50 @@ S7-1200 без панели. Называй вывод проверенным и
   колонки ПЛК «неизвестно», код 1. Нет файла — строка
   `Файл ПЛК: ... не найден - данные ПЛК: неизвестно`, код 0. Неразобранный
   тег ПЛК или DB — сообщение на лист «Ошибки», код 1.
+- Карта ПЛК (`SIMATIC.S7S\OMSSTORE`): все файлы в порядке путей; потоки
+  zlib с предустановленным словарём (FDICT) распаковываются четырьмя вшитыми
+  словарями (S7CommPlusDriver, LGPL-3.0), прочие пропускаются; объект — байт
+  `a6`, RID `0x89…`/`0x8a…` (`0x8a0eNNNN` — DB N), varint и байт `a3`; интерфейс
+  блока — первый поток с корнем `<BlockInterface>`. ПЛК один, имя — имя папки
+  карты. Тег:
+  `<Ident>` таблицы тегов, ID символа — `LID`, адрес `%I13100.0`/`%MW120`,
+  UDT в кавычках, комментарий по `LID`; незнакомые область или ширина —
+  тег не разобран, лист «Ошибки», код 1. DB: интерфейс `<BlockInterface>`
+  переводится в ту же модель, что из PEData.plf; комментарии членов FB и UDT
+  — у FB и UDT по имени. Пустой поток комментариев — комментариев нет. Раздел
+  FB без части — пуст, члены раздела внутри его элемента — под ключом `""`;
+  член с `LID` без части или части по кругу — DB не разобран, лист «Ошибки».
+  Нет `SIMATIC.S7S\OMSSTORE`, поток со словарём не распаковывается или XML
+  таблицы тегов битый — карта не используется: `Файл ПЛК: ... не прочитан`,
+  `ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - ...`, лист «Ошибки», колонки ПЛК «неизвестно»,
+  код 1. В сводке — `Файл ПЛК: <папка> (карта ПЛК; ПЛК: 1, тегов ПЛК: N)`.
 - Бит `0x2000` в коде типа — массив. Массив выводится как
   `Array [0..N-1] of <тип>`: нижняя граница не хранится, TIA не даёт задать
   её не нулём. Неизвестный код типа — `?` без предупреждения.
+- Лист «Сводка» в `panel_data.xlsx` — первый, подпись в A, значение в B: файл
+  панели, модель панели (`ProjectCharacteristics.rdf` рядом с `pdata.fwc`,
+  байт длины на 0x65), версия Runtime (`BuildInfo.txt` рядом, `Build=N_<версия>_…`),
+  IP и маска панели (`DEVICE_OMSP` +0x0c, +0x10), языки, строки, теги;
+  пустая строка; по строке на соединение (`Соединение <имя>` — `IP ПЛК …`;
+  соединений нет — `Соединения с ПЛК` — `нет`);
+  пустая строка; `Данные ПЛК` — `карта ПЛК: путь`, `PEData.plf: путь`,
+  `не найден: путь`, `не прочитан: путь`; если данные ПЛК прочитаны — по каждому
+  ПЛК имя, модель CPU (только с карты: `CPU 1515F-2 PN (6ES7 515-2FN03-0AB0)`),
+  IP из данных ПЛК (с карты не читается), затем число тегов ПЛК и DB. Нет
+  файла или значения — «неизвестно», без предупреждения; элемент
+  `DEVICE_OMSP` другой раскладки (короче 0x14 байт или начало не
+  `01 00…00 03 00`) — тоже «неизвестно», без предупреждения.
 - В `panel_data.xlsx` попадают все записи `VAR` в порядке файла, включая
-  скрытый `@DiagnosticsIndicatorTag`. Лист «Теги», колонки: Name, Data type,
-  Connection, PLC name, PLC tag, Address, Access mode, Acquisition cycle,
-  Logged, Source comment, Comment. Значения не угадываются:
+  скрытый `@DiagnosticsIndicatorTag`. Лист «Теги»: строки 1–7 — статистика
+  (подпись в A, число в B): Всего тегов, Внутренних тегов, Тегов с ПЛК, Найдено
+  в ПЛК, Есть в панели, нет в ПЛК, Данные ПЛК неизвестны, С абсолютной адресацией
+  (все PLC-теги с абсолютным доступом, могут входить и в найденные; абсолютный
+  без тега ПЛК не входит ни в найденные, ни в «нет в ПЛК», ни в «неизвестны»,
+  поэтому эти три вместе с ним дают «Тегов с ПЛК»); строки 8–9
+  пустые; с 10-й — заголовок и таблица. Колонки: Name, Data type, Connection,
+  PLC name, PLC tag, Address, Access mode, Acquisition cycle, Logged, Source
+  comment (колонки Comment нет: комментария HMI-тега нет ни в панели, ни в
+  ПЛК). Значения не угадываются:
   - внутренний тег: Connection `<Internal tag>`, колонки ПЛК пустые;
   - PLC-тег: Connection — имя соединения по номеру из связи; Access mode
     `<symbolic access>`/`<absolute access>`; цикл `100 ms`, `1 s`, `1 min`,
@@ -220,11 +296,12 @@ S7-1200 без панели. Называй вывод проверенным и
     адресу; найден — PLC name, PLC tag, Source comment и тип ПЛК в стиле HMI
     (`String`, `Array [0..N-1] of X`);
   - символьный не найден — «отсутствует в файле ПЛК» в PLC name, PLC tag,
-    Source comment, код 0; абсолютный без тега ПЛК — PLC name есть, PLC tag
-    и Source comment пустые;
+    Source comment, код 0; абсолютный без тега ПЛК — PLC name есть, Source
+    comment пустой, PLC tag — имя DB, если адрес в DB и DB есть в ПЛК
+    (`%DB1000.DBX0.0` → `AlarmsDB`), иначе пустой;
   - нет проекта ПЛК — тип по коду из панели (`USInt/Char`, `DInt/Time`, если
     неразличимы), колонки ПЛК «неизвестно»;
-  - Logged и Comment пустые: в файлах их нет.
+  - Logged пустой: в файлах его нет.
 - Таблица, не подходящая под «каталог смещений», сохраняется целиком в
   `raw.hex.txt` с предупреждением; остальные таблицы обрабатываются.
 - Любое предупреждение — неразобранная таблица или запись, таблица,
@@ -238,7 +315,8 @@ S7-1200 без панели. Называй вывод проверенным и
   удаляется целиком: файлы прошлого запуска в ней не остаются.
 - Входные файлы — константы в `Program.cs` (`Generates\pdata.fwc`,
   `System\PEData.plf`); непустые переменные окружения `FLEXRT_INPUT` и
-  `FLEXRT_PLC` подменяют их. В строках `Файл:` и `Файл ПЛК:` сводки
+  `FLEXRT_PLC` подменяют их. Путь ПЛК — папка: это копия карты ПЛК (в ней
+  `SIMATIC.S7S\OMSSTORE`), иначе файл `PEData.plf`. В строках `Файл:` и `Файл ПЛК:` сводки
   печатается фактически прочитанный путь.
 - Выходы — константы в `Program.cs` в `data\out`: `PDATA.xlsx`,
   `panel_data.xlsx`, папка `pdata`, лог `logs\flexrt-<дата>.log`. Непустая
@@ -273,6 +351,12 @@ S7-1200 без панели. Называй вывод проверенным и
   скаляров, у строк и массивов не установлено.
 - Имена таблиц не уникальны (две `PS_BorderedShap`): `FindTable` вернёт
   первую.
+- Карта ПЛК: IP не читается (выбор ПЛК по IP с картой не работает), имени ПЛК
+  на карте нет. Проверена одна карта (S7-1500F, TIA V19) только по именам
+  HMI-тегов; поток со словарём, которого нет в программе, пропускается молча.
+  Членов системных типов (`IEC_TIMER`, `DTL`) на карте нет — путь внутрь них
+  «отсутствует в файле ПЛК». Путь ПЛК — папка без `SIMATIC.S7S` — теперь
+  «не прочитан», код 1 (раньше папка давала «не найден», код 0).
 
 ## Рабочий стиль
 
@@ -348,6 +432,8 @@ FlexRt.sln`) — обязательная проверка из раздела �
 
 - `docs/формат-fwx/` — что известно о байтах файла, по документу на таблицу;
   у каждого утверждения статус: установлено кодом, наблюдение или гипотеза.
+  Так же устроены `docs/формат-plf/` (PEData.plf) и `docs/формат-карты/`
+  (карта ПЛК).
 - `docs/текущее-поведение/` — программа глазами того, кто её запускает, без
   имён классов и методов, не длиннее 80 непустых строк.
 - `docs/история/` — что было сделано и почему приняты решения.
@@ -426,9 +512,10 @@ kebab-case, например `формат-fwx/таблица-var.md`. Стан�
 `Parse(FwxDocument doc)`. Модель записи — отдельный файл в `Model/Panel/`,
 список записей — свойство в `Model/Panel/FwxDocument.cs`. Подключай одной
 строкой `TryParse(doc, <Имя>Parser.Parse);` в `Parsing/Panel/FwxReader.cs`,
-метод `Read`. Новые данные проекта ПЛК: парсер в `Parsing/Plc/<роль>/`,
+метод `Read`. Новые данные проекта ПЛК: парсер в `Parsing/Plc/Plf/<роль>/`,
 объекты — через `PlfFile`, связи — `PlfRelations`, подключение — в
-`PlfReader.Read`.
+`PlfReader.Read`; с карты ПЛК — в `Parsing/Plc/Card/`, подключение — в
+`CardReader.Read`.
 Если число записей должно попасть в сводку, строку сводки добавляй в
 `Program.cs`. `HexExporter` берёт любую таблицу TOC сам — править его не
 нужно.
@@ -468,9 +555,9 @@ kebab-case, например `формат-fwx/таблица-var.md`. Стан�
    — все `OK`, и файлов в `data/out/pdata` ровно 264 (лишних нет). Если на
    диске есть локальная папка `samples/expected/pdata`, можно вместо этого
    `diff -r data/out/pdata samples/expected/pdata` — без отличий. Лист «Теги» в `panel_data.xlsx` сверь с
-   `samples/expected/теги.txt`: по строке на строку листа, ячейки вида
-   `A2=Tag_ScreenNumber | B2=UInt` (адрес ячейки, `=`, текст; пустые ячейки
-   не пишутся). В `PDATA.xlsx` — лист `0x409` с заголовком и 625 строками.
+   `samples/expected/теги.txt`: по строке на непустую строку листа, ячейки вида
+   `A11=Tag_ScreenNumber | B11=UInt` (адрес ячейки, `=`, текст; пустые ячейки
+   и строки не пишутся; сверху — 7 строк статистики, `A1=Всего тегов | B1=16`). В `PDATA.xlsx` — лист `0x409` с заголовком и 625 строками.
 4. Если правка меняет вывод намеренно, покажи точный diff и объясни каждое
    отличие. Эталон в `samples/expected/` обновляй только после подтверждения
    пользователя.

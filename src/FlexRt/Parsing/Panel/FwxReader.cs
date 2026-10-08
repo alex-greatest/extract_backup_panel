@@ -13,7 +13,7 @@ public static class FwxReader
     /// Прочитать файл целиком. Ошибка в заголовке или TOC прерывает чтение;
     /// ошибка в отдельной таблице попадает в <see cref="FwxDocument.Warnings"/>,
     /// чтобы остальные экспорты (xlsx, explode) могли отработать.
-    /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK и CONNECTION_OMSP.
+    /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK, CONNECTION_OMSP и DEVICE_OMSP.
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
     /// <exception cref="IOException">Файл не удалось прочитать.</exception>
@@ -28,6 +28,7 @@ public static class FwxReader
         TryParse(doc, DatalinkReadWrParser.Parse);
         TryParse(doc, DatalinkReadWrParser.ParseAreaPointers);
         TryParse(doc, ConnectionParser.Parse);
+        TryParse(doc, DeviceParser.Parse);
         return doc;
     }
 
