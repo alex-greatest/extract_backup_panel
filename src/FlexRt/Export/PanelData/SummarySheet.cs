@@ -15,7 +15,7 @@ public static class SummarySheet
     /// Добавить лист «Сводка» в книгу. Строки: панель (файл, модель, версия Runtime, IP и маска,
     /// языки, число строк и тегов), пустая строка, по строке на соединение (имя и IP ПЛК),
     /// пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя, модель CPU,
-    /// IP из данных ПЛК — с карты не читается; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
+    /// IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
     /// </summary>
     public static void Write(XLWorkbook workbook, FwxDocument doc, PlcProject? project, RunSummary summary)
     {
@@ -38,7 +38,7 @@ public static class SummarySheet
     /// <returns>Подписи и значения.</returns>
     private static IEnumerable<(string, string)> PanelRows(FwxDocument doc, RunSummary summary)
     {
-        var languages = doc.Strings.Select(s => s.Lcid).Distinct().Select(l => $"0x{l:x}").ToList();
+        var languages = doc.Strings.Select(s => s.Lcid).Distinct().Select(LanguageText.Format).ToList();
         yield return ("Файл панели", summary.PanelPath);
         yield return ("Модель панели", summary.PanelFiles.Model ?? Unknown);
         yield return ("Версия Runtime", summary.PanelFiles.RuntimeVersion ?? Unknown);

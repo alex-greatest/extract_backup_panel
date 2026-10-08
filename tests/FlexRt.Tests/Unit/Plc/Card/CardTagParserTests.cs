@@ -17,7 +17,7 @@ public sealed class CardTagParserTests
     /// <summary>Другой файл таблицы: его комментарии к тегам первой таблицы не относятся.</summary>
     private const string OtherFile = @"00000003\1\0000004D";
 
-    /// <summary>Таблица: бит, байт, слово, двойное слово, UDT; незнакомые область и ширина; тег без имени.</summary>
+    /// <summary>Таблица: бит, байт, слово, двойное слово, UDT, таймер, счётчик; незнакомые область и ширина; тег без имени.</summary>
     private const string Table = """
         <?xml version="1.0" encoding="utf-8"?><IdentContainer>
         <Ident Name="i_040rs1c1_EmS" Scope="Global" LID="225"><SimpleType>Bool</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess BitNumber="3" ByteNumber="13100" Width="Bit" Range="Input" /></Access></Ident>
@@ -25,7 +25,9 @@ public sealed class CardTagParserTests
         <Ident Name="Tag_5" Scope="Global" LID="387"><SimpleType>Word</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="120" Width="Word" Range="Memory" /></Access></Ident>
         <Ident Name="Counter_In" Scope="Global" LID="400"><SimpleType>DWord</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="256" Width="DWord" Range="Input" /></Access></Ident>
         <Ident Name="q_-YZ1" Scope="Global" LID="94"><UserDataType>To Fortress</UserDataType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="107" Width="Bit" Range="Output" /></Access></Ident>
-        <Ident Name="Timer_1" Scope="Global" LID="5"><SimpleType>Bool</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="1" Width="Bit" Range="Timer" /></Access></Ident>
+        <Ident Name="Timer_T1" Scope="Global" LID="12"><SimpleType>Timer</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="1" Width="None" Range="Timer" /></Access></Ident>
+        <Ident Name="Counter_C0" Scope="Global" LID="11"><SimpleType>Counter</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="0" Width="None" Range="Counter" /></Access></Ident>
+        <Ident Name="Peripheral_1" Scope="Global" LID="5"><SimpleType>Bool</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="1" Width="Bit" Range="Peripheral" /></Access></Ident>
         <Ident Name="Long_1" Scope="Global" LID="6"><SimpleType>LWord</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="8" Width="LWord" Range="Input" /></Access></Ident>
         <Ident Scope="Global" LID="7"><SimpleType>Bool</SimpleType><Access SubClass="SimpleAccess"><SimpleAccess ByteNumber="1" Width="Bit" Range="Input" /></Access></Ident>
         </IdentContainer>
@@ -69,11 +71,13 @@ public sealed class CardTagParserTests
             new PlcTag("System_Byte", 1, "Byte", "%MB1", PlcArea.Memory, 9, ""),
             new PlcTag("Tag_5", 1, "Word", "%MW120", PlcArea.Memory, 387, ""),
             new PlcTag("Counter_In", 1, "DWord", "%ID256", PlcArea.Input, 400, ""),
-            new PlcTag("q_-YZ1", 1, "\"To Fortress\"", "%Q107.0", PlcArea.Output, 94, "")
+            new PlcTag("q_-YZ1", 1, "\"To Fortress\"", "%Q107.0", PlcArea.Output, 94, ""),
+            new PlcTag("Timer_T1", 1, "Timer", "%T1", PlcArea.Timer, 12, ""),
+            new PlcTag("Counter_C0", 1, "Counter", "%C0", PlcArea.Counter, 11, "")
         ], project.Tags);
         Assert.Equal(3, project.UnparsedTags);
         Assert.Equal(3, project.Problems.Count);
-        Assert.Contains(project.Problems, p => p.Contains("Timer_1"));
+        Assert.Contains(project.Problems, p => p.Contains("Peripheral_1"));
         Assert.Contains(project.Problems, p => p.Contains("Long_1"));
         Assert.Contains(project.Problems, p => p.Contains("LID 7"));
     }

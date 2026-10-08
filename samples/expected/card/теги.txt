@@ -6,152 +6,152 @@ A5=Есть в панели, нет в ПЛК | B5=18
 A6=Данные ПЛК неизвестны | B6=0
 A7=С абсолютной адресацией | B7=2
 A10=Name | B10=Data type | C10=Connection | D10=PLC name | E10=PLC tag | F10=Address | G10=Access mode | H10=Acquisition cycle | I10=Logged | J10=Source comment
-A11=Alarms_Events | B11=Array [0..249] of Word | C11=HMI1 | D11=CCB-A03 | E11=AlarmsDB | F11=%DB1000.DBX0.0 | G11=<absolute access> | H11=1 s
-A12=HMI_Ack_To_PLC | B12=Array [0..249] of Word | C12=HMI1 | D12=CCB-A03 | E12=HMI_Ack_To_PLC | F12=%DB1006.DBX0.0 | G12=<absolute access> | H12=1 s
-A13=GlobalDB_bResetAlarmCmd | B13=Bool | C13=HMI1 | D13=CCB-A03 | E13=GlobalDB.bResetAlarmCmd | G13=<symbolic access> | H13=1 s | J13=Сброс аварий
-A14=GlobalDB_nHMISt | B14=Int | C14=HMI1 | D14=CCB-A03 | E14=GlobalDB.nHMISt | G14=<symbolic access> | H14=1 s
-A15=GlobalDB_DateTimePLC | B15=DTL | C15=HMI1 | D15=CCB-A03 | E15=GlobalDB.DateTimePLC | G15=<symbolic access> | H15=1 s
-A16=040rs1c1_St | B16=Bool | C16=HMI1 | D16=CCB-A03 | E16=040rs1c1_St | G16=<symbolic access> | H16=1 s | J16=Аварииный стоп левый тросовый канал 1
-A17=040rs2c1_St | B17=Bool | C17=HMI1 | D17=CCB-A03 | E17=040rs2c1_St | G17=<symbolic access> | H17=1 s | J17=Аварииный стоп правый тросовый канал 1
-A18=040rs1c2_St | B18=Bool | C18=HMI1 | D18=CCB-A03 | E18=040rs1c2_St | G18=<symbolic access> | H18=1 s | J18=Аварииный стоп левый тросовый канал 2
-A19=040rs2c2_St | B19=Bool | C19=HMI1 | D19=CCB-A03 | E19=040rs2c2_St | G19=<symbolic access> | H19=1 s | J19=Аварииный стоп правый тросовый канал 2
-A20=CCDbutc1_St | B20=Bool | C20=HMI1 | D20=CCB-A03 | E20=CCDbutc1_St | G20=<symbolic access> | H20=1 s | J20=Аварииный стоп кнопка шкафа канал 1
-A21=PRCbutc1_St | B21=Bool | C21=HMI1 | D21=CCB-A03 | E21=PRCbutc1_St | G21=<symbolic access> | H21=1 s | J21=Аварииный стоп кнопка пульта канал 1
-A22=CCDbutc2_St | B22=Bool | C22=HMI1 | D22=CCB-A03 | E22=CCDbutc2_St | G22=<symbolic access> | H22=1 s | J22=Аварииный стоп кнопка шкафа канал 2
-A23=PRCbutc2_St | B23=Bool | C23=HMI1 | D23=CCB-A03 | E23=PRCbutc2_St | G23=<symbolic access> | H23=1 s | J23=Аварииный стоп кнопка пульта канал 2
-A24==010_CtrlDB_UZRef_bBwdManuCmd | B24=Bool | C24=HMI1 | D24=CCB-A03 | E24=010_CtrlDB.UZRef.bBwdManuCmd | G24=<symbolic access> | H24=1 s
-A25==010_CtrlDB_UZRef_bFwdManuCmd | B25=Bool | C25=HMI1 | D25=CCB-A03 | E25=010_CtrlDB.UZRef.bFwdManuCmd | G25=<symbolic access> | H25=1 s
-A26==010_CtrlDB_Mode_St_Manu | B26=Bool | C26=HMI1 | D26=CCB-A03 | E26=010_CtrlDB.ModeMotor.St.Manu | G26=<symbolic access> | H26=1 s
-A27==010_CtrlDB_UZRef_bFwdSt | B27=Bool | C27=HMI1 | D27=CCB-A03 | E27=010_CtrlDB.UZRef.bFwdSt | G27=<symbolic access> | H27=1 s
-A28==010_CtrlDB_UZRef_bOnCmd | B28=Bool | C28=HMI1 | D28=CCB-A03 | E28=010_CtrlDB.UZRef.bOnCmd | G28=<symbolic access> | H28=1 s
-A29==010_CtrlDB_UZRef_bBwdSt | B29=Bool | C29=HMI1 | D29=CCB-A03 | E29=010_CtrlDB.UZRef.bBwdSt | G29=<symbolic access> | H29=1 s
-A30==010_CtrlDB_UZRef_fSpeedAs | B30=Real | C30=HMI1 | D30=CCB-A03 | E30=010_CtrlDB.UZRef.fSpeedAs | G30=<symbolic access> | H30=1 s
-A31==010_CtrlDB_UZRef_fManuSpeed | B31=Real | C31=HMI1 | D31=CCB-A03 | E31=010_CtrlDB.UZRef.fManuSpeed | G31=<symbolic access> | H31=1 s | J31=Задание в ручном режиме
-A32=HMIDataCCD_DB_fSpeedAs | B32=Real | C32=HMI1 | D32=CCB-A03 | E32=HMIDataCCD_DB.fSpeedAs | G32=<symbolic access> | H32=1 s | J32=Скорость линиии в авто режиме
-A33==040_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B33=Int | C33=HMI1 | D33=CCB-A03 | E33=040_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G33=<symbolic access> | H33=1 s
-A34=HMIDataCCD_DB_RemTimeMouldPreheatMin | B34=Int | C34=HMI1 | D34=CCB-A03 | E34=HMIDataCCD_DB.RemTimeMouldPreheatMin | G34=<symbolic access> | H34=1 s
-A35=HMIDataCCD_DB_RemTimeMouldPreheatHour | B35=Int | C35=HMI1 | D35=CCB-A03 | E35=HMIDataCCD_DB.RemTimeMouldPreheatHour | G35=<symbolic access> | H35=1 s
-A36=HMIDataCCD_DB_RemTimeMouldPreheatSec | B36=Int | C36=HMI1 | D36=CCB-A03 | E36=HMIDataCCD_DB.RemTimeMouldPreheatSec | G36=<symbolic access> | H36=1 s
-A37==040_CtrlDB_Mode_St_Auto | B37=Bool | C37=HMI1 | D37=CCB-A03 | E37=040_CtrlDB.ModeMotor.St.Auto | G37=<symbolic access> | H37=1 s
-A38==010_CtrlDB_Mode_St_Auto | B38=Bool | C38=HMI1 | D38=CCB-A03 | E38=010_CtrlDB.ModeMotor.St.Auto | G38=<symbolic access> | H38=1 s
-A39==040_CtrlDB_Mode_St_Manu | B39=Bool | C39=HMI1 | D39=CCB-A03 | E39=040_CtrlDB.ModeMotor.St.Manu | G39=<symbolic access> | H39=1 s
-A40==040_CtrlDB_UZRef_fManuSpeed | B40=Real | C40=HMI1 | D40=CCB-A03 | E40=040_CtrlDB.UZRef.fManuSpeed | G40=<symbolic access> | H40=1 s | J40=Задание в ручном режиме
-A41==040_CtrlDB_UZRef_bFwdManuCmd | B41=Bool | C41=HMI1 | D41=CCB-A03 | E41=040_CtrlDB.UZRef.bFwdManuCmd | G41=<symbolic access> | H41=1 s
-A42==040_CtrlDB_UZRef_bBwdManuCmd | B42=Bool | C42=HMI1 | D42=CCB-A03 | E42=040_CtrlDB.UZRef.bBwdManuCmd | G42=<symbolic access> | H42=1 s
-A43==040_CtrlDB_DriveCtrl_St_SpeedAs | B43=Real | C43=HMI1 | D43=CCB-A03 | E43=040_CtrlDB.DriveCtrl.St.SpeedAs | G43=<symbolic access> | H43=1 s
-A44==040_CtrlDB_DriveCtrl_St_SpeedMe | B44=Real | C44=HMI1 | D44=CCB-A03 | E44=040_CtrlDB.DriveCtrl.St.SpeedMe | G44=<symbolic access> | H44=1 s
-A45==040_CtrlDB_DriveCtrl_St_PowerMe | B45=Real | C45=HMI1 | D45=CCB-A03 | E45=040_CtrlDB.DriveCtrl.St.PowerMe | G45=<symbolic access> | H45=1 s
-A46==040_CtrlDB_DriveCtrl_St_TorqMe | B46=Real | C46=HMI1 | D46=CCB-A03 | E46=040_CtrlDB.DriveCtrl.St.TorqMe | G46=<symbolic access> | H46=1 s
-A47==040_CtrlDB_DriveCtrl_St_CurrMe | B47=Real | C47=HMI1 | D47=CCB-A03 | E47=040_CtrlDB.DriveCtrl.St.CurrMe | G47=<symbolic access> | H47=1 s
-A48==090_CtrlDB_DriveCtrl_St_SpeedAs | B48=Real | C48=HMI1 | D48=CCB-A03 | E48=090_CtrlDB.DriveCtrl.St.SpeedAs | G48=<symbolic access> | H48=1 s
-A49==090_CtrlDB_DriveCtrl_St_SpeedMe | B49=Real | C49=HMI1 | D49=CCB-A03 | E49=090_CtrlDB.DriveCtrl.St.SpeedMe | G49=<symbolic access> | H49=1 s
-A50==090_CtrlDB_DriveCtrl_St_PowerMe | B50=Real | C50=HMI1 | D50=CCB-A03 | E50=090_CtrlDB.DriveCtrl.St.PowerMe | G50=<symbolic access> | H50=1 s
-A51==090_CtrlDB_DriveCtrl_St_TorqMe | B51=Real | C51=HMI1 | D51=CCB-A03 | E51=090_CtrlDB.DriveCtrl.St.TorqMe | G51=<symbolic access> | H51=1 s
-A52==090_CtrlDB_DriveCtrl_St_CurrMe | B52=Real | C52=HMI1 | D52=CCB-A03 | E52=090_CtrlDB.DriveCtrl.St.CurrMe | G52=<symbolic access> | H52=1 s
-A53==072_CtrlDB_UZRef_bFwdManuCmd | B53=Bool | C53=HMI1 | D53=CCB-A03 | E53=072_CtrlDB.UZRef.bFwdManuCmd | G53=<symbolic access> | H53=1 s
-A54==072_CtrlDB_UZRef_bBwdManuCmd | B54=Bool | C54=HMI1 | D54=CCB-A03 | E54=072_CtrlDB.UZRef.bBwdManuCmd | G54=<symbolic access> | H54=1 s
-A55==072_CtrlDB_UZRef_bFwdSt | B55=Bool | C55=HMI1 | D55=CCB-A03 | E55=072_CtrlDB.UZRef.bFwdSt | G55=<symbolic access> | H55=1 s
-A56==072_CtrlDB_UZRef_bBwdSt | B56=Bool | C56=HMI1 | D56=CCB-A03 | E56=072_CtrlDB.UZRef.bBwdSt | G56=<symbolic access> | H56=1 s
-A57==072_CtrlDB_UZRef_bRunSt | B57=Bool | C57=HMI1 | D57=CCB-A03 | E57=072_CtrlDB.UZRef.bRunSt | G57=<symbolic access> | H57=1 s
-A58==072_CtrlDB_DriveCtrl_St_SpeedAs | B58=Real | C58=HMI1 | D58=CCB-A03 | E58=072_CtrlDB.DriveCtrl.St.SpeedAs | G58=<symbolic access> | H58=1 s
-A59==072_CtrlDB_DriveCtrl_St_SpeedMe | B59=Real | C59=HMI1 | D59=CCB-A03 | E59=072_CtrlDB.DriveCtrl.St.SpeedMe | G59=<symbolic access> | H59=1 s
-A60==072_CtrlDB_DriveCtrl_St_PowerMe | B60=Real | C60=HMI1 | D60=CCB-A03 | E60=072_CtrlDB.DriveCtrl.St.PowerMe | G60=<symbolic access> | H60=1 s
-A61==072_CtrlDB_DriveCtrl_St_TorqMe | B61=Real | C61=HMI1 | D61=CCB-A03 | E61=072_CtrlDB.DriveCtrl.St.TorqMe | G61=<symbolic access> | H61=1 s
-A62==072_CtrlDB_DriveCtrl_St_CurrMe | B62=Real | C62=HMI1 | D62=CCB-A03 | E62=072_CtrlDB.DriveCtrl.St.CurrMe | G62=<symbolic access> | H62=1 s
-A63==090_CtrlDB_UZRef_bFwdManuCmd | B63=Bool | C63=HMI1 | D63=CCB-A03 | E63=090_CtrlDB.UZRef.bFwdManuCmd | G63=<symbolic access> | H63=1 s
-A64==090_CtrlDB_UZRef_bBwdManuCmd | B64=Bool | C64=HMI1 | D64=CCB-A03 | E64=090_CtrlDB.UZRef.bBwdManuCmd | G64=<symbolic access> | H64=1 s
-A65==090_CtrlDB_UZRef_bFwdSt | B65=Bool | C65=HMI1 | D65=CCB-A03 | E65=090_CtrlDB.UZRef.bFwdSt | G65=<symbolic access> | H65=1 s
-A66==090_CtrlDB_UZRef_bBwdSt | B66=Bool | C66=HMI1 | D66=CCB-A03 | E66=090_CtrlDB.UZRef.bBwdSt | G66=<symbolic access> | H66=1 s
-A67==090_CtrlDB_UZRef_bRunSt | B67=Bool | C67=HMI1 | D67=CCB-A03 | E67=090_CtrlDB.UZRef.bRunSt | G67=<symbolic access> | H67=1 s
-A68==070_CtrlDB_UZRef_bFwdManuCmd | B68=Bool | C68=HMI1 | D68=CCB-A03 | E68=070_CtrlDB.UZRef.bFwdManuCmd | G68=<symbolic access> | H68=1 s
-A69==070_CtrlDB_UZRef_bBwdManuCmd | B69=Bool | C69=HMI1 | D69=CCB-A03 | E69=070_CtrlDB.UZRef.bBwdManuCmd | G69=<symbolic access> | H69=1 s
-A70==070_CtrlDB_UZRef_bFwdSt | B70=Bool | C70=HMI1 | D70=CCB-A03 | E70=070_CtrlDB.UZRef.bFwdSt | G70=<symbolic access> | H70=1 s
-A71==070_CtrlDB_UZRef_bBwdSt | B71=Bool | C71=HMI1 | D71=CCB-A03 | E71=070_CtrlDB.UZRef.bBwdSt | G71=<symbolic access> | H71=1 s
-A72==070_CtrlDB_UZRef_bRunSt | B72=Bool | C72=HMI1 | D72=CCB-A03 | E72=070_CtrlDB.UZRef.bRunSt | G72=<symbolic access> | H72=1 s
-A73==070_CtrlDB_DriveCtrl_St_SpeedAs | B73=Real | C73=HMI1 | D73=CCB-A03 | E73=070_CtrlDB.DriveCtrl.St.SpeedAs | G73=<symbolic access> | H73=1 s
-A74==070_CtrlDB_DriveCtrl_St_SpeedMe | B74=Real | C74=HMI1 | D74=CCB-A03 | E74=070_CtrlDB.DriveCtrl.St.SpeedMe | G74=<symbolic access> | H74=1 s
-A75==070_CtrlDB_DriveCtrl_St_PowerMe | B75=Real | C75=HMI1 | D75=CCB-A03 | E75=070_CtrlDB.DriveCtrl.St.PowerMe | G75=<symbolic access> | H75=1 s
-A76==070_CtrlDB_DriveCtrl_St_TorqMe | B76=Real | C76=HMI1 | D76=CCB-A03 | E76=070_CtrlDB.DriveCtrl.St.TorqMe | G76=<symbolic access> | H76=1 s
-A77==070_CtrlDB_DriveCtrl_St_CurrMe | B77=Real | C77=HMI1 | D77=CCB-A03 | E77=070_CtrlDB.DriveCtrl.St.CurrMe | G77=<symbolic access> | H77=1 s
-A78==070_CtrlDB_DriveCtrl_St_MotTempMe | B78=Real | C78=HMI1 | D78=CCB-A03 | E78=070_CtrlDB.DriveCtrl.St.MotTempMe | G78=<symbolic access> | H78=1 s
-A79==070_CtrlDB_DriveCtrl_St_DrvTempMe | B79=Real | C79=HMI1 | D79=CCB-A03 | E79=070_CtrlDB.DriveCtrl.St.DrvTempMe | G79=<symbolic access> | H79=1 s
-A80==060_CtrlDB_UZRef_bFwdManuCmd | B80=Bool | C80=HMI1 | D80=CCB-A03 | E80=060_CtrlDB.UZRef.bFwdManuCmd | G80=<symbolic access> | H80=1 s
-A81==060_CtrlDB_UZRef_bBwdManuCmd | B81=Bool | C81=HMI1 | D81=CCB-A03 | E81=060_CtrlDB.UZRef.bBwdManuCmd | G81=<symbolic access> | H81=1 s
-A82==060_CtrlDB_UZRef_bFwdSt | B82=Bool | C82=HMI1 | D82=CCB-A03 | E82=060_CtrlDB.UZRef.bFwdSt | G82=<symbolic access> | H82=1 s
-A83==060_CtrlDB_UZRef_bBwdSt | B83=Bool | C83=HMI1 | D83=CCB-A03 | E83=060_CtrlDB.UZRef.bBwdSt | G83=<symbolic access> | H83=1 s
-A84==060_CtrlDB_UZRef_bRunSt | B84=Bool | C84=HMI1 | D84=CCB-A03 | E84=060_CtrlDB.UZRef.bRunSt | G84=<symbolic access> | H84=1 s
-A85==060_CtrlDB_DriveCtrl_St_SpeedAs | B85=Real | C85=HMI1 | D85=CCB-A03 | E85=060_CtrlDB.DriveCtrl.St.SpeedAs | G85=<symbolic access> | H85=1 s
-A86==060_CtrlDB_DriveCtrl_St_SpeedMe | B86=Real | C86=HMI1 | D86=CCB-A03 | E86=060_CtrlDB.DriveCtrl.St.SpeedMe | G86=<symbolic access> | H86=1 s
-A87==060_CtrlDB_DriveCtrl_St_PowerMe | B87=Real | C87=HMI1 | D87=CCB-A03 | E87=060_CtrlDB.DriveCtrl.St.PowerMe | G87=<symbolic access> | H87=1 s
-A88==060_CtrlDB_DriveCtrl_St_TorqMe | B88=Real | C88=HMI1 | D88=CCB-A03 | E88=060_CtrlDB.DriveCtrl.St.TorqMe | G88=<symbolic access> | H88=1 s
-A89==060_CtrlDB_DriveCtrl_St_CurrMe | B89=Real | C89=HMI1 | D89=CCB-A03 | E89=060_CtrlDB.DriveCtrl.St.CurrMe | G89=<symbolic access> | H89=1 s
-A90==090_CtrlDB_Mode_St_Ready | B90=Bool | C90=HMI1 | D90=CCB-A03 | E90=090_CtrlDB.ModeMotor.St.Ready | G90=<symbolic access> | H90=1 s
-A91==090_CtrlDB_Mode_St_ModeOn | B91=Bool | C91=HMI1 | D91=CCB-A03 | E91=090_CtrlDB.ModeMotor.St.ModeOn | G91=<symbolic access> | H91=1 s
-A92==090_CtrlDB_Mode_St_WaitOn | B92=Bool | C92=HMI1 | D92=CCB-A03 | E92=090_CtrlDB.ModeMotor.St.WaitOn | G92=<symbolic access> | H92=1 s
-A93==090_CtrlDB_Mode_St_RunOn | B93=Bool | C93=HMI1 | D93=CCB-A03 | E93=090_CtrlDB.ModeMotor.St.RunOn | G93=<symbolic access> | H93=1 s
-A94==090_CtrlDB_Mode_St_StartOn | B94=Bool | C94=HMI1 | D94=CCB-A03 | E94=090_CtrlDB.ModeMotor.St.StartOn | G94=<symbolic access> | H94=1 s
-A95==090_CtrlDB_Mode_St_StopOn | B95=Bool | C95=HMI1 | D95=CCB-A03 | E95=090_CtrlDB.ModeMotor.St.StopOn | G95=<symbolic access> | H95=1 s
-A96==090_CtrlDB_Mode_St_LOC | B96=Bool | C96=HMI1 | D96=CCB-A03 | E96=090_CtrlDB.ModeMotor.St.LOC | G96=<symbolic access> | H96=1 s
-A97==090_CtrlDB_Mode_St_REM | B97=Bool | C97=HMI1 | D97=CCB-A03 | E97=090_CtrlDB.ModeMotor.St.REM | G97=<symbolic access> | H97=1 s
-A98==090_CtrlDB_Mode_St_EStop | B98=Bool | C98=HMI1 | D98=CCB-A03 | E98=090_CtrlDB.ModeMotor.St.EStop | G98=<symbolic access> | H98=1 s
-A99==090_CtrlDB_Mode_St_Stop | B99=Bool | C99=HMI1 | D99=CCB-A03 | E99=090_CtrlDB.ModeMotor.St.Stop | G99=<symbolic access> | H99=1 s
-A100==090_CtrlDB_Mode_St_Service | B100=Bool | C100=HMI1 | D100=CCB-A03 | E100=090_CtrlDB.ModeMotor.St.Service | G100=<symbolic access> | H100=1 s
-A101==090_CtrlDB_Mode_St_Aux | B101=Bool | C101=HMI1 | D101=CCB-A03 | E101=090_CtrlDB.ModeMotor.St.Aux | G101=<symbolic access> | H101=1 s
-A102==090_CtrlDB_Mode_St_Manu | B102=Bool | C102=HMI1 | D102=CCB-A03 | E102=090_CtrlDB.ModeMotor.St.Manu | G102=<symbolic access> | H102=1 s
-A103==090_CtrlDB_Mode_St_Semi | B103=Bool | C103=HMI1 | D103=CCB-A03 | E103=090_CtrlDB.ModeMotor.St.Semi | G103=<symbolic access> | H103=1 s
-A104==090_CtrlDB_Mode_St_Auto | B104=Bool | C104=HMI1 | D104=CCB-A03 | E104=090_CtrlDB.ModeMotor.St.Auto | G104=<symbolic access> | H104=1 s
-A105==090_CtrlDB_Mode_St_INHIBIT | B105=Bool | C105=HMI1 | D105=CCB-A03 | E105=090_CtrlDB.ModeMotor.St.INHIBIT | G105=<symbolic access> | H105=1 s
-A106==090_CtrlDB_Mode_St_HmiSt | B106=Int | C106=HMI1 | D106=CCB-A03 | E106=090_CtrlDB.ModeMotor.St.HmiSt | G106=<symbolic access> | H106=1 s
-A107==090_CtrlDB_Mode_St_ActiveField | B107=Int | C107=HMI1 | D107=CCB-A03 | E107=090_CtrlDB.ModeMotor.St.ActiveField | G107=<symbolic access> | H107=1 s
-A108==090_CtrlDB_Mode_St_StartAckAct | B108=Real | C108=HMI1 | D108=CCB-A03 | E108=090_CtrlDB.ModeMotor.St.StartAckAct | G108=<symbolic access> | H108=1 s
-A109==090_CtrlDB_Mode_Cmd_B8 | B109=Bool | C109=HMI1 | D109=CCB-A03 | E109=090_CtrlDB.ModeMotor.Cmd.B8 | G109=<symbolic access> | H109=1 s
-A110==090_CtrlDB_Mode_Cmd_B9 | B110=Bool | C110=HMI1 | D110=CCB-A03 | E110=090_CtrlDB.ModeMotor.Cmd.B9 | G110=<symbolic access> | H110=1 s
-A111==090_CtrlDB_Mode_Cmd_Start | B111=Bool | C111=HMI1 | D111=CCB-A03 | E111=090_CtrlDB.ModeMotor.Cmd.Start | G111=<symbolic access> | H111=1 s
-A112==090_CtrlDB_Mode_Cmd_StartBlock | B112=Bool | C112=HMI1 | D112=CCB-A03 | E112=090_CtrlDB.ModeMotor.Cmd.StartBlock | G112=<symbolic access> | H112=1 s
-A113==090_CtrlDB_Mode_Cmd_B12 | B113=Bool | C113=HMI1 | D113=CCB-A03 | E113=090_CtrlDB.ModeMotor.Cmd.B12 | G113=<symbolic access> | H113=1 s
-A114==090_CtrlDB_Mode_Cmd_B13 | B114=Bool | C114=HMI1 | D114=CCB-A03 | E114=090_CtrlDB.ModeMotor.Cmd.B13 | G114=<symbolic access> | H114=1 s
-A115==090_CtrlDB_Mode_Cmd_LOC | B115=Bool | C115=HMI1 | D115=CCB-A03 | E115=090_CtrlDB.ModeMotor.Cmd.LOC | G115=<symbolic access> | H115=1 s
-A116==090_CtrlDB_Mode_Cmd_REM | B116=Bool | C116=HMI1 | D116=CCB-A03 | E116=090_CtrlDB.ModeMotor.Cmd.REM | G116=<symbolic access> | H116=1 s
-A117==090_CtrlDB_Mode_Cmd_EStop | B117=Bool | C117=HMI1 | D117=CCB-A03 | E117=090_CtrlDB.ModeMotor.Cmd.EStop | G117=<symbolic access> | H117=1 s
-A118==090_CtrlDB_Mode_Cmd_Stop | B118=Bool | C118=HMI1 | D118=CCB-A03 | E118=090_CtrlDB.ModeMotor.Cmd.Stop | G118=<symbolic access> | H118=1 s
-A119==090_CtrlDB_Mode_Cmd_Service | B119=Bool | C119=HMI1 | D119=CCB-A03 | E119=090_CtrlDB.ModeMotor.Cmd.Service | G119=<symbolic access> | H119=1 s
-A120==090_CtrlDB_Mode_Cmd_Aux | B120=Bool | C120=HMI1 | D120=CCB-A03 | E120=090_CtrlDB.ModeMotor.Cmd.Aux | G120=<symbolic access> | H120=1 s
-A121==090_CtrlDB_Mode_Cmd_Manu | B121=Bool | C121=HMI1 | D121=CCB-A03 | E121=090_CtrlDB.ModeMotor.Cmd.Manu | G121=<symbolic access> | H121=1 s
-A122==090_CtrlDB_Mode_Cmd_Semi | B122=Bool | C122=HMI1 | D122=CCB-A03 | E122=090_CtrlDB.ModeMotor.Cmd.Semi | G122=<symbolic access> | H122=1 s
-A123==090_CtrlDB_Mode_Cmd_Auto | B123=Bool | C123=HMI1 | D123=CCB-A03 | E123=090_CtrlDB.ModeMotor.Cmd.Auto | G123=<symbolic access> | H123=1 s
-A124==090_CtrlDB_Mode_Cmd_INHIBIT | B124=Bool | C124=HMI1 | D124=CCB-A03 | E124=090_CtrlDB.ModeMotor.Cmd.INHIBIT | G124=<symbolic access> | H124=1 s
-A125==090_CtrlDB_Mode_Cmd_Select | B125=Int | C125=HMI1 | D125=CCB-A03 | E125=090_CtrlDB.ModeMotor.Cmd.Select | G125=<symbolic access> | H125=1 s
-A126==090_CtrlDB_Mode_Cmd_StartAck | B126=Real | C126=HMI1 | D126=CCB-A03 | E126=090_CtrlDB.ModeMotor.Cmd.StartAck | G126=<symbolic access> | H126=1 s
-A127==090_CtrlDB_UZRef_fManuSpeed | B127=Real | C127=HMI1 | D127=CCB-A03 | E127=090_CtrlDB.UZRef.fManuSpeed | G127=<symbolic access> | H127=1 s | J127=Задание в ручном режиме
-A128==072_CtrlDB_UZRef_fManuSpeed | B128=Real | C128=HMI1 | D128=CCB-A03 | E128=072_CtrlDB.UZRef.fManuSpeed | G128=<symbolic access> | H128=1 s | J128=Задание в ручном режиме
-A129==072_CtrlDB_Mode_St_Manu | B129=Bool | C129=HMI1 | D129=CCB-A03 | E129=072_CtrlDB.ModeMotor.St.Manu | G129=<symbolic access> | H129=1 s
-A130==072_CtrlDB_UZRef_bOnCmd | B130=Bool | C130=HMI1 | D130=CCB-A03 | E130=072_CtrlDB.UZRef.bOnCmd | G130=<symbolic access> | H130=1 s
-A131==070_CtrlDB_UZRef_bOnCmd | B131=Bool | C131=HMI1 | D131=CCB-A03 | E131=070_CtrlDB.UZRef.bOnCmd | G131=<symbolic access> | H131=1 s
-A132==070_CtrlDB_Mode_St_Manu | B132=Bool | C132=HMI1 | D132=CCB-A03 | E132=070_CtrlDB.ModeMotor.St.Manu | G132=<symbolic access> | H132=1 s
-A133==070_CtrlDB_UZRef_fManuSpeed | B133=Real | C133=HMI1 | D133=CCB-A03 | E133=070_CtrlDB.UZRef.fManuSpeed | G133=<symbolic access> | H133=1 s | J133=Задание в ручном режиме
-A134==060_CtrlDB_UZRef_fManuSpeed | B134=Real | C134=HMI1 | D134=CCB-A03 | E134=060_CtrlDB.UZRef.fManuSpeed | G134=<symbolic access> | H134=1 s | J134=Задание в ручном режиме
-A135==060_CtrlDB_Mode_St_Manu | B135=Bool | C135=HMI1 | D135=CCB-A03 | E135=060_CtrlDB.ModeMotor.St.Manu | G135=<symbolic access> | H135=1 s
-A136==060_CtrlDB_UZRef_bOnCmd | B136=Bool | C136=HMI1 | D136=CCB-A03 | E136=060_CtrlDB.UZRef.bOnCmd | G136=<symbolic access> | H136=1 s
-A137==040_CtrlDB_UZRef_bFwdSt | B137=Bool | C137=HMI1 | D137=CCB-A03 | E137=040_CtrlDB.UZRef.bFwdSt | G137=<symbolic access> | H137=1 s
-A138==040_CtrlDB_UZRef_bOnCmd | B138=Bool | C138=HMI1 | D138=CCB-A03 | E138=040_CtrlDB.UZRef.bOnCmd | G138=<symbolic access> | H138=1 s
-A139==040_CtrlDB_UZRef_bBwdSt | B139=Bool | C139=HMI1 | D139=CCB-A03 | E139=040_CtrlDB.UZRef.bBwdSt | G139=<symbolic access> | H139=1 s
-A140==090_CtrlDB_UZRef_bOnCmd | B140=Bool | C140=HMI1 | D140=CCB-A03 | E140=090_CtrlDB.UZRef.bOnCmd | G140=<symbolic access> | H140=1 s
-A141==090_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B141=Int | C141=HMI1 | D141=CCB-A03 | E141=090_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G141=<symbolic access> | H141=1 s
-A142==072_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B142=Int | C142=HMI1 | D142=CCB-A03 | E142=072_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G142=<symbolic access> | H142=1 s
-A143==072_CtrlDB_Mode_St_Auto | B143=Bool | C143=HMI1 | D143=CCB-A03 | E143=072_CtrlDB.ModeMotor.St.Auto | G143=<symbolic access> | H143=1 s
-A144==070_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B144=Int | C144=HMI1 | D144=CCB-A03 | E144=070_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G144=<symbolic access> | H144=1 s
-A145==070_CtrlDB_Mode_St_Auto | B145=Bool | C145=HMI1 | D145=CCB-A03 | E145=070_CtrlDB.ModeMotor.St.Auto | G145=<symbolic access> | H145=1 s
-A146==060_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B146=Int | C146=HMI1 | D146=CCB-A03 | E146=060_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G146=<symbolic access> | H146=1 s
-A147==060_CtrlDB_Mode_St_Auto | B147=Bool | C147=HMI1 | D147=CCB-A03 | E147=060_CtrlDB.ModeMotor.St.Auto | G147=<symbolic access> | H147=1 s
-A148=HMIDataCCD_DB_DoorYZ1_St | B148=Int | C148=HMI1 | D148=CCB-A03 | E148=HMIDataCCD_DB.DoorYZ1_St | G148=<symbolic access> | H148=1 s
-A149=HMIDataCCD_DB_DoorYZ2_St | B149=Int | C149=HMI1 | D149=CCB-A03 | E149=HMIDataCCD_DB.DoorYZ2_St | G149=<symbolic access> | H149=1 s
-A150=HMIDataCCD_DB_DoorYZ3_St | B150=Int | C150=HMI1 | D150=CCB-A03 | E150=HMIDataCCD_DB.DoorYZ3_St | G150=<symbolic access> | H150=1 s
-A151=HMIDataCCD_DB_DoorYZ4_St | B151=Int | C151=HMI1 | D151=CCB-A03 | E151=HMIDataCCD_DB.DoorYZ4_St | G151=<symbolic access> | H151=1 s
-A152=HMIDataCCD_DB_DoorYZ5_St | B152=Int | C152=HMI1 | D152=CCB-A03 | E152=HMIDataCCD_DB.DoorYZ5_St | G152=<symbolic access> | H152=1 s
-A153=HMIDataCCD_DB_DoorYZ6_St | B153=Int | C153=HMI1 | D153=CCB-A03 | E153=HMIDataCCD_DB.DoorYZ6_St | G153=<symbolic access> | H153=1 s
-A154=HMIDataCCD_DB_DoorYZ7_St | B154=Int | C154=HMI1 | D154=CCB-A03 | E154=HMIDataCCD_DB.DoorYZ7_St | G154=<symbolic access> | H154=1 s
-A155=HMIDataCCD_DB_DoorYZ8_St | B155=Int | C155=HMI1 | D155=CCB-A03 | E155=HMIDataCCD_DB.DoorYZ8_St | G155=<symbolic access> | H155=1 s
-A156=HMIDataCCD_DB_DoorYZ9_St | B156=Int | C156=HMI1 | D156=CCB-A03 | E156=HMIDataCCD_DB.DoorYZ9_St | G156=<symbolic access> | H156=1 s
+A11=Alarms_Events | B11=Array [0..249] of Word | C11=HMI1 | D11=TM50 | E11=AlarmsDB | F11=%DB1000.DBX0.0 | G11=<absolute access> | H11=1 s
+A12=HMI_Ack_To_PLC | B12=Array [0..249] of Word | C12=HMI1 | D12=TM50 | E12=HMI_Ack_To_PLC | F12=%DB1006.DBX0.0 | G12=<absolute access> | H12=1 s
+A13=GlobalDB_bResetAlarmCmd | B13=Bool | C13=HMI1 | D13=TM50 | E13=GlobalDB.bResetAlarmCmd | G13=<symbolic access> | H13=1 s | J13=Сброс аварий
+A14=GlobalDB_nHMISt | B14=Int | C14=HMI1 | D14=TM50 | E14=GlobalDB.nHMISt | G14=<symbolic access> | H14=1 s
+A15=GlobalDB_DateTimePLC | B15=DTL | C15=HMI1 | D15=TM50 | E15=GlobalDB.DateTimePLC | G15=<symbolic access> | H15=1 s
+A16=040rs1c1_St | B16=Bool | C16=HMI1 | D16=TM50 | E16=040rs1c1_St | G16=<symbolic access> | H16=1 s | J16=Аварииный стоп левый тросовый канал 1
+A17=040rs2c1_St | B17=Bool | C17=HMI1 | D17=TM50 | E17=040rs2c1_St | G17=<symbolic access> | H17=1 s | J17=Аварииный стоп правый тросовый канал 1
+A18=040rs1c2_St | B18=Bool | C18=HMI1 | D18=TM50 | E18=040rs1c2_St | G18=<symbolic access> | H18=1 s | J18=Аварииный стоп левый тросовый канал 2
+A19=040rs2c2_St | B19=Bool | C19=HMI1 | D19=TM50 | E19=040rs2c2_St | G19=<symbolic access> | H19=1 s | J19=Аварииный стоп правый тросовый канал 2
+A20=CCDbutc1_St | B20=Bool | C20=HMI1 | D20=TM50 | E20=CCDbutc1_St | G20=<symbolic access> | H20=1 s | J20=Аварииный стоп кнопка шкафа канал 1
+A21=PRCbutc1_St | B21=Bool | C21=HMI1 | D21=TM50 | E21=PRCbutc1_St | G21=<symbolic access> | H21=1 s | J21=Аварииный стоп кнопка пульта канал 1
+A22=CCDbutc2_St | B22=Bool | C22=HMI1 | D22=TM50 | E22=CCDbutc2_St | G22=<symbolic access> | H22=1 s | J22=Аварииный стоп кнопка шкафа канал 2
+A23=PRCbutc2_St | B23=Bool | C23=HMI1 | D23=TM50 | E23=PRCbutc2_St | G23=<symbolic access> | H23=1 s | J23=Аварииный стоп кнопка пульта канал 2
+A24==010_CtrlDB_UZRef_bBwdManuCmd | B24=Bool | C24=HMI1 | D24=TM50 | E24=010_CtrlDB.UZRef.bBwdManuCmd | G24=<symbolic access> | H24=1 s
+A25==010_CtrlDB_UZRef_bFwdManuCmd | B25=Bool | C25=HMI1 | D25=TM50 | E25=010_CtrlDB.UZRef.bFwdManuCmd | G25=<symbolic access> | H25=1 s
+A26==010_CtrlDB_Mode_St_Manu | B26=Bool | C26=HMI1 | D26=TM50 | E26=010_CtrlDB.ModeMotor.St.Manu | G26=<symbolic access> | H26=1 s
+A27==010_CtrlDB_UZRef_bFwdSt | B27=Bool | C27=HMI1 | D27=TM50 | E27=010_CtrlDB.UZRef.bFwdSt | G27=<symbolic access> | H27=1 s
+A28==010_CtrlDB_UZRef_bOnCmd | B28=Bool | C28=HMI1 | D28=TM50 | E28=010_CtrlDB.UZRef.bOnCmd | G28=<symbolic access> | H28=1 s
+A29==010_CtrlDB_UZRef_bBwdSt | B29=Bool | C29=HMI1 | D29=TM50 | E29=010_CtrlDB.UZRef.bBwdSt | G29=<symbolic access> | H29=1 s
+A30==010_CtrlDB_UZRef_fSpeedAs | B30=Real | C30=HMI1 | D30=TM50 | E30=010_CtrlDB.UZRef.fSpeedAs | G30=<symbolic access> | H30=1 s
+A31==010_CtrlDB_UZRef_fManuSpeed | B31=Real | C31=HMI1 | D31=TM50 | E31=010_CtrlDB.UZRef.fManuSpeed | G31=<symbolic access> | H31=1 s | J31=Задание в ручном режиме
+A32=HMIDataCCD_DB_fSpeedAs | B32=Real | C32=HMI1 | D32=TM50 | E32=HMIDataCCD_DB.fSpeedAs | G32=<symbolic access> | H32=1 s | J32=Скорость линиии в авто режиме
+A33==040_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B33=Int | C33=HMI1 | D33=TM50 | E33=040_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G33=<symbolic access> | H33=1 s
+A34=HMIDataCCD_DB_RemTimeMouldPreheatMin | B34=Int | C34=HMI1 | D34=TM50 | E34=HMIDataCCD_DB.RemTimeMouldPreheatMin | G34=<symbolic access> | H34=1 s
+A35=HMIDataCCD_DB_RemTimeMouldPreheatHour | B35=Int | C35=HMI1 | D35=TM50 | E35=HMIDataCCD_DB.RemTimeMouldPreheatHour | G35=<symbolic access> | H35=1 s
+A36=HMIDataCCD_DB_RemTimeMouldPreheatSec | B36=Int | C36=HMI1 | D36=TM50 | E36=HMIDataCCD_DB.RemTimeMouldPreheatSec | G36=<symbolic access> | H36=1 s
+A37==040_CtrlDB_Mode_St_Auto | B37=Bool | C37=HMI1 | D37=TM50 | E37=040_CtrlDB.ModeMotor.St.Auto | G37=<symbolic access> | H37=1 s
+A38==010_CtrlDB_Mode_St_Auto | B38=Bool | C38=HMI1 | D38=TM50 | E38=010_CtrlDB.ModeMotor.St.Auto | G38=<symbolic access> | H38=1 s
+A39==040_CtrlDB_Mode_St_Manu | B39=Bool | C39=HMI1 | D39=TM50 | E39=040_CtrlDB.ModeMotor.St.Manu | G39=<symbolic access> | H39=1 s
+A40==040_CtrlDB_UZRef_fManuSpeed | B40=Real | C40=HMI1 | D40=TM50 | E40=040_CtrlDB.UZRef.fManuSpeed | G40=<symbolic access> | H40=1 s | J40=Задание в ручном режиме
+A41==040_CtrlDB_UZRef_bFwdManuCmd | B41=Bool | C41=HMI1 | D41=TM50 | E41=040_CtrlDB.UZRef.bFwdManuCmd | G41=<symbolic access> | H41=1 s
+A42==040_CtrlDB_UZRef_bBwdManuCmd | B42=Bool | C42=HMI1 | D42=TM50 | E42=040_CtrlDB.UZRef.bBwdManuCmd | G42=<symbolic access> | H42=1 s
+A43==040_CtrlDB_DriveCtrl_St_SpeedAs | B43=Real | C43=HMI1 | D43=TM50 | E43=040_CtrlDB.DriveCtrl.St.SpeedAs | G43=<symbolic access> | H43=1 s
+A44==040_CtrlDB_DriveCtrl_St_SpeedMe | B44=Real | C44=HMI1 | D44=TM50 | E44=040_CtrlDB.DriveCtrl.St.SpeedMe | G44=<symbolic access> | H44=1 s
+A45==040_CtrlDB_DriveCtrl_St_PowerMe | B45=Real | C45=HMI1 | D45=TM50 | E45=040_CtrlDB.DriveCtrl.St.PowerMe | G45=<symbolic access> | H45=1 s
+A46==040_CtrlDB_DriveCtrl_St_TorqMe | B46=Real | C46=HMI1 | D46=TM50 | E46=040_CtrlDB.DriveCtrl.St.TorqMe | G46=<symbolic access> | H46=1 s
+A47==040_CtrlDB_DriveCtrl_St_CurrMe | B47=Real | C47=HMI1 | D47=TM50 | E47=040_CtrlDB.DriveCtrl.St.CurrMe | G47=<symbolic access> | H47=1 s
+A48==090_CtrlDB_DriveCtrl_St_SpeedAs | B48=Real | C48=HMI1 | D48=TM50 | E48=090_CtrlDB.DriveCtrl.St.SpeedAs | G48=<symbolic access> | H48=1 s
+A49==090_CtrlDB_DriveCtrl_St_SpeedMe | B49=Real | C49=HMI1 | D49=TM50 | E49=090_CtrlDB.DriveCtrl.St.SpeedMe | G49=<symbolic access> | H49=1 s
+A50==090_CtrlDB_DriveCtrl_St_PowerMe | B50=Real | C50=HMI1 | D50=TM50 | E50=090_CtrlDB.DriveCtrl.St.PowerMe | G50=<symbolic access> | H50=1 s
+A51==090_CtrlDB_DriveCtrl_St_TorqMe | B51=Real | C51=HMI1 | D51=TM50 | E51=090_CtrlDB.DriveCtrl.St.TorqMe | G51=<symbolic access> | H51=1 s
+A52==090_CtrlDB_DriveCtrl_St_CurrMe | B52=Real | C52=HMI1 | D52=TM50 | E52=090_CtrlDB.DriveCtrl.St.CurrMe | G52=<symbolic access> | H52=1 s
+A53==072_CtrlDB_UZRef_bFwdManuCmd | B53=Bool | C53=HMI1 | D53=TM50 | E53=072_CtrlDB.UZRef.bFwdManuCmd | G53=<symbolic access> | H53=1 s
+A54==072_CtrlDB_UZRef_bBwdManuCmd | B54=Bool | C54=HMI1 | D54=TM50 | E54=072_CtrlDB.UZRef.bBwdManuCmd | G54=<symbolic access> | H54=1 s
+A55==072_CtrlDB_UZRef_bFwdSt | B55=Bool | C55=HMI1 | D55=TM50 | E55=072_CtrlDB.UZRef.bFwdSt | G55=<symbolic access> | H55=1 s
+A56==072_CtrlDB_UZRef_bBwdSt | B56=Bool | C56=HMI1 | D56=TM50 | E56=072_CtrlDB.UZRef.bBwdSt | G56=<symbolic access> | H56=1 s
+A57==072_CtrlDB_UZRef_bRunSt | B57=Bool | C57=HMI1 | D57=TM50 | E57=072_CtrlDB.UZRef.bRunSt | G57=<symbolic access> | H57=1 s
+A58==072_CtrlDB_DriveCtrl_St_SpeedAs | B58=Real | C58=HMI1 | D58=TM50 | E58=072_CtrlDB.DriveCtrl.St.SpeedAs | G58=<symbolic access> | H58=1 s
+A59==072_CtrlDB_DriveCtrl_St_SpeedMe | B59=Real | C59=HMI1 | D59=TM50 | E59=072_CtrlDB.DriveCtrl.St.SpeedMe | G59=<symbolic access> | H59=1 s
+A60==072_CtrlDB_DriveCtrl_St_PowerMe | B60=Real | C60=HMI1 | D60=TM50 | E60=072_CtrlDB.DriveCtrl.St.PowerMe | G60=<symbolic access> | H60=1 s
+A61==072_CtrlDB_DriveCtrl_St_TorqMe | B61=Real | C61=HMI1 | D61=TM50 | E61=072_CtrlDB.DriveCtrl.St.TorqMe | G61=<symbolic access> | H61=1 s
+A62==072_CtrlDB_DriveCtrl_St_CurrMe | B62=Real | C62=HMI1 | D62=TM50 | E62=072_CtrlDB.DriveCtrl.St.CurrMe | G62=<symbolic access> | H62=1 s
+A63==090_CtrlDB_UZRef_bFwdManuCmd | B63=Bool | C63=HMI1 | D63=TM50 | E63=090_CtrlDB.UZRef.bFwdManuCmd | G63=<symbolic access> | H63=1 s
+A64==090_CtrlDB_UZRef_bBwdManuCmd | B64=Bool | C64=HMI1 | D64=TM50 | E64=090_CtrlDB.UZRef.bBwdManuCmd | G64=<symbolic access> | H64=1 s
+A65==090_CtrlDB_UZRef_bFwdSt | B65=Bool | C65=HMI1 | D65=TM50 | E65=090_CtrlDB.UZRef.bFwdSt | G65=<symbolic access> | H65=1 s
+A66==090_CtrlDB_UZRef_bBwdSt | B66=Bool | C66=HMI1 | D66=TM50 | E66=090_CtrlDB.UZRef.bBwdSt | G66=<symbolic access> | H66=1 s
+A67==090_CtrlDB_UZRef_bRunSt | B67=Bool | C67=HMI1 | D67=TM50 | E67=090_CtrlDB.UZRef.bRunSt | G67=<symbolic access> | H67=1 s
+A68==070_CtrlDB_UZRef_bFwdManuCmd | B68=Bool | C68=HMI1 | D68=TM50 | E68=070_CtrlDB.UZRef.bFwdManuCmd | G68=<symbolic access> | H68=1 s
+A69==070_CtrlDB_UZRef_bBwdManuCmd | B69=Bool | C69=HMI1 | D69=TM50 | E69=070_CtrlDB.UZRef.bBwdManuCmd | G69=<symbolic access> | H69=1 s
+A70==070_CtrlDB_UZRef_bFwdSt | B70=Bool | C70=HMI1 | D70=TM50 | E70=070_CtrlDB.UZRef.bFwdSt | G70=<symbolic access> | H70=1 s
+A71==070_CtrlDB_UZRef_bBwdSt | B71=Bool | C71=HMI1 | D71=TM50 | E71=070_CtrlDB.UZRef.bBwdSt | G71=<symbolic access> | H71=1 s
+A72==070_CtrlDB_UZRef_bRunSt | B72=Bool | C72=HMI1 | D72=TM50 | E72=070_CtrlDB.UZRef.bRunSt | G72=<symbolic access> | H72=1 s
+A73==070_CtrlDB_DriveCtrl_St_SpeedAs | B73=Real | C73=HMI1 | D73=TM50 | E73=070_CtrlDB.DriveCtrl.St.SpeedAs | G73=<symbolic access> | H73=1 s
+A74==070_CtrlDB_DriveCtrl_St_SpeedMe | B74=Real | C74=HMI1 | D74=TM50 | E74=070_CtrlDB.DriveCtrl.St.SpeedMe | G74=<symbolic access> | H74=1 s
+A75==070_CtrlDB_DriveCtrl_St_PowerMe | B75=Real | C75=HMI1 | D75=TM50 | E75=070_CtrlDB.DriveCtrl.St.PowerMe | G75=<symbolic access> | H75=1 s
+A76==070_CtrlDB_DriveCtrl_St_TorqMe | B76=Real | C76=HMI1 | D76=TM50 | E76=070_CtrlDB.DriveCtrl.St.TorqMe | G76=<symbolic access> | H76=1 s
+A77==070_CtrlDB_DriveCtrl_St_CurrMe | B77=Real | C77=HMI1 | D77=TM50 | E77=070_CtrlDB.DriveCtrl.St.CurrMe | G77=<symbolic access> | H77=1 s
+A78==070_CtrlDB_DriveCtrl_St_MotTempMe | B78=Real | C78=HMI1 | D78=TM50 | E78=070_CtrlDB.DriveCtrl.St.MotTempMe | G78=<symbolic access> | H78=1 s
+A79==070_CtrlDB_DriveCtrl_St_DrvTempMe | B79=Real | C79=HMI1 | D79=TM50 | E79=070_CtrlDB.DriveCtrl.St.DrvTempMe | G79=<symbolic access> | H79=1 s
+A80==060_CtrlDB_UZRef_bFwdManuCmd | B80=Bool | C80=HMI1 | D80=TM50 | E80=060_CtrlDB.UZRef.bFwdManuCmd | G80=<symbolic access> | H80=1 s
+A81==060_CtrlDB_UZRef_bBwdManuCmd | B81=Bool | C81=HMI1 | D81=TM50 | E81=060_CtrlDB.UZRef.bBwdManuCmd | G81=<symbolic access> | H81=1 s
+A82==060_CtrlDB_UZRef_bFwdSt | B82=Bool | C82=HMI1 | D82=TM50 | E82=060_CtrlDB.UZRef.bFwdSt | G82=<symbolic access> | H82=1 s
+A83==060_CtrlDB_UZRef_bBwdSt | B83=Bool | C83=HMI1 | D83=TM50 | E83=060_CtrlDB.UZRef.bBwdSt | G83=<symbolic access> | H83=1 s
+A84==060_CtrlDB_UZRef_bRunSt | B84=Bool | C84=HMI1 | D84=TM50 | E84=060_CtrlDB.UZRef.bRunSt | G84=<symbolic access> | H84=1 s
+A85==060_CtrlDB_DriveCtrl_St_SpeedAs | B85=Real | C85=HMI1 | D85=TM50 | E85=060_CtrlDB.DriveCtrl.St.SpeedAs | G85=<symbolic access> | H85=1 s
+A86==060_CtrlDB_DriveCtrl_St_SpeedMe | B86=Real | C86=HMI1 | D86=TM50 | E86=060_CtrlDB.DriveCtrl.St.SpeedMe | G86=<symbolic access> | H86=1 s
+A87==060_CtrlDB_DriveCtrl_St_PowerMe | B87=Real | C87=HMI1 | D87=TM50 | E87=060_CtrlDB.DriveCtrl.St.PowerMe | G87=<symbolic access> | H87=1 s
+A88==060_CtrlDB_DriveCtrl_St_TorqMe | B88=Real | C88=HMI1 | D88=TM50 | E88=060_CtrlDB.DriveCtrl.St.TorqMe | G88=<symbolic access> | H88=1 s
+A89==060_CtrlDB_DriveCtrl_St_CurrMe | B89=Real | C89=HMI1 | D89=TM50 | E89=060_CtrlDB.DriveCtrl.St.CurrMe | G89=<symbolic access> | H89=1 s
+A90==090_CtrlDB_Mode_St_Ready | B90=Bool | C90=HMI1 | D90=TM50 | E90=090_CtrlDB.ModeMotor.St.Ready | G90=<symbolic access> | H90=1 s
+A91==090_CtrlDB_Mode_St_ModeOn | B91=Bool | C91=HMI1 | D91=TM50 | E91=090_CtrlDB.ModeMotor.St.ModeOn | G91=<symbolic access> | H91=1 s
+A92==090_CtrlDB_Mode_St_WaitOn | B92=Bool | C92=HMI1 | D92=TM50 | E92=090_CtrlDB.ModeMotor.St.WaitOn | G92=<symbolic access> | H92=1 s
+A93==090_CtrlDB_Mode_St_RunOn | B93=Bool | C93=HMI1 | D93=TM50 | E93=090_CtrlDB.ModeMotor.St.RunOn | G93=<symbolic access> | H93=1 s
+A94==090_CtrlDB_Mode_St_StartOn | B94=Bool | C94=HMI1 | D94=TM50 | E94=090_CtrlDB.ModeMotor.St.StartOn | G94=<symbolic access> | H94=1 s
+A95==090_CtrlDB_Mode_St_StopOn | B95=Bool | C95=HMI1 | D95=TM50 | E95=090_CtrlDB.ModeMotor.St.StopOn | G95=<symbolic access> | H95=1 s
+A96==090_CtrlDB_Mode_St_LOC | B96=Bool | C96=HMI1 | D96=TM50 | E96=090_CtrlDB.ModeMotor.St.LOC | G96=<symbolic access> | H96=1 s
+A97==090_CtrlDB_Mode_St_REM | B97=Bool | C97=HMI1 | D97=TM50 | E97=090_CtrlDB.ModeMotor.St.REM | G97=<symbolic access> | H97=1 s
+A98==090_CtrlDB_Mode_St_EStop | B98=Bool | C98=HMI1 | D98=TM50 | E98=090_CtrlDB.ModeMotor.St.EStop | G98=<symbolic access> | H98=1 s
+A99==090_CtrlDB_Mode_St_Stop | B99=Bool | C99=HMI1 | D99=TM50 | E99=090_CtrlDB.ModeMotor.St.Stop | G99=<symbolic access> | H99=1 s
+A100==090_CtrlDB_Mode_St_Service | B100=Bool | C100=HMI1 | D100=TM50 | E100=090_CtrlDB.ModeMotor.St.Service | G100=<symbolic access> | H100=1 s
+A101==090_CtrlDB_Mode_St_Aux | B101=Bool | C101=HMI1 | D101=TM50 | E101=090_CtrlDB.ModeMotor.St.Aux | G101=<symbolic access> | H101=1 s
+A102==090_CtrlDB_Mode_St_Manu | B102=Bool | C102=HMI1 | D102=TM50 | E102=090_CtrlDB.ModeMotor.St.Manu | G102=<symbolic access> | H102=1 s
+A103==090_CtrlDB_Mode_St_Semi | B103=Bool | C103=HMI1 | D103=TM50 | E103=090_CtrlDB.ModeMotor.St.Semi | G103=<symbolic access> | H103=1 s
+A104==090_CtrlDB_Mode_St_Auto | B104=Bool | C104=HMI1 | D104=TM50 | E104=090_CtrlDB.ModeMotor.St.Auto | G104=<symbolic access> | H104=1 s
+A105==090_CtrlDB_Mode_St_INHIBIT | B105=Bool | C105=HMI1 | D105=TM50 | E105=090_CtrlDB.ModeMotor.St.INHIBIT | G105=<symbolic access> | H105=1 s
+A106==090_CtrlDB_Mode_St_HmiSt | B106=Int | C106=HMI1 | D106=TM50 | E106=090_CtrlDB.ModeMotor.St.HmiSt | G106=<symbolic access> | H106=1 s
+A107==090_CtrlDB_Mode_St_ActiveField | B107=Int | C107=HMI1 | D107=TM50 | E107=090_CtrlDB.ModeMotor.St.ActiveField | G107=<symbolic access> | H107=1 s
+A108==090_CtrlDB_Mode_St_StartAckAct | B108=Real | C108=HMI1 | D108=TM50 | E108=090_CtrlDB.ModeMotor.St.StartAckAct | G108=<symbolic access> | H108=1 s
+A109==090_CtrlDB_Mode_Cmd_B8 | B109=Bool | C109=HMI1 | D109=TM50 | E109=090_CtrlDB.ModeMotor.Cmd.B8 | G109=<symbolic access> | H109=1 s
+A110==090_CtrlDB_Mode_Cmd_B9 | B110=Bool | C110=HMI1 | D110=TM50 | E110=090_CtrlDB.ModeMotor.Cmd.B9 | G110=<symbolic access> | H110=1 s
+A111==090_CtrlDB_Mode_Cmd_Start | B111=Bool | C111=HMI1 | D111=TM50 | E111=090_CtrlDB.ModeMotor.Cmd.Start | G111=<symbolic access> | H111=1 s
+A112==090_CtrlDB_Mode_Cmd_StartBlock | B112=Bool | C112=HMI1 | D112=TM50 | E112=090_CtrlDB.ModeMotor.Cmd.StartBlock | G112=<symbolic access> | H112=1 s
+A113==090_CtrlDB_Mode_Cmd_B12 | B113=Bool | C113=HMI1 | D113=TM50 | E113=090_CtrlDB.ModeMotor.Cmd.B12 | G113=<symbolic access> | H113=1 s
+A114==090_CtrlDB_Mode_Cmd_B13 | B114=Bool | C114=HMI1 | D114=TM50 | E114=090_CtrlDB.ModeMotor.Cmd.B13 | G114=<symbolic access> | H114=1 s
+A115==090_CtrlDB_Mode_Cmd_LOC | B115=Bool | C115=HMI1 | D115=TM50 | E115=090_CtrlDB.ModeMotor.Cmd.LOC | G115=<symbolic access> | H115=1 s
+A116==090_CtrlDB_Mode_Cmd_REM | B116=Bool | C116=HMI1 | D116=TM50 | E116=090_CtrlDB.ModeMotor.Cmd.REM | G116=<symbolic access> | H116=1 s
+A117==090_CtrlDB_Mode_Cmd_EStop | B117=Bool | C117=HMI1 | D117=TM50 | E117=090_CtrlDB.ModeMotor.Cmd.EStop | G117=<symbolic access> | H117=1 s
+A118==090_CtrlDB_Mode_Cmd_Stop | B118=Bool | C118=HMI1 | D118=TM50 | E118=090_CtrlDB.ModeMotor.Cmd.Stop | G118=<symbolic access> | H118=1 s
+A119==090_CtrlDB_Mode_Cmd_Service | B119=Bool | C119=HMI1 | D119=TM50 | E119=090_CtrlDB.ModeMotor.Cmd.Service | G119=<symbolic access> | H119=1 s
+A120==090_CtrlDB_Mode_Cmd_Aux | B120=Bool | C120=HMI1 | D120=TM50 | E120=090_CtrlDB.ModeMotor.Cmd.Aux | G120=<symbolic access> | H120=1 s
+A121==090_CtrlDB_Mode_Cmd_Manu | B121=Bool | C121=HMI1 | D121=TM50 | E121=090_CtrlDB.ModeMotor.Cmd.Manu | G121=<symbolic access> | H121=1 s
+A122==090_CtrlDB_Mode_Cmd_Semi | B122=Bool | C122=HMI1 | D122=TM50 | E122=090_CtrlDB.ModeMotor.Cmd.Semi | G122=<symbolic access> | H122=1 s
+A123==090_CtrlDB_Mode_Cmd_Auto | B123=Bool | C123=HMI1 | D123=TM50 | E123=090_CtrlDB.ModeMotor.Cmd.Auto | G123=<symbolic access> | H123=1 s
+A124==090_CtrlDB_Mode_Cmd_INHIBIT | B124=Bool | C124=HMI1 | D124=TM50 | E124=090_CtrlDB.ModeMotor.Cmd.INHIBIT | G124=<symbolic access> | H124=1 s
+A125==090_CtrlDB_Mode_Cmd_Select | B125=Int | C125=HMI1 | D125=TM50 | E125=090_CtrlDB.ModeMotor.Cmd.Select | G125=<symbolic access> | H125=1 s
+A126==090_CtrlDB_Mode_Cmd_StartAck | B126=Real | C126=HMI1 | D126=TM50 | E126=090_CtrlDB.ModeMotor.Cmd.StartAck | G126=<symbolic access> | H126=1 s
+A127==090_CtrlDB_UZRef_fManuSpeed | B127=Real | C127=HMI1 | D127=TM50 | E127=090_CtrlDB.UZRef.fManuSpeed | G127=<symbolic access> | H127=1 s | J127=Задание в ручном режиме
+A128==072_CtrlDB_UZRef_fManuSpeed | B128=Real | C128=HMI1 | D128=TM50 | E128=072_CtrlDB.UZRef.fManuSpeed | G128=<symbolic access> | H128=1 s | J128=Задание в ручном режиме
+A129==072_CtrlDB_Mode_St_Manu | B129=Bool | C129=HMI1 | D129=TM50 | E129=072_CtrlDB.ModeMotor.St.Manu | G129=<symbolic access> | H129=1 s
+A130==072_CtrlDB_UZRef_bOnCmd | B130=Bool | C130=HMI1 | D130=TM50 | E130=072_CtrlDB.UZRef.bOnCmd | G130=<symbolic access> | H130=1 s
+A131==070_CtrlDB_UZRef_bOnCmd | B131=Bool | C131=HMI1 | D131=TM50 | E131=070_CtrlDB.UZRef.bOnCmd | G131=<symbolic access> | H131=1 s
+A132==070_CtrlDB_Mode_St_Manu | B132=Bool | C132=HMI1 | D132=TM50 | E132=070_CtrlDB.ModeMotor.St.Manu | G132=<symbolic access> | H132=1 s
+A133==070_CtrlDB_UZRef_fManuSpeed | B133=Real | C133=HMI1 | D133=TM50 | E133=070_CtrlDB.UZRef.fManuSpeed | G133=<symbolic access> | H133=1 s | J133=Задание в ручном режиме
+A134==060_CtrlDB_UZRef_fManuSpeed | B134=Real | C134=HMI1 | D134=TM50 | E134=060_CtrlDB.UZRef.fManuSpeed | G134=<symbolic access> | H134=1 s | J134=Задание в ручном режиме
+A135==060_CtrlDB_Mode_St_Manu | B135=Bool | C135=HMI1 | D135=TM50 | E135=060_CtrlDB.ModeMotor.St.Manu | G135=<symbolic access> | H135=1 s
+A136==060_CtrlDB_UZRef_bOnCmd | B136=Bool | C136=HMI1 | D136=TM50 | E136=060_CtrlDB.UZRef.bOnCmd | G136=<symbolic access> | H136=1 s
+A137==040_CtrlDB_UZRef_bFwdSt | B137=Bool | C137=HMI1 | D137=TM50 | E137=040_CtrlDB.UZRef.bFwdSt | G137=<symbolic access> | H137=1 s
+A138==040_CtrlDB_UZRef_bOnCmd | B138=Bool | C138=HMI1 | D138=TM50 | E138=040_CtrlDB.UZRef.bOnCmd | G138=<symbolic access> | H138=1 s
+A139==040_CtrlDB_UZRef_bBwdSt | B139=Bool | C139=HMI1 | D139=TM50 | E139=040_CtrlDB.UZRef.bBwdSt | G139=<symbolic access> | H139=1 s
+A140==090_CtrlDB_UZRef_bOnCmd | B140=Bool | C140=HMI1 | D140=TM50 | E140=090_CtrlDB.UZRef.bOnCmd | G140=<symbolic access> | H140=1 s
+A141==090_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B141=Int | C141=HMI1 | D141=TM50 | E141=090_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G141=<symbolic access> | H141=1 s
+A142==072_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B142=Int | C142=HMI1 | D142=TM50 | E142=072_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G142=<symbolic access> | H142=1 s
+A143==072_CtrlDB_Mode_St_Auto | B143=Bool | C143=HMI1 | D143=TM50 | E143=072_CtrlDB.ModeMotor.St.Auto | G143=<symbolic access> | H143=1 s
+A144==070_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B144=Int | C144=HMI1 | D144=TM50 | E144=070_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G144=<symbolic access> | H144=1 s
+A145==070_CtrlDB_Mode_St_Auto | B145=Bool | C145=HMI1 | D145=TM50 | E145=070_CtrlDB.ModeMotor.St.Auto | G145=<symbolic access> | H145=1 s
+A146==060_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B146=Int | C146=HMI1 | D146=TM50 | E146=060_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G146=<symbolic access> | H146=1 s
+A147==060_CtrlDB_Mode_St_Auto | B147=Bool | C147=HMI1 | D147=TM50 | E147=060_CtrlDB.ModeMotor.St.Auto | G147=<symbolic access> | H147=1 s
+A148=HMIDataCCD_DB_DoorYZ1_St | B148=Int | C148=HMI1 | D148=TM50 | E148=HMIDataCCD_DB.DoorYZ1_St | G148=<symbolic access> | H148=1 s
+A149=HMIDataCCD_DB_DoorYZ2_St | B149=Int | C149=HMI1 | D149=TM50 | E149=HMIDataCCD_DB.DoorYZ2_St | G149=<symbolic access> | H149=1 s
+A150=HMIDataCCD_DB_DoorYZ3_St | B150=Int | C150=HMI1 | D150=TM50 | E150=HMIDataCCD_DB.DoorYZ3_St | G150=<symbolic access> | H150=1 s
+A151=HMIDataCCD_DB_DoorYZ4_St | B151=Int | C151=HMI1 | D151=TM50 | E151=HMIDataCCD_DB.DoorYZ4_St | G151=<symbolic access> | H151=1 s
+A152=HMIDataCCD_DB_DoorYZ5_St | B152=Int | C152=HMI1 | D152=TM50 | E152=HMIDataCCD_DB.DoorYZ5_St | G152=<symbolic access> | H152=1 s
+A153=HMIDataCCD_DB_DoorYZ6_St | B153=Int | C153=HMI1 | D153=TM50 | E153=HMIDataCCD_DB.DoorYZ6_St | G153=<symbolic access> | H153=1 s
+A154=HMIDataCCD_DB_DoorYZ7_St | B154=Int | C154=HMI1 | D154=TM50 | E154=HMIDataCCD_DB.DoorYZ7_St | G154=<symbolic access> | H154=1 s
+A155=HMIDataCCD_DB_DoorYZ8_St | B155=Int | C155=HMI1 | D155=TM50 | E155=HMIDataCCD_DB.DoorYZ8_St | G155=<symbolic access> | H155=1 s
+A156=HMIDataCCD_DB_DoorYZ9_St | B156=Int | C156=HMI1 | D156=TM50 | E156=HMIDataCCD_DB.DoorYZ9_St | G156=<symbolic access> | H156=1 s
 A157==010_MeasDB_XP1_nAI_fActMe | B157=Real | C157=HMI1 | D157=отсутствует в файле ПЛК | E157=отсутствует в файле ПЛК | G157=<symbolic access> | H157=1 s | J157=отсутствует в файле ПЛК
 A158==010_MeasDB_XP2_nAI_fActMe | B158=Real | C158=HMI1 | D158=отсутствует в файле ПЛК | E158=отсутствует в файле ПЛК | G158=<symbolic access> | H158=1 s | J158=отсутствует в файле ПЛК
 A159==010_MeasDB_XP3_nAI_fActMe | B159=Real | C159=HMI1 | D159=отсутствует в файле ПЛК | E159=отсутствует в файле ПЛК | G159=<symbolic access> | H159=1 s | J159=отсутствует в файле ПЛК
@@ -162,296 +162,296 @@ A163==010_MeasDB_XP7_nAI_fActMe | B163=Real | C163=HMI1 | D163=отсутств�
 A164=HMIDataCCD_DB_010_Casting_MaxCastingTime | B164=Real | C164=HMI1 | D164=отсутствует в файле ПЛК | E164=отсутствует в файле ПЛК | G164=<symbolic access> | H164=1 s | J164=отсутствует в файле ПЛК
 A165=HMIDataCCD_DB_010_Casting_CastingConvSpeed | B165=Real | C165=HMI1 | D165=отсутствует в файле ПЛК | E165=отсутствует в файле ПЛК | G165=<symbolic access> | H165=1 s | J165=отсутствует в файле ПЛК
 A166=HMIDataCCD_DB_010_Casting_SideShiftSpeedCorr | B166=Real | C166=HMI1 | D166=отсутствует в файле ПЛК | E166=отсутствует в файле ПЛК | G166=<symbolic access> | H166=1 s | J166=отсутствует в файле ПЛК
-A167=HMIDataCCD_DB_030_Feeding_BtnReject | B167=Bool | C167=HMI1 | D167=CCB-A03 | E167=HMIDataCCD_DB.030_Feeding.BtnReject | G167=<symbolic access> | H167=1 s | J167=Толкатель
-A168=HMIDataCCD_DB_010_Casting_BtnCasting | B168=Bool | C168=HMI1 | D168=CCB-A03 | E168=HMIDataCCD_DB.010_Casting.BtnCasting | G168=<symbolic access> | H168=1 s | J168=Команда разливки – Эта кнопка позволит производить разливку в автоматическом режиме или ручную разливку при удержании кнопки в ручном режиме.
-A169=HMIDataCCD_DB_010_Casting_BtnTiltFFwUp | B169=Bool | C169=HMI1 | D169=CCB-A03 | E169=HMIDataCCD_DB.010_Casting.BtnTiltFFwUp | G169=<symbolic access> | H169=1 s | J169=Передняя сторона вверх
-A170=HMIDataCCD_DB_010_Casting_BtnTiltFFwDn | B170=Bool | C170=HMI1 | D170=CCB-A03 | E170=HMIDataCCD_DB.010_Casting.BtnTiltFFwDn | G170=<symbolic access> | H170=1 s | J170=Передняя сторона вниз
-A171=HMIDataCCD_DB_010_Casting_BtnTiltBCwUp | B171=Bool | C171=HMI1 | D171=CCB-A03 | E171=HMIDataCCD_DB.010_Casting.BtnTiltBCwUp | G171=<symbolic access> | H171=1 s | J171=Задняя сторона вверх
-A172=HMIDataCCD_DB_010_Casting_BtnTiltBCwDn | B172=Bool | C172=HMI1 | D172=CCB-A03 | E172=HMIDataCCD_DB.010_Casting.BtnTiltBCwDn | G172=<symbolic access> | H172=1 s | J172=Задняя сторона вниз
-A173=HMIDataCCD_DB_010_Casting_BtnSideShiftUp | B173=Bool | C173=HMI1 | D173=CCB-A03 | E173=HMIDataCCD_DB.010_Casting.BtnSideShiftUp | G173=<symbolic access> | H173=1 s | J173=Боковое смещение Вперед
-A174=HMIDataCCD_DB_010_Casting_BtnSideShiftDn | B174=Bool | C174=HMI1 | D174=CCB-A03 | E174=HMIDataCCD_DB.010_Casting.BtnSideShiftDn | G174=<symbolic access> | H174=1 s | J174=Боковое смещение назад
-A175=HMIDataCCD_DB_010_Casting_BtnSkimmOpn | B175=Bool | C175=HMI1 | D175=CCB-A03 | E175=HMIDataCCD_DB.010_Casting.BtnSkimmOpn | G175=<symbolic access> | H175=1 s | J175=Инструмент удаления шлаков  - Открыто
-A176=HMIDataCCD_DB_010_Casting_BtnSkimmCls | B176=Bool | C176=HMI1 | D176=CCB-A03 | E176=HMIDataCCD_DB.010_Casting.BtnSkimmCls | G176=<symbolic access> | H176=1 s | J176=Инструмент удаления шлаков - закрыто
-A177=HMIDataCCD_DB_010_Casting_StCasting | B177=Bool | C177=HMI1 | D177=CCB-A03 | E177=HMIDataCCD_DB.010_Casting.StCasting | G177=<symbolic access> | H177=1 s
-A178=HMIDataCCD_DB_010_Casting_StTiltFFwUp | B178=Bool | C178=HMI1 | D178=CCB-A03 | E178=HMIDataCCD_DB.010_Casting.StTiltFFwUp | G178=<symbolic access> | H178=1 s
-A179=HMIDataCCD_DB_010_Casting_StTiltFFwDn | B179=Bool | C179=HMI1 | D179=CCB-A03 | E179=HMIDataCCD_DB.010_Casting.StTiltFFwDn | G179=<symbolic access> | H179=1 s
-A180=HMIDataCCD_DB_010_Casting_StTiltBCwUp | B180=Bool | C180=HMI1 | D180=CCB-A03 | E180=HMIDataCCD_DB.010_Casting.StTiltBCwUp | G180=<symbolic access> | H180=1 s
-A181=HMIDataCCD_DB_010_Casting_StTiltBCwDn | B181=Bool | C181=HMI1 | D181=CCB-A03 | E181=HMIDataCCD_DB.010_Casting.StTiltBCwDn | G181=<symbolic access> | H181=1 s
-A182=HMIDataCCD_DB_010_Casting_StSideShiftUp | B182=Bool | C182=HMI1 | D182=CCB-A03 | E182=HMIDataCCD_DB.010_Casting.StSideShiftUp | G182=<symbolic access> | H182=1 s
-A183=HMIDataCCD_DB_010_Casting_StSideShiftDn | B183=Bool | C183=HMI1 | D183=CCB-A03 | E183=HMIDataCCD_DB.010_Casting.StSideShiftDn | G183=<symbolic access> | H183=1 s
-A184=HMIDataCCD_DB_010_Casting_StSkimmOpn | B184=Bool | C184=HMI1 | D184=CCB-A03 | E184=HMIDataCCD_DB.010_Casting.StSkimmOpn | G184=<symbolic access> | H184=1 s
-A185=HMIDataCCD_DB_010_Casting_StSkimmCls | B185=Bool | C185=HMI1 | D185=CCB-A03 | E185=HMIDataCCD_DB.010_Casting.StSkimmCls | G185=<symbolic access> | H185=1 s
-A186=HMIDataCCD_DB_020_Demoulding_BtnHammerExtend | B186=Bool | C186=HMI1 | D186=CCB-A03 | E186=HMIDataCCD_DB.020_Demoulding.BtnHammerExtend | G186=<symbolic access> | H186=1 s | J186=Молоток Выдвижение
-A187=HMIDataCCD_DB_020_Demoulding_BtnHammerRetract | B187=Bool | C187=HMI1 | D187=CCB-A03 | E187=HMIDataCCD_DB.020_Demoulding.BtnHammerRetract | G187=<symbolic access> | H187=1 s | J187=Молоток втягивание
-A188=HMIDataCCD_DB_020_Demoulding_BtnGateExtend | B188=Bool | C188=HMI1 | D188=CCB-A03 | E188=HMIDataCCD_DB.020_Demoulding.BtnGateExtend | G188=<symbolic access> | H188=1 s | J188=Ворота Выдвижение
-A189=HMIDataCCD_DB_020_Demoulding_BtnGateRetrac | B189=Bool | C189=HMI1 | D189=CCB-A03 | E189=HMIDataCCD_DB.020_Demoulding.BtnGateRetrac | G189=<symbolic access> | H189=1 s | J189=Ворота втягивание
-A190=HMIDataCCD_DB_020_Demoulding_BtnTableExtend | B190=Bool | C190=HMI1 | D190=CCB-A03 | E190=HMIDataCCD_DB.020_Demoulding.BtnTableExtend | G190=<symbolic access> | H190=1 s | J190=Стол
-A191=HMIDataCCD_DB_020_Demoulding_BtnTableRetrac | B191=Bool | C191=HMI1 | D191=CCB-A03 | E191=HMIDataCCD_DB.020_Demoulding.BtnTableRetrac | G191=<symbolic access> | H191=1 s | J191=Стол
-A192=HMIDataCCD_DB_020_Demoulding_BtnPusherExtend | B192=Bool | C192=HMI1 | D192=CCB-A03 | E192=HMIDataCCD_DB.020_Demoulding.BtnPusherExtend | G192=<symbolic access> | H192=1 s | J192=Толкатель
-A193=HMIDataCCD_DB_020_Demoulding_BtnPusherRetrac | B193=Bool | C193=HMI1 | D193=CCB-A03 | E193=HMIDataCCD_DB.020_Demoulding.BtnPusherRetrac | G193=<symbolic access> | H193=1 s | J193=Толкатель
-A194=HMIDataCCD_DB_020_Demoulding_BtnGateExtend_St | B194=Bool | C194=HMI1 | D194=CCB-A03 | E194=HMIDataCCD_DB.020_Demoulding.BtnGateExtend_St | G194=<symbolic access> | H194=1 s
-A195=HMIDataCCD_DB_020_Demoulding_BtnGateRetrac_St | B195=Bool | C195=HMI1 | D195=CCB-A03 | E195=HMIDataCCD_DB.020_Demoulding.BtnGateRetrac_St | G195=<symbolic access> | H195=1 s
-A196=HMIDataCCD_DB_020_Demoulding_BtnTableExtend_St | B196=Bool | C196=HMI1 | D196=CCB-A03 | E196=HMIDataCCD_DB.020_Demoulding.BtnTableExtend_St | G196=<symbolic access> | H196=1 s
-A197=HMIDataCCD_DB_020_Demoulding_BtnTableRetrac_St | B197=Bool | C197=HMI1 | D197=CCB-A03 | E197=HMIDataCCD_DB.020_Demoulding.BtnTableRetrac_St | G197=<symbolic access> | H197=1 s
-A198=HMIDataCCD_DB_020_Demoulding_BtnPusherExtend_St | B198=Bool | C198=HMI1 | D198=CCB-A03 | E198=HMIDataCCD_DB.020_Demoulding.BtnPusherExtend_St | G198=<symbolic access> | H198=1 s
-A199=HMIDataCCD_DB_020_Demoulding_BtnPusherRetrac_St | B199=Bool | C199=HMI1 | D199=CCB-A03 | E199=HMIDataCCD_DB.020_Demoulding.BtnPusherRetrac_St | G199=<symbolic access> | H199=1 s
-A200=HMIDataCCD_DB_020_Demoulding_StGateExtend | B200=Bool | C200=HMI1 | D200=CCB-A03 | E200=HMIDataCCD_DB.020_Demoulding.StGateExtend | G200=<symbolic access> | H200=1 s
-A201=HMIDataCCD_DB_020_Demoulding_StGateRetrac | B201=Bool | C201=HMI1 | D201=CCB-A03 | E201=HMIDataCCD_DB.020_Demoulding.StGateRetrac | G201=<symbolic access> | H201=1 s
-A202=HMIDataCCD_DB_020_Demoulding_StTableExtend | B202=Bool | C202=HMI1 | D202=CCB-A03 | E202=HMIDataCCD_DB.020_Demoulding.StTableExtend | G202=<symbolic access> | H202=1 s
-A203=HMIDataCCD_DB_020_Demoulding_StTableRetrac | B203=Bool | C203=HMI1 | D203=CCB-A03 | E203=HMIDataCCD_DB.020_Demoulding.StTableRetrac | G203=<symbolic access> | H203=1 s
-A204=HMIDataCCD_DB_020_Demoulding_StPusherExtend | B204=Bool | C204=HMI1 | D204=CCB-A03 | E204=HMIDataCCD_DB.020_Demoulding.StPusherExtend | G204=<symbolic access> | H204=1 s
-A205=HMIDataCCD_DB_020_Demoulding_StPusherRetrac | B205=Bool | C205=HMI1 | D205=CCB-A03 | E205=HMIDataCCD_DB.020_Demoulding.StPusherRetrac | G205=<symbolic access> | H205=1 s
-A206=HMIDataCCD_DB_030_Feeding_BtnStpSq1Up | B206=Bool | C206=HMI1 | D206=CCB-A03 | E206=HMIDataCCD_DB.030_Feeding.BtnAlignCls | G206=<symbolic access> | H206=1 s | J206=команда на выравнивания слитков установить
-A207=HMIDataCCD_DB_030_Feeding_BtnStpSq1Dn | B207=Bool | C207=HMI1 | D207=CCB-A03 | E207=HMIDataCCD_DB.030_Feeding.BtnAlignOpn | G207=<symbolic access> | H207=1 s | J207=команда на выравнивания слитков освободить
-A208=HMIDataCCD_DB_030_Feeding_BtnStpSq2Up | B208=Bool | C208=HMI1 | D208=CCB-A03 | E208=HMIDataCCD_DB.030_Feeding.BtnStpSq2Up | G208=<symbolic access> | H208=1 s | J208=Останов и выравнивание
-A209=HMIDataCCD_DB_030_Feeding_BtnStpSq2Dn | B209=Bool | C209=HMI1 | D209=CCB-A03 | E209=HMIDataCCD_DB.030_Feeding.BtnStpSq2Dn | G209=<symbolic access> | H209=1 s | J209=Останов и выравнивание
-A210=HMIDataCCD_DB_030_Feeding_BtnStpSq3Up | B210=Bool | C210=HMI1 | D210=CCB-A03 | E210=HMIDataCCD_DB.030_Feeding.BtnAlignStopperCls | G210=<symbolic access> | H210=1 s | J210=команда на стопор движения слитков для выравнивания установить
-A211=HMIDataCCD_DB_030_Feeding_BtnStpSq3Dn | B211=Bool | C211=HMI1 | D211=CCB-A03 | E211=HMIDataCCD_DB.030_Feeding.BtnAlignStopperOpn | G211=<symbolic access> | H211=1 s | J211=команда на стопор движения слитков для выравнивания освободить
-A212=HMIDataCCD_DB_030_Feeding_BtnPuhserUp | B212=Bool | C212=HMI1 | D212=CCB-A03 | E212=HMIDataCCD_DB.030_Feeding.BtnDefectPusherPush | G212=<symbolic access> | H212=1 s | J212=команда на выталкиватель слитков для выброса брака толкнуть
-A213=HMIDataCCD_DB_030_Feeding_BtnPuhserDn | B213=Bool | C213=HMI1 | D213=CCB-A03 | E213=HMIDataCCD_DB.030_Feeding.BtnDefectPusherPull | G213=<symbolic access> | H213=1 s | J213=команда на выталкиватель слитков для выброса брака втянуть
-A214=HMIDataCCD_DB_030_Feeding_BtnLifterUp | B214=Bool | C214=HMI1 | D214=CCB-A03 | E214=HMIDataCCD_DB.030_Feeding.BtnDefectRollerUp | G214=<symbolic access> | H214=1 s | J214=команда на ролик слитков для выброса брака поднять
-A215=HMIDataCCD_DB_030_Feeding_BtnLifterDn | B215=Bool | C215=HMI1 | D215=CCB-A03 | E215=HMIDataCCD_DB.030_Feeding.BtnDefectRollerDn | G215=<symbolic access> | H215=1 s | J215=команда на ролик слитков для выброса брака опустить
-A216=HMIDataCCD_DB_030_Feeding_BtnRejectStopperUp | B216=Bool | C216=HMI1 | D216=CCB-A03 | E216=HMIDataCCD_DB.030_Feeding.BtnDefectStopperCls | G216=<symbolic access> | H216=1 s | J216=команда на стопор движения слитков для выброса брака установить
-A217=HMIDataCCD_DB_030_Feeding_BtnRejectStopperDn | B217=Bool | C217=HMI1 | D217=CCB-A03 | E217=HMIDataCCD_DB.030_Feeding.BtnDefectStopperOpn | G217=<symbolic access> | H217=1 s | J217=команда на стопор движения слитков для выброса брака освободить
-A218=HMIDataCCD_DB_030_Feeding_BtnGripper1Opn | B218=Bool | C218=HMI1 | D218=CCB-A03 | E218=HMIDataCCD_DB.030_Feeding.BtnGripper1Opn | G218=<symbolic access> | H218=1 s | J218=Захват
-A219=HMIDataCCD_DB_030_Feeding_BtnGripper1Cls | B219=Bool | C219=HMI1 | D219=CCB-A03 | E219=HMIDataCCD_DB.030_Feeding.BtnGripper1Cls | G219=<symbolic access> | H219=1 s | J219=Захват
-A220=HMIDataCCD_DB_030_Feeding_BtnGripper2Opn | B220=Bool | C220=HMI1 | D220=CCB-A03 | E220=HMIDataCCD_DB.030_Feeding.BtnGripper2Opn | G220=<symbolic access> | H220=1 s | J220=Захват
-A221=HMIDataCCD_DB_030_Feeding_BtnGripper2Cls | B221=Bool | C221=HMI1 | D221=CCB-A03 | E221=HMIDataCCD_DB.030_Feeding.BtnGripper2Cls | G221=<symbolic access> | H221=1 s | J221=Захват
-A222=HMIDataCCD_DB_030_Feeding_BtnTurnStopperUp | B222=Bool | C222=HMI1 | D222=CCB-A03 | E222=HMIDataCCD_DB.030_Feeding.BtnTurnStopperUp | G222=<symbolic access> | H222=1 s | J222=Устройство останова  поворота
-A223=HMIDataCCD_DB_030_Feeding_BtnTurnStopperDn | B223=Bool | C223=HMI1 | D223=CCB-A03 | E223=HMIDataCCD_DB.030_Feeding.BtnTurnStopperDn | G223=<symbolic access> | H223=1 s | J223=Устройство останова  поворота
-A224=HMIDataCCD_DB_030_Feeding_BtnBuffer1Up | B224=Bool | C224=HMI1 | D224=CCB-A03 | E224=HMIDataCCD_DB.030_Feeding.BtnBuffer1Up | G224=<symbolic access> | H224=1 s
-A225=HMIDataCCD_DB_030_Feeding_BtnBuffer1Dn | B225=Bool | C225=HMI1 | D225=CCB-A03 | E225=HMIDataCCD_DB.030_Feeding.BtnBuffer1Dn | G225=<symbolic access> | H225=1 s
-A226=HMIDataCCD_DB_030_Feeding_BtnBuffer2Up | B226=Bool | C226=HMI1 | D226=CCB-A03 | E226=HMIDataCCD_DB.030_Feeding.BtnBuffer2Up | G226=<symbolic access> | H226=1 s
-A227=HMIDataCCD_DB_030_Feeding_BtnBuffer2Dn | B227=Bool | C227=HMI1 | D227=CCB-A03 | E227=HMIDataCCD_DB.030_Feeding.BtnBuffer2Dn | G227=<symbolic access> | H227=1 s
-A228=HMIDataCCD_DB_030_Feeding_BtnBuffer3Up | B228=Bool | C228=HMI1 | D228=CCB-A03 | E228=HMIDataCCD_DB.030_Feeding.BtnBuffer3Up | G228=<symbolic access> | H228=1 s
-A229=HMIDataCCD_DB_030_Feeding_BtnBuffer3Dn | B229=Bool | C229=HMI1 | D229=CCB-A03 | E229=HMIDataCCD_DB.030_Feeding.BtnBuffer3Dn | G229=<symbolic access> | H229=1 s
-A230=HMIDataCCD_DB_030_Feeding_BtnTurnFFw | B230=Bool | C230=HMI1 | D230=CCB-A03 | E230=HMIDataCCD_DB.030_Feeding.BtnTurnFFw | G230=<symbolic access> | H230=1 s | J230=движения поворотного устройства
-A231=HMIDataCCD_DB_030_Feeding_BtnTurnBCw | B231=Bool | C231=HMI1 | D231=CCB-A03 | E231=HMIDataCCD_DB.030_Feeding.BtnTurnBCw | G231=<symbolic access> | H231=1 s | J231=движения поворотного устройства
-A232=HMIDataCCD_DB_030_Feeding_StStpSq1Dn | B232=Bool | C232=HMI1 | D232=CCB-A03 | E232=HMIDataCCD_DB.030_Feeding.StStpSq1Dn | G232=<symbolic access> | H232=1 s
-A233=HMIDataCCD_DB_030_Feeding_StStpSq1Up | B233=Bool | C233=HMI1 | D233=CCB-A03 | E233=HMIDataCCD_DB.030_Feeding.StStpSq1Up | G233=<symbolic access> | H233=1 s
-A234=HMIDataCCD_DB_030_Feeding_StStpSq2Up | B234=Bool | C234=HMI1 | D234=CCB-A03 | E234=HMIDataCCD_DB.030_Feeding.StStpSq2Up | G234=<symbolic access> | H234=1 s
-A235=HMIDataCCD_DB_030_Feeding_StStpSq2Dn | B235=Bool | C235=HMI1 | D235=CCB-A03 | E235=HMIDataCCD_DB.030_Feeding.StStpSq2Dn | G235=<symbolic access> | H235=1 s
-A236=HMIDataCCD_DB_030_Feeding_StStpSq3Dn | B236=Bool | C236=HMI1 | D236=CCB-A03 | E236=HMIDataCCD_DB.030_Feeding.StStpSq3Dn | G236=<symbolic access> | H236=1 s
-A237=HMIDataCCD_DB_030_Feeding_StStpSq3Up | B237=Bool | C237=HMI1 | D237=CCB-A03 | E237=HMIDataCCD_DB.030_Feeding.StStpSq3Up | G237=<symbolic access> | H237=1 s
-A238=HMIDataCCD_DB_030_Feeding_StReject | B238=Bool | C238=HMI1 | D238=CCB-A03 | E238=HMIDataCCD_DB.030_Feeding.StReject | G238=<symbolic access> | H238=1 s
-A239=HMIDataCCD_DB_030_Feeding_StPuhserDn | B239=Bool | C239=HMI1 | D239=CCB-A03 | E239=HMIDataCCD_DB.030_Feeding.StPuhserDn | G239=<symbolic access> | H239=1 s
-A240=HMIDataCCD_DB_030_Feeding_StPuhserUp | B240=Bool | C240=HMI1 | D240=CCB-A03 | E240=HMIDataCCD_DB.030_Feeding.StPuhserUp | G240=<symbolic access> | H240=1 s
-A241=HMIDataCCD_DB_030_Feeding_StLifterUp | B241=Bool | C241=HMI1 | D241=CCB-A03 | E241=HMIDataCCD_DB.030_Feeding.StLifterUp | G241=<symbolic access> | H241=1 s
-A242=HMIDataCCD_DB_030_Feeding_StLifterDn | B242=Bool | C242=HMI1 | D242=CCB-A03 | E242=HMIDataCCD_DB.030_Feeding.StLifterDn | G242=<symbolic access> | H242=1 s
-A243=HMIDataCCD_DB_030_Feeding_StRejectStopperUp | B243=Bool | C243=HMI1 | D243=CCB-A03 | E243=HMIDataCCD_DB.030_Feeding.StRejectStopperUp | G243=<symbolic access> | H243=1 s
-A244=HMIDataCCD_DB_030_Feeding_StRejectStopperDn | B244=Bool | C244=HMI1 | D244=CCB-A03 | E244=HMIDataCCD_DB.030_Feeding.StRejectStopperDn | G244=<symbolic access> | H244=1 s
-A245=HMIDataCCD_DB_030_Feeding_StGripper1Opn | B245=Bool | C245=HMI1 | D245=CCB-A03 | E245=HMIDataCCD_DB.030_Feeding.StGripper1Opn | G245=<symbolic access> | H245=1 s
-A246=HMIDataCCD_DB_030_Feeding_StGripper1Cls | B246=Bool | C246=HMI1 | D246=CCB-A03 | E246=HMIDataCCD_DB.030_Feeding.StGripper1Cls | G246=<symbolic access> | H246=1 s
-A247=HMIDataCCD_DB_030_Feeding_StGripper2Opn | B247=Bool | C247=HMI1 | D247=CCB-A03 | E247=HMIDataCCD_DB.030_Feeding.StGripper2Opn | G247=<symbolic access> | H247=1 s
-A248=HMIDataCCD_DB_030_Feeding_StGripper2Cls | B248=Bool | C248=HMI1 | D248=CCB-A03 | E248=HMIDataCCD_DB.030_Feeding.StGripper2Cls | G248=<symbolic access> | H248=1 s
-A249=HMIDataCCD_DB_030_Feeding_StTurnStopperUp | B249=Bool | C249=HMI1 | D249=CCB-A03 | E249=HMIDataCCD_DB.030_Feeding.StTurnStopperUp | G249=<symbolic access> | H249=1 s
-A250=HMIDataCCD_DB_030_Feeding_StTurnStopperDn | B250=Bool | C250=HMI1 | D250=CCB-A03 | E250=HMIDataCCD_DB.030_Feeding.StTurnStopperDn | G250=<symbolic access> | H250=1 s
-A251=HMIDataCCD_DB_030_Feeding_StTurnFFw | B251=Bool | C251=HMI1 | D251=CCB-A03 | E251=HMIDataCCD_DB.030_Feeding.StTurnFFw | G251=<symbolic access> | H251=1 s
-A252=HMIDataCCD_DB_030_Feeding_StTurnBCw | B252=Bool | C252=HMI1 | D252=CCB-A03 | E252=HMIDataCCD_DB.030_Feeding.StTurnBCw | G252=<symbolic access> | H252=1 s
-A253=HMIDataCCD_DB_030_Feeding_StBuffer1Dn | B253=Bool | C253=HMI1 | D253=CCB-A03 | E253=HMIDataCCD_DB.030_Feeding.StBuffer1Dn | G253=<symbolic access> | H253=1 s
-A254=HMIDataCCD_DB_030_Feeding_StBuffer1Up | B254=Bool | C254=HMI1 | D254=CCB-A03 | E254=HMIDataCCD_DB.030_Feeding.StBuffer1Up | G254=<symbolic access> | H254=1 s
-A255=HMIDataCCD_DB_030_Feeding_StBuffer2Up | B255=Bool | C255=HMI1 | D255=CCB-A03 | E255=HMIDataCCD_DB.030_Feeding.StBuffer2Up | G255=<symbolic access> | H255=1 s
-A256=HMIDataCCD_DB_030_Feeding_StBuffer2Dn | B256=Bool | C256=HMI1 | D256=CCB-A03 | E256=HMIDataCCD_DB.030_Feeding.StBuffer2Dn | G256=<symbolic access> | H256=1 s
-A257=HMIDataCCD_DB_030_Feeding_StBuffer3Up | B257=Bool | C257=HMI1 | D257=CCB-A03 | E257=HMIDataCCD_DB.030_Feeding.StBuffer3Up | G257=<symbolic access> | H257=1 s
-A258=HMIDataCCD_DB_030_Feeding_StBuffer3Dn | B258=Bool | C258=HMI1 | D258=CCB-A03 | E258=HMIDataCCD_DB.030_Feeding.StBuffer3Dn | G258=<symbolic access> | H258=1 s
-A259=HMIDataCCD_DB_040_Bundle_ScaledValue | B259=Real | C259=HMI1 | D259=CCB-A03 | E259=HMIDataCCD_DB.040_Bundle.ScaledValue | G259=<symbolic access> | H259=1 s | J259=Текущая величина весов в кг
-A260=HMIDataCCD_DB_040_Bundle_LastBundle | B260=Real | C260=HMI1 | D260=CCB-A03 | E260=HMIDataCCD_DB.040_Bundle.LastBundle | G260=<symbolic access> | H260=1 s | J260=Вес последнего пакета в кг
-A261=HMIDataCCD_DB_040_Bundle_BtnWgtTableDn | B261=Bool | C261=HMI1 | D261=CCB-A03 | E261=HMIDataCCD_DB.040_Bundle.BtnWgtTableDn | G261=<symbolic access> | H261=1 s
-A262=HMIDataCCD_DB_040_Bundle_BtnWgtTableUp | B262=Bool | C262=HMI1 | D262=CCB-A03 | E262=HMIDataCCD_DB.040_Bundle.BtnWgtTableUp | G262=<symbolic access> | H262=1 s
-A263=HMIDataCCD_DB_040_Bundle_StWgtTableUp | B263=Bool | C263=HMI1 | D263=CCB-A03 | E263=HMIDataCCD_DB.040_Bundle.StWgtTableUp | G263=<symbolic access> | H263=1 s
-A264=HMIDataCCD_DB_040_Bundle_StWgtTableDn | B264=Bool | C264=HMI1 | D264=CCB-A03 | E264=HMIDataCCD_DB.040_Bundle.StWgtTableDn | G264=<symbolic access> | H264=1 s
-A265=HMIDataCCD_DB_040_Bundle_StStandStiil | B265=Bool | C265=HMI1 | D265=CCB-A03 | E265=HMIDataCCD_DB.040_Bundle.StStandStiil | G265=<symbolic access> | H265=1 s | J265=горит, когда весы бездействуют
-A266=HMIDataCCD_DB_040_Bundle_StDone | B266=Bool | C266=HMI1 | D266=CCB-A03 | E266=HMIDataCCD_DB.040_Bundle.StReady | G266=<symbolic access> | H266=1 s | J266=Взвешивание пакета успешно завершено
-A267=HMIDataCCD_DB_040_Bundle_BtnEndOpn | B267=Bool | C267=HMI1 | D267=CCB-A03 | E267=HMIDataCCD_DB.040_Bundle.BtnEndOpn | G267=<symbolic access> | H267=1 s | J267=Открытие торцевого сжатия
-A268=HMIDataCCD_DB_040_Bundle_BtnEndCls | B268=Bool | C268=HMI1 | D268=CCB-A03 | E268=HMIDataCCD_DB.040_Bundle.BtnEndCls | G268=<symbolic access> | H268=1 s | J268=сжатие торцевого сжатия
-A269=HMIDataCCD_DB_040_Bundle_StEndDone | B269=Bool | C269=HMI1 | D269=CCB-A03 | E269=HMIDataCCD_DB.040_Bundle.StEndReady | G269=<symbolic access> | H269=1 s | J269=Торцевое сжатие пакета успешно завершено
-A270=HMIDataCCD_DB_040_Bundle_StSideOpn | B270=Bool | C270=HMI1 | D270=CCB-A03 | E270=HMIDataCCD_DB.040_Bundle.StSideOpn | G270=<symbolic access> | H270=1 s
-A271=HMIDataCCD_DB_040_Bundle_BtnSideCls | B271=Bool | C271=HMI1 | D271=CCB-A03 | E271=HMIDataCCD_DB.040_Bundle.BtnSideCls | G271=<symbolic access> | H271=1 s | J271=сжатие бокового сжатия
-A272=HMIDataCCD_DB_040_Bundle_BtnSideOpn | B272=Bool | C272=HMI1 | D272=CCB-A03 | E272=HMIDataCCD_DB.040_Bundle.BtnSideOpn | G272=<symbolic access> | H272=1 s | J272=Открытие бокового сжатия
-A273=HMIDataCCD_DB_040_Bundle_StSideCls | B273=Bool | C273=HMI1 | D273=CCB-A03 | E273=HMIDataCCD_DB.040_Bundle.StSideCls | G273=<symbolic access> | H273=1 s
-A274=HMIDataCCD_DB_040_Bundle_StSideDone | B274=Bool | C274=HMI1 | D274=CCB-A03 | E274=HMIDataCCD_DB.040_Bundle.StSideReady | G274=<symbolic access> | H274=1 s | J274=боковое сжатие пакета успешно завершено
-A275=HMIDataCCD_DB_040_Bundle_PT-02 | B275=Real | C275=HMI1 | D275=CCB-A03 | E275=HMIDataCCD_DB.040_Bundle."PT-02" | G275=<symbolic access> | H275=1 s | J275=Величина трансмиттера давления в строке торцевого сжатия в барах
-A276=HMIDataCCD_DB_040_Bundle_PT-04 | B276=Real | C276=HMI1 | D276=CCB-A03 | E276=HMIDataCCD_DB.040_Bundle."PT-04" | G276=<symbolic access> | H276=1 s | J276=Величина трансмиттера давления в строке бокового сжатия в барах
-A277=HMIDataCCD_DB_040_Bundle_PT-03 | B277=Real | C277=HMI1 | D277=CCB-A03 | E277=HMIDataCCD_DB.040_Bundle."PT-03" | G277=<symbolic access> | H277=1 s | J277=Величина трансмиттера давления в строке верхнего сжатия в 
-A278=HMIDataCCD_DB_040_Bundle_BtnTopOpn | B278=Bool | C278=HMI1 | D278=CCB-A03 | E278=HMIDataCCD_DB.040_Bundle.BtnTopOpn | G278=<symbolic access> | H278=1 s | J278=Открытие бокового сжатия
-A279=HMIDataCCD_DB_040_Bundle_BtnTopCls | B279=Bool | C279=HMI1 | D279=CCB-A03 | E279=HMIDataCCD_DB.040_Bundle.BtnTopCls | G279=<symbolic access> | H279=1 s | J279=сжатие бокового сжатия
-A280=HMIDataCCD_DB_040_Bundle_StTopCls | B280=Bool | C280=HMI1 | D280=CCB-A03 | E280=HMIDataCCD_DB.040_Bundle.StTopCls | G280=<symbolic access> | H280=1 s
-A281=HMIDataCCD_DB_040_Bundle_StTopOpn | B281=Bool | C281=HMI1 | D281=CCB-A03 | E281=HMIDataCCD_DB.040_Bundle.StTopOpn | G281=<symbolic access> | H281=1 s
-A282=HMIDataCCD_DB_040_Bundle_StTopDone | B282=Bool | C282=HMI1 | D282=CCB-A03 | E282=HMIDataCCD_DB.040_Bundle.StTopReady | G282=<symbolic access> | H282=1 s | J282=боковое сжатие пакета успешно завершено
-A283=HMIDataCCD_DB_040_Bundle_StSlow | B283=Bool | C283=HMI1 | D283=CCB-A03 | E283=HMIDataCCD_DB.040_Bundle.StSlow | G283=<symbolic access> | H283=1 s
-A284=HMIDataCCD_DB_040_Bundle_StStp | B284=Bool | C284=HMI1 | D284=CCB-A03 | E284=HMIDataCCD_DB.040_Bundle.StStp | G284=<symbolic access> | H284=1 s
-A285=HMIDataCCD_DB_040_Bundle_StBundleFw | B285=Bool | C285=HMI1 | D285=CCB-A03 | E285=HMIDataCCD_DB.040_Bundle.StBundleFw | G285=<symbolic access> | H285=1 s
-A286=HMIDataCCD_DB_040_Bundle_StBundleBw | B286=Bool | C286=HMI1 | D286=CCB-A03 | E286=HMIDataCCD_DB.040_Bundle.StBundleBw | G286=<symbolic access> | H286=1 s
-A287=HMIDataCCD_DB_040_Bundle_BtnBundleFw | B287=Bool | C287=HMI1 | D287=CCB-A03 | E287=HMIDataCCD_DB.040_Bundle.BtnBundleFw | G287=<symbolic access> | H287=1 s | J287=Отражается статус движения конвейера пакетов. Нажать для команды в ручном режиме
-A288=HMIDataCCD_DB_040_Bundle_BtnBundleBw | B288=Bool | C288=HMI1 | D288=CCB-A03 | E288=HMIDataCCD_DB.040_Bundle.BtnBundleBw | G288=<symbolic access> | H288=1 s | J288=Отражается статус движения конвейера пакетов. Нажать для команды в ручном режиме
-A289=HMIDataCCD_DB_050_Robots_StackRbt_BtnOpn1 | B289=Bool | C289=HMI1 | D289=CCB-A03 | E289=HMIDataCCD_DB.050_Robots.StackRbt.BtnOpn1 | G289=<symbolic access> | H289=1 s
-A290=HMIDataCCD_DB_050_Robots_StackRbt_BtnOpn2 | B290=Bool | C290=HMI1 | D290=CCB-A03 | E290=HMIDataCCD_DB.050_Robots.StackRbt.BtnOpn2 | G290=<symbolic access> | H290=1 s
-A291=HMIDataCCD_DB_050_Robots_StackRbt_BtnCls1 | B291=Bool | C291=HMI1 | D291=CCB-A03 | E291=HMIDataCCD_DB.050_Robots.StackRbt.BtnCls1 | G291=<symbolic access> | H291=1 s
-A292=HMIDataCCD_DB_050_Robots_StackRbt_BtnCls2 | B292=Bool | C292=HMI1 | D292=CCB-A03 | E292=HMIDataCCD_DB.050_Robots.StackRbt.BtnCls2 | G292=<symbolic access> | H292=1 s
-A293=HMIDataCCD_DB_050_Robots_StackRbt_StOpn1 | B293=Bool | C293=HMI1 | D293=CCB-A03 | E293=HMIDataCCD_DB.050_Robots.StackRbt.StOpn1 | G293=<symbolic access> | H293=1 s
-A294=HMIDataCCD_DB_050_Robots_StackRbt_StOpn2 | B294=Bool | C294=HMI1 | D294=CCB-A03 | E294=HMIDataCCD_DB.050_Robots.StackRbt.StOpn2 | G294=<symbolic access> | H294=1 s
-A295=HMIDataCCD_DB_050_Robots_StackRbt_StCls1 | B295=Bool | C295=HMI1 | D295=CCB-A03 | E295=HMIDataCCD_DB.050_Robots.StackRbt.StCls1 | G295=<symbolic access> | H295=1 s
-A296=HMIDataCCD_DB_050_Robots_StackRbt_StCls2 | B296=Bool | C296=HMI1 | D296=CCB-A03 | E296=HMIDataCCD_DB.050_Robots.StackRbt.StCls2 | G296=<symbolic access> | H296=1 s
-A297=HMIDataCCD_DB_020_Demoulding_BtnHammerRetract_St | B297=Bool | C297=HMI1 | D297=CCB-A03 | E297=HMIDataCCD_DB.020_Demoulding.BtnHammerRetract_St | G297=<symbolic access> | H297=1 s
-A298=HMIDataCCD_DB_020_Demoulding_BtnHammerExtend_St | B298=Bool | C298=HMI1 | D298=CCB-A03 | E298=HMIDataCCD_DB.020_Demoulding.BtnHammerExtend_St | G298=<symbolic access> | H298=1 s
-A299=HMIDataCCD_DB_020_Demoulding_StHammerRetract | B299=Bool | C299=HMI1 | D299=CCB-A03 | E299=HMIDataCCD_DB.020_Demoulding.StHammerRetract | G299=<symbolic access> | H299=1 s
-A300=HMIDataCCD_DB_020_Demoulding_StHammerExtend | B300=Bool | C300=HMI1 | D300=CCB-A03 | E300=HMIDataCCD_DB.020_Demoulding.StHammerExtend | G300=<symbolic access> | H300=1 s
-A301==010_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B301=Int | C301=HMI1 | D301=CCB-A03 | E301=010_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G301=<symbolic access> | H301=1 s
+A167=HMIDataCCD_DB_030_Feeding_BtnReject | B167=Bool | C167=HMI1 | D167=TM50 | E167=HMIDataCCD_DB.030_Feeding.BtnReject | G167=<symbolic access> | H167=1 s | J167=Толкатель
+A168=HMIDataCCD_DB_010_Casting_BtnCasting | B168=Bool | C168=HMI1 | D168=TM50 | E168=HMIDataCCD_DB.010_Casting.BtnCasting | G168=<symbolic access> | H168=1 s | J168=Команда разливки – Эта кнопка позволит производить разливку в автоматическом режиме или ручную разливку при удержании кнопки в ручном режиме.
+A169=HMIDataCCD_DB_010_Casting_BtnTiltFFwUp | B169=Bool | C169=HMI1 | D169=TM50 | E169=HMIDataCCD_DB.010_Casting.BtnTiltFFwUp | G169=<symbolic access> | H169=1 s | J169=Передняя сторона вверх
+A170=HMIDataCCD_DB_010_Casting_BtnTiltFFwDn | B170=Bool | C170=HMI1 | D170=TM50 | E170=HMIDataCCD_DB.010_Casting.BtnTiltFFwDn | G170=<symbolic access> | H170=1 s | J170=Передняя сторона вниз
+A171=HMIDataCCD_DB_010_Casting_BtnTiltBCwUp | B171=Bool | C171=HMI1 | D171=TM50 | E171=HMIDataCCD_DB.010_Casting.BtnTiltBCwUp | G171=<symbolic access> | H171=1 s | J171=Задняя сторона вверх
+A172=HMIDataCCD_DB_010_Casting_BtnTiltBCwDn | B172=Bool | C172=HMI1 | D172=TM50 | E172=HMIDataCCD_DB.010_Casting.BtnTiltBCwDn | G172=<symbolic access> | H172=1 s | J172=Задняя сторона вниз
+A173=HMIDataCCD_DB_010_Casting_BtnSideShiftUp | B173=Bool | C173=HMI1 | D173=TM50 | E173=HMIDataCCD_DB.010_Casting.BtnSideShiftUp | G173=<symbolic access> | H173=1 s | J173=Боковое смещение Вперед
+A174=HMIDataCCD_DB_010_Casting_BtnSideShiftDn | B174=Bool | C174=HMI1 | D174=TM50 | E174=HMIDataCCD_DB.010_Casting.BtnSideShiftDn | G174=<symbolic access> | H174=1 s | J174=Боковое смещение назад
+A175=HMIDataCCD_DB_010_Casting_BtnSkimmOpn | B175=Bool | C175=HMI1 | D175=TM50 | E175=HMIDataCCD_DB.010_Casting.BtnSkimmOpn | G175=<symbolic access> | H175=1 s | J175=Инструмент удаления шлаков  - Открыто
+A176=HMIDataCCD_DB_010_Casting_BtnSkimmCls | B176=Bool | C176=HMI1 | D176=TM50 | E176=HMIDataCCD_DB.010_Casting.BtnSkimmCls | G176=<symbolic access> | H176=1 s | J176=Инструмент удаления шлаков - закрыто
+A177=HMIDataCCD_DB_010_Casting_StCasting | B177=Bool | C177=HMI1 | D177=TM50 | E177=HMIDataCCD_DB.010_Casting.StCasting | G177=<symbolic access> | H177=1 s
+A178=HMIDataCCD_DB_010_Casting_StTiltFFwUp | B178=Bool | C178=HMI1 | D178=TM50 | E178=HMIDataCCD_DB.010_Casting.StTiltFFwUp | G178=<symbolic access> | H178=1 s
+A179=HMIDataCCD_DB_010_Casting_StTiltFFwDn | B179=Bool | C179=HMI1 | D179=TM50 | E179=HMIDataCCD_DB.010_Casting.StTiltFFwDn | G179=<symbolic access> | H179=1 s
+A180=HMIDataCCD_DB_010_Casting_StTiltBCwUp | B180=Bool | C180=HMI1 | D180=TM50 | E180=HMIDataCCD_DB.010_Casting.StTiltBCwUp | G180=<symbolic access> | H180=1 s
+A181=HMIDataCCD_DB_010_Casting_StTiltBCwDn | B181=Bool | C181=HMI1 | D181=TM50 | E181=HMIDataCCD_DB.010_Casting.StTiltBCwDn | G181=<symbolic access> | H181=1 s
+A182=HMIDataCCD_DB_010_Casting_StSideShiftUp | B182=Bool | C182=HMI1 | D182=TM50 | E182=HMIDataCCD_DB.010_Casting.StSideShiftUp | G182=<symbolic access> | H182=1 s
+A183=HMIDataCCD_DB_010_Casting_StSideShiftDn | B183=Bool | C183=HMI1 | D183=TM50 | E183=HMIDataCCD_DB.010_Casting.StSideShiftDn | G183=<symbolic access> | H183=1 s
+A184=HMIDataCCD_DB_010_Casting_StSkimmOpn | B184=Bool | C184=HMI1 | D184=TM50 | E184=HMIDataCCD_DB.010_Casting.StSkimmOpn | G184=<symbolic access> | H184=1 s
+A185=HMIDataCCD_DB_010_Casting_StSkimmCls | B185=Bool | C185=HMI1 | D185=TM50 | E185=HMIDataCCD_DB.010_Casting.StSkimmCls | G185=<symbolic access> | H185=1 s
+A186=HMIDataCCD_DB_020_Demoulding_BtnHammerExtend | B186=Bool | C186=HMI1 | D186=TM50 | E186=HMIDataCCD_DB.020_Demoulding.BtnHammerExtend | G186=<symbolic access> | H186=1 s | J186=Молоток Выдвижение
+A187=HMIDataCCD_DB_020_Demoulding_BtnHammerRetract | B187=Bool | C187=HMI1 | D187=TM50 | E187=HMIDataCCD_DB.020_Demoulding.BtnHammerRetract | G187=<symbolic access> | H187=1 s | J187=Молоток втягивание
+A188=HMIDataCCD_DB_020_Demoulding_BtnGateExtend | B188=Bool | C188=HMI1 | D188=TM50 | E188=HMIDataCCD_DB.020_Demoulding.BtnGateExtend | G188=<symbolic access> | H188=1 s | J188=Ворота Выдвижение
+A189=HMIDataCCD_DB_020_Demoulding_BtnGateRetrac | B189=Bool | C189=HMI1 | D189=TM50 | E189=HMIDataCCD_DB.020_Demoulding.BtnGateRetrac | G189=<symbolic access> | H189=1 s | J189=Ворота втягивание
+A190=HMIDataCCD_DB_020_Demoulding_BtnTableExtend | B190=Bool | C190=HMI1 | D190=TM50 | E190=HMIDataCCD_DB.020_Demoulding.BtnTableExtend | G190=<symbolic access> | H190=1 s | J190=Стол
+A191=HMIDataCCD_DB_020_Demoulding_BtnTableRetrac | B191=Bool | C191=HMI1 | D191=TM50 | E191=HMIDataCCD_DB.020_Demoulding.BtnTableRetrac | G191=<symbolic access> | H191=1 s | J191=Стол
+A192=HMIDataCCD_DB_020_Demoulding_BtnPusherExtend | B192=Bool | C192=HMI1 | D192=TM50 | E192=HMIDataCCD_DB.020_Demoulding.BtnPusherExtend | G192=<symbolic access> | H192=1 s | J192=Толкатель
+A193=HMIDataCCD_DB_020_Demoulding_BtnPusherRetrac | B193=Bool | C193=HMI1 | D193=TM50 | E193=HMIDataCCD_DB.020_Demoulding.BtnPusherRetrac | G193=<symbolic access> | H193=1 s | J193=Толкатель
+A194=HMIDataCCD_DB_020_Demoulding_BtnGateExtend_St | B194=Bool | C194=HMI1 | D194=TM50 | E194=HMIDataCCD_DB.020_Demoulding.BtnGateExtend_St | G194=<symbolic access> | H194=1 s
+A195=HMIDataCCD_DB_020_Demoulding_BtnGateRetrac_St | B195=Bool | C195=HMI1 | D195=TM50 | E195=HMIDataCCD_DB.020_Demoulding.BtnGateRetrac_St | G195=<symbolic access> | H195=1 s
+A196=HMIDataCCD_DB_020_Demoulding_BtnTableExtend_St | B196=Bool | C196=HMI1 | D196=TM50 | E196=HMIDataCCD_DB.020_Demoulding.BtnTableExtend_St | G196=<symbolic access> | H196=1 s
+A197=HMIDataCCD_DB_020_Demoulding_BtnTableRetrac_St | B197=Bool | C197=HMI1 | D197=TM50 | E197=HMIDataCCD_DB.020_Demoulding.BtnTableRetrac_St | G197=<symbolic access> | H197=1 s
+A198=HMIDataCCD_DB_020_Demoulding_BtnPusherExtend_St | B198=Bool | C198=HMI1 | D198=TM50 | E198=HMIDataCCD_DB.020_Demoulding.BtnPusherExtend_St | G198=<symbolic access> | H198=1 s
+A199=HMIDataCCD_DB_020_Demoulding_BtnPusherRetrac_St | B199=Bool | C199=HMI1 | D199=TM50 | E199=HMIDataCCD_DB.020_Demoulding.BtnPusherRetrac_St | G199=<symbolic access> | H199=1 s
+A200=HMIDataCCD_DB_020_Demoulding_StGateExtend | B200=Bool | C200=HMI1 | D200=TM50 | E200=HMIDataCCD_DB.020_Demoulding.StGateExtend | G200=<symbolic access> | H200=1 s
+A201=HMIDataCCD_DB_020_Demoulding_StGateRetrac | B201=Bool | C201=HMI1 | D201=TM50 | E201=HMIDataCCD_DB.020_Demoulding.StGateRetrac | G201=<symbolic access> | H201=1 s
+A202=HMIDataCCD_DB_020_Demoulding_StTableExtend | B202=Bool | C202=HMI1 | D202=TM50 | E202=HMIDataCCD_DB.020_Demoulding.StTableExtend | G202=<symbolic access> | H202=1 s
+A203=HMIDataCCD_DB_020_Demoulding_StTableRetrac | B203=Bool | C203=HMI1 | D203=TM50 | E203=HMIDataCCD_DB.020_Demoulding.StTableRetrac | G203=<symbolic access> | H203=1 s
+A204=HMIDataCCD_DB_020_Demoulding_StPusherExtend | B204=Bool | C204=HMI1 | D204=TM50 | E204=HMIDataCCD_DB.020_Demoulding.StPusherExtend | G204=<symbolic access> | H204=1 s
+A205=HMIDataCCD_DB_020_Demoulding_StPusherRetrac | B205=Bool | C205=HMI1 | D205=TM50 | E205=HMIDataCCD_DB.020_Demoulding.StPusherRetrac | G205=<symbolic access> | H205=1 s
+A206=HMIDataCCD_DB_030_Feeding_BtnStpSq1Up | B206=Bool | C206=HMI1 | D206=TM50 | E206=HMIDataCCD_DB.030_Feeding.BtnAlignCls | G206=<symbolic access> | H206=1 s | J206=команда на выравнивания слитков установить
+A207=HMIDataCCD_DB_030_Feeding_BtnStpSq1Dn | B207=Bool | C207=HMI1 | D207=TM50 | E207=HMIDataCCD_DB.030_Feeding.BtnAlignOpn | G207=<symbolic access> | H207=1 s | J207=команда на выравнивания слитков освободить
+A208=HMIDataCCD_DB_030_Feeding_BtnStpSq2Up | B208=Bool | C208=HMI1 | D208=TM50 | E208=HMIDataCCD_DB.030_Feeding.BtnStpSq2Up | G208=<symbolic access> | H208=1 s | J208=Останов и выравнивание
+A209=HMIDataCCD_DB_030_Feeding_BtnStpSq2Dn | B209=Bool | C209=HMI1 | D209=TM50 | E209=HMIDataCCD_DB.030_Feeding.BtnStpSq2Dn | G209=<symbolic access> | H209=1 s | J209=Останов и выравнивание
+A210=HMIDataCCD_DB_030_Feeding_BtnStpSq3Up | B210=Bool | C210=HMI1 | D210=TM50 | E210=HMIDataCCD_DB.030_Feeding.BtnAlignStopperCls | G210=<symbolic access> | H210=1 s | J210=команда на стопор движения слитков для выравнивания установить
+A211=HMIDataCCD_DB_030_Feeding_BtnStpSq3Dn | B211=Bool | C211=HMI1 | D211=TM50 | E211=HMIDataCCD_DB.030_Feeding.BtnAlignStopperOpn | G211=<symbolic access> | H211=1 s | J211=команда на стопор движения слитков для выравнивания освободить
+A212=HMIDataCCD_DB_030_Feeding_BtnPuhserUp | B212=Bool | C212=HMI1 | D212=TM50 | E212=HMIDataCCD_DB.030_Feeding.BtnDefectPusherPush | G212=<symbolic access> | H212=1 s | J212=команда на выталкиватель слитков для выброса брака толкнуть
+A213=HMIDataCCD_DB_030_Feeding_BtnPuhserDn | B213=Bool | C213=HMI1 | D213=TM50 | E213=HMIDataCCD_DB.030_Feeding.BtnDefectPusherPull | G213=<symbolic access> | H213=1 s | J213=команда на выталкиватель слитков для выброса брака втянуть
+A214=HMIDataCCD_DB_030_Feeding_BtnLifterUp | B214=Bool | C214=HMI1 | D214=TM50 | E214=HMIDataCCD_DB.030_Feeding.BtnDefectRollerUp | G214=<symbolic access> | H214=1 s | J214=команда на ролик слитков для выброса брака поднять
+A215=HMIDataCCD_DB_030_Feeding_BtnLifterDn | B215=Bool | C215=HMI1 | D215=TM50 | E215=HMIDataCCD_DB.030_Feeding.BtnDefectRollerDn | G215=<symbolic access> | H215=1 s | J215=команда на ролик слитков для выброса брака опустить
+A216=HMIDataCCD_DB_030_Feeding_BtnRejectStopperUp | B216=Bool | C216=HMI1 | D216=TM50 | E216=HMIDataCCD_DB.030_Feeding.BtnDefectStopperCls | G216=<symbolic access> | H216=1 s | J216=команда на стопор движения слитков для выброса брака установить
+A217=HMIDataCCD_DB_030_Feeding_BtnRejectStopperDn | B217=Bool | C217=HMI1 | D217=TM50 | E217=HMIDataCCD_DB.030_Feeding.BtnDefectStopperOpn | G217=<symbolic access> | H217=1 s | J217=команда на стопор движения слитков для выброса брака освободить
+A218=HMIDataCCD_DB_030_Feeding_BtnGripper1Opn | B218=Bool | C218=HMI1 | D218=TM50 | E218=HMIDataCCD_DB.030_Feeding.BtnGripper1Opn | G218=<symbolic access> | H218=1 s | J218=Захват
+A219=HMIDataCCD_DB_030_Feeding_BtnGripper1Cls | B219=Bool | C219=HMI1 | D219=TM50 | E219=HMIDataCCD_DB.030_Feeding.BtnGripper1Cls | G219=<symbolic access> | H219=1 s | J219=Захват
+A220=HMIDataCCD_DB_030_Feeding_BtnGripper2Opn | B220=Bool | C220=HMI1 | D220=TM50 | E220=HMIDataCCD_DB.030_Feeding.BtnGripper2Opn | G220=<symbolic access> | H220=1 s | J220=Захват
+A221=HMIDataCCD_DB_030_Feeding_BtnGripper2Cls | B221=Bool | C221=HMI1 | D221=TM50 | E221=HMIDataCCD_DB.030_Feeding.BtnGripper2Cls | G221=<symbolic access> | H221=1 s | J221=Захват
+A222=HMIDataCCD_DB_030_Feeding_BtnTurnStopperUp | B222=Bool | C222=HMI1 | D222=TM50 | E222=HMIDataCCD_DB.030_Feeding.BtnTurnStopperUp | G222=<symbolic access> | H222=1 s | J222=Устройство останова  поворота
+A223=HMIDataCCD_DB_030_Feeding_BtnTurnStopperDn | B223=Bool | C223=HMI1 | D223=TM50 | E223=HMIDataCCD_DB.030_Feeding.BtnTurnStopperDn | G223=<symbolic access> | H223=1 s | J223=Устройство останова  поворота
+A224=HMIDataCCD_DB_030_Feeding_BtnBuffer1Up | B224=Bool | C224=HMI1 | D224=TM50 | E224=HMIDataCCD_DB.030_Feeding.BtnBuffer1Up | G224=<symbolic access> | H224=1 s
+A225=HMIDataCCD_DB_030_Feeding_BtnBuffer1Dn | B225=Bool | C225=HMI1 | D225=TM50 | E225=HMIDataCCD_DB.030_Feeding.BtnBuffer1Dn | G225=<symbolic access> | H225=1 s
+A226=HMIDataCCD_DB_030_Feeding_BtnBuffer2Up | B226=Bool | C226=HMI1 | D226=TM50 | E226=HMIDataCCD_DB.030_Feeding.BtnBuffer2Up | G226=<symbolic access> | H226=1 s
+A227=HMIDataCCD_DB_030_Feeding_BtnBuffer2Dn | B227=Bool | C227=HMI1 | D227=TM50 | E227=HMIDataCCD_DB.030_Feeding.BtnBuffer2Dn | G227=<symbolic access> | H227=1 s
+A228=HMIDataCCD_DB_030_Feeding_BtnBuffer3Up | B228=Bool | C228=HMI1 | D228=TM50 | E228=HMIDataCCD_DB.030_Feeding.BtnBuffer3Up | G228=<symbolic access> | H228=1 s
+A229=HMIDataCCD_DB_030_Feeding_BtnBuffer3Dn | B229=Bool | C229=HMI1 | D229=TM50 | E229=HMIDataCCD_DB.030_Feeding.BtnBuffer3Dn | G229=<symbolic access> | H229=1 s
+A230=HMIDataCCD_DB_030_Feeding_BtnTurnFFw | B230=Bool | C230=HMI1 | D230=TM50 | E230=HMIDataCCD_DB.030_Feeding.BtnTurnFFw | G230=<symbolic access> | H230=1 s | J230=движения поворотного устройства
+A231=HMIDataCCD_DB_030_Feeding_BtnTurnBCw | B231=Bool | C231=HMI1 | D231=TM50 | E231=HMIDataCCD_DB.030_Feeding.BtnTurnBCw | G231=<symbolic access> | H231=1 s | J231=движения поворотного устройства
+A232=HMIDataCCD_DB_030_Feeding_StStpSq1Dn | B232=Bool | C232=HMI1 | D232=TM50 | E232=HMIDataCCD_DB.030_Feeding.StStpSq1Dn | G232=<symbolic access> | H232=1 s
+A233=HMIDataCCD_DB_030_Feeding_StStpSq1Up | B233=Bool | C233=HMI1 | D233=TM50 | E233=HMIDataCCD_DB.030_Feeding.StStpSq1Up | G233=<symbolic access> | H233=1 s
+A234=HMIDataCCD_DB_030_Feeding_StStpSq2Up | B234=Bool | C234=HMI1 | D234=TM50 | E234=HMIDataCCD_DB.030_Feeding.StStpSq2Up | G234=<symbolic access> | H234=1 s
+A235=HMIDataCCD_DB_030_Feeding_StStpSq2Dn | B235=Bool | C235=HMI1 | D235=TM50 | E235=HMIDataCCD_DB.030_Feeding.StStpSq2Dn | G235=<symbolic access> | H235=1 s
+A236=HMIDataCCD_DB_030_Feeding_StStpSq3Dn | B236=Bool | C236=HMI1 | D236=TM50 | E236=HMIDataCCD_DB.030_Feeding.StStpSq3Dn | G236=<symbolic access> | H236=1 s
+A237=HMIDataCCD_DB_030_Feeding_StStpSq3Up | B237=Bool | C237=HMI1 | D237=TM50 | E237=HMIDataCCD_DB.030_Feeding.StStpSq3Up | G237=<symbolic access> | H237=1 s
+A238=HMIDataCCD_DB_030_Feeding_StReject | B238=Bool | C238=HMI1 | D238=TM50 | E238=HMIDataCCD_DB.030_Feeding.StReject | G238=<symbolic access> | H238=1 s
+A239=HMIDataCCD_DB_030_Feeding_StPuhserDn | B239=Bool | C239=HMI1 | D239=TM50 | E239=HMIDataCCD_DB.030_Feeding.StPuhserDn | G239=<symbolic access> | H239=1 s
+A240=HMIDataCCD_DB_030_Feeding_StPuhserUp | B240=Bool | C240=HMI1 | D240=TM50 | E240=HMIDataCCD_DB.030_Feeding.StPuhserUp | G240=<symbolic access> | H240=1 s
+A241=HMIDataCCD_DB_030_Feeding_StLifterUp | B241=Bool | C241=HMI1 | D241=TM50 | E241=HMIDataCCD_DB.030_Feeding.StLifterUp | G241=<symbolic access> | H241=1 s
+A242=HMIDataCCD_DB_030_Feeding_StLifterDn | B242=Bool | C242=HMI1 | D242=TM50 | E242=HMIDataCCD_DB.030_Feeding.StLifterDn | G242=<symbolic access> | H242=1 s
+A243=HMIDataCCD_DB_030_Feeding_StRejectStopperUp | B243=Bool | C243=HMI1 | D243=TM50 | E243=HMIDataCCD_DB.030_Feeding.StRejectStopperUp | G243=<symbolic access> | H243=1 s
+A244=HMIDataCCD_DB_030_Feeding_StRejectStopperDn | B244=Bool | C244=HMI1 | D244=TM50 | E244=HMIDataCCD_DB.030_Feeding.StRejectStopperDn | G244=<symbolic access> | H244=1 s
+A245=HMIDataCCD_DB_030_Feeding_StGripper1Opn | B245=Bool | C245=HMI1 | D245=TM50 | E245=HMIDataCCD_DB.030_Feeding.StGripper1Opn | G245=<symbolic access> | H245=1 s
+A246=HMIDataCCD_DB_030_Feeding_StGripper1Cls | B246=Bool | C246=HMI1 | D246=TM50 | E246=HMIDataCCD_DB.030_Feeding.StGripper1Cls | G246=<symbolic access> | H246=1 s
+A247=HMIDataCCD_DB_030_Feeding_StGripper2Opn | B247=Bool | C247=HMI1 | D247=TM50 | E247=HMIDataCCD_DB.030_Feeding.StGripper2Opn | G247=<symbolic access> | H247=1 s
+A248=HMIDataCCD_DB_030_Feeding_StGripper2Cls | B248=Bool | C248=HMI1 | D248=TM50 | E248=HMIDataCCD_DB.030_Feeding.StGripper2Cls | G248=<symbolic access> | H248=1 s
+A249=HMIDataCCD_DB_030_Feeding_StTurnStopperUp | B249=Bool | C249=HMI1 | D249=TM50 | E249=HMIDataCCD_DB.030_Feeding.StTurnStopperUp | G249=<symbolic access> | H249=1 s
+A250=HMIDataCCD_DB_030_Feeding_StTurnStopperDn | B250=Bool | C250=HMI1 | D250=TM50 | E250=HMIDataCCD_DB.030_Feeding.StTurnStopperDn | G250=<symbolic access> | H250=1 s
+A251=HMIDataCCD_DB_030_Feeding_StTurnFFw | B251=Bool | C251=HMI1 | D251=TM50 | E251=HMIDataCCD_DB.030_Feeding.StTurnFFw | G251=<symbolic access> | H251=1 s
+A252=HMIDataCCD_DB_030_Feeding_StTurnBCw | B252=Bool | C252=HMI1 | D252=TM50 | E252=HMIDataCCD_DB.030_Feeding.StTurnBCw | G252=<symbolic access> | H252=1 s
+A253=HMIDataCCD_DB_030_Feeding_StBuffer1Dn | B253=Bool | C253=HMI1 | D253=TM50 | E253=HMIDataCCD_DB.030_Feeding.StBuffer1Dn | G253=<symbolic access> | H253=1 s
+A254=HMIDataCCD_DB_030_Feeding_StBuffer1Up | B254=Bool | C254=HMI1 | D254=TM50 | E254=HMIDataCCD_DB.030_Feeding.StBuffer1Up | G254=<symbolic access> | H254=1 s
+A255=HMIDataCCD_DB_030_Feeding_StBuffer2Up | B255=Bool | C255=HMI1 | D255=TM50 | E255=HMIDataCCD_DB.030_Feeding.StBuffer2Up | G255=<symbolic access> | H255=1 s
+A256=HMIDataCCD_DB_030_Feeding_StBuffer2Dn | B256=Bool | C256=HMI1 | D256=TM50 | E256=HMIDataCCD_DB.030_Feeding.StBuffer2Dn | G256=<symbolic access> | H256=1 s
+A257=HMIDataCCD_DB_030_Feeding_StBuffer3Up | B257=Bool | C257=HMI1 | D257=TM50 | E257=HMIDataCCD_DB.030_Feeding.StBuffer3Up | G257=<symbolic access> | H257=1 s
+A258=HMIDataCCD_DB_030_Feeding_StBuffer3Dn | B258=Bool | C258=HMI1 | D258=TM50 | E258=HMIDataCCD_DB.030_Feeding.StBuffer3Dn | G258=<symbolic access> | H258=1 s
+A259=HMIDataCCD_DB_040_Bundle_ScaledValue | B259=Real | C259=HMI1 | D259=TM50 | E259=HMIDataCCD_DB.040_Bundle.ScaledValue | G259=<symbolic access> | H259=1 s | J259=Текущая величина весов в кг
+A260=HMIDataCCD_DB_040_Bundle_LastBundle | B260=Real | C260=HMI1 | D260=TM50 | E260=HMIDataCCD_DB.040_Bundle.LastBundle | G260=<symbolic access> | H260=1 s | J260=Вес последнего пакета в кг
+A261=HMIDataCCD_DB_040_Bundle_BtnWgtTableDn | B261=Bool | C261=HMI1 | D261=TM50 | E261=HMIDataCCD_DB.040_Bundle.BtnWgtTableDn | G261=<symbolic access> | H261=1 s
+A262=HMIDataCCD_DB_040_Bundle_BtnWgtTableUp | B262=Bool | C262=HMI1 | D262=TM50 | E262=HMIDataCCD_DB.040_Bundle.BtnWgtTableUp | G262=<symbolic access> | H262=1 s
+A263=HMIDataCCD_DB_040_Bundle_StWgtTableUp | B263=Bool | C263=HMI1 | D263=TM50 | E263=HMIDataCCD_DB.040_Bundle.StWgtTableUp | G263=<symbolic access> | H263=1 s
+A264=HMIDataCCD_DB_040_Bundle_StWgtTableDn | B264=Bool | C264=HMI1 | D264=TM50 | E264=HMIDataCCD_DB.040_Bundle.StWgtTableDn | G264=<symbolic access> | H264=1 s
+A265=HMIDataCCD_DB_040_Bundle_StStandStiil | B265=Bool | C265=HMI1 | D265=TM50 | E265=HMIDataCCD_DB.040_Bundle.StStandStiil | G265=<symbolic access> | H265=1 s | J265=горит, когда весы бездействуют
+A266=HMIDataCCD_DB_040_Bundle_StDone | B266=Bool | C266=HMI1 | D266=TM50 | E266=HMIDataCCD_DB.040_Bundle.StReady | G266=<symbolic access> | H266=1 s | J266=Взвешивание пакета успешно завершено
+A267=HMIDataCCD_DB_040_Bundle_BtnEndOpn | B267=Bool | C267=HMI1 | D267=TM50 | E267=HMIDataCCD_DB.040_Bundle.BtnEndOpn | G267=<symbolic access> | H267=1 s | J267=Открытие торцевого сжатия
+A268=HMIDataCCD_DB_040_Bundle_BtnEndCls | B268=Bool | C268=HMI1 | D268=TM50 | E268=HMIDataCCD_DB.040_Bundle.BtnEndCls | G268=<symbolic access> | H268=1 s | J268=сжатие торцевого сжатия
+A269=HMIDataCCD_DB_040_Bundle_StEndDone | B269=Bool | C269=HMI1 | D269=TM50 | E269=HMIDataCCD_DB.040_Bundle.StEndReady | G269=<symbolic access> | H269=1 s | J269=Торцевое сжатие пакета успешно завершено
+A270=HMIDataCCD_DB_040_Bundle_StSideOpn | B270=Bool | C270=HMI1 | D270=TM50 | E270=HMIDataCCD_DB.040_Bundle.StSideOpn | G270=<symbolic access> | H270=1 s
+A271=HMIDataCCD_DB_040_Bundle_BtnSideCls | B271=Bool | C271=HMI1 | D271=TM50 | E271=HMIDataCCD_DB.040_Bundle.BtnSideCls | G271=<symbolic access> | H271=1 s | J271=сжатие бокового сжатия
+A272=HMIDataCCD_DB_040_Bundle_BtnSideOpn | B272=Bool | C272=HMI1 | D272=TM50 | E272=HMIDataCCD_DB.040_Bundle.BtnSideOpn | G272=<symbolic access> | H272=1 s | J272=Открытие бокового сжатия
+A273=HMIDataCCD_DB_040_Bundle_StSideCls | B273=Bool | C273=HMI1 | D273=TM50 | E273=HMIDataCCD_DB.040_Bundle.StSideCls | G273=<symbolic access> | H273=1 s
+A274=HMIDataCCD_DB_040_Bundle_StSideDone | B274=Bool | C274=HMI1 | D274=TM50 | E274=HMIDataCCD_DB.040_Bundle.StSideReady | G274=<symbolic access> | H274=1 s | J274=боковое сжатие пакета успешно завершено
+A275=HMIDataCCD_DB_040_Bundle_PT-02 | B275=Real | C275=HMI1 | D275=TM50 | E275=HMIDataCCD_DB.040_Bundle."PT-02" | G275=<symbolic access> | H275=1 s | J275=Величина трансмиттера давления в строке торцевого сжатия в барах
+A276=HMIDataCCD_DB_040_Bundle_PT-04 | B276=Real | C276=HMI1 | D276=TM50 | E276=HMIDataCCD_DB.040_Bundle."PT-04" | G276=<symbolic access> | H276=1 s | J276=Величина трансмиттера давления в строке бокового сжатия в барах
+A277=HMIDataCCD_DB_040_Bundle_PT-03 | B277=Real | C277=HMI1 | D277=TM50 | E277=HMIDataCCD_DB.040_Bundle."PT-03" | G277=<symbolic access> | H277=1 s | J277=Величина трансмиттера давления в строке верхнего сжатия в 
+A278=HMIDataCCD_DB_040_Bundle_BtnTopOpn | B278=Bool | C278=HMI1 | D278=TM50 | E278=HMIDataCCD_DB.040_Bundle.BtnTopOpn | G278=<symbolic access> | H278=1 s | J278=Открытие бокового сжатия
+A279=HMIDataCCD_DB_040_Bundle_BtnTopCls | B279=Bool | C279=HMI1 | D279=TM50 | E279=HMIDataCCD_DB.040_Bundle.BtnTopCls | G279=<symbolic access> | H279=1 s | J279=сжатие бокового сжатия
+A280=HMIDataCCD_DB_040_Bundle_StTopCls | B280=Bool | C280=HMI1 | D280=TM50 | E280=HMIDataCCD_DB.040_Bundle.StTopCls | G280=<symbolic access> | H280=1 s
+A281=HMIDataCCD_DB_040_Bundle_StTopOpn | B281=Bool | C281=HMI1 | D281=TM50 | E281=HMIDataCCD_DB.040_Bundle.StTopOpn | G281=<symbolic access> | H281=1 s
+A282=HMIDataCCD_DB_040_Bundle_StTopDone | B282=Bool | C282=HMI1 | D282=TM50 | E282=HMIDataCCD_DB.040_Bundle.StTopReady | G282=<symbolic access> | H282=1 s | J282=боковое сжатие пакета успешно завершено
+A283=HMIDataCCD_DB_040_Bundle_StSlow | B283=Bool | C283=HMI1 | D283=TM50 | E283=HMIDataCCD_DB.040_Bundle.StSlow | G283=<symbolic access> | H283=1 s
+A284=HMIDataCCD_DB_040_Bundle_StStp | B284=Bool | C284=HMI1 | D284=TM50 | E284=HMIDataCCD_DB.040_Bundle.StStp | G284=<symbolic access> | H284=1 s
+A285=HMIDataCCD_DB_040_Bundle_StBundleFw | B285=Bool | C285=HMI1 | D285=TM50 | E285=HMIDataCCD_DB.040_Bundle.StBundleFw | G285=<symbolic access> | H285=1 s
+A286=HMIDataCCD_DB_040_Bundle_StBundleBw | B286=Bool | C286=HMI1 | D286=TM50 | E286=HMIDataCCD_DB.040_Bundle.StBundleBw | G286=<symbolic access> | H286=1 s
+A287=HMIDataCCD_DB_040_Bundle_BtnBundleFw | B287=Bool | C287=HMI1 | D287=TM50 | E287=HMIDataCCD_DB.040_Bundle.BtnBundleFw | G287=<symbolic access> | H287=1 s | J287=Отражается статус движения конвейера пакетов. Нажать для команды в ручном режиме
+A288=HMIDataCCD_DB_040_Bundle_BtnBundleBw | B288=Bool | C288=HMI1 | D288=TM50 | E288=HMIDataCCD_DB.040_Bundle.BtnBundleBw | G288=<symbolic access> | H288=1 s | J288=Отражается статус движения конвейера пакетов. Нажать для команды в ручном режиме
+A289=HMIDataCCD_DB_050_Robots_StackRbt_BtnOpn1 | B289=Bool | C289=HMI1 | D289=TM50 | E289=HMIDataCCD_DB.050_Robots.StackRbt.BtnOpn1 | G289=<symbolic access> | H289=1 s
+A290=HMIDataCCD_DB_050_Robots_StackRbt_BtnOpn2 | B290=Bool | C290=HMI1 | D290=TM50 | E290=HMIDataCCD_DB.050_Robots.StackRbt.BtnOpn2 | G290=<symbolic access> | H290=1 s
+A291=HMIDataCCD_DB_050_Robots_StackRbt_BtnCls1 | B291=Bool | C291=HMI1 | D291=TM50 | E291=HMIDataCCD_DB.050_Robots.StackRbt.BtnCls1 | G291=<symbolic access> | H291=1 s
+A292=HMIDataCCD_DB_050_Robots_StackRbt_BtnCls2 | B292=Bool | C292=HMI1 | D292=TM50 | E292=HMIDataCCD_DB.050_Robots.StackRbt.BtnCls2 | G292=<symbolic access> | H292=1 s
+A293=HMIDataCCD_DB_050_Robots_StackRbt_StOpn1 | B293=Bool | C293=HMI1 | D293=TM50 | E293=HMIDataCCD_DB.050_Robots.StackRbt.StOpn1 | G293=<symbolic access> | H293=1 s
+A294=HMIDataCCD_DB_050_Robots_StackRbt_StOpn2 | B294=Bool | C294=HMI1 | D294=TM50 | E294=HMIDataCCD_DB.050_Robots.StackRbt.StOpn2 | G294=<symbolic access> | H294=1 s
+A295=HMIDataCCD_DB_050_Robots_StackRbt_StCls1 | B295=Bool | C295=HMI1 | D295=TM50 | E295=HMIDataCCD_DB.050_Robots.StackRbt.StCls1 | G295=<symbolic access> | H295=1 s
+A296=HMIDataCCD_DB_050_Robots_StackRbt_StCls2 | B296=Bool | C296=HMI1 | D296=TM50 | E296=HMIDataCCD_DB.050_Robots.StackRbt.StCls2 | G296=<symbolic access> | H296=1 s
+A297=HMIDataCCD_DB_020_Demoulding_BtnHammerRetract_St | B297=Bool | C297=HMI1 | D297=TM50 | E297=HMIDataCCD_DB.020_Demoulding.BtnHammerRetract_St | G297=<symbolic access> | H297=1 s
+A298=HMIDataCCD_DB_020_Demoulding_BtnHammerExtend_St | B298=Bool | C298=HMI1 | D298=TM50 | E298=HMIDataCCD_DB.020_Demoulding.BtnHammerExtend_St | G298=<symbolic access> | H298=1 s
+A299=HMIDataCCD_DB_020_Demoulding_StHammerRetract | B299=Bool | C299=HMI1 | D299=TM50 | E299=HMIDataCCD_DB.020_Demoulding.StHammerRetract | G299=<symbolic access> | H299=1 s
+A300=HMIDataCCD_DB_020_Demoulding_StHammerExtend | B300=Bool | C300=HMI1 | D300=TM50 | E300=HMIDataCCD_DB.020_Demoulding.StHammerExtend | G300=<symbolic access> | H300=1 s
+A301==010_CtrlDB_DriveCtrl_HmiSt_nHmiSt | B301=Int | C301=HMI1 | D301=TM50 | E301=010_CtrlDB.DriveCtrl.HmiSt.nHmiSt | G301=<symbolic access> | H301=1 s
 A302=PopUp_Xleft | B302=Int | C302=<Internal tag>
 A303=PopUp_Ybottom | B303=Int | C303=<Internal tag>
-A304=DiagNetDB_PROFINET_nHmiSt{0} | B304=Int | C304=HMI1 | D304=CCB-A03 | E304=DiagNetDB.PROFINET.nHmiSt[0] | G304=<symbolic access> | H304=1 s
-A305=DiagNetDB_PROFINET_nHmiSt{100} | B305=Int | C305=HMI1 | D305=CCB-A03 | E305=DiagNetDB.PROFINET.nHmiSt[100] | G305=<symbolic access> | H305=1 s
-A306=DiagNetDB_PROFINET_nHmiSt{101} | B306=Int | C306=HMI1 | D306=CCB-A03 | E306=DiagNetDB.PROFINET.nHmiSt[101] | G306=<symbolic access> | H306=1 s
-A307=DiagNetDB_PROFINET_nHmiSt{102} | B307=Int | C307=HMI1 | D307=CCB-A03 | E307=DiagNetDB.PROFINET.nHmiSt[102] | G307=<symbolic access> | H307=1 s
-A308=DiagNetDB_PROFINET_nHmiSt{103} | B308=Int | C308=HMI1 | D308=CCB-A03 | E308=DiagNetDB.PROFINET.nHmiSt[103] | G308=<symbolic access> | H308=1 s
-A309=DiagNetDB_PROFINET_nHmiSt{104} | B309=Int | C309=HMI1 | D309=CCB-A03 | E309=DiagNetDB.PROFINET.nHmiSt[104] | G309=<symbolic access> | H309=1 s
-A310=DiagNetDB_PROFINET_nHmiSt{105} | B310=Int | C310=HMI1 | D310=CCB-A03 | E310=DiagNetDB.PROFINET.nHmiSt[105] | G310=<symbolic access> | H310=1 s
-A311=DiagNetDB_PROFINET_nHmiSt{106} | B311=Int | C311=HMI1 | D311=CCB-A03 | E311=DiagNetDB.PROFINET.nHmiSt[106] | G311=<symbolic access> | H311=1 s
-A312=DiagNetDB_PROFINET_nHmiSt{107} | B312=Int | C312=HMI1 | D312=CCB-A03 | E312=DiagNetDB.PROFINET.nHmiSt[107] | G312=<symbolic access> | H312=1 s
-A313=DiagNetDB_PROFINET_nHmiSt{108} | B313=Int | C313=HMI1 | D313=CCB-A03 | E313=DiagNetDB.PROFINET.nHmiSt[108] | G313=<symbolic access> | H313=1 s
-A314=DiagNetDB_PROFINET_nHmiSt{109} | B314=Int | C314=HMI1 | D314=CCB-A03 | E314=DiagNetDB.PROFINET.nHmiSt[109] | G314=<symbolic access> | H314=1 s
-A315=DiagNetDB_PROFINET_nHmiSt{10} | B315=Int | C315=HMI1 | D315=CCB-A03 | E315=DiagNetDB.PROFINET.nHmiSt[10] | G315=<symbolic access> | H315=1 s
-A316=DiagNetDB_PROFINET_nHmiSt{110} | B316=Int | C316=HMI1 | D316=CCB-A03 | E316=DiagNetDB.PROFINET.nHmiSt[110] | G316=<symbolic access> | H316=1 s
-A317=DiagNetDB_PROFINET_nHmiSt{111} | B317=Int | C317=HMI1 | D317=CCB-A03 | E317=DiagNetDB.PROFINET.nHmiSt[111] | G317=<symbolic access> | H317=1 s
-A318=DiagNetDB_PROFINET_nHmiSt{112} | B318=Int | C318=HMI1 | D318=CCB-A03 | E318=DiagNetDB.PROFINET.nHmiSt[112] | G318=<symbolic access> | H318=1 s
-A319=DiagNetDB_PROFINET_nHmiSt{113} | B319=Int | C319=HMI1 | D319=CCB-A03 | E319=DiagNetDB.PROFINET.nHmiSt[113] | G319=<symbolic access> | H319=1 s
-A320=DiagNetDB_PROFINET_nHmiSt{114} | B320=Int | C320=HMI1 | D320=CCB-A03 | E320=DiagNetDB.PROFINET.nHmiSt[114] | G320=<symbolic access> | H320=1 s
-A321=DiagNetDB_PROFINET_nHmiSt{115} | B321=Int | C321=HMI1 | D321=CCB-A03 | E321=DiagNetDB.PROFINET.nHmiSt[115] | G321=<symbolic access> | H321=1 s
-A322=DiagNetDB_PROFINET_nHmiSt{116} | B322=Int | C322=HMI1 | D322=CCB-A03 | E322=DiagNetDB.PROFINET.nHmiSt[116] | G322=<symbolic access> | H322=1 s
-A323=DiagNetDB_PROFINET_nHmiSt{117} | B323=Int | C323=HMI1 | D323=CCB-A03 | E323=DiagNetDB.PROFINET.nHmiSt[117] | G323=<symbolic access> | H323=1 s
-A324=DiagNetDB_PROFINET_nHmiSt{118} | B324=Int | C324=HMI1 | D324=CCB-A03 | E324=DiagNetDB.PROFINET.nHmiSt[118] | G324=<symbolic access> | H324=1 s
-A325=DiagNetDB_PROFINET_nHmiSt{119} | B325=Int | C325=HMI1 | D325=CCB-A03 | E325=DiagNetDB.PROFINET.nHmiSt[119] | G325=<symbolic access> | H325=1 s
-A326=DiagNetDB_PROFINET_nHmiSt{11} | B326=Int | C326=HMI1 | D326=CCB-A03 | E326=DiagNetDB.PROFINET.nHmiSt[11] | G326=<symbolic access> | H326=1 s
-A327=DiagNetDB_PROFINET_nHmiSt{120} | B327=Int | C327=HMI1 | D327=CCB-A03 | E327=DiagNetDB.PROFINET.nHmiSt[120] | G327=<symbolic access> | H327=1 s
-A328=DiagNetDB_PROFINET_nHmiSt{121} | B328=Int | C328=HMI1 | D328=CCB-A03 | E328=DiagNetDB.PROFINET.nHmiSt[121] | G328=<symbolic access> | H328=1 s
-A329=DiagNetDB_PROFINET_nHmiSt{122} | B329=Int | C329=HMI1 | D329=CCB-A03 | E329=DiagNetDB.PROFINET.nHmiSt[122] | G329=<symbolic access> | H329=1 s
-A330=DiagNetDB_PROFINET_nHmiSt{123} | B330=Int | C330=HMI1 | D330=CCB-A03 | E330=DiagNetDB.PROFINET.nHmiSt[123] | G330=<symbolic access> | H330=1 s
-A331=DiagNetDB_PROFINET_nHmiSt{124} | B331=Int | C331=HMI1 | D331=CCB-A03 | E331=DiagNetDB.PROFINET.nHmiSt[124] | G331=<symbolic access> | H331=1 s
-A332=DiagNetDB_PROFINET_nHmiSt{125} | B332=Int | C332=HMI1 | D332=CCB-A03 | E332=DiagNetDB.PROFINET.nHmiSt[125] | G332=<symbolic access> | H332=1 s
-A333=DiagNetDB_PROFINET_nHmiSt{126} | B333=Int | C333=HMI1 | D333=CCB-A03 | E333=DiagNetDB.PROFINET.nHmiSt[126] | G333=<symbolic access> | H333=1 s
-A334=DiagNetDB_PROFINET_nHmiSt{127} | B334=Int | C334=HMI1 | D334=CCB-A03 | E334=DiagNetDB.PROFINET.nHmiSt[127] | G334=<symbolic access> | H334=1 s
-A335=DiagNetDB_PROFINET_nHmiSt{12} | B335=Int | C335=HMI1 | D335=CCB-A03 | E335=DiagNetDB.PROFINET.nHmiSt[12] | G335=<symbolic access> | H335=1 s
-A336=DiagNetDB_PROFINET_nHmiSt{13} | B336=Int | C336=HMI1 | D336=CCB-A03 | E336=DiagNetDB.PROFINET.nHmiSt[13] | G336=<symbolic access> | H336=1 s
-A337=DiagNetDB_PROFINET_nHmiSt{14} | B337=Int | C337=HMI1 | D337=CCB-A03 | E337=DiagNetDB.PROFINET.nHmiSt[14] | G337=<symbolic access> | H337=1 s
-A338=DiagNetDB_PROFINET_nHmiSt{15} | B338=Int | C338=HMI1 | D338=CCB-A03 | E338=DiagNetDB.PROFINET.nHmiSt[15] | G338=<symbolic access> | H338=1 s
-A339=DiagNetDB_PROFINET_nHmiSt{16} | B339=Int | C339=HMI1 | D339=CCB-A03 | E339=DiagNetDB.PROFINET.nHmiSt[16] | G339=<symbolic access> | H339=1 s
-A340=DiagNetDB_PROFINET_nHmiSt{17} | B340=Int | C340=HMI1 | D340=CCB-A03 | E340=DiagNetDB.PROFINET.nHmiSt[17] | G340=<symbolic access> | H340=1 s
-A341=DiagNetDB_PROFINET_nHmiSt{18} | B341=Int | C341=HMI1 | D341=CCB-A03 | E341=DiagNetDB.PROFINET.nHmiSt[18] | G341=<symbolic access> | H341=1 s
-A342=DiagNetDB_PROFINET_nHmiSt{19} | B342=Int | C342=HMI1 | D342=CCB-A03 | E342=DiagNetDB.PROFINET.nHmiSt[19] | G342=<symbolic access> | H342=1 s
-A343=DiagNetDB_PROFINET_nHmiSt{1} | B343=Int | C343=HMI1 | D343=CCB-A03 | E343=DiagNetDB.PROFINET.nHmiSt[1] | G343=<symbolic access> | H343=1 s
-A344=DiagNetDB_PROFINET_nHmiSt{20} | B344=Int | C344=HMI1 | D344=CCB-A03 | E344=DiagNetDB.PROFINET.nHmiSt[20] | G344=<symbolic access> | H344=1 s
-A345=DiagNetDB_PROFINET_nHmiSt{21} | B345=Int | C345=HMI1 | D345=CCB-A03 | E345=DiagNetDB.PROFINET.nHmiSt[21] | G345=<symbolic access> | H345=1 s
-A346=DiagNetDB_PROFINET_nHmiSt{22} | B346=Int | C346=HMI1 | D346=CCB-A03 | E346=DiagNetDB.PROFINET.nHmiSt[22] | G346=<symbolic access> | H346=1 s
-A347=DiagNetDB_PROFINET_nHmiSt{23} | B347=Int | C347=HMI1 | D347=CCB-A03 | E347=DiagNetDB.PROFINET.nHmiSt[23] | G347=<symbolic access> | H347=1 s
-A348=DiagNetDB_PROFINET_nHmiSt{24} | B348=Int | C348=HMI1 | D348=CCB-A03 | E348=DiagNetDB.PROFINET.nHmiSt[24] | G348=<symbolic access> | H348=1 s
-A349=DiagNetDB_PROFINET_nHmiSt{25} | B349=Int | C349=HMI1 | D349=CCB-A03 | E349=DiagNetDB.PROFINET.nHmiSt[25] | G349=<symbolic access> | H349=1 s
-A350=DiagNetDB_PROFINET_nHmiSt{26} | B350=Int | C350=HMI1 | D350=CCB-A03 | E350=DiagNetDB.PROFINET.nHmiSt[26] | G350=<symbolic access> | H350=1 s
-A351=DiagNetDB_PROFINET_nHmiSt{27} | B351=Int | C351=HMI1 | D351=CCB-A03 | E351=DiagNetDB.PROFINET.nHmiSt[27] | G351=<symbolic access> | H351=1 s
-A352=DiagNetDB_PROFINET_nHmiSt{28} | B352=Int | C352=HMI1 | D352=CCB-A03 | E352=DiagNetDB.PROFINET.nHmiSt[28] | G352=<symbolic access> | H352=1 s
-A353=DiagNetDB_PROFINET_nHmiSt{29} | B353=Int | C353=HMI1 | D353=CCB-A03 | E353=DiagNetDB.PROFINET.nHmiSt[29] | G353=<symbolic access> | H353=1 s
-A354=DiagNetDB_PROFINET_nHmiSt{2} | B354=Int | C354=HMI1 | D354=CCB-A03 | E354=DiagNetDB.PROFINET.nHmiSt[2] | G354=<symbolic access> | H354=1 s
-A355=DiagNetDB_PROFINET_nHmiSt{30} | B355=Int | C355=HMI1 | D355=CCB-A03 | E355=DiagNetDB.PROFINET.nHmiSt[30] | G355=<symbolic access> | H355=1 s
-A356=DiagNetDB_PROFINET_nHmiSt{31} | B356=Int | C356=HMI1 | D356=CCB-A03 | E356=DiagNetDB.PROFINET.nHmiSt[31] | G356=<symbolic access> | H356=1 s
-A357=DiagNetDB_PROFINET_nHmiSt{32} | B357=Int | C357=HMI1 | D357=CCB-A03 | E357=DiagNetDB.PROFINET.nHmiSt[32] | G357=<symbolic access> | H357=1 s
-A358=DiagNetDB_PROFINET_nHmiSt{33} | B358=Int | C358=HMI1 | D358=CCB-A03 | E358=DiagNetDB.PROFINET.nHmiSt[33] | G358=<symbolic access> | H358=1 s
-A359=DiagNetDB_PROFINET_nHmiSt{34} | B359=Int | C359=HMI1 | D359=CCB-A03 | E359=DiagNetDB.PROFINET.nHmiSt[34] | G359=<symbolic access> | H359=1 s
-A360=DiagNetDB_PROFINET_nHmiSt{35} | B360=Int | C360=HMI1 | D360=CCB-A03 | E360=DiagNetDB.PROFINET.nHmiSt[35] | G360=<symbolic access> | H360=1 s
-A361=DiagNetDB_PROFINET_nHmiSt{36} | B361=Int | C361=HMI1 | D361=CCB-A03 | E361=DiagNetDB.PROFINET.nHmiSt[36] | G361=<symbolic access> | H361=1 s
-A362=DiagNetDB_PROFINET_nHmiSt{37} | B362=Int | C362=HMI1 | D362=CCB-A03 | E362=DiagNetDB.PROFINET.nHmiSt[37] | G362=<symbolic access> | H362=1 s
-A363=DiagNetDB_PROFINET_nHmiSt{38} | B363=Int | C363=HMI1 | D363=CCB-A03 | E363=DiagNetDB.PROFINET.nHmiSt[38] | G363=<symbolic access> | H363=1 s
-A364=DiagNetDB_PROFINET_nHmiSt{39} | B364=Int | C364=HMI1 | D364=CCB-A03 | E364=DiagNetDB.PROFINET.nHmiSt[39] | G364=<symbolic access> | H364=1 s
-A365=DiagNetDB_PROFINET_nHmiSt{3} | B365=Int | C365=HMI1 | D365=CCB-A03 | E365=DiagNetDB.PROFINET.nHmiSt[3] | G365=<symbolic access> | H365=1 s
-A366=DiagNetDB_PROFINET_nHmiSt{40} | B366=Int | C366=HMI1 | D366=CCB-A03 | E366=DiagNetDB.PROFINET.nHmiSt[40] | G366=<symbolic access> | H366=1 s
-A367=DiagNetDB_PROFINET_nHmiSt{41} | B367=Int | C367=HMI1 | D367=CCB-A03 | E367=DiagNetDB.PROFINET.nHmiSt[41] | G367=<symbolic access> | H367=1 s
-A368=DiagNetDB_PROFINET_nHmiSt{42} | B368=Int | C368=HMI1 | D368=CCB-A03 | E368=DiagNetDB.PROFINET.nHmiSt[42] | G368=<symbolic access> | H368=1 s
-A369=DiagNetDB_PROFINET_nHmiSt{43} | B369=Int | C369=HMI1 | D369=CCB-A03 | E369=DiagNetDB.PROFINET.nHmiSt[43] | G369=<symbolic access> | H369=1 s
-A370=DiagNetDB_PROFINET_nHmiSt{44} | B370=Int | C370=HMI1 | D370=CCB-A03 | E370=DiagNetDB.PROFINET.nHmiSt[44] | G370=<symbolic access> | H370=1 s
-A371=DiagNetDB_PROFINET_nHmiSt{45} | B371=Int | C371=HMI1 | D371=CCB-A03 | E371=DiagNetDB.PROFINET.nHmiSt[45] | G371=<symbolic access> | H371=1 s
-A372=DiagNetDB_PROFINET_nHmiSt{46} | B372=Int | C372=HMI1 | D372=CCB-A03 | E372=DiagNetDB.PROFINET.nHmiSt[46] | G372=<symbolic access> | H372=1 s
-A373=DiagNetDB_PROFINET_nHmiSt{47} | B373=Int | C373=HMI1 | D373=CCB-A03 | E373=DiagNetDB.PROFINET.nHmiSt[47] | G373=<symbolic access> | H373=1 s
-A374=DiagNetDB_PROFINET_nHmiSt{48} | B374=Int | C374=HMI1 | D374=CCB-A03 | E374=DiagNetDB.PROFINET.nHmiSt[48] | G374=<symbolic access> | H374=1 s
-A375=DiagNetDB_PROFINET_nHmiSt{49} | B375=Int | C375=HMI1 | D375=CCB-A03 | E375=DiagNetDB.PROFINET.nHmiSt[49] | G375=<symbolic access> | H375=1 s
-A376=DiagNetDB_PROFINET_nHmiSt{4} | B376=Int | C376=HMI1 | D376=CCB-A03 | E376=DiagNetDB.PROFINET.nHmiSt[4] | G376=<symbolic access> | H376=1 s
-A377=DiagNetDB_PROFINET_nHmiSt{50} | B377=Int | C377=HMI1 | D377=CCB-A03 | E377=DiagNetDB.PROFINET.nHmiSt[50] | G377=<symbolic access> | H377=1 s
-A378=DiagNetDB_PROFINET_nHmiSt{51} | B378=Int | C378=HMI1 | D378=CCB-A03 | E378=DiagNetDB.PROFINET.nHmiSt[51] | G378=<symbolic access> | H378=1 s
-A379=DiagNetDB_PROFINET_nHmiSt{52} | B379=Int | C379=HMI1 | D379=CCB-A03 | E379=DiagNetDB.PROFINET.nHmiSt[52] | G379=<symbolic access> | H379=1 s
-A380=DiagNetDB_PROFINET_nHmiSt{53} | B380=Int | C380=HMI1 | D380=CCB-A03 | E380=DiagNetDB.PROFINET.nHmiSt[53] | G380=<symbolic access> | H380=1 s
-A381=DiagNetDB_PROFINET_nHmiSt{54} | B381=Int | C381=HMI1 | D381=CCB-A03 | E381=DiagNetDB.PROFINET.nHmiSt[54] | G381=<symbolic access> | H381=1 s
-A382=DiagNetDB_PROFINET_nHmiSt{55} | B382=Int | C382=HMI1 | D382=CCB-A03 | E382=DiagNetDB.PROFINET.nHmiSt[55] | G382=<symbolic access> | H382=1 s
-A383=DiagNetDB_PROFINET_nHmiSt{56} | B383=Int | C383=HMI1 | D383=CCB-A03 | E383=DiagNetDB.PROFINET.nHmiSt[56] | G383=<symbolic access> | H383=1 s
-A384=DiagNetDB_PROFINET_nHmiSt{57} | B384=Int | C384=HMI1 | D384=CCB-A03 | E384=DiagNetDB.PROFINET.nHmiSt[57] | G384=<symbolic access> | H384=1 s
-A385=DiagNetDB_PROFINET_nHmiSt{58} | B385=Int | C385=HMI1 | D385=CCB-A03 | E385=DiagNetDB.PROFINET.nHmiSt[58] | G385=<symbolic access> | H385=1 s
-A386=DiagNetDB_PROFINET_nHmiSt{59} | B386=Int | C386=HMI1 | D386=CCB-A03 | E386=DiagNetDB.PROFINET.nHmiSt[59] | G386=<symbolic access> | H386=1 s
-A387=DiagNetDB_PROFINET_nHmiSt{5} | B387=Int | C387=HMI1 | D387=CCB-A03 | E387=DiagNetDB.PROFINET.nHmiSt[5] | G387=<symbolic access> | H387=1 s
-A388=DiagNetDB_PROFINET_nHmiSt{60} | B388=Int | C388=HMI1 | D388=CCB-A03 | E388=DiagNetDB.PROFINET.nHmiSt[60] | G388=<symbolic access> | H388=1 s
-A389=DiagNetDB_PROFINET_nHmiSt{61} | B389=Int | C389=HMI1 | D389=CCB-A03 | E389=DiagNetDB.PROFINET.nHmiSt[61] | G389=<symbolic access> | H389=1 s
-A390=DiagNetDB_PROFINET_nHmiSt{62} | B390=Int | C390=HMI1 | D390=CCB-A03 | E390=DiagNetDB.PROFINET.nHmiSt[62] | G390=<symbolic access> | H390=1 s
-A391=DiagNetDB_PROFINET_nHmiSt{63} | B391=Int | C391=HMI1 | D391=CCB-A03 | E391=DiagNetDB.PROFINET.nHmiSt[63] | G391=<symbolic access> | H391=1 s
-A392=DiagNetDB_PROFINET_nHmiSt{64} | B392=Int | C392=HMI1 | D392=CCB-A03 | E392=DiagNetDB.PROFINET.nHmiSt[64] | G392=<symbolic access> | H392=1 s
-A393=DiagNetDB_PROFINET_nHmiSt{65} | B393=Int | C393=HMI1 | D393=CCB-A03 | E393=DiagNetDB.PROFINET.nHmiSt[65] | G393=<symbolic access> | H393=1 s
-A394=DiagNetDB_PROFINET_nHmiSt{66} | B394=Int | C394=HMI1 | D394=CCB-A03 | E394=DiagNetDB.PROFINET.nHmiSt[66] | G394=<symbolic access> | H394=1 s
-A395=DiagNetDB_PROFINET_nHmiSt{67} | B395=Int | C395=HMI1 | D395=CCB-A03 | E395=DiagNetDB.PROFINET.nHmiSt[67] | G395=<symbolic access> | H395=1 s
-A396=DiagNetDB_PROFINET_nHmiSt{68} | B396=Int | C396=HMI1 | D396=CCB-A03 | E396=DiagNetDB.PROFINET.nHmiSt[68] | G396=<symbolic access> | H396=1 s
-A397=DiagNetDB_PROFINET_nHmiSt{69} | B397=Int | C397=HMI1 | D397=CCB-A03 | E397=DiagNetDB.PROFINET.nHmiSt[69] | G397=<symbolic access> | H397=1 s
-A398=DiagNetDB_PROFINET_nHmiSt{6} | B398=Int | C398=HMI1 | D398=CCB-A03 | E398=DiagNetDB.PROFINET.nHmiSt[6] | G398=<symbolic access> | H398=1 s
-A399=DiagNetDB_PROFINET_nHmiSt{70} | B399=Int | C399=HMI1 | D399=CCB-A03 | E399=DiagNetDB.PROFINET.nHmiSt[70] | G399=<symbolic access> | H399=1 s
-A400=DiagNetDB_PROFINET_nHmiSt{71} | B400=Int | C400=HMI1 | D400=CCB-A03 | E400=DiagNetDB.PROFINET.nHmiSt[71] | G400=<symbolic access> | H400=1 s
-A401=DiagNetDB_PROFINET_nHmiSt{72} | B401=Int | C401=HMI1 | D401=CCB-A03 | E401=DiagNetDB.PROFINET.nHmiSt[72] | G401=<symbolic access> | H401=1 s
-A402=DiagNetDB_PROFINET_nHmiSt{73} | B402=Int | C402=HMI1 | D402=CCB-A03 | E402=DiagNetDB.PROFINET.nHmiSt[73] | G402=<symbolic access> | H402=1 s
-A403=DiagNetDB_PROFINET_nHmiSt{74} | B403=Int | C403=HMI1 | D403=CCB-A03 | E403=DiagNetDB.PROFINET.nHmiSt[74] | G403=<symbolic access> | H403=1 s
-A404=DiagNetDB_PROFINET_nHmiSt{75} | B404=Int | C404=HMI1 | D404=CCB-A03 | E404=DiagNetDB.PROFINET.nHmiSt[75] | G404=<symbolic access> | H404=1 s
-A405=DiagNetDB_PROFINET_nHmiSt{76} | B405=Int | C405=HMI1 | D405=CCB-A03 | E405=DiagNetDB.PROFINET.nHmiSt[76] | G405=<symbolic access> | H405=1 s
-A406=DiagNetDB_PROFINET_nHmiSt{77} | B406=Int | C406=HMI1 | D406=CCB-A03 | E406=DiagNetDB.PROFINET.nHmiSt[77] | G406=<symbolic access> | H406=1 s
-A407=DiagNetDB_PROFINET_nHmiSt{78} | B407=Int | C407=HMI1 | D407=CCB-A03 | E407=DiagNetDB.PROFINET.nHmiSt[78] | G407=<symbolic access> | H407=1 s
-A408=DiagNetDB_PROFINET_nHmiSt{79} | B408=Int | C408=HMI1 | D408=CCB-A03 | E408=DiagNetDB.PROFINET.nHmiSt[79] | G408=<symbolic access> | H408=1 s
-A409=DiagNetDB_PROFINET_nHmiSt{7} | B409=Int | C409=HMI1 | D409=CCB-A03 | E409=DiagNetDB.PROFINET.nHmiSt[7] | G409=<symbolic access> | H409=1 s
-A410=DiagNetDB_PROFINET_nHmiSt{80} | B410=Int | C410=HMI1 | D410=CCB-A03 | E410=DiagNetDB.PROFINET.nHmiSt[80] | G410=<symbolic access> | H410=1 s
-A411=DiagNetDB_PROFINET_nHmiSt{81} | B411=Int | C411=HMI1 | D411=CCB-A03 | E411=DiagNetDB.PROFINET.nHmiSt[81] | G411=<symbolic access> | H411=1 s
-A412=DiagNetDB_PROFINET_nHmiSt{82} | B412=Int | C412=HMI1 | D412=CCB-A03 | E412=DiagNetDB.PROFINET.nHmiSt[82] | G412=<symbolic access> | H412=1 s
-A413=DiagNetDB_PROFINET_nHmiSt{83} | B413=Int | C413=HMI1 | D413=CCB-A03 | E413=DiagNetDB.PROFINET.nHmiSt[83] | G413=<symbolic access> | H413=1 s
-A414=DiagNetDB_PROFINET_nHmiSt{84} | B414=Int | C414=HMI1 | D414=CCB-A03 | E414=DiagNetDB.PROFINET.nHmiSt[84] | G414=<symbolic access> | H414=1 s
-A415=DiagNetDB_PROFINET_nHmiSt{85} | B415=Int | C415=HMI1 | D415=CCB-A03 | E415=DiagNetDB.PROFINET.nHmiSt[85] | G415=<symbolic access> | H415=1 s
-A416=DiagNetDB_PROFINET_nHmiSt{86} | B416=Int | C416=HMI1 | D416=CCB-A03 | E416=DiagNetDB.PROFINET.nHmiSt[86] | G416=<symbolic access> | H416=1 s
-A417=DiagNetDB_PROFINET_nHmiSt{87} | B417=Int | C417=HMI1 | D417=CCB-A03 | E417=DiagNetDB.PROFINET.nHmiSt[87] | G417=<symbolic access> | H417=1 s
-A418=DiagNetDB_PROFINET_nHmiSt{88} | B418=Int | C418=HMI1 | D418=CCB-A03 | E418=DiagNetDB.PROFINET.nHmiSt[88] | G418=<symbolic access> | H418=1 s
-A419=DiagNetDB_PROFINET_nHmiSt{89} | B419=Int | C419=HMI1 | D419=CCB-A03 | E419=DiagNetDB.PROFINET.nHmiSt[89] | G419=<symbolic access> | H419=1 s
-A420=DiagNetDB_PROFINET_nHmiSt{8} | B420=Int | C420=HMI1 | D420=CCB-A03 | E420=DiagNetDB.PROFINET.nHmiSt[8] | G420=<symbolic access> | H420=1 s
-A421=DiagNetDB_PROFINET_nHmiSt{90} | B421=Int | C421=HMI1 | D421=CCB-A03 | E421=DiagNetDB.PROFINET.nHmiSt[90] | G421=<symbolic access> | H421=1 s
-A422=DiagNetDB_PROFINET_nHmiSt{91} | B422=Int | C422=HMI1 | D422=CCB-A03 | E422=DiagNetDB.PROFINET.nHmiSt[91] | G422=<symbolic access> | H422=1 s
-A423=DiagNetDB_PROFINET_nHmiSt{92} | B423=Int | C423=HMI1 | D423=CCB-A03 | E423=DiagNetDB.PROFINET.nHmiSt[92] | G423=<symbolic access> | H423=1 s
-A424=DiagNetDB_PROFINET_nHmiSt{93} | B424=Int | C424=HMI1 | D424=CCB-A03 | E424=DiagNetDB.PROFINET.nHmiSt[93] | G424=<symbolic access> | H424=1 s
-A425=DiagNetDB_PROFINET_nHmiSt{94} | B425=Int | C425=HMI1 | D425=CCB-A03 | E425=DiagNetDB.PROFINET.nHmiSt[94] | G425=<symbolic access> | H425=1 s
-A426=DiagNetDB_PROFINET_nHmiSt{95} | B426=Int | C426=HMI1 | D426=CCB-A03 | E426=DiagNetDB.PROFINET.nHmiSt[95] | G426=<symbolic access> | H426=1 s
-A427=DiagNetDB_PROFINET_nHmiSt{96} | B427=Int | C427=HMI1 | D427=CCB-A03 | E427=DiagNetDB.PROFINET.nHmiSt[96] | G427=<symbolic access> | H427=1 s
-A428=DiagNetDB_PROFINET_nHmiSt{97} | B428=Int | C428=HMI1 | D428=CCB-A03 | E428=DiagNetDB.PROFINET.nHmiSt[97] | G428=<symbolic access> | H428=1 s
-A429=DiagNetDB_PROFINET_nHmiSt{98} | B429=Int | C429=HMI1 | D429=CCB-A03 | E429=DiagNetDB.PROFINET.nHmiSt[98] | G429=<symbolic access> | H429=1 s
-A430=DiagNetDB_PROFINET_nHmiSt{99} | B430=Int | C430=HMI1 | D430=CCB-A03 | E430=DiagNetDB.PROFINET.nHmiSt[99] | G430=<symbolic access> | H430=1 s
-A431=DiagNetDB_PROFINET_nHmiSt{9} | B431=Int | C431=HMI1 | D431=CCB-A03 | E431=DiagNetDB.PROFINET.nHmiSt[9] | G431=<symbolic access> | H431=1 s
+A304=DiagNetDB_PROFINET_nHmiSt{0} | B304=Int | C304=HMI1 | D304=TM50 | E304=DiagNetDB.PROFINET.nHmiSt[0] | G304=<symbolic access> | H304=1 s
+A305=DiagNetDB_PROFINET_nHmiSt{100} | B305=Int | C305=HMI1 | D305=TM50 | E305=DiagNetDB.PROFINET.nHmiSt[100] | G305=<symbolic access> | H305=1 s
+A306=DiagNetDB_PROFINET_nHmiSt{101} | B306=Int | C306=HMI1 | D306=TM50 | E306=DiagNetDB.PROFINET.nHmiSt[101] | G306=<symbolic access> | H306=1 s
+A307=DiagNetDB_PROFINET_nHmiSt{102} | B307=Int | C307=HMI1 | D307=TM50 | E307=DiagNetDB.PROFINET.nHmiSt[102] | G307=<symbolic access> | H307=1 s
+A308=DiagNetDB_PROFINET_nHmiSt{103} | B308=Int | C308=HMI1 | D308=TM50 | E308=DiagNetDB.PROFINET.nHmiSt[103] | G308=<symbolic access> | H308=1 s
+A309=DiagNetDB_PROFINET_nHmiSt{104} | B309=Int | C309=HMI1 | D309=TM50 | E309=DiagNetDB.PROFINET.nHmiSt[104] | G309=<symbolic access> | H309=1 s
+A310=DiagNetDB_PROFINET_nHmiSt{105} | B310=Int | C310=HMI1 | D310=TM50 | E310=DiagNetDB.PROFINET.nHmiSt[105] | G310=<symbolic access> | H310=1 s
+A311=DiagNetDB_PROFINET_nHmiSt{106} | B311=Int | C311=HMI1 | D311=TM50 | E311=DiagNetDB.PROFINET.nHmiSt[106] | G311=<symbolic access> | H311=1 s
+A312=DiagNetDB_PROFINET_nHmiSt{107} | B312=Int | C312=HMI1 | D312=TM50 | E312=DiagNetDB.PROFINET.nHmiSt[107] | G312=<symbolic access> | H312=1 s
+A313=DiagNetDB_PROFINET_nHmiSt{108} | B313=Int | C313=HMI1 | D313=TM50 | E313=DiagNetDB.PROFINET.nHmiSt[108] | G313=<symbolic access> | H313=1 s
+A314=DiagNetDB_PROFINET_nHmiSt{109} | B314=Int | C314=HMI1 | D314=TM50 | E314=DiagNetDB.PROFINET.nHmiSt[109] | G314=<symbolic access> | H314=1 s
+A315=DiagNetDB_PROFINET_nHmiSt{10} | B315=Int | C315=HMI1 | D315=TM50 | E315=DiagNetDB.PROFINET.nHmiSt[10] | G315=<symbolic access> | H315=1 s
+A316=DiagNetDB_PROFINET_nHmiSt{110} | B316=Int | C316=HMI1 | D316=TM50 | E316=DiagNetDB.PROFINET.nHmiSt[110] | G316=<symbolic access> | H316=1 s
+A317=DiagNetDB_PROFINET_nHmiSt{111} | B317=Int | C317=HMI1 | D317=TM50 | E317=DiagNetDB.PROFINET.nHmiSt[111] | G317=<symbolic access> | H317=1 s
+A318=DiagNetDB_PROFINET_nHmiSt{112} | B318=Int | C318=HMI1 | D318=TM50 | E318=DiagNetDB.PROFINET.nHmiSt[112] | G318=<symbolic access> | H318=1 s
+A319=DiagNetDB_PROFINET_nHmiSt{113} | B319=Int | C319=HMI1 | D319=TM50 | E319=DiagNetDB.PROFINET.nHmiSt[113] | G319=<symbolic access> | H319=1 s
+A320=DiagNetDB_PROFINET_nHmiSt{114} | B320=Int | C320=HMI1 | D320=TM50 | E320=DiagNetDB.PROFINET.nHmiSt[114] | G320=<symbolic access> | H320=1 s
+A321=DiagNetDB_PROFINET_nHmiSt{115} | B321=Int | C321=HMI1 | D321=TM50 | E321=DiagNetDB.PROFINET.nHmiSt[115] | G321=<symbolic access> | H321=1 s
+A322=DiagNetDB_PROFINET_nHmiSt{116} | B322=Int | C322=HMI1 | D322=TM50 | E322=DiagNetDB.PROFINET.nHmiSt[116] | G322=<symbolic access> | H322=1 s
+A323=DiagNetDB_PROFINET_nHmiSt{117} | B323=Int | C323=HMI1 | D323=TM50 | E323=DiagNetDB.PROFINET.nHmiSt[117] | G323=<symbolic access> | H323=1 s
+A324=DiagNetDB_PROFINET_nHmiSt{118} | B324=Int | C324=HMI1 | D324=TM50 | E324=DiagNetDB.PROFINET.nHmiSt[118] | G324=<symbolic access> | H324=1 s
+A325=DiagNetDB_PROFINET_nHmiSt{119} | B325=Int | C325=HMI1 | D325=TM50 | E325=DiagNetDB.PROFINET.nHmiSt[119] | G325=<symbolic access> | H325=1 s
+A326=DiagNetDB_PROFINET_nHmiSt{11} | B326=Int | C326=HMI1 | D326=TM50 | E326=DiagNetDB.PROFINET.nHmiSt[11] | G326=<symbolic access> | H326=1 s
+A327=DiagNetDB_PROFINET_nHmiSt{120} | B327=Int | C327=HMI1 | D327=TM50 | E327=DiagNetDB.PROFINET.nHmiSt[120] | G327=<symbolic access> | H327=1 s
+A328=DiagNetDB_PROFINET_nHmiSt{121} | B328=Int | C328=HMI1 | D328=TM50 | E328=DiagNetDB.PROFINET.nHmiSt[121] | G328=<symbolic access> | H328=1 s
+A329=DiagNetDB_PROFINET_nHmiSt{122} | B329=Int | C329=HMI1 | D329=TM50 | E329=DiagNetDB.PROFINET.nHmiSt[122] | G329=<symbolic access> | H329=1 s
+A330=DiagNetDB_PROFINET_nHmiSt{123} | B330=Int | C330=HMI1 | D330=TM50 | E330=DiagNetDB.PROFINET.nHmiSt[123] | G330=<symbolic access> | H330=1 s
+A331=DiagNetDB_PROFINET_nHmiSt{124} | B331=Int | C331=HMI1 | D331=TM50 | E331=DiagNetDB.PROFINET.nHmiSt[124] | G331=<symbolic access> | H331=1 s
+A332=DiagNetDB_PROFINET_nHmiSt{125} | B332=Int | C332=HMI1 | D332=TM50 | E332=DiagNetDB.PROFINET.nHmiSt[125] | G332=<symbolic access> | H332=1 s
+A333=DiagNetDB_PROFINET_nHmiSt{126} | B333=Int | C333=HMI1 | D333=TM50 | E333=DiagNetDB.PROFINET.nHmiSt[126] | G333=<symbolic access> | H333=1 s
+A334=DiagNetDB_PROFINET_nHmiSt{127} | B334=Int | C334=HMI1 | D334=TM50 | E334=DiagNetDB.PROFINET.nHmiSt[127] | G334=<symbolic access> | H334=1 s
+A335=DiagNetDB_PROFINET_nHmiSt{12} | B335=Int | C335=HMI1 | D335=TM50 | E335=DiagNetDB.PROFINET.nHmiSt[12] | G335=<symbolic access> | H335=1 s
+A336=DiagNetDB_PROFINET_nHmiSt{13} | B336=Int | C336=HMI1 | D336=TM50 | E336=DiagNetDB.PROFINET.nHmiSt[13] | G336=<symbolic access> | H336=1 s
+A337=DiagNetDB_PROFINET_nHmiSt{14} | B337=Int | C337=HMI1 | D337=TM50 | E337=DiagNetDB.PROFINET.nHmiSt[14] | G337=<symbolic access> | H337=1 s
+A338=DiagNetDB_PROFINET_nHmiSt{15} | B338=Int | C338=HMI1 | D338=TM50 | E338=DiagNetDB.PROFINET.nHmiSt[15] | G338=<symbolic access> | H338=1 s
+A339=DiagNetDB_PROFINET_nHmiSt{16} | B339=Int | C339=HMI1 | D339=TM50 | E339=DiagNetDB.PROFINET.nHmiSt[16] | G339=<symbolic access> | H339=1 s
+A340=DiagNetDB_PROFINET_nHmiSt{17} | B340=Int | C340=HMI1 | D340=TM50 | E340=DiagNetDB.PROFINET.nHmiSt[17] | G340=<symbolic access> | H340=1 s
+A341=DiagNetDB_PROFINET_nHmiSt{18} | B341=Int | C341=HMI1 | D341=TM50 | E341=DiagNetDB.PROFINET.nHmiSt[18] | G341=<symbolic access> | H341=1 s
+A342=DiagNetDB_PROFINET_nHmiSt{19} | B342=Int | C342=HMI1 | D342=TM50 | E342=DiagNetDB.PROFINET.nHmiSt[19] | G342=<symbolic access> | H342=1 s
+A343=DiagNetDB_PROFINET_nHmiSt{1} | B343=Int | C343=HMI1 | D343=TM50 | E343=DiagNetDB.PROFINET.nHmiSt[1] | G343=<symbolic access> | H343=1 s
+A344=DiagNetDB_PROFINET_nHmiSt{20} | B344=Int | C344=HMI1 | D344=TM50 | E344=DiagNetDB.PROFINET.nHmiSt[20] | G344=<symbolic access> | H344=1 s
+A345=DiagNetDB_PROFINET_nHmiSt{21} | B345=Int | C345=HMI1 | D345=TM50 | E345=DiagNetDB.PROFINET.nHmiSt[21] | G345=<symbolic access> | H345=1 s
+A346=DiagNetDB_PROFINET_nHmiSt{22} | B346=Int | C346=HMI1 | D346=TM50 | E346=DiagNetDB.PROFINET.nHmiSt[22] | G346=<symbolic access> | H346=1 s
+A347=DiagNetDB_PROFINET_nHmiSt{23} | B347=Int | C347=HMI1 | D347=TM50 | E347=DiagNetDB.PROFINET.nHmiSt[23] | G347=<symbolic access> | H347=1 s
+A348=DiagNetDB_PROFINET_nHmiSt{24} | B348=Int | C348=HMI1 | D348=TM50 | E348=DiagNetDB.PROFINET.nHmiSt[24] | G348=<symbolic access> | H348=1 s
+A349=DiagNetDB_PROFINET_nHmiSt{25} | B349=Int | C349=HMI1 | D349=TM50 | E349=DiagNetDB.PROFINET.nHmiSt[25] | G349=<symbolic access> | H349=1 s
+A350=DiagNetDB_PROFINET_nHmiSt{26} | B350=Int | C350=HMI1 | D350=TM50 | E350=DiagNetDB.PROFINET.nHmiSt[26] | G350=<symbolic access> | H350=1 s
+A351=DiagNetDB_PROFINET_nHmiSt{27} | B351=Int | C351=HMI1 | D351=TM50 | E351=DiagNetDB.PROFINET.nHmiSt[27] | G351=<symbolic access> | H351=1 s
+A352=DiagNetDB_PROFINET_nHmiSt{28} | B352=Int | C352=HMI1 | D352=TM50 | E352=DiagNetDB.PROFINET.nHmiSt[28] | G352=<symbolic access> | H352=1 s
+A353=DiagNetDB_PROFINET_nHmiSt{29} | B353=Int | C353=HMI1 | D353=TM50 | E353=DiagNetDB.PROFINET.nHmiSt[29] | G353=<symbolic access> | H353=1 s
+A354=DiagNetDB_PROFINET_nHmiSt{2} | B354=Int | C354=HMI1 | D354=TM50 | E354=DiagNetDB.PROFINET.nHmiSt[2] | G354=<symbolic access> | H354=1 s
+A355=DiagNetDB_PROFINET_nHmiSt{30} | B355=Int | C355=HMI1 | D355=TM50 | E355=DiagNetDB.PROFINET.nHmiSt[30] | G355=<symbolic access> | H355=1 s
+A356=DiagNetDB_PROFINET_nHmiSt{31} | B356=Int | C356=HMI1 | D356=TM50 | E356=DiagNetDB.PROFINET.nHmiSt[31] | G356=<symbolic access> | H356=1 s
+A357=DiagNetDB_PROFINET_nHmiSt{32} | B357=Int | C357=HMI1 | D357=TM50 | E357=DiagNetDB.PROFINET.nHmiSt[32] | G357=<symbolic access> | H357=1 s
+A358=DiagNetDB_PROFINET_nHmiSt{33} | B358=Int | C358=HMI1 | D358=TM50 | E358=DiagNetDB.PROFINET.nHmiSt[33] | G358=<symbolic access> | H358=1 s
+A359=DiagNetDB_PROFINET_nHmiSt{34} | B359=Int | C359=HMI1 | D359=TM50 | E359=DiagNetDB.PROFINET.nHmiSt[34] | G359=<symbolic access> | H359=1 s
+A360=DiagNetDB_PROFINET_nHmiSt{35} | B360=Int | C360=HMI1 | D360=TM50 | E360=DiagNetDB.PROFINET.nHmiSt[35] | G360=<symbolic access> | H360=1 s
+A361=DiagNetDB_PROFINET_nHmiSt{36} | B361=Int | C361=HMI1 | D361=TM50 | E361=DiagNetDB.PROFINET.nHmiSt[36] | G361=<symbolic access> | H361=1 s
+A362=DiagNetDB_PROFINET_nHmiSt{37} | B362=Int | C362=HMI1 | D362=TM50 | E362=DiagNetDB.PROFINET.nHmiSt[37] | G362=<symbolic access> | H362=1 s
+A363=DiagNetDB_PROFINET_nHmiSt{38} | B363=Int | C363=HMI1 | D363=TM50 | E363=DiagNetDB.PROFINET.nHmiSt[38] | G363=<symbolic access> | H363=1 s
+A364=DiagNetDB_PROFINET_nHmiSt{39} | B364=Int | C364=HMI1 | D364=TM50 | E364=DiagNetDB.PROFINET.nHmiSt[39] | G364=<symbolic access> | H364=1 s
+A365=DiagNetDB_PROFINET_nHmiSt{3} | B365=Int | C365=HMI1 | D365=TM50 | E365=DiagNetDB.PROFINET.nHmiSt[3] | G365=<symbolic access> | H365=1 s
+A366=DiagNetDB_PROFINET_nHmiSt{40} | B366=Int | C366=HMI1 | D366=TM50 | E366=DiagNetDB.PROFINET.nHmiSt[40] | G366=<symbolic access> | H366=1 s
+A367=DiagNetDB_PROFINET_nHmiSt{41} | B367=Int | C367=HMI1 | D367=TM50 | E367=DiagNetDB.PROFINET.nHmiSt[41] | G367=<symbolic access> | H367=1 s
+A368=DiagNetDB_PROFINET_nHmiSt{42} | B368=Int | C368=HMI1 | D368=TM50 | E368=DiagNetDB.PROFINET.nHmiSt[42] | G368=<symbolic access> | H368=1 s
+A369=DiagNetDB_PROFINET_nHmiSt{43} | B369=Int | C369=HMI1 | D369=TM50 | E369=DiagNetDB.PROFINET.nHmiSt[43] | G369=<symbolic access> | H369=1 s
+A370=DiagNetDB_PROFINET_nHmiSt{44} | B370=Int | C370=HMI1 | D370=TM50 | E370=DiagNetDB.PROFINET.nHmiSt[44] | G370=<symbolic access> | H370=1 s
+A371=DiagNetDB_PROFINET_nHmiSt{45} | B371=Int | C371=HMI1 | D371=TM50 | E371=DiagNetDB.PROFINET.nHmiSt[45] | G371=<symbolic access> | H371=1 s
+A372=DiagNetDB_PROFINET_nHmiSt{46} | B372=Int | C372=HMI1 | D372=TM50 | E372=DiagNetDB.PROFINET.nHmiSt[46] | G372=<symbolic access> | H372=1 s
+A373=DiagNetDB_PROFINET_nHmiSt{47} | B373=Int | C373=HMI1 | D373=TM50 | E373=DiagNetDB.PROFINET.nHmiSt[47] | G373=<symbolic access> | H373=1 s
+A374=DiagNetDB_PROFINET_nHmiSt{48} | B374=Int | C374=HMI1 | D374=TM50 | E374=DiagNetDB.PROFINET.nHmiSt[48] | G374=<symbolic access> | H374=1 s
+A375=DiagNetDB_PROFINET_nHmiSt{49} | B375=Int | C375=HMI1 | D375=TM50 | E375=DiagNetDB.PROFINET.nHmiSt[49] | G375=<symbolic access> | H375=1 s
+A376=DiagNetDB_PROFINET_nHmiSt{4} | B376=Int | C376=HMI1 | D376=TM50 | E376=DiagNetDB.PROFINET.nHmiSt[4] | G376=<symbolic access> | H376=1 s
+A377=DiagNetDB_PROFINET_nHmiSt{50} | B377=Int | C377=HMI1 | D377=TM50 | E377=DiagNetDB.PROFINET.nHmiSt[50] | G377=<symbolic access> | H377=1 s
+A378=DiagNetDB_PROFINET_nHmiSt{51} | B378=Int | C378=HMI1 | D378=TM50 | E378=DiagNetDB.PROFINET.nHmiSt[51] | G378=<symbolic access> | H378=1 s
+A379=DiagNetDB_PROFINET_nHmiSt{52} | B379=Int | C379=HMI1 | D379=TM50 | E379=DiagNetDB.PROFINET.nHmiSt[52] | G379=<symbolic access> | H379=1 s
+A380=DiagNetDB_PROFINET_nHmiSt{53} | B380=Int | C380=HMI1 | D380=TM50 | E380=DiagNetDB.PROFINET.nHmiSt[53] | G380=<symbolic access> | H380=1 s
+A381=DiagNetDB_PROFINET_nHmiSt{54} | B381=Int | C381=HMI1 | D381=TM50 | E381=DiagNetDB.PROFINET.nHmiSt[54] | G381=<symbolic access> | H381=1 s
+A382=DiagNetDB_PROFINET_nHmiSt{55} | B382=Int | C382=HMI1 | D382=TM50 | E382=DiagNetDB.PROFINET.nHmiSt[55] | G382=<symbolic access> | H382=1 s
+A383=DiagNetDB_PROFINET_nHmiSt{56} | B383=Int | C383=HMI1 | D383=TM50 | E383=DiagNetDB.PROFINET.nHmiSt[56] | G383=<symbolic access> | H383=1 s
+A384=DiagNetDB_PROFINET_nHmiSt{57} | B384=Int | C384=HMI1 | D384=TM50 | E384=DiagNetDB.PROFINET.nHmiSt[57] | G384=<symbolic access> | H384=1 s
+A385=DiagNetDB_PROFINET_nHmiSt{58} | B385=Int | C385=HMI1 | D385=TM50 | E385=DiagNetDB.PROFINET.nHmiSt[58] | G385=<symbolic access> | H385=1 s
+A386=DiagNetDB_PROFINET_nHmiSt{59} | B386=Int | C386=HMI1 | D386=TM50 | E386=DiagNetDB.PROFINET.nHmiSt[59] | G386=<symbolic access> | H386=1 s
+A387=DiagNetDB_PROFINET_nHmiSt{5} | B387=Int | C387=HMI1 | D387=TM50 | E387=DiagNetDB.PROFINET.nHmiSt[5] | G387=<symbolic access> | H387=1 s
+A388=DiagNetDB_PROFINET_nHmiSt{60} | B388=Int | C388=HMI1 | D388=TM50 | E388=DiagNetDB.PROFINET.nHmiSt[60] | G388=<symbolic access> | H388=1 s
+A389=DiagNetDB_PROFINET_nHmiSt{61} | B389=Int | C389=HMI1 | D389=TM50 | E389=DiagNetDB.PROFINET.nHmiSt[61] | G389=<symbolic access> | H389=1 s
+A390=DiagNetDB_PROFINET_nHmiSt{62} | B390=Int | C390=HMI1 | D390=TM50 | E390=DiagNetDB.PROFINET.nHmiSt[62] | G390=<symbolic access> | H390=1 s
+A391=DiagNetDB_PROFINET_nHmiSt{63} | B391=Int | C391=HMI1 | D391=TM50 | E391=DiagNetDB.PROFINET.nHmiSt[63] | G391=<symbolic access> | H391=1 s
+A392=DiagNetDB_PROFINET_nHmiSt{64} | B392=Int | C392=HMI1 | D392=TM50 | E392=DiagNetDB.PROFINET.nHmiSt[64] | G392=<symbolic access> | H392=1 s
+A393=DiagNetDB_PROFINET_nHmiSt{65} | B393=Int | C393=HMI1 | D393=TM50 | E393=DiagNetDB.PROFINET.nHmiSt[65] | G393=<symbolic access> | H393=1 s
+A394=DiagNetDB_PROFINET_nHmiSt{66} | B394=Int | C394=HMI1 | D394=TM50 | E394=DiagNetDB.PROFINET.nHmiSt[66] | G394=<symbolic access> | H394=1 s
+A395=DiagNetDB_PROFINET_nHmiSt{67} | B395=Int | C395=HMI1 | D395=TM50 | E395=DiagNetDB.PROFINET.nHmiSt[67] | G395=<symbolic access> | H395=1 s
+A396=DiagNetDB_PROFINET_nHmiSt{68} | B396=Int | C396=HMI1 | D396=TM50 | E396=DiagNetDB.PROFINET.nHmiSt[68] | G396=<symbolic access> | H396=1 s
+A397=DiagNetDB_PROFINET_nHmiSt{69} | B397=Int | C397=HMI1 | D397=TM50 | E397=DiagNetDB.PROFINET.nHmiSt[69] | G397=<symbolic access> | H397=1 s
+A398=DiagNetDB_PROFINET_nHmiSt{6} | B398=Int | C398=HMI1 | D398=TM50 | E398=DiagNetDB.PROFINET.nHmiSt[6] | G398=<symbolic access> | H398=1 s
+A399=DiagNetDB_PROFINET_nHmiSt{70} | B399=Int | C399=HMI1 | D399=TM50 | E399=DiagNetDB.PROFINET.nHmiSt[70] | G399=<symbolic access> | H399=1 s
+A400=DiagNetDB_PROFINET_nHmiSt{71} | B400=Int | C400=HMI1 | D400=TM50 | E400=DiagNetDB.PROFINET.nHmiSt[71] | G400=<symbolic access> | H400=1 s
+A401=DiagNetDB_PROFINET_nHmiSt{72} | B401=Int | C401=HMI1 | D401=TM50 | E401=DiagNetDB.PROFINET.nHmiSt[72] | G401=<symbolic access> | H401=1 s
+A402=DiagNetDB_PROFINET_nHmiSt{73} | B402=Int | C402=HMI1 | D402=TM50 | E402=DiagNetDB.PROFINET.nHmiSt[73] | G402=<symbolic access> | H402=1 s
+A403=DiagNetDB_PROFINET_nHmiSt{74} | B403=Int | C403=HMI1 | D403=TM50 | E403=DiagNetDB.PROFINET.nHmiSt[74] | G403=<symbolic access> | H403=1 s
+A404=DiagNetDB_PROFINET_nHmiSt{75} | B404=Int | C404=HMI1 | D404=TM50 | E404=DiagNetDB.PROFINET.nHmiSt[75] | G404=<symbolic access> | H404=1 s
+A405=DiagNetDB_PROFINET_nHmiSt{76} | B405=Int | C405=HMI1 | D405=TM50 | E405=DiagNetDB.PROFINET.nHmiSt[76] | G405=<symbolic access> | H405=1 s
+A406=DiagNetDB_PROFINET_nHmiSt{77} | B406=Int | C406=HMI1 | D406=TM50 | E406=DiagNetDB.PROFINET.nHmiSt[77] | G406=<symbolic access> | H406=1 s
+A407=DiagNetDB_PROFINET_nHmiSt{78} | B407=Int | C407=HMI1 | D407=TM50 | E407=DiagNetDB.PROFINET.nHmiSt[78] | G407=<symbolic access> | H407=1 s
+A408=DiagNetDB_PROFINET_nHmiSt{79} | B408=Int | C408=HMI1 | D408=TM50 | E408=DiagNetDB.PROFINET.nHmiSt[79] | G408=<symbolic access> | H408=1 s
+A409=DiagNetDB_PROFINET_nHmiSt{7} | B409=Int | C409=HMI1 | D409=TM50 | E409=DiagNetDB.PROFINET.nHmiSt[7] | G409=<symbolic access> | H409=1 s
+A410=DiagNetDB_PROFINET_nHmiSt{80} | B410=Int | C410=HMI1 | D410=TM50 | E410=DiagNetDB.PROFINET.nHmiSt[80] | G410=<symbolic access> | H410=1 s
+A411=DiagNetDB_PROFINET_nHmiSt{81} | B411=Int | C411=HMI1 | D411=TM50 | E411=DiagNetDB.PROFINET.nHmiSt[81] | G411=<symbolic access> | H411=1 s
+A412=DiagNetDB_PROFINET_nHmiSt{82} | B412=Int | C412=HMI1 | D412=TM50 | E412=DiagNetDB.PROFINET.nHmiSt[82] | G412=<symbolic access> | H412=1 s
+A413=DiagNetDB_PROFINET_nHmiSt{83} | B413=Int | C413=HMI1 | D413=TM50 | E413=DiagNetDB.PROFINET.nHmiSt[83] | G413=<symbolic access> | H413=1 s
+A414=DiagNetDB_PROFINET_nHmiSt{84} | B414=Int | C414=HMI1 | D414=TM50 | E414=DiagNetDB.PROFINET.nHmiSt[84] | G414=<symbolic access> | H414=1 s
+A415=DiagNetDB_PROFINET_nHmiSt{85} | B415=Int | C415=HMI1 | D415=TM50 | E415=DiagNetDB.PROFINET.nHmiSt[85] | G415=<symbolic access> | H415=1 s
+A416=DiagNetDB_PROFINET_nHmiSt{86} | B416=Int | C416=HMI1 | D416=TM50 | E416=DiagNetDB.PROFINET.nHmiSt[86] | G416=<symbolic access> | H416=1 s
+A417=DiagNetDB_PROFINET_nHmiSt{87} | B417=Int | C417=HMI1 | D417=TM50 | E417=DiagNetDB.PROFINET.nHmiSt[87] | G417=<symbolic access> | H417=1 s
+A418=DiagNetDB_PROFINET_nHmiSt{88} | B418=Int | C418=HMI1 | D418=TM50 | E418=DiagNetDB.PROFINET.nHmiSt[88] | G418=<symbolic access> | H418=1 s
+A419=DiagNetDB_PROFINET_nHmiSt{89} | B419=Int | C419=HMI1 | D419=TM50 | E419=DiagNetDB.PROFINET.nHmiSt[89] | G419=<symbolic access> | H419=1 s
+A420=DiagNetDB_PROFINET_nHmiSt{8} | B420=Int | C420=HMI1 | D420=TM50 | E420=DiagNetDB.PROFINET.nHmiSt[8] | G420=<symbolic access> | H420=1 s
+A421=DiagNetDB_PROFINET_nHmiSt{90} | B421=Int | C421=HMI1 | D421=TM50 | E421=DiagNetDB.PROFINET.nHmiSt[90] | G421=<symbolic access> | H421=1 s
+A422=DiagNetDB_PROFINET_nHmiSt{91} | B422=Int | C422=HMI1 | D422=TM50 | E422=DiagNetDB.PROFINET.nHmiSt[91] | G422=<symbolic access> | H422=1 s
+A423=DiagNetDB_PROFINET_nHmiSt{92} | B423=Int | C423=HMI1 | D423=TM50 | E423=DiagNetDB.PROFINET.nHmiSt[92] | G423=<symbolic access> | H423=1 s
+A424=DiagNetDB_PROFINET_nHmiSt{93} | B424=Int | C424=HMI1 | D424=TM50 | E424=DiagNetDB.PROFINET.nHmiSt[93] | G424=<symbolic access> | H424=1 s
+A425=DiagNetDB_PROFINET_nHmiSt{94} | B425=Int | C425=HMI1 | D425=TM50 | E425=DiagNetDB.PROFINET.nHmiSt[94] | G425=<symbolic access> | H425=1 s
+A426=DiagNetDB_PROFINET_nHmiSt{95} | B426=Int | C426=HMI1 | D426=TM50 | E426=DiagNetDB.PROFINET.nHmiSt[95] | G426=<symbolic access> | H426=1 s
+A427=DiagNetDB_PROFINET_nHmiSt{96} | B427=Int | C427=HMI1 | D427=TM50 | E427=DiagNetDB.PROFINET.nHmiSt[96] | G427=<symbolic access> | H427=1 s
+A428=DiagNetDB_PROFINET_nHmiSt{97} | B428=Int | C428=HMI1 | D428=TM50 | E428=DiagNetDB.PROFINET.nHmiSt[97] | G428=<symbolic access> | H428=1 s
+A429=DiagNetDB_PROFINET_nHmiSt{98} | B429=Int | C429=HMI1 | D429=TM50 | E429=DiagNetDB.PROFINET.nHmiSt[98] | G429=<symbolic access> | H429=1 s
+A430=DiagNetDB_PROFINET_nHmiSt{99} | B430=Int | C430=HMI1 | D430=TM50 | E430=DiagNetDB.PROFINET.nHmiSt[99] | G430=<symbolic access> | H430=1 s
+A431=DiagNetDB_PROFINET_nHmiSt{9} | B431=Int | C431=HMI1 | D431=TM50 | E431=DiagNetDB.PROFINET.nHmiSt[9] | G431=<symbolic access> | H431=1 s
 A432=@DiagnosticsIndicatorTag | B432=SInt | C432=<Internal tag>
-A433==070_CtrlDB_Mode_Cmd.Start | B433=Bool | C433=HMI1 | D433=CCB-A03 | E433=070_CtrlDB.ModeMotor.Cmd.Start | G433=<symbolic access> | H433=1 s
-A434==070_CtrlDB_Mode_St.WaitOn | B434=Bool | C434=HMI1 | D434=CCB-A03 | E434=070_CtrlDB.ModeMotor.St.WaitOn | G434=<symbolic access> | H434=1 s
-A435==070_CtrlDB_Mode_Cmd.Auto | B435=Bool | C435=HMI1 | D435=CCB-A03 | E435=070_CtrlDB.ModeMotor.Cmd.Auto | G435=<symbolic access> | H435=1 s
-A436==070_CtrlDB_Mode_St.HmiSt | B436=Int | C436=HMI1 | D436=CCB-A03 | E436=070_CtrlDB.ModeMotor.St.HmiSt | G436=<symbolic access> | H436=1 s
-A437==070_CtrlDB_Mode_Cmd.Manu | B437=Bool | C437=HMI1 | D437=CCB-A03 | E437=070_CtrlDB.ModeMotor.Cmd.Manu | G437=<symbolic access> | H437=1 s
-A438==070_CtrlDB_Mode_Cmd.Stop | B438=Bool | C438=HMI1 | D438=CCB-A03 | E438=070_CtrlDB.ModeMotor.Cmd.Stop | G438=<symbolic access> | H438=1 s
-A439==070_CtrlDB_Mode_Cmd.StartAck | B439=Real | C439=HMI1 | D439=CCB-A03 | E439=070_CtrlDB.ModeMotor.Cmd.StartAck | G439=<symbolic access> | H439=1 s
-A440==070_CtrlDB_Mode_St.StartAckAct | B440=Real | C440=HMI1 | D440=CCB-A03 | E440=070_CtrlDB.ModeMotor.St.StartAckAct | G440=<symbolic access> | H440=1 s
-A441==060_CtrlDB_Mode_Cmd.Start | B441=Bool | C441=HMI1 | D441=CCB-A03 | E441=060_CtrlDB.ModeMotor.Cmd.Start | G441=<symbolic access> | H441=1 s
-A442==060_CtrlDB_Mode_St.WaitOn | B442=Bool | C442=HMI1 | D442=CCB-A03 | E442=060_CtrlDB.ModeMotor.St.WaitOn | G442=<symbolic access> | H442=1 s
-A443==060_CtrlDB_Mode_Cmd.Auto | B443=Bool | C443=HMI1 | D443=CCB-A03 | E443=060_CtrlDB.ModeMotor.Cmd.Auto | G443=<symbolic access> | H443=1 s
-A444==060_CtrlDB_Mode_St.HmiSt | B444=Int | C444=HMI1 | D444=CCB-A03 | E444=060_CtrlDB.ModeMotor.St.HmiSt | G444=<symbolic access> | H444=1 s
-A445==060_CtrlDB_Mode_Cmd.Manu | B445=Bool | C445=HMI1 | D445=CCB-A03 | E445=060_CtrlDB.ModeMotor.Cmd.Manu | G445=<symbolic access> | H445=1 s
-A446==060_CtrlDB_Mode_Cmd.Stop | B446=Bool | C446=HMI1 | D446=CCB-A03 | E446=060_CtrlDB.ModeMotor.Cmd.Stop | G446=<symbolic access> | H446=1 s
-A447==060_CtrlDB_Mode_Cmd.StartAck | B447=Real | C447=HMI1 | D447=CCB-A03 | E447=060_CtrlDB.ModeMotor.Cmd.StartAck | G447=<symbolic access> | H447=1 s
-A448==060_CtrlDB_Mode_St.StartAckAct | B448=Real | C448=HMI1 | D448=CCB-A03 | E448=060_CtrlDB.ModeMotor.St.StartAckAct | G448=<symbolic access> | H448=1 s
-A449==040_CtrlDB_Mode_Cmd.Start | B449=Bool | C449=HMI1 | D449=CCB-A03 | E449=040_CtrlDB.ModeMotor.Cmd.Start | G449=<symbolic access> | H449=1 s
-A450==040_CtrlDB_Mode_St.WaitOn | B450=Bool | C450=HMI1 | D450=CCB-A03 | E450=040_CtrlDB.ModeMotor.St.WaitOn | G450=<symbolic access> | H450=1 s
-A451==040_CtrlDB_Mode_Cmd.Auto | B451=Bool | C451=HMI1 | D451=CCB-A03 | E451=040_CtrlDB.ModeMotor.Cmd.Auto | G451=<symbolic access> | H451=1 s
-A452==040_CtrlDB_Mode_St.HmiSt | B452=Int | C452=HMI1 | D452=CCB-A03 | E452=040_CtrlDB.ModeMotor.St.HmiSt | G452=<symbolic access> | H452=1 s
-A453==040_CtrlDB_Mode_Cmd.Manu | B453=Bool | C453=HMI1 | D453=CCB-A03 | E453=040_CtrlDB.ModeMotor.Cmd.Manu | G453=<symbolic access> | H453=1 s
-A454==040_CtrlDB_Mode_Cmd.Stop | B454=Bool | C454=HMI1 | D454=CCB-A03 | E454=040_CtrlDB.ModeMotor.Cmd.Stop | G454=<symbolic access> | H454=1 s
-A455==040_CtrlDB_Mode_Cmd.StartAck | B455=Real | C455=HMI1 | D455=CCB-A03 | E455=040_CtrlDB.ModeMotor.Cmd.StartAck | G455=<symbolic access> | H455=1 s
-A456==040_CtrlDB_Mode_St.StartAckAct | B456=Real | C456=HMI1 | D456=CCB-A03 | E456=040_CtrlDB.ModeMotor.St.StartAckAct | G456=<symbolic access> | H456=1 s
+A433==070_CtrlDB_Mode_Cmd.Start | B433=Bool | C433=HMI1 | D433=TM50 | E433=070_CtrlDB.ModeMotor.Cmd.Start | G433=<symbolic access> | H433=1 s
+A434==070_CtrlDB_Mode_St.WaitOn | B434=Bool | C434=HMI1 | D434=TM50 | E434=070_CtrlDB.ModeMotor.St.WaitOn | G434=<symbolic access> | H434=1 s
+A435==070_CtrlDB_Mode_Cmd.Auto | B435=Bool | C435=HMI1 | D435=TM50 | E435=070_CtrlDB.ModeMotor.Cmd.Auto | G435=<symbolic access> | H435=1 s
+A436==070_CtrlDB_Mode_St.HmiSt | B436=Int | C436=HMI1 | D436=TM50 | E436=070_CtrlDB.ModeMotor.St.HmiSt | G436=<symbolic access> | H436=1 s
+A437==070_CtrlDB_Mode_Cmd.Manu | B437=Bool | C437=HMI1 | D437=TM50 | E437=070_CtrlDB.ModeMotor.Cmd.Manu | G437=<symbolic access> | H437=1 s
+A438==070_CtrlDB_Mode_Cmd.Stop | B438=Bool | C438=HMI1 | D438=TM50 | E438=070_CtrlDB.ModeMotor.Cmd.Stop | G438=<symbolic access> | H438=1 s
+A439==070_CtrlDB_Mode_Cmd.StartAck | B439=Real | C439=HMI1 | D439=TM50 | E439=070_CtrlDB.ModeMotor.Cmd.StartAck | G439=<symbolic access> | H439=1 s
+A440==070_CtrlDB_Mode_St.StartAckAct | B440=Real | C440=HMI1 | D440=TM50 | E440=070_CtrlDB.ModeMotor.St.StartAckAct | G440=<symbolic access> | H440=1 s
+A441==060_CtrlDB_Mode_Cmd.Start | B441=Bool | C441=HMI1 | D441=TM50 | E441=060_CtrlDB.ModeMotor.Cmd.Start | G441=<symbolic access> | H441=1 s
+A442==060_CtrlDB_Mode_St.WaitOn | B442=Bool | C442=HMI1 | D442=TM50 | E442=060_CtrlDB.ModeMotor.St.WaitOn | G442=<symbolic access> | H442=1 s
+A443==060_CtrlDB_Mode_Cmd.Auto | B443=Bool | C443=HMI1 | D443=TM50 | E443=060_CtrlDB.ModeMotor.Cmd.Auto | G443=<symbolic access> | H443=1 s
+A444==060_CtrlDB_Mode_St.HmiSt | B444=Int | C444=HMI1 | D444=TM50 | E444=060_CtrlDB.ModeMotor.St.HmiSt | G444=<symbolic access> | H444=1 s
+A445==060_CtrlDB_Mode_Cmd.Manu | B445=Bool | C445=HMI1 | D445=TM50 | E445=060_CtrlDB.ModeMotor.Cmd.Manu | G445=<symbolic access> | H445=1 s
+A446==060_CtrlDB_Mode_Cmd.Stop | B446=Bool | C446=HMI1 | D446=TM50 | E446=060_CtrlDB.ModeMotor.Cmd.Stop | G446=<symbolic access> | H446=1 s
+A447==060_CtrlDB_Mode_Cmd.StartAck | B447=Real | C447=HMI1 | D447=TM50 | E447=060_CtrlDB.ModeMotor.Cmd.StartAck | G447=<symbolic access> | H447=1 s
+A448==060_CtrlDB_Mode_St.StartAckAct | B448=Real | C448=HMI1 | D448=TM50 | E448=060_CtrlDB.ModeMotor.St.StartAckAct | G448=<symbolic access> | H448=1 s
+A449==040_CtrlDB_Mode_Cmd.Start | B449=Bool | C449=HMI1 | D449=TM50 | E449=040_CtrlDB.ModeMotor.Cmd.Start | G449=<symbolic access> | H449=1 s
+A450==040_CtrlDB_Mode_St.WaitOn | B450=Bool | C450=HMI1 | D450=TM50 | E450=040_CtrlDB.ModeMotor.St.WaitOn | G450=<symbolic access> | H450=1 s
+A451==040_CtrlDB_Mode_Cmd.Auto | B451=Bool | C451=HMI1 | D451=TM50 | E451=040_CtrlDB.ModeMotor.Cmd.Auto | G451=<symbolic access> | H451=1 s
+A452==040_CtrlDB_Mode_St.HmiSt | B452=Int | C452=HMI1 | D452=TM50 | E452=040_CtrlDB.ModeMotor.St.HmiSt | G452=<symbolic access> | H452=1 s
+A453==040_CtrlDB_Mode_Cmd.Manu | B453=Bool | C453=HMI1 | D453=TM50 | E453=040_CtrlDB.ModeMotor.Cmd.Manu | G453=<symbolic access> | H453=1 s
+A454==040_CtrlDB_Mode_Cmd.Stop | B454=Bool | C454=HMI1 | D454=TM50 | E454=040_CtrlDB.ModeMotor.Cmd.Stop | G454=<symbolic access> | H454=1 s
+A455==040_CtrlDB_Mode_Cmd.StartAck | B455=Real | C455=HMI1 | D455=TM50 | E455=040_CtrlDB.ModeMotor.Cmd.StartAck | G455=<symbolic access> | H455=1 s
+A456==040_CtrlDB_Mode_St.StartAckAct | B456=Real | C456=HMI1 | D456=TM50 | E456=040_CtrlDB.ModeMotor.St.StartAckAct | G456=<symbolic access> | H456=1 s
 A457==230_CtrlDB_Mode_Cmd.Start | B457=Bool | C457=HMI1 | D457=отсутствует в файле ПЛК | E457=отсутствует в файле ПЛК | G457=<symbolic access> | H457=1 s | J457=отсутствует в файле ПЛК
 A458==230_CtrlDB_Mode_St.WaitOn | B458=Bool | C458=HMI1 | D458=отсутствует в файле ПЛК | E458=отсутствует в файле ПЛК | G458=<symbolic access> | H458=1 s | J458=отсутствует в файле ПЛК
 A459==230_CtrlDB_Mode_Cmd.Auto | B459=Bool | C459=HMI1 | D459=отсутствует в файле ПЛК | E459=отсутствует в файле ПЛК | G459=<symbolic access> | H459=1 s | J459=отсутствует в файле ПЛК
@@ -460,66 +460,66 @@ A461==230_CtrlDB_Mode_Cmd.Manu | B461=Bool | C461=HMI1 | D461=отсутству
 A462==230_CtrlDB_Mode_Cmd.Stop | B462=Bool | C462=HMI1 | D462=отсутствует в файле ПЛК | E462=отсутствует в файле ПЛК | G462=<symbolic access> | H462=1 s | J462=отсутствует в файле ПЛК
 A463==230_CtrlDB_Mode_Cmd.StartAck | B463=Real | C463=HMI1 | D463=отсутствует в файле ПЛК | E463=отсутствует в файле ПЛК | G463=<symbolic access> | H463=1 s | J463=отсутствует в файле ПЛК
 A464==230_CtrlDB_Mode_St.StartAckAct | B464=Real | C464=HMI1 | D464=отсутствует в файле ПЛК | E464=отсутствует в файле ПЛК | G464=<symbolic access> | H464=1 s | J464=отсутствует в файле ПЛК
-A465==010_CtrlDB_Mode_Cmd.Start | B465=Bool | C465=HMI1 | D465=CCB-A03 | E465=010_CtrlDB.ModeMotor.Cmd.Start | G465=<symbolic access> | H465=1 s
-A466==010_CtrlDB_Mode_St.WaitOn | B466=Bool | C466=HMI1 | D466=CCB-A03 | E466=010_CtrlDB.ModeMotor.St.WaitOn | G466=<symbolic access> | H466=1 s
-A467==010_CtrlDB_Mode_Cmd.Auto | B467=Bool | C467=HMI1 | D467=CCB-A03 | E467=010_CtrlDB.ModeMotor.Cmd.Auto | G467=<symbolic access> | H467=1 s
-A468==010_CtrlDB_Mode_St.HmiSt | B468=Int | C468=HMI1 | D468=CCB-A03 | E468=010_CtrlDB.ModeMotor.St.HmiSt | G468=<symbolic access> | H468=1 s
-A469==010_CtrlDB_Mode_Cmd.Manu | B469=Bool | C469=HMI1 | D469=CCB-A03 | E469=010_CtrlDB.ModeMotor.Cmd.Manu | G469=<symbolic access> | H469=1 s
-A470==010_CtrlDB_Mode_Cmd.Stop | B470=Bool | C470=HMI1 | D470=CCB-A03 | E470=010_CtrlDB.ModeMotor.Cmd.Stop | G470=<symbolic access> | H470=1 s
-A471==010_CtrlDB_Mode_Cmd.StartAck | B471=Real | C471=HMI1 | D471=CCB-A03 | E471=010_CtrlDB.ModeMotor.Cmd.StartAck | G471=<symbolic access> | H471=1 s
-A472==010_CtrlDB_Mode_St.StartAckAct | B472=Real | C472=HMI1 | D472=CCB-A03 | E472=010_CtrlDB.ModeMotor.St.StartAckAct | G472=<symbolic access> | H472=1 s
-A473=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeCmd.Auto | B473=Bool | C473=HMI1 | D473=CCB-A03 | E473=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeCmd.Auto | G473=<symbolic access> | H473=1 s
-A474=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeSt.HmiSt | B474=Int | C474=HMI1 | D474=CCB-A03 | E474=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeSt.HmiSt | G474=<symbolic access> | H474=1 s
-A475=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeCmd.Manu | B475=Bool | C475=HMI1 | D475=CCB-A03 | E475=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeCmd.Manu | G475=<symbolic access> | H475=1 s
-A476=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeCmd.Stop | B476=Bool | C476=HMI1 | D476=CCB-A03 | E476=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeCmd.Stop | G476=<symbolic access> | H476=1 s
-A477=HMIDataCCD_DB_050_Robots_StackRbt_ModeCmd.Auto | B477=Bool | C477=HMI1 | D477=CCB-A03 | E477=HMIDataCCD_DB.050_Robots.StackRbt.ModeCmd.Auto | G477=<symbolic access> | H477=1 s
-A478=HMIDataCCD_DB_050_Robots_StackRbt_ModeSt.HmiSt | B478=Int | C478=HMI1 | D478=CCB-A03 | E478=HMIDataCCD_DB.050_Robots.StackRbt.ModeSt.HmiSt | G478=<symbolic access> | H478=1 s
-A479=HMIDataCCD_DB_050_Robots_StackRbt_ModeCmd.Manu | B479=Bool | C479=HMI1 | D479=CCB-A03 | E479=HMIDataCCD_DB.050_Robots.StackRbt.ModeCmd.Manu | G479=<symbolic access> | H479=1 s
-A480=HMIDataCCD_DB_050_Robots_StackRbt_ModeCmd.Stop | B480=Bool | C480=HMI1 | D480=CCB-A03 | E480=HMIDataCCD_DB.050_Robots.StackRbt.ModeCmd.Stop | G480=<symbolic access> | H480=1 s
+A465==010_CtrlDB_Mode_Cmd.Start | B465=Bool | C465=HMI1 | D465=TM50 | E465=010_CtrlDB.ModeMotor.Cmd.Start | G465=<symbolic access> | H465=1 s
+A466==010_CtrlDB_Mode_St.WaitOn | B466=Bool | C466=HMI1 | D466=TM50 | E466=010_CtrlDB.ModeMotor.St.WaitOn | G466=<symbolic access> | H466=1 s
+A467==010_CtrlDB_Mode_Cmd.Auto | B467=Bool | C467=HMI1 | D467=TM50 | E467=010_CtrlDB.ModeMotor.Cmd.Auto | G467=<symbolic access> | H467=1 s
+A468==010_CtrlDB_Mode_St.HmiSt | B468=Int | C468=HMI1 | D468=TM50 | E468=010_CtrlDB.ModeMotor.St.HmiSt | G468=<symbolic access> | H468=1 s
+A469==010_CtrlDB_Mode_Cmd.Manu | B469=Bool | C469=HMI1 | D469=TM50 | E469=010_CtrlDB.ModeMotor.Cmd.Manu | G469=<symbolic access> | H469=1 s
+A470==010_CtrlDB_Mode_Cmd.Stop | B470=Bool | C470=HMI1 | D470=TM50 | E470=010_CtrlDB.ModeMotor.Cmd.Stop | G470=<symbolic access> | H470=1 s
+A471==010_CtrlDB_Mode_Cmd.StartAck | B471=Real | C471=HMI1 | D471=TM50 | E471=010_CtrlDB.ModeMotor.Cmd.StartAck | G471=<symbolic access> | H471=1 s
+A472==010_CtrlDB_Mode_St.StartAckAct | B472=Real | C472=HMI1 | D472=TM50 | E472=010_CtrlDB.ModeMotor.St.StartAckAct | G472=<symbolic access> | H472=1 s
+A473=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeCmd.Auto | B473=Bool | C473=HMI1 | D473=TM50 | E473=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeCmd.Auto | G473=<symbolic access> | H473=1 s
+A474=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeSt.HmiSt | B474=Int | C474=HMI1 | D474=TM50 | E474=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeSt.HmiSt | G474=<symbolic access> | H474=1 s
+A475=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeCmd.Manu | B475=Bool | C475=HMI1 | D475=TM50 | E475=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeCmd.Manu | G475=<symbolic access> | H475=1 s
+A476=HMIDataCCD_DB_050_Robots_SkimmRbt_ModeCmd.Stop | B476=Bool | C476=HMI1 | D476=TM50 | E476=HMIDataCCD_DB.050_Robots.SkimmRbt.ModeCmd.Stop | G476=<symbolic access> | H476=1 s
+A477=HMIDataCCD_DB_050_Robots_StackRbt_ModeCmd.Auto | B477=Bool | C477=HMI1 | D477=TM50 | E477=HMIDataCCD_DB.050_Robots.StackRbt.ModeCmd.Auto | G477=<symbolic access> | H477=1 s
+A478=HMIDataCCD_DB_050_Robots_StackRbt_ModeSt.HmiSt | B478=Int | C478=HMI1 | D478=TM50 | E478=HMIDataCCD_DB.050_Robots.StackRbt.ModeSt.HmiSt | G478=<symbolic access> | H478=1 s
+A479=HMIDataCCD_DB_050_Robots_StackRbt_ModeCmd.Manu | B479=Bool | C479=HMI1 | D479=TM50 | E479=HMIDataCCD_DB.050_Robots.StackRbt.ModeCmd.Manu | G479=<symbolic access> | H479=1 s
+A480=HMIDataCCD_DB_050_Robots_StackRbt_ModeCmd.Stop | B480=Bool | C480=HMI1 | D480=TM50 | E480=HMIDataCCD_DB.050_Robots.StackRbt.ModeCmd.Stop | G480=<symbolic access> | H480=1 s
 A481=Mode_Motor_6_040_Bundle_1501184822209_1199718511852 | B481=Int | C481=<Internal tag>
-A482=HMIDataCCD_DB_040_Bundle_ModeCmd.Auto | B482=Bool | C482=HMI1 | D482=CCB-A03 | E482=HMIDataCCD_DB.040_Bundle.ModeCmd.Auto | G482=<symbolic access> | H482=1 s
-A483=HMIDataCCD_DB_040_Bundle_ModeSt.HmiSt | B483=Int | C483=HMI1 | D483=CCB-A03 | E483=HMIDataCCD_DB.040_Bundle.ModeSt.HmiSt | G483=<symbolic access> | H483=1 s
-A484=HMIDataCCD_DB_040_Bundle_ModeCmd.Manu | B484=Bool | C484=HMI1 | D484=CCB-A03 | E484=HMIDataCCD_DB.040_Bundle.ModeCmd.Manu | G484=<symbolic access> | H484=1 s
-A485=HMIDataCCD_DB_040_Bundle_ModeCmd.Stop | B485=Bool | C485=HMI1 | D485=CCB-A03 | E485=HMIDataCCD_DB.040_Bundle.ModeCmd.Stop | G485=<symbolic access> | H485=1 s
+A482=HMIDataCCD_DB_040_Bundle_ModeCmd.Auto | B482=Bool | C482=HMI1 | D482=TM50 | E482=HMIDataCCD_DB.040_Bundle.ModeCmd.Auto | G482=<symbolic access> | H482=1 s
+A483=HMIDataCCD_DB_040_Bundle_ModeSt.HmiSt | B483=Int | C483=HMI1 | D483=TM50 | E483=HMIDataCCD_DB.040_Bundle.ModeSt.HmiSt | G483=<symbolic access> | H483=1 s
+A484=HMIDataCCD_DB_040_Bundle_ModeCmd.Manu | B484=Bool | C484=HMI1 | D484=TM50 | E484=HMIDataCCD_DB.040_Bundle.ModeCmd.Manu | G484=<symbolic access> | H484=1 s
+A485=HMIDataCCD_DB_040_Bundle_ModeCmd.Stop | B485=Bool | C485=HMI1 | D485=TM50 | E485=HMIDataCCD_DB.040_Bundle.ModeCmd.Stop | G485=<symbolic access> | H485=1 s
 A486=Mode_Motor_4_030_Feeding_1501184822209_1199718511607 | B486=Int | C486=<Internal tag>
 A487=Mode_Motor_6_030_Feeding_1501184822209_1199718511721 | B487=Int | C487=<Internal tag>
-A488=HMIDataCCD_DB_030_Feeding_ModeCmd.Auto | B488=Bool | C488=HMI1 | D488=CCB-A03 | E488=HMIDataCCD_DB.030_Feeding.ModeCmd.Auto | G488=<symbolic access> | H488=1 s
-A489=HMIDataCCD_DB_030_Feeding_ModeSt.HmiSt | B489=Int | C489=HMI1 | D489=CCB-A03 | E489=HMIDataCCD_DB.030_Feeding.ModeSt.HmiSt | G489=<symbolic access> | H489=1 s
-A490=HMIDataCCD_DB_030_Feeding_ModeCmd.Manu | B490=Bool | C490=HMI1 | D490=CCB-A03 | E490=HMIDataCCD_DB.030_Feeding.ModeCmd.Manu | G490=<symbolic access> | H490=1 s
-A491=HMIDataCCD_DB_030_Feeding_ModeCmd.Stop | B491=Bool | C491=HMI1 | D491=CCB-A03 | E491=HMIDataCCD_DB.030_Feeding.ModeCmd.Stop | G491=<symbolic access> | H491=1 s
+A488=HMIDataCCD_DB_030_Feeding_ModeCmd.Auto | B488=Bool | C488=HMI1 | D488=TM50 | E488=HMIDataCCD_DB.030_Feeding.ModeCmd.Auto | G488=<symbolic access> | H488=1 s
+A489=HMIDataCCD_DB_030_Feeding_ModeSt.HmiSt | B489=Int | C489=HMI1 | D489=TM50 | E489=HMIDataCCD_DB.030_Feeding.ModeSt.HmiSt | G489=<symbolic access> | H489=1 s
+A490=HMIDataCCD_DB_030_Feeding_ModeCmd.Manu | B490=Bool | C490=HMI1 | D490=TM50 | E490=HMIDataCCD_DB.030_Feeding.ModeCmd.Manu | G490=<symbolic access> | H490=1 s
+A491=HMIDataCCD_DB_030_Feeding_ModeCmd.Stop | B491=Bool | C491=HMI1 | D491=TM50 | E491=HMIDataCCD_DB.030_Feeding.ModeCmd.Stop | G491=<symbolic access> | H491=1 s
 A492=Mode_Motor_4_020_Demoulding_1501184822209_1199718511503 | B492=Int | C492=<Internal tag>
-A493=HMIDataCCD_DB_020_Demoulding_ModeCmd.Auto | B493=Bool | C493=HMI1 | D493=CCB-A03 | E493=HMIDataCCD_DB.020_Demoulding.ModeCmd.Auto | G493=<symbolic access> | H493=1 s
-A494=HMIDataCCD_DB_020_Demoulding_ModeSt.HmiSt | B494=Int | C494=HMI1 | D494=CCB-A03 | E494=HMIDataCCD_DB.020_Demoulding.ModeSt.HmiSt | G494=<symbolic access> | H494=1 s
-A495=HMIDataCCD_DB_020_Demoulding_ModeCmd.Manu | B495=Bool | C495=HMI1 | D495=CCB-A03 | E495=HMIDataCCD_DB.020_Demoulding.ModeCmd.Manu | G495=<symbolic access> | H495=1 s
-A496=HMIDataCCD_DB_020_Demoulding_ModeCmd.Stop | B496=Bool | C496=HMI1 | D496=CCB-A03 | E496=HMIDataCCD_DB.020_Demoulding.ModeCmd.Stop | G496=<symbolic access> | H496=1 s
-A497==090_CtrlDB_Mode_Cmd.Start | B497=Bool | C497=HMI1 | D497=CCB-A03 | E497=090_CtrlDB.ModeMotor.Cmd.Start | G497=<symbolic access> | H497=1 s
-A498==090_CtrlDB_Mode_St.WaitOn | B498=Bool | C498=HMI1 | D498=CCB-A03 | E498=090_CtrlDB.ModeMotor.St.WaitOn | G498=<symbolic access> | H498=1 s
-A499==090_CtrlDB_Mode_Cmd.Auto | B499=Bool | C499=HMI1 | D499=CCB-A03 | E499=090_CtrlDB.ModeMotor.Cmd.Auto | G499=<symbolic access> | H499=1 s
-A500==090_CtrlDB_Mode_St.HmiSt | B500=Int | C500=HMI1 | D500=CCB-A03 | E500=090_CtrlDB.ModeMotor.St.HmiSt | G500=<symbolic access> | H500=1 s
-A501==090_CtrlDB_Mode_Cmd.Manu | B501=Bool | C501=HMI1 | D501=CCB-A03 | E501=090_CtrlDB.ModeMotor.Cmd.Manu | G501=<symbolic access> | H501=1 s
-A502==090_CtrlDB_Mode_Cmd.Stop | B502=Bool | C502=HMI1 | D502=CCB-A03 | E502=090_CtrlDB.ModeMotor.Cmd.Stop | G502=<symbolic access> | H502=1 s
-A503==090_CtrlDB_Mode_Cmd.StartAck | B503=Real | C503=HMI1 | D503=CCB-A03 | E503=090_CtrlDB.ModeMotor.Cmd.StartAck | G503=<symbolic access> | H503=1 s
-A504==090_CtrlDB_Mode_St.StartAckAct | B504=Real | C504=HMI1 | D504=CCB-A03 | E504=090_CtrlDB.ModeMotor.St.StartAckAct | G504=<symbolic access> | H504=1 s
+A493=HMIDataCCD_DB_020_Demoulding_ModeCmd.Auto | B493=Bool | C493=HMI1 | D493=TM50 | E493=HMIDataCCD_DB.020_Demoulding.ModeCmd.Auto | G493=<symbolic access> | H493=1 s
+A494=HMIDataCCD_DB_020_Demoulding_ModeSt.HmiSt | B494=Int | C494=HMI1 | D494=TM50 | E494=HMIDataCCD_DB.020_Demoulding.ModeSt.HmiSt | G494=<symbolic access> | H494=1 s
+A495=HMIDataCCD_DB_020_Demoulding_ModeCmd.Manu | B495=Bool | C495=HMI1 | D495=TM50 | E495=HMIDataCCD_DB.020_Demoulding.ModeCmd.Manu | G495=<symbolic access> | H495=1 s
+A496=HMIDataCCD_DB_020_Demoulding_ModeCmd.Stop | B496=Bool | C496=HMI1 | D496=TM50 | E496=HMIDataCCD_DB.020_Demoulding.ModeCmd.Stop | G496=<symbolic access> | H496=1 s
+A497==090_CtrlDB_Mode_Cmd.Start | B497=Bool | C497=HMI1 | D497=TM50 | E497=090_CtrlDB.ModeMotor.Cmd.Start | G497=<symbolic access> | H497=1 s
+A498==090_CtrlDB_Mode_St.WaitOn | B498=Bool | C498=HMI1 | D498=TM50 | E498=090_CtrlDB.ModeMotor.St.WaitOn | G498=<symbolic access> | H498=1 s
+A499==090_CtrlDB_Mode_Cmd.Auto | B499=Bool | C499=HMI1 | D499=TM50 | E499=090_CtrlDB.ModeMotor.Cmd.Auto | G499=<symbolic access> | H499=1 s
+A500==090_CtrlDB_Mode_St.HmiSt | B500=Int | C500=HMI1 | D500=TM50 | E500=090_CtrlDB.ModeMotor.St.HmiSt | G500=<symbolic access> | H500=1 s
+A501==090_CtrlDB_Mode_Cmd.Manu | B501=Bool | C501=HMI1 | D501=TM50 | E501=090_CtrlDB.ModeMotor.Cmd.Manu | G501=<symbolic access> | H501=1 s
+A502==090_CtrlDB_Mode_Cmd.Stop | B502=Bool | C502=HMI1 | D502=TM50 | E502=090_CtrlDB.ModeMotor.Cmd.Stop | G502=<symbolic access> | H502=1 s
+A503==090_CtrlDB_Mode_Cmd.StartAck | B503=Real | C503=HMI1 | D503=TM50 | E503=090_CtrlDB.ModeMotor.Cmd.StartAck | G503=<symbolic access> | H503=1 s
+A504==090_CtrlDB_Mode_St.StartAckAct | B504=Real | C504=HMI1 | D504=TM50 | E504=090_CtrlDB.ModeMotor.St.StartAckAct | G504=<symbolic access> | H504=1 s
 A505=Mode_Motor_1_010_Casting_1501184822209_1199718511391 | B505=Int | C505=<Internal tag>
 A506=Mode_Motor_2_010_Casting_1501184822209_1199718511394 | B506=Int | C506=<Internal tag>
-A507=HMIDataCCD_DB_010_Casting_ModeCmd.Auto | B507=Bool | C507=HMI1 | D507=CCB-A03 | E507=HMIDataCCD_DB.010_Casting.ModeCmd.Auto | G507=<symbolic access> | H507=1 s
-A508=HMIDataCCD_DB_010_Casting_ModeSt.HmiSt | B508=Int | C508=HMI1 | D508=CCB-A03 | E508=HMIDataCCD_DB.010_Casting.ModeSt.HmiSt | G508=<symbolic access> | H508=1 s
-A509=HMIDataCCD_DB_010_Casting_ModeCmd.Manu | B509=Bool | C509=HMI1 | D509=CCB-A03 | E509=HMIDataCCD_DB.010_Casting.ModeCmd.Manu | G509=<symbolic access> | H509=1 s
-A510=HMIDataCCD_DB_010_Casting_ModeCmd.Stop | B510=Bool | C510=HMI1 | D510=CCB-A03 | E510=HMIDataCCD_DB.010_Casting.ModeCmd.Stop | G510=<symbolic access> | H510=1 s
-A511==072_CtrlDB_Mode_Cmd.Start | B511=Bool | C511=HMI1 | D511=CCB-A03 | E511=072_CtrlDB.ModeMotor.Cmd.Start | G511=<symbolic access> | H511=1 s
-A512==072_CtrlDB_Mode_St.WaitOn | B512=Bool | C512=HMI1 | D512=CCB-A03 | E512=072_CtrlDB.ModeMotor.St.WaitOn | G512=<symbolic access> | H512=1 s
-A513==072_CtrlDB_Mode_Cmd.Auto | B513=Bool | C513=HMI1 | D513=CCB-A03 | E513=072_CtrlDB.ModeMotor.Cmd.Auto | G513=<symbolic access> | H513=1 s
-A514==072_CtrlDB_Mode_St.HmiSt | B514=Int | C514=HMI1 | D514=CCB-A03 | E514=072_CtrlDB.ModeMotor.St.HmiSt | G514=<symbolic access> | H514=1 s
-A515==072_CtrlDB_Mode_Cmd.Manu | B515=Bool | C515=HMI1 | D515=CCB-A03 | E515=072_CtrlDB.ModeMotor.Cmd.Manu | G515=<symbolic access> | H515=1 s
-A516==072_CtrlDB_Mode_Cmd.Stop | B516=Bool | C516=HMI1 | D516=CCB-A03 | E516=072_CtrlDB.ModeMotor.Cmd.Stop | G516=<symbolic access> | H516=1 s
-A517==072_CtrlDB_Mode_Cmd.StartAck | B517=Real | C517=HMI1 | D517=CCB-A03 | E517=072_CtrlDB.ModeMotor.Cmd.StartAck | G517=<symbolic access> | H517=1 s
-A518==072_CtrlDB_Mode_St.StartAckAct | B518=Real | C518=HMI1 | D518=CCB-A03 | E518=072_CtrlDB.ModeMotor.St.StartAckAct | G518=<symbolic access> | H518=1 s
+A507=HMIDataCCD_DB_010_Casting_ModeCmd.Auto | B507=Bool | C507=HMI1 | D507=TM50 | E507=HMIDataCCD_DB.010_Casting.ModeCmd.Auto | G507=<symbolic access> | H507=1 s
+A508=HMIDataCCD_DB_010_Casting_ModeSt.HmiSt | B508=Int | C508=HMI1 | D508=TM50 | E508=HMIDataCCD_DB.010_Casting.ModeSt.HmiSt | G508=<symbolic access> | H508=1 s
+A509=HMIDataCCD_DB_010_Casting_ModeCmd.Manu | B509=Bool | C509=HMI1 | D509=TM50 | E509=HMIDataCCD_DB.010_Casting.ModeCmd.Manu | G509=<symbolic access> | H509=1 s
+A510=HMIDataCCD_DB_010_Casting_ModeCmd.Stop | B510=Bool | C510=HMI1 | D510=TM50 | E510=HMIDataCCD_DB.010_Casting.ModeCmd.Stop | G510=<symbolic access> | H510=1 s
+A511==072_CtrlDB_Mode_Cmd.Start | B511=Bool | C511=HMI1 | D511=TM50 | E511=072_CtrlDB.ModeMotor.Cmd.Start | G511=<symbolic access> | H511=1 s
+A512==072_CtrlDB_Mode_St.WaitOn | B512=Bool | C512=HMI1 | D512=TM50 | E512=072_CtrlDB.ModeMotor.St.WaitOn | G512=<symbolic access> | H512=1 s
+A513==072_CtrlDB_Mode_Cmd.Auto | B513=Bool | C513=HMI1 | D513=TM50 | E513=072_CtrlDB.ModeMotor.Cmd.Auto | G513=<symbolic access> | H513=1 s
+A514==072_CtrlDB_Mode_St.HmiSt | B514=Int | C514=HMI1 | D514=TM50 | E514=072_CtrlDB.ModeMotor.St.HmiSt | G514=<symbolic access> | H514=1 s
+A515==072_CtrlDB_Mode_Cmd.Manu | B515=Bool | C515=HMI1 | D515=TM50 | E515=072_CtrlDB.ModeMotor.Cmd.Manu | G515=<symbolic access> | H515=1 s
+A516==072_CtrlDB_Mode_Cmd.Stop | B516=Bool | C516=HMI1 | D516=TM50 | E516=072_CtrlDB.ModeMotor.Cmd.Stop | G516=<symbolic access> | H516=1 s
+A517==072_CtrlDB_Mode_Cmd.StartAck | B517=Real | C517=HMI1 | D517=TM50 | E517=072_CtrlDB.ModeMotor.Cmd.StartAck | G517=<symbolic access> | H517=1 s
+A518==072_CtrlDB_Mode_St.StartAckAct | B518=Real | C518=HMI1 | D518=TM50 | E518=072_CtrlDB.ModeMotor.St.StartAckAct | G518=<symbolic access> | H518=1 s
 A519=Mode_Motor_1_001_MainScreen_1501184822209_1199718511100 | B519=Int | C519=<Internal tag>
 A520=Mode_Motor_2_001_MainScreen_1501184822209_1199718511107 | B520=Int | C520=<Internal tag>
 A521=Mode_Motor_3_001_MainScreen_1501184822209_1199718511110 | B521=Int | C521=<Internal tag>
 A522=Mode_Motor_4_001_MainScreen_1501184822209_1199718511113 | B522=Int | C522=<Internal tag>
 A523=Mode_Motor_5_001_MainScreen_1501184822209_1199718511116 | B523=Int | C523=<Internal tag>
 A524=Mode_Motor_6_001_MainScreen_1501184822209_1199718511119 | B524=Int | C524=<Internal tag>
-A525=HMIDataCCD_DB_BtnCmdStopRunTime | B525=Bool | C525=HMI1 | D525=CCB-A03 | E525=HMIDataCCD_DB.BtnCmdStopRunTime | G525=<symbolic access> | H525=1 s
-A526=HMIDataCCD_DB_CountStopRunTime | B526=Int | C526=HMI1 | D526=CCB-A03 | E526=HMIDataCCD_DB.CountStopRunTime | G526=<symbolic access> | H526=1 s
+A525=HMIDataCCD_DB_BtnCmdStopRunTime | B525=Bool | C525=HMI1 | D525=TM50 | E525=HMIDataCCD_DB.BtnCmdStopRunTime | G525=<symbolic access> | H525=1 s
+A526=HMIDataCCD_DB_CountStopRunTime | B526=Int | C526=HMI1 | D526=TM50 | E526=HMIDataCCD_DB.CountStopRunTime | G526=<symbolic access> | H526=1 s
 A527=AlarmView | B527=Int | C527=<Internal tag>

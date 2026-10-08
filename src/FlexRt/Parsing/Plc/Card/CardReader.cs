@@ -16,7 +16,9 @@ public static class CardReader
     private static readonly string StorePath = Path.Combine("SIMATIC.S7S", "OMSSTORE");
 
     /// <summary>
-    /// Прочитать карту. ПЛК один, его имя — имя папки карты: своего имени ПЛК на карте нет.
+    /// Прочитать карту. ПЛК один; имя, модель CPU и IP интерфейсов CPU — из конфигурации
+    /// оборудования на карте (<see cref="CardHardware"/>, <see cref="CardNetwork"/>); нет имени
+    /// CPU — имя папки карты.
     /// Тег или DB, который не удалось разобрать, попадает в <see cref="PlcProject.Problems"/>,
     /// остальные читаются.
     /// </summary>
@@ -33,7 +35,10 @@ public static class CardReader
         }
         var streams = CardStore.Read(store);
         var project = new PlcProject();
-        project.Devices.Add(new PlcDevice(PlcId, DirectoryName(directory)) { Model = CardHardware.CpuModel(store) });
+        var cpu = CardHardware.Cpu(store);
+        var device = new PlcDevice(PlcId, cpu?.Name ?? DirectoryName(directory)) { Model = cpu?.Model };
+        device.Addresses.AddRange(CardNetwork.CpuAddresses(store).Select(ip => (ip, true)));
+        project.Devices.Add(device);
         CardTagParser.ReadAll(streams, PlcId, project);
         CardDbParser.ReadAll(streams, PlcId, project);
         return project;

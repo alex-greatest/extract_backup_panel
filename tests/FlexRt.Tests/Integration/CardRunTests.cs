@@ -15,7 +15,7 @@ public sealed class CardRunTests
 
     /// <summary>
     /// Копия карты ПЛК одним архивом (128 файлов карты не засоряют репозиторий); тест распаковывает
-    /// её во временный каталог. Имя папки в архиве — имя ПЛК в листе «Теги».
+    /// её во временный каталог. Имя ПЛК в листе «Теги» — имя CPU на карте (<c>TM50</c>).
     /// </summary>
     private const string CardArchive = "samples/card/CCB-A03.zip";
 
@@ -50,20 +50,20 @@ public sealed class CardRunTests
             "Модель панели=TP1500 Comfort V2",
             "Версия Runtime=17.00.00.07",
             "IP панели=192.168.1.3 / 255.255.255.0",
-            "Языки панели=0x419",
+            "Языки панели=0x419 — русский (Россия)",
             "Строк языков=19674",
             "Тегов панели=517",
             "Соединение HMI1=IP ПЛК 192.168.1.1",
             $"Данные ПЛК=карта ПЛК: {card}",
-            "ПЛК=CCB-A03",
+            "ПЛК=TM50",
             "Модель CPU=CPU 1515F-2 PN (6ES7 515-2FN03-0AB0)",
-            "IP ПЛК (из данных ПЛК)=неизвестно",
+            "IP ПЛК (из данных ПЛК)=192.168.1.1, 192.168.0.11",
             "Тегов ПЛК=591",
             "Блоков данных (DB)=95");
     }
 
     /// <summary>
-    /// Путь карты с завершающим разделителем: та же карта, имя ПЛК — имя папки (<c>CCB-A03</c>), код 0.
+    /// Путь карты с завершающим разделителем: та же карта, тот же лист «Теги», код 0.
     /// </summary>
     [Fact]
     public void CardPathWithTrailingSeparator_SameResult()
@@ -74,6 +74,29 @@ public sealed class CardRunTests
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/card/теги.txt");
+    }
+
+    /// <summary>
+    /// Карта, записанная TIA из тестового проекта (<c>samples/plc/PLC_1-card.zip</c>: ПЛК
+    /// <c>PLC_1</c> того же проекта, что <c>samples/plc/PEData.plf</c>), с панелью
+    /// <c>samples/plc/pdata-one-connection.fwc</c>: лист «Теги» совпадает с эталоном, снятым с
+    /// <c>PEData.plf</c>, — карта даёт то же, что проект TIA; на «Сводке» имя ПЛК <c>PLC_1</c>,
+    /// модель и оба IP CPU.
+    /// </summary>
+    [Fact]
+    public void ProjectCard_SameAsPlcProject()
+    {
+        using var dir = new TestDirectory();
+        var card = dir.ExtractFromRepo("samples/plc/PLC_1-card.zip", "PLC_1-card");
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata-one-connection.fwc"), card, dir.OutDir);
+
+        RunAssertions.ExitCode(run, 0);
+        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 48)");
+        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc/теги.txt");
+        SummarySheetDump.Contains(dir.PanelDataWorkbook,
+            "ПЛК=PLC_1",
+            "Модель CPU=CPU 1515-2 PN (6ES7 515-2AM01-0AB0)",
+            "IP ПЛК (из данных ПЛК)=192.168.1.1, 192.168.0.1");
     }
 
     /// <summary>

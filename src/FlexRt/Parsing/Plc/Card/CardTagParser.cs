@@ -11,13 +11,21 @@ namespace FlexRt.Parsing.Plc.Card;
 /// </summary>
 internal static class CardTagParser
 {
-    /// <summary>Область по атрибуту <c>Range</c>. На карте встречались Input, Output, Memory; таймеры и счётчики не встречались.</summary>
+    /// <summary>
+    /// Область по атрибуту <c>Range</c>: Input, Output, Memory (карта CCB-A03), Timer и Counter
+    /// (карта тестового проекта: <c>Timer_T0</c> → <c>%T0</c>, <c>Counter_C0</c> → <c>%C0</c>).
+    /// </summary>
     private static readonly Dictionary<string, (PlcArea Area, string Letter)> Areas = new()
     {
         ["Input"] = (PlcArea.Input, "I"),
         ["Output"] = (PlcArea.Output, "Q"),
-        ["Memory"] = (PlcArea.Memory, "M")
+        ["Memory"] = (PlcArea.Memory, "M"),
+        ["Timer"] = (PlcArea.Timer, "T"),
+        ["Counter"] = (PlcArea.Counter, "C")
     };
+
+    /// <summary>Ширина адреса таймера и счётчика: номер без размера (<c>Width="None"</c>, номер в <c>ByteNumber</c>).</summary>
+    private const string NoWidth = "None";
 
     /// <summary>Буква размера адреса по атрибуту <c>Width</c>; у <c>Bit</c> адрес с номером бита.</summary>
     private static readonly Dictionary<string, string> Widths = new()
@@ -84,7 +92,8 @@ internal static class CardTagParser
 
     /// <summary>
     /// Адрес как в TIA: <c>%I13100.0</c> у бита (нет <c>BitNumber</c> — бит 0), <c>%IW128</c>,
-    /// <c>%MB1</c>, <c>%ID…</c> у байта, слова, двойного слова.
+    /// <c>%MB1</c>, <c>%ID…</c> у байта, слова, двойного слова, <c>%T0</c>, <c>%C0</c> у таймера и
+    /// счётчика (ширина <see cref="NoWidth"/>).
     /// </summary>
     /// <returns>Область и адрес; адрес <c>null</c>, если область или ширина незнакомы.</returns>
     private static (PlcArea? Area, string? Address) FormatAddress(XElement access)
@@ -94,6 +103,10 @@ internal static class CardTagParser
         if (!Areas.TryGetValue(range, out var area) || !long.TryParse((string?)access.Attribute("ByteNumber"), out var number))
         {
             return (null, null);
+        }
+        if (width == NoWidth)
+        {
+            return area.Area is PlcArea.Timer or PlcArea.Counter ? (area.Area, $"%{area.Letter}{number}") : (null, null);
         }
         if (width != "Bit")
         {
