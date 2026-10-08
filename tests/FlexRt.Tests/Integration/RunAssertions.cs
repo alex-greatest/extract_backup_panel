@@ -23,7 +23,7 @@ public static partial class RunAssertions
     public static void Unsupported(ProgramRun run, int connections, string plc, TestDirectory dir)
     {
         ExitCode(run, 1);
-        HasLine(run.StdErr, $"ОШИБКА: не поддерживается: у панели {connections} соединения с ПЛК, а данные ПЛК заданы ({plc}) - "
+        HasLine(run.StdErr, $"ОШИБКА: не поддерживается: соединений панели с ПЛК - {connections}, а данные ПЛК заданы ({plc}) - "
             + "сопоставление сделано только для панели с одним соединением; файлы не созданы");
         NoStackTrace(run);
         Assert.False(File.Exists(dir.PanelDataWorkbook), "panel_data.xlsx создан");

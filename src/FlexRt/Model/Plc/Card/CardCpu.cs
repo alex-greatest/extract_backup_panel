@@ -1,4 +1,4 @@
-namespace FlexRt.Parsing.Plc.Card;
+namespace FlexRt.Model.Plc.Card;
 
 /// <summary>CPU из конфигурации оборудования на карте ПЛК.</summary>
 /// <param name="Name">Имя CPU в проекте TIA (<c>TM50</c>); <c>null</c>, если в объекте CPU нет имени.</param>

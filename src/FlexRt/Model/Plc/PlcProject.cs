@@ -9,8 +9,11 @@ public sealed class PlcProject
     public List<PlcTag> Tags { get; } = [];
     /// <summary>Блоки данных всех ПЛК проекта с деревьями членов.</summary>
     public List<PlcDb> Dbs { get; } = [];
-    /// <summary>Пользовательские типы (UDT) проекта по имени со вложенными UDT: нужны для членов тегов I/Q/M пользовательского типа.</summary>
-    public Dictionary<string, PlcDbInterface> Udts { get; } = [];
+    /// <summary>
+    /// Пользовательские типы (UDT) по ПЛК и имени, со вложенными UDT: нужны для членов тегов I/Q/M
+    /// пользовательского типа. ID ПЛК 0 — владелец типа не найден.
+    /// </summary>
+    public Dictionary<(long PlcId, string Name), PlcDbInterface> Udts { get; } = [];
     /// <summary>Объекты (теги ПЛК, DB), раскладку которых не удалось разобрать: сообщение с ID объекта.</summary>
     public List<string> Problems { get; } = [];
     /// <summary>Сколько тегов ПЛК не удалось разобрать (часть <see cref="Problems"/>).</summary>

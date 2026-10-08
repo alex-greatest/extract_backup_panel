@@ -41,20 +41,20 @@ internal static class CardDbParser
         {
             project.Dbs.Add(ReadDb(block, commentsByName, plcId, project));
         }
-        foreach (var block in blocks.Where(b => b.Rid >> 16 == UdtClass && b.Xml is not null))
+        foreach (var block in blocks.Where(b => IsUdt(b.Rid) && b.Xml is not null))
         {
-            ReadUdt(block, commentsByName, project);
+            ReadUdt(block, commentsByName, plcId, project);
         }
     }
 
     /// <summary>
     /// Пользовательский тип: интерфейс из XML (<c>DataTypeSource</c>) в <see cref="PlcProject.Udts"/>
-    /// по имени, повтор имени — первый. Интерфейс не строится — сообщение «UDT …» в
+    /// по ПЛК карты и имени, повтор имени — первый. Интерфейс не строится — сообщение «UDT …» в
     /// <see cref="PlcProject.Problems"/>.
     /// </summary>
-    private static void ReadUdt(CardBlock block, Dictionary<string, Dictionary<string, string>> commentsByName, PlcProject project)
+    private static void ReadUdt(CardBlock block, Dictionary<string, Dictionary<string, string>> commentsByName, long plcId, PlcProject project)
     {
-        if (CardInterfaceBuilder.Name(block.Xml!) is not { } name || project.Udts.ContainsKey(name))
+        if (CardInterfaceBuilder.Name(block.Xml!) is not { } name || project.Udts.ContainsKey((plcId, name)))
         {
             return;
         }
@@ -62,7 +62,7 @@ internal static class CardDbParser
         {
             if (CardInterfaceBuilder.Build(block.Rid, block.Xml!, commentsByName, block.Comments, block.Section) is { } udt)
             {
-                project.Udts[name] = udt;
+                project.Udts[(plcId, name)] = udt;
             }
         }
         catch (FwxFormatException e)
@@ -73,6 +73,9 @@ internal static class CardDbParser
 
     /// <summary>Блок данных ли объект с этим RID.</summary>
     private static bool IsDb(long rid) => rid >> 16 == DbClass;
+
+    /// <summary>Пользовательский тип (UDT) ли объект с этим RID.</summary>
+    private static bool IsUdt(long rid) => rid >> 16 == UdtClass;
 
     /// <summary>
     /// XML интерфейса блока и комментарии его членов. Интерфейс — первый поток с корнем

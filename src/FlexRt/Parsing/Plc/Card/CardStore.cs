@@ -13,22 +13,6 @@ namespace FlexRt.Parsing.Plc.Card;
 /// </summary>
 internal static class CardStore
 {
-    /// <summary>Байт начала объекта: за ним u32 RID big endian (наблюдение: <c>a6 8a 0e 04 42</c> — DB1090).</summary>
-    private const byte ObjectMark = 0xa6;
-
-    /// <summary>Начало объекта: <see cref="ObjectMark"/> и u32 RID.</summary>
-    private const int ObjectStartSize = 5;
-
-    /// <summary>
-    /// Байт, которым начинается тело объекта сразу за varint после RID (наблюдение: <c>00 a3</c>,
-    /// <c>20 a3</c>, <c>84 80 80 80 20 a3</c> у всех 587 объектов карты S7-1500, TIA V19; у 74
-    /// случайных совпадений <c>a6 89/8a</c> его нет).
-    /// </summary>
-    private const byte ObjectBodyTag = 0xa3;
-
-    /// <summary>Наибольшая длина varint за RID в байтах (u32).</summary>
-    private const int MaxVarintLength = 5;
-
     /// <summary>Первый байт заголовка zlib: deflate, окно 32 КБ.</summary>
     private const byte ZlibHeader = 0x78;
 
@@ -42,30 +26,15 @@ internal static class CardStore
     private const int BufferSize = 0x4000;
 
     /// <summary>
-    /// Прочитать все файлы папки в порядке путей и собрать распакованные потоки известных видов
-    /// (<see cref="CardDictionaries"/>). Потоки без словаря и со словарём, которого нет в
-    /// <see cref="CardDictionaries"/>, пропускаются: в таблицы тегов и интерфейсы блоков они не входят.
-    /// </summary>
-    /// <returns>Потоки в порядке файлов и смещений.</returns>
-    /// <exception cref="FwxFormatException">Поток с известным словарём не распаковывается.</exception>
-    /// <exception cref="IOException">Файл не удалось прочитать.</exception>
-    public static List<CardStream> Read(string storeDirectory)
-    {
-        var streams = new List<CardStream>();
-        foreach (var path in Directory.EnumerateFiles(storeDirectory, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
-        {
-            ReadFile(File.ReadAllBytes(path), Path.GetRelativePath(storeDirectory, path), streams);
-        }
-        return streams;
-    }
-
-    /// <summary>
-    /// Пройти файл: поток zlib со словарём распаковывается и пропускается целиком, байт
-    /// <see cref="ObjectMark"/> с RID объекта (<see cref="IsObjectStart"/>) задаёт объект для следующих
-    /// потоков. Метки внутри сжатых потоков не видны: поток пропускается до проверки меток.
+    /// Пройти файл и добавить его распакованные потоки известных видов (<see cref="CardDictionaries"/>)
+    /// в порядке смещений. Поток zlib со словарём распаковывается и пропускается целиком, начало
+    /// объекта (<see cref="IsObjectStart"/>) задаёт объект для следующих потоков. Метки внутри сжатых
+    /// потоков не видны: поток пропускается до проверки меток. Потоки без словаря и со словарём,
+    /// которого нет в <see cref="CardDictionaries"/>, пропускаются: в таблицы тегов и интерфейсы
+    /// блоков они не входят.
     /// </summary>
     /// <exception cref="FwxFormatException">Поток с известным словарём не распаковывается.</exception>
-    private static void ReadFile(byte[] data, string name, List<CardStream> streams)
+    public static void ReadFile(byte[] data, string name, List<CardStream> streams)
     {
         long rid = 0;
         var pos = 0;
@@ -79,8 +48,8 @@ internal static class CardStore
             }
             if (IsObjectStart(data, pos))
             {
-                rid = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(pos + 1));
-                pos += ObjectStartSize;
+                rid = CardObjectStart.Rid(data, pos);
+                pos += CardObjectStart.Size;
                 continue;
             }
             pos++;
@@ -88,25 +57,12 @@ internal static class CardStore
     }
 
     /// <summary>
-    /// Начало объекта: <see cref="ObjectMark"/>, RID со старшим байтом 0x89 или 0x8a, затем varint и
-    /// <see cref="ObjectBodyTag"/>. Без последней проверки метку дают случайные байты, в том числе
-    /// внутри потоков с незнакомым словарём между DB и его интерфейсом.
+    /// Начало объекта блока (<see cref="CardObjectStart.IsAt"/>) с RID со старшим байтом 0x89 или
+    /// 0x8a. Без проверки тела за varint метку дают случайные байты, в том числе внутри потоков с
+    /// незнакомым словарём между DB и его интерфейсом.
     /// </summary>
     /// <returns><c>true</c>, если на позиции начало объекта.</returns>
-    private static bool IsObjectStart(byte[] data, int pos)
-    {
-        if (data[pos] != ObjectMark || pos + ObjectStartSize > data.Length || data[pos + 1] is not (0x89 or 0x8a))
-        {
-            return false;
-        }
-        var end = Math.Min(data.Length, pos + ObjectStartSize + MaxVarintLength);
-        var at = pos + ObjectStartSize;
-        while (at < end && (data[at] & 0x80) != 0)
-        {
-            at++;
-        }
-        return at + 1 < data.Length && data[at + 1] == ObjectBodyTag;
-    }
+    private static bool IsObjectStart(byte[] data, int pos) => CardObjectStart.IsAt(data, pos) && data[pos + 1] is 0x89 or 0x8a;
 
     /// <summary>
     /// Распаковать поток zlib на позиции, если это поток со словарём из <see cref="CardDictionaries"/>:

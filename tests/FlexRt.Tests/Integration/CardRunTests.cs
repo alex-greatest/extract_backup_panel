@@ -100,6 +100,24 @@ public sealed class CardRunTests
     }
 
     /// <summary>
+    /// Карта проекта с пользовательским типом (<c>samples/plc-udt/PLC_1-card.zip</c>, записана TIA
+    /// через Card Reader из того же проекта, что <c>samples/plc-udt/PEData.plf</c>): лист «Теги»
+    /// совпадает с эталоном, снятым с <c>PEData.plf</c>, — в том числе член тега входов
+    /// пользовательского типа <c>1.Element_1</c> и член DB <c>Data_block_1.ddd.Element_1</c>.
+    /// </summary>
+    [Fact]
+    public void UdtProjectCard_SameAsPlcProject()
+    {
+        using var dir = new TestDirectory();
+        var card = dir.ExtractFromRepo("samples/plc-udt/PLC_1-card.zip", "PLC_1-udt-card");
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc-udt/pdata.fwc"), card, dir.OutDir);
+
+        RunAssertions.ExitCode(run, 0);
+        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 49)");
+        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc-udt/теги.txt");
+    }
+
+    /// <summary>
     /// Карта с панелью <c>samples/plc/pdata.fwc</c> (два соединения с ПЛК): сознательно не
     /// поддерживается — код 1, сообщение в stderr, файлы результата не созданы.
     /// </summary>

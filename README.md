@@ -33,5 +33,5 @@ dotnet run --project src/FlexRt
 
 ## Проверено
 
-TIA Portal V17–V21, панели TP700 и TP1500 Comfort, ПЛК S7-1500 и S7-1200.
+TIA Portal V17, V19 и V21, панели TP700 и TP1500 Comfort, ПЛК S7-1500 и S7-1200.
 Форматы закрытые и разобраны по реальным файлам; подробности — в `docs/`.

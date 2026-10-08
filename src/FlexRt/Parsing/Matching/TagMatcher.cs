@@ -14,7 +14,8 @@ public static class TagMatcher
     /// (<see cref="PlcMatch.Link"/>). Нет проекта ПЛК — <see cref="PlcLookup.Unknown"/>.
     /// ПЛК выбирается по соединению тега (<see cref="SelectDevice"/>). Символьный тег ищется
     /// по области и ID символа, абсолютный — по адресу; найденный тег другого типа
-    /// считается не найденным. Член DB ищется по пути (<see cref="MatchDbMember"/>).
+    /// считается не найденным. Член DB ищется по пути (<see cref="MatchDbMember"/>), член тега
+    /// I/Q/M пользовательского типа — в UDT того же ПЛК (<see cref="MatchTagMember"/>).
     /// Абсолютный тег без тега ПЛК с тем же адресом (в том числе любой абсолютный доступ к DB) —
     /// <see cref="PlcLookup.AddressOnly"/>: в TIA HMI-тег может ссылаться прямо на адрес.
     /// Символьный не найден, а в проекте есть неразобранные теги ПЛК —
@@ -68,27 +69,30 @@ public static class TagMatcher
             // абсолютный доступ к DB (%DB80.DBW0) с членом DB не сопоставляется
             return link.Absolute ? MatchDbAddress(project, device, link) : MatchDbMember(project, device, link);
         }
-
         if (link is { Absolute: false, Path.Count: > 1 })
         {
             return MatchTagMember(project, device, link);
         }
+
         var tag = project.Tags.FirstOrDefault(t => t.PlcId == device.Id && IsSameTag(t, link));
         if (tag is not null)
         {
             return new PlcMatch(PlcLookup.Found, device.Name, tag);
         }
-        if (link.Absolute)
-        {
-            return new PlcMatch(PlcLookup.AddressOnly, device.Name, null);
-        }
-        var lookup = project.UnparsedTags > 0 ? PlcLookup.Unknown : PlcLookup.NotInPlcFile;
-        return new PlcMatch(lookup, device.Name, null);
+        return link.Absolute ? new PlcMatch(PlcLookup.AddressOnly, device.Name, null) : TagNotFound(project, device);
     }
 
     /// <summary>
+    /// Символьный тег не найден: в проекте есть неразобранные теги ПЛК — <see cref="PlcLookup.Unknown"/>
+    /// (искомый мог быть среди них), иначе <see cref="PlcLookup.NotInPlcFile"/>.
+    /// </summary>
+    /// <returns>Результат поиска без тега.</returns>
+    private static PlcMatch TagNotFound(PlcProject project, PlcDevice device) =>
+        new(project.UnparsedTags > 0 ? PlcLookup.Unknown : PlcLookup.NotInPlcFile, device.Name, null);
+
+    /// <summary>
     /// Член тега I/Q/M пользовательского типа (путь длиннее одного слова): тег — по области и ID
-    /// символа из первого слова, тип — UDT проекта по типу тега (без кавычек), остаток пути —
+    /// символа из первого слова, тип — UDT того же ПЛК по типу тега (без кавычек), остаток пути —
     /// в интерфейсе типа (<see cref="DbPathResolver.ResolveTagMember"/>). Найден — тег с путём
     /// <c>1.Element_1</c>, типом и комментарием члена. Нет тега — не найден (при неразобранных
     /// тегах ПЛК — <see cref="PlcLookup.Unknown"/>); тип не прочитан — <see cref="PlcLookup.Unknown"/>.
@@ -99,20 +103,20 @@ public static class TagMatcher
         var tag = project.Tags.FirstOrDefault(t => t.PlcId == device.Id && t.Area == link.Area && t.SymbolId == link.SymbolId);
         if (tag is null)
         {
-            return new PlcMatch(project.UnparsedTags > 0 ? PlcLookup.Unknown : PlcLookup.NotInPlcFile, device.Name, null);
+            return TagNotFound(project, device);
         }
-        if (tag.DataType is not { } type || !project.Udts.TryGetValue(type.Trim('"'), out var udt))
+        if (tag.DataType is not { } type || !TryGetUdt(project, device, type.Trim('"'), out var udt))
         {
             return new PlcMatch(PlcLookup.Unknown, device.Name, null);
         }
         var resolved = DbPathResolver.ResolveTagMember(tag.Name, udt, [.. link.Path.Skip(1)]);
-        if (resolved.Lookup != PlcLookup.Found)
-        {
-            return new PlcMatch(resolved.Lookup, device.Name, null);
-        }
-        var member = new PlcTag(resolved.Path, device.Id, resolved.Type.Length == 0 ? null : resolved.Type, "", tag.Area, tag.SymbolId, resolved.Comment);
-        return new PlcMatch(PlcLookup.Found, device.Name, member);
+        return MemberMatch(resolved, device, tag.Area, tag.SymbolId);
     }
+
+    /// <summary>UDT по ПЛК тега и имени; нет у этого ПЛК — UDT без найденного владельца (ПЛК 0).</summary>
+    /// <returns><c>true</c>, если тип найден.</returns>
+    private static bool TryGetUdt(PlcProject project, PlcDevice device, string name, out PlcDbInterface udt) =>
+        project.Udts.TryGetValue((device.Id, name), out udt!) || project.Udts.TryGetValue((0, name), out udt!);
 
     /// <summary>
     /// Абсолютный адрес в DB (<c>%DB1000.DBX0.0</c>): тега ПЛК у такого адреса нет —
@@ -136,13 +140,24 @@ public static class TagMatcher
     /// <returns>Результат поиска.</returns>
     private static PlcMatch MatchDbMember(PlcProject project, PlcDevice device, PlcLink link)
     {
-        var resolved = DbPathResolver.Resolve(project, device.Id, link);
+        return MemberMatch(DbPathResolver.Resolve(project, device.Id, link), device, PlcArea.DataBlock, 0);
+    }
+
+    /// <summary>
+    /// Результат поиска члена (DB или тега пользовательского типа) по разрешённому пути. Найден —
+    /// тег с путём как в TIA в имени, типом члена (<c>null</c>, если код типа неизвестен),
+    /// комментарием члена, заданными областью и ID символа и пустым адресом; не найден — без тега,
+    /// с итогом разрешения.
+    /// </summary>
+    /// <returns>Результат поиска.</returns>
+    private static PlcMatch MemberMatch(DbResolution resolved, PlcDevice device, PlcArea? area, long symbolId)
+    {
         if (resolved.Lookup != PlcLookup.Found)
         {
             return new PlcMatch(resolved.Lookup, device.Name, null);
         }
-        var tag = new PlcTag(resolved.Path, device.Id, resolved.Type.Length == 0 ? null : resolved.Type, "", PlcArea.DataBlock, 0, resolved.Comment);
-        return new PlcMatch(PlcLookup.Found, device.Name, tag);
+        var member = new PlcTag(resolved.Path, device.Id, resolved.Type.Length == 0 ? null : resolved.Type, "", area, symbolId, resolved.Comment);
+        return new PlcMatch(PlcLookup.Found, device.Name, member);
     }
 
     /// <summary>

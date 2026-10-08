@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using FlexRt.Model.Plc.Card;
 
 namespace FlexRt.Parsing.Plc.Card;
 
@@ -17,6 +18,9 @@ internal static partial class CardHardware
     [GeneratedRegex(@"6ES7 ?\d{3}-[0-9A-Z]{5}-[0-9A-Z]{4}")]
     private static partial Regex OrderNumber();
 
+    /// <summary>Сколько байт перед названием CPU искать атрибут имени объекта (наблюдение: имя за 0xd1 байт до названия на обеих картах).</summary>
+    private const int NameWindow = 0x100;
+
     /// <summary>Сколько байт после названия CPU искать его заказной номер (наблюдение: номер через 0x3a байт).</summary>
     private const int OrderNumberWindow = 0x100;
 
@@ -28,29 +32,16 @@ internal static partial class CardHardware
     private const string NameAttribute = "£\u0081i\0\u0015";
 
     /// <summary>
-    /// CPU: в файлах <c>OMSSTORE</c> в порядке путей — первое название <c>CPU …</c>, перед которым
-    /// стоит байт его длины, и первый заказной номер не дальше <see cref="OrderNumberWindow"/> байт
-    /// за ним (номера модулей ввода-вывода стоят без названия <c>CPU</c> и не попадают); имя — из
-    /// ближайшего перед названием атрибута имени объекта, без пробелов по краям.
+    /// CPU в одном файле <c>OMSSTORE</c> (текст Latin-1: байт — символ): первое название <c>CPU …</c>,
+    /// перед которым стоит байт его длины, и первый заказной номер не дальше
+    /// <see cref="OrderNumberWindow"/> байт за ним (номера модулей ввода-вывода стоят без названия
+    /// <c>CPU</c> и не попадают); имя — из ближайшего перед названием атрибута имени объекта, без
+    /// пробелов по краям. Карта — первый CPU в файлах по порядку путей.
     /// </summary>
-    /// <returns>Имя и модель CPU или <c>null</c>, если CPU не найден.</returns>
-    /// <exception cref="IOException">Файл карты не удалось прочитать.</exception>
-    public static CardCpu? Cpu(string storeDirectory)
+    /// <returns>Имя и модель CPU или <c>null</c>, если в файле CPU нет.</returns>
+    public static CardCpu? FindCpu(byte[] data)
     {
-        foreach (var path in Directory.EnumerateFiles(storeDirectory, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
-        {
-            if (FindCpu(Encoding.Latin1.GetString(File.ReadAllBytes(path))) is { } cpu)
-            {
-                return cpu;
-            }
-        }
-        return null;
-    }
-
-    /// <summary>Название CPU с байтом длины перед ним, заказной номер за ним и имя объекта перед ним в тексте файла (Latin-1: байт — символ).</summary>
-    /// <returns>CPU или <c>null</c>.</returns>
-    private static CardCpu? FindCpu(string text)
-    {
+        var text = Encoding.Latin1.GetString(data);
         foreach (Match name in CpuName().Matches(text))
         {
             var length = name.Index > 0 ? text[name.Index - 1] : '\0';
@@ -68,13 +59,18 @@ internal static partial class CardHardware
         return null;
     }
 
-    /// <summary>Имя из ближайшего перед позицией атрибута <see cref="NameAttribute"/>, без пробелов по краям.</summary>
+    /// <summary>
+    /// Имя из ближайшего перед позицией атрибута <see cref="NameAttribute"/> не дальше
+    /// <see cref="NameWindow"/> байт (имя самого объекта CPU, не соседнего), без пробелов по краям.
+    /// Имя не из печатных символов ASCII (кириллица, иероглифы) не берётся — тогда ПЛК называется
+    /// по папке карты.
+    /// </summary>
     /// <returns>Имя или <c>null</c>, если атрибута нет или имя пустое.</returns>
     private static string? ObjectName(string text, int before)
     {
         var at = text.LastIndexOf(NameAttribute, before, StringComparison.Ordinal);
         var start = at + NameAttribute.Length + 1;
-        if (at < 0 || start > before)
+        if (at < 0 || start > before || before - at > NameWindow)
         {
             return null;
         }

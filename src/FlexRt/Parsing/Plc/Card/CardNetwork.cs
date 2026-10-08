@@ -22,35 +22,14 @@ internal static class CardNetwork
     /// <summary>Сколько байт перед именем искать начало объекта (наблюдение: начало за 0x0c–0x0f байт до имени).</summary>
     private const int ObjectWindow = 0x40;
 
-    /// <summary>Байт начала объекта: за ним u32 RID big endian, varint и байт <see cref="ObjectBodyTag"/>.</summary>
-    private const byte ObjectMark = 0xa6;
-
-    /// <summary>Байт начала тела объекта сразу за varint после RID.</summary>
-    private const byte ObjectBodyTag = 0xa3;
-
-    /// <summary>Наибольшая длина varint за RID в байтах (u32).</summary>
-    private const int MaxVarintLength = 5;
-
     /// <summary>
-    /// IP-адреса интерфейсов CPU: объекты «Network Parameters», у которых RID объекта меньше
-    /// 0x10000 (наблюдение: объекты CPU — <c>0x4d</c> X1, <c>0x4e</c> X2; у устройств сети —
-    /// <c>0x08ddxxxx</c>, их адреса не берутся), адрес за <see cref="AddressMark"/>. Повторы и
-    /// нулевой адрес не попадают.
+    /// Добавить IP-адреса интерфейсов CPU из одного файла <c>OMSSTORE</c>: объекты «Network
+    /// Parameters», у которых RID объекта меньше 0x10000 (наблюдение: объекты CPU — <c>0x4d</c> X1,
+    /// <c>0x4e</c> X2; у устройств сети — <c>0x08ddxxxx</c>, их адреса не берутся), адрес за
+    /// <see cref="AddressMark"/> (старший байт — первая часть). Адреса, которые уже есть в списке
+    /// (в том числе из прежних файлов), и нулевой адрес не добавляются.
     /// </summary>
-    /// <returns>Адреса по порядку файлов (старший байт — первая часть); пусто, если не найдено.</returns>
-    /// <exception cref="IOException">Файл карты не удалось прочитать.</exception>
-    public static List<uint> CpuAddresses(string storeDirectory)
-    {
-        var addresses = new List<uint>();
-        foreach (var path in Directory.EnumerateFiles(storeDirectory, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
-        {
-            AddAddresses(File.ReadAllBytes(path), addresses);
-        }
-        return addresses;
-    }
-
-    /// <summary>Добавить адреса объектов «Network Parameters» CPU одного файла.</summary>
-    private static void AddAddresses(byte[] data, List<uint> addresses)
+    public static void AddCpuAddresses(byte[] data, List<uint> addresses)
     {
         var from = 0;
         while (from < data.Length)
@@ -80,32 +59,19 @@ internal static class CardNetwork
     }
 
     /// <summary>
-    /// RID ближайшего начала объекта перед позицией (не дальше <see cref="ObjectWindow"/> байт):
-    /// <see cref="ObjectMark"/>, u32 RID, varint, <see cref="ObjectBodyTag"/>.
+    /// RID ближайшего начала объекта (<see cref="CardObjectStart.IsAt"/>) перед позицией: не дальше
+    /// <see cref="ObjectWindow"/> байт, RID целиком до позиции.
     /// </summary>
     /// <returns>RID или <c>null</c>, если начала объекта нет.</returns>
     private static long? ObjectRidBefore(byte[] data, int index)
     {
         for (var p = index - 1; p >= Math.Max(0, index - ObjectWindow); p--)
         {
-            if (data[p] == ObjectMark && p + 5 < index && IsBodyAfterVarint(data, p + 5))
+            if (p + CardObjectStart.Size < index && CardObjectStart.IsAt(data, p))
             {
-                return BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(p + 1));
+                return CardObjectStart.Rid(data, p);
             }
         }
         return null;
-    }
-
-    /// <summary>За varint на позиции стоит <see cref="ObjectBodyTag"/>.</summary>
-    /// <returns><c>true</c>, если так.</returns>
-    private static bool IsBodyAfterVarint(byte[] data, int start)
-    {
-        var end = Math.Min(data.Length, start + MaxVarintLength);
-        var at = start;
-        while (at < end && (data[at] & 0x80) != 0)
-        {
-            at++;
-        }
-        return at + 1 < data.Length && data[at + 1] == ObjectBodyTag;
     }
 }

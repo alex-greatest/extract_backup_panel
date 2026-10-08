@@ -77,7 +77,7 @@ bool IsUnsupported(FwxDocument doc)
     {
         return false;
     }
-    var message = $"не поддерживается: у панели {doc.Connections.Count} соединения с ПЛК, а данные ПЛК заданы ({plcPath}) - "
+    var message = $"не поддерживается: соединений панели с ПЛК - {doc.Connections.Count}, а данные ПЛК заданы ({plcPath}) - "
         + "сопоставление сделано только для панели с одним соединением; файлы не созданы";
     Console.Error.WriteLine($"ОШИБКА: {message}");
     Log.Error("Запуск прекращён: {Message}", message);

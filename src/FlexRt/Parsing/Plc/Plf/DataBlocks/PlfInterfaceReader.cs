@@ -24,11 +24,11 @@ internal static class PlfInterfaceReader
     /// <summary>Тип связи корня с владельцем интерфейса (FB, DB или UDT).</summary>
     private const long OwnerRelation = 0x00222609;
 
-    /// <summary>Классы владельцев интерфейса: FB, DB, UDT.</summary>
-    private static readonly long[] OwnerClasses = [0x00221001, 0x00221002, UdtClass];
-
     /// <summary>Класс объекта UDT — владельца корня интерфейса пользовательского типа.</summary>
     private const long UdtClass = 0x00221003;
+
+    /// <summary>Классы владельцев интерфейса: FB, DB, UDT.</summary>
+    private static readonly long[] OwnerClasses = [0x00221001, 0x00221002, UdtClass];
 
     /// <summary>Начало имени UDT в объекте корня: <c>BIVE:имя/guid</c>.</summary>
     private static readonly byte[] UdtNameStart = [.. "BIVE:"u8];
@@ -81,27 +81,42 @@ internal static class PlfInterfaceReader
 
     /// <summary>
     /// Пользовательские типы проекта: корни интерфейса, владелец которых (связь 0x222609) — UDT
-    /// (класс 0x00221003), по имени из <c>BIVE:имя/guid</c>, со вложенными UDT. Корень, который не
-    /// читается, — сообщение «UDT …» в <see cref="PlcProject.Problems"/>, остальные читаются.
+    /// (класс 0x00221003), по ПЛК владельца и имени из <c>BIVE:имя/guid</c>, со вложенными UDT.
+    /// Корень, который не читается, — сообщение «UDT …» в <see cref="PlcProject.Problems"/>,
+    /// остальные читаются.
     /// </summary>
     public static void ReadUdts(PlfFile file, PlcProject project)
     {
         var cache = new Dictionary<(long, bool), PlcDbInterface>();
         foreach (var root in file.OfClassById(RootClass))
         {
-            var owner = PlfRelations.Scan(file, root).FirstOrDefault(r => r.Type == OwnerRelation && OwnerClasses.Contains(r.Class));
-            if (owner.Class != UdtClass || UdtName(file.Binary, root) is not { } name || project.Udts.ContainsKey(name))
-            {
-                continue;
-            }
             try
             {
-                project.Udts[name] = Read(file, cache, root.Id, true);
+                AddUdt(file, cache, root, project);
             }
             catch (FwxFormatException e)
             {
-                project.Problems.Add($"UDT {name}: {e.Message}");
+                project.Problems.Add($"UDT (корень {root.Id}): {e.Message}");
             }
+        }
+    }
+
+    /// <summary>
+    /// Добавить корень в <see cref="PlcProject.Udts"/>, если его владелец — UDT: ключ — ПЛК владельца
+    /// (связь на объект ПЛК, нет — 0) и имя из <c>BIVE:имя/guid</c>; повтор ключа — первый.
+    /// </summary>
+    /// <exception cref="FwxFormatException">Корень или его члены не читаются.</exception>
+    private static void AddUdt(PlfFile file, Dictionary<(long, bool), PlcDbInterface> cache, PlfObject root, PlcProject project)
+    {
+        var owner = Owner(PlfRelations.Scan(file, root));
+        if (owner.Class != UdtClass || UdtName(file.Binary, root) is not { } name)
+        {
+            return;
+        }
+        var key = (PlfRelations.PlcId(PlfRelations.Scan(file, file.Get(owner.Class, owner.Id))), name);
+        if (!project.Udts.ContainsKey(key))
+        {
+            project.Udts[key] = Read(file, cache, root.Id, true);
         }
     }
 
@@ -113,7 +128,7 @@ internal static class PlfInterfaceReader
     /// <exception cref="FwxFormatException">Объект комментариев не разбирается.</exception>
     private static Dictionary<string, string> ReadComments(PlfFile file, List<PlfRelation> relations)
     {
-        var owner = relations.FirstOrDefault(r => r.Type == OwnerRelation && OwnerClasses.Contains(r.Class));
+        var owner = Owner(relations);
         if (owner == default)
         {
             return [];
@@ -121,6 +136,11 @@ internal static class PlfInterfaceReader
         var comments = PlfRelations.Find(PlfRelations.Scan(file, file.Get(owner.Class, owner.Id)), PlfMemberComments.Relation, PlfMemberComments.Class);
         return comments == default ? [] : PlfMemberComments.Read(file.Binary, file.Get(comments.Class, comments.Id));
     }
+
+    /// <summary>Владелец корня: первая связь <see cref="OwnerRelation"/> на FB, DB или UDT (<see cref="OwnerClasses"/>).</summary>
+    /// <returns>Связь или <c>default</c>, если владельца нет.</returns>
+    private static PlfRelation Owner(List<PlfRelation> relations) =>
+        relations.FirstOrDefault(r => r.Type == OwnerRelation && OwnerClasses.Contains(r.Class));
 
     /// <summary>Добавить члены объекта 0x0022160b под его <c>ParentId</c> (нет атрибута — ключ <c>""</c>). Объект без <c>&lt;Member&gt;</c> (начальные значения) пропускается.</summary>
     /// <exception cref="FwxFormatException">XML объекта не разбирается.</exception>
