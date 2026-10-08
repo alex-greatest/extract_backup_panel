@@ -47,7 +47,7 @@ public static partial class DbPathResolver
         var problem = dbs.Count == 0 && project.UnnumberedDbs > 0;
         foreach (var db in dbs)
         {
-            if (db.Interfaces.Select(root => Walk(db, root, link.Path)).FirstOrDefault(r => r is not null) is { } found)
+            if (db.Interfaces.Select(root => Walk(db.Name ?? db.Number.ToString(), root, link.Path)).FirstOrDefault(r => r is not null) is { } found)
             {
                 return found;
             }
@@ -55,6 +55,14 @@ public static partial class DbPathResolver
         }
         return new DbResolution(problem ? PlcLookup.Unknown : PlcLookup.NotInPlcFile, "", "", "");
     }
+
+    /// <summary>
+    /// Найти член тега I/Q/M пользовательского типа: путь (без первого слова — ID тега) проходится
+    /// в интерфейсе типа так же, как путь члена DB; имя пути начинается с имени тега (<c>1.Element_1</c>).
+    /// </summary>
+    /// <returns>Найден — путь, тип и комментарий члена; иначе <see cref="PlcLookup.NotInPlcFile"/>.</returns>
+    public static DbResolution ResolveTagMember(string tagName, PlcDbInterface udt, IReadOnlyList<long> memberPath) =>
+        Walk(tagName, udt, memberPath) ?? new DbResolution(PlcLookup.NotInPlcFile, "", "", "");
 
     /// <summary>
     /// Пройти путь от корня. На каждом уровне ищется член с нужным LID; тип <c>"UDT"</c> ведёт
@@ -65,7 +73,7 @@ public static partial class DbPathResolver
     /// UDT — корень UDT; комментарий элемента массива — комментарий самого массива.
     /// </summary>
     /// <returns>Путь, тип и комментарий или <c>null</c>, если член не найден.</returns>
-    private static DbResolution? Walk(PlcDb db, PlcDbInterface top, IReadOnlyList<long> elements)
+    private static DbResolution? Walk(string rootName, PlcDbInterface top, IReadOnlyList<long> elements)
     {
         var current = top;
         var prefix = "";
@@ -113,7 +121,7 @@ public static partial class DbPathResolver
                 }
             }
         }
-        return leaf is null ? null : new DbResolution(PlcLookup.Found, FormatPath(db, segments), ElementType(PlcMemberTypes.Of(leaf), indexed), comment);
+        return leaf is null ? null : new DbResolution(PlcLookup.Found, FormatPath(rootName, segments), ElementType(PlcMemberTypes.Of(leaf), indexed), comment);
     }
 
     /// <summary>Члены на уровне: у корня — верхние (или безымянные разделы FB), глубже — по <c>ParentId</c>.</summary>
@@ -177,10 +185,10 @@ public static partial class DbPathResolver
     /// имя, начинающееся с цифры, — без кавычек (<c>2GraphIn1Chart</c>).
     /// </summary>
     /// <returns>Текст пути.</returns>
-    private static string FormatPath(PlcDb db, List<(string Name, string Index)> segments)
+    private static string FormatPath(string rootName, List<(string Name, string Index)> segments)
     {
         var parts = segments.Select(s => Quote(s.Name) + s.Index);
-        return string.Join('.', parts.Prepend(Quote(db.Name ?? db.Number.ToString())));
+        return string.Join('.', parts.Prepend(Quote(rootName)));
     }
 
     /// <summary>Имя в кавычках, если в нём есть символ, кроме буквы, цифры и <c>_</c>.</summary>

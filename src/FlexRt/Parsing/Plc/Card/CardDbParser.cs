@@ -10,6 +10,9 @@ internal static class CardDbParser
     /// <summary>Старшие 16 бит RID объекта DB; младшие — номер DB (наблюдение: 95 DB карты, номера совпали со ссылками панели).</summary>
     private const long DbClass = 0x8a0e;
 
+    /// <summary>Старшие 16 бит RID объекта пользовательского типа (UDT) — наблюдение на двух картах.</summary>
+    private const long UdtClass = 0x89fd;
+
     /// <summary>
     /// Прочитать все DB карты. Сначала читаются интерфейсы и комментарии членов всех блоков
     /// (комментарии члена FB или UDT лежат у FB или UDT), затем у каждого DB строится интерфейс.
@@ -37,6 +40,34 @@ internal static class CardDbParser
         foreach (var block in blocks.Where(b => IsDb(b.Rid)))
         {
             project.Dbs.Add(ReadDb(block, commentsByName, plcId, project));
+        }
+        foreach (var block in blocks.Where(b => b.Rid >> 16 == UdtClass && b.Xml is not null))
+        {
+            ReadUdt(block, commentsByName, project);
+        }
+    }
+
+    /// <summary>
+    /// Пользовательский тип: интерфейс из XML (<c>DataTypeSource</c>) в <see cref="PlcProject.Udts"/>
+    /// по имени, повтор имени — первый. Интерфейс не строится — сообщение «UDT …» в
+    /// <see cref="PlcProject.Problems"/>.
+    /// </summary>
+    private static void ReadUdt(CardBlock block, Dictionary<string, Dictionary<string, string>> commentsByName, PlcProject project)
+    {
+        if (CardInterfaceBuilder.Name(block.Xml!) is not { } name || project.Udts.ContainsKey(name))
+        {
+            return;
+        }
+        try
+        {
+            if (CardInterfaceBuilder.Build(block.Rid, block.Xml!, commentsByName, block.Comments, block.Section) is { } udt)
+            {
+                project.Udts[name] = udt;
+            }
+        }
+        catch (FwxFormatException e)
+        {
+            project.Problems.Add($"UDT {name}: {e.Message}");
         }
     }
 

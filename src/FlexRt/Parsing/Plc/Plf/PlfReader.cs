@@ -49,6 +49,7 @@ public static class PlfReader
         project.Devices.AddRange(PlfDeviceParser.Read(file));
         PlfTagParser.ReadAll(file, project);
         PlfDbReader.Read(file, project);
+        PlfInterfaceReader.ReadUdts(file, project);
         return project;
     }
 

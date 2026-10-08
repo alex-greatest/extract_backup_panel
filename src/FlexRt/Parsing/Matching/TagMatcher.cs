@@ -69,6 +69,10 @@ public static class TagMatcher
             return link.Absolute ? MatchDbAddress(project, device, link) : MatchDbMember(project, device, link);
         }
 
+        if (link is { Absolute: false, Path.Count: > 1 })
+        {
+            return MatchTagMember(project, device, link);
+        }
         var tag = project.Tags.FirstOrDefault(t => t.PlcId == device.Id && IsSameTag(t, link));
         if (tag is not null)
         {
@@ -80,6 +84,34 @@ public static class TagMatcher
         }
         var lookup = project.UnparsedTags > 0 ? PlcLookup.Unknown : PlcLookup.NotInPlcFile;
         return new PlcMatch(lookup, device.Name, null);
+    }
+
+    /// <summary>
+    /// Член тега I/Q/M пользовательского типа (путь длиннее одного слова): тег — по области и ID
+    /// символа из первого слова, тип — UDT проекта по типу тега (без кавычек), остаток пути —
+    /// в интерфейсе типа (<see cref="DbPathResolver.ResolveTagMember"/>). Найден — тег с путём
+    /// <c>1.Element_1</c>, типом и комментарием члена. Нет тега — не найден (при неразобранных
+    /// тегах ПЛК — <see cref="PlcLookup.Unknown"/>); тип не прочитан — <see cref="PlcLookup.Unknown"/>.
+    /// </summary>
+    /// <returns>Результат поиска.</returns>
+    private static PlcMatch MatchTagMember(PlcProject project, PlcDevice device, PlcLink link)
+    {
+        var tag = project.Tags.FirstOrDefault(t => t.PlcId == device.Id && t.Area == link.Area && t.SymbolId == link.SymbolId);
+        if (tag is null)
+        {
+            return new PlcMatch(project.UnparsedTags > 0 ? PlcLookup.Unknown : PlcLookup.NotInPlcFile, device.Name, null);
+        }
+        if (tag.DataType is not { } type || !project.Udts.TryGetValue(type.Trim('"'), out var udt))
+        {
+            return new PlcMatch(PlcLookup.Unknown, device.Name, null);
+        }
+        var resolved = DbPathResolver.ResolveTagMember(tag.Name, udt, [.. link.Path.Skip(1)]);
+        if (resolved.Lookup != PlcLookup.Found)
+        {
+            return new PlcMatch(resolved.Lookup, device.Name, null);
+        }
+        var member = new PlcTag(resolved.Path, device.Id, resolved.Type.Length == 0 ? null : resolved.Type, "", tag.Area, tag.SymbolId, resolved.Comment);
+        return new PlcMatch(PlcLookup.Found, device.Name, member);
     }
 
     /// <summary>

@@ -25,7 +25,10 @@ internal static class PlfInterfaceReader
     private const long OwnerRelation = 0x00222609;
 
     /// <summary>Классы владельцев интерфейса: FB, DB, UDT.</summary>
-    private static readonly long[] OwnerClasses = [0x00221001, 0x00221002, 0x00221003];
+    private static readonly long[] OwnerClasses = [0x00221001, 0x00221002, UdtClass];
+
+    /// <summary>Класс объекта UDT — владельца корня интерфейса пользовательского типа.</summary>
+    private const long UdtClass = 0x00221003;
 
     /// <summary>Начало имени UDT в объекте корня: <c>BIVE:имя/guid</c>.</summary>
     private static readonly byte[] UdtNameStart = [.. "BIVE:"u8];
@@ -74,6 +77,32 @@ internal static class PlfInterfaceReader
         var result = new PlcDbInterface(rootId, top, kids, udts, ReadComments(file, relations));
         cache[(rootId, withUdts)] = result;
         return result;
+    }
+
+    /// <summary>
+    /// Пользовательские типы проекта: корни интерфейса, владелец которых (связь 0x222609) — UDT
+    /// (класс 0x00221003), по имени из <c>BIVE:имя/guid</c>, со вложенными UDT. Корень, который не
+    /// читается, — сообщение «UDT …» в <see cref="PlcProject.Problems"/>, остальные читаются.
+    /// </summary>
+    public static void ReadUdts(PlfFile file, PlcProject project)
+    {
+        var cache = new Dictionary<(long, bool), PlcDbInterface>();
+        foreach (var root in file.OfClassById(RootClass))
+        {
+            var owner = PlfRelations.Scan(file, root).FirstOrDefault(r => r.Type == OwnerRelation && OwnerClasses.Contains(r.Class));
+            if (owner.Class != UdtClass || UdtName(file.Binary, root) is not { } name || project.Udts.ContainsKey(name))
+            {
+                continue;
+            }
+            try
+            {
+                project.Udts[name] = Read(file, cache, root.Id, true);
+            }
+            catch (FwxFormatException e)
+            {
+                project.Problems.Add($"UDT {name}: {e.Message}");
+            }
+        }
     }
 
     /// <summary>

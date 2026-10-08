@@ -17,8 +17,8 @@ public static class DatalinkReadWrParser
     /// <summary>Длина общей части элемента, которая читается у любого элемента.</summary>
     private const int CommonSize = 0x20;
 
-    /// <summary>Флаг ID символа I/Q/M/C/T (наблюдение: всегда 0x40000000); в проекте ПЛК его нет.</summary>
-    private const long SymbolIdFlag = 0x40000000;
+    /// <summary>Значение слова пути без вида в старшем полубайте: ID символа I/Q/M/C/T без флага (в проекте ПЛК флага нет).</summary>
+    private const long SymbolValueMask = 0x0fffffff;
 
     /// <summary>
     /// Прочитать таблицу DATALINK_READWR и добавить связи в <see cref="FwxDocument.Links"/>
@@ -119,7 +119,9 @@ public static class DatalinkReadWrParser
     /// <summary>
     /// Символьный доступ: <c>+0x1f</c> K — число уровней пути, <c>+0x20</c> область (0x50..0x54
     /// или 0x8a0e0000 + номер DB), <c>+0x24</c> хэш, <c>+0x28</c> K слов пути, за ними размер в
-    /// битах (+2) и число элементов (+4). У I/Q/M/C/T путь из одного ID символа с флагом 0x40000000.
+    /// битах (+2) и число элементов (+4). У I/Q/M/C/T первое слово — ID символа (вид в старшем
+    /// полубайте: 4 — тег целиком, 2 — тег пользовательского типа, дальше LID его членов, как у DB;
+    /// наблюдение на тестовом проекте: <c>20000088 4000000d</c> — член <c>Element_1</c> тега <c>1</c>).
     /// </summary>
     /// <returns>Связь; не разобрана, если область незнакома.</returns>
     private static PlcLink ReadSymbolic(FwxBinary b, PlcLink common, int levels)
@@ -129,7 +131,7 @@ public static class DatalinkReadWrParser
         var area = PlcAreaCodes.FromSymbolic(code);
         var path = Enumerable.Range(0, levels).Select(i => b.D4(p + 0x28 + i * 4L)).ToList();
         var after = p + 0x28 + levels * 4L;
-        var symbolId = area is not null and not PlcArea.DataBlock && levels > 0 ? path[^1] & ~SymbolIdFlag : 0;
+        var symbolId = area is not null and not PlcArea.DataBlock && levels > 0 ? path[0] & SymbolValueMask : 0;
         return common with
         {
             Area = area,

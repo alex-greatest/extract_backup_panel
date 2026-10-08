@@ -86,6 +86,28 @@ public sealed class SampleRunTests
     }
 
     /// <summary>
+    /// <c>samples/plc-udt/</c> — тот же тестовый проект с одним ПЛК, пользовательским типом
+    /// <c>User_data_type_1</c>, тегом входов <c>1</c> этого типа и DB <c>Data_block_1.ddd</c>; в
+    /// панели TIA оставил только используемые элементы — HMI-теги <c>xxxx_1.Element_1</c> и
+    /// <c>xxxx_2.Element_1</c>. Код 0, все 49 PLC-тегов найдены: член тега входов —
+    /// <c>1.Element_1</c>, член DB — <c>Data_block_1.ddd.Element_1</c>, как в TIA; лист «Теги»
+    /// совпадает с эталоном.
+    /// </summary>
+    [Fact]
+    public void UdtPanel_TagAndDbMembers_MatchExpected()
+    {
+        using var dir = new TestDirectory();
+        var plc = RepositoryPaths.InRepo("samples/plc-udt/PEData.plf");
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc-udt/pdata.fwc"), plc, dir.OutDir);
+
+        RunAssertions.ExitCode(run, 0);
+        RunAssertions.HasLine(run.StdOut, "Тегов: 68");
+        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} (ПЛК: 1, тегов ПЛК: 49)");
+        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc-udt/теги.txt");
+        SummarySheetDump.Contains(dir.PanelDataWorkbook, "ПЛК=PLC_1", "Блоков данных (DB)=1");
+    }
+
+    /// <summary>
     /// <c>samples/plc/pdata.fwc</c> (два соединения с ПЛК) с <c>samples/plc/PEData.plf</c>:
     /// сознательно не поддерживается — сводка панели напечатана, затем сообщение «не
     /// поддерживается» в stderr, код 1, файлы результата не созданы.
