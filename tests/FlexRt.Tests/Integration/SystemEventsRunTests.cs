@@ -10,11 +10,12 @@ namespace FlexRt.Tests.Integration;
 public sealed class SystemEventsRunTests
 {
     /// <summary>
-    /// <c>samples/pdata.fwc</c> (Project1, TIA V17, English): 585 событий по возрастанию ID,
-    /// первое — 9999, последнее — 620000; текст с апострофом в начале сохраняется целиком.
+    /// <c>samples/pdata.fwc</c> (Project1, TIA V17, English): лист целиком совпадает с эталоном
+    /// <c>samples/expected/системные-события.txt</c> — 585 событий по возрастанию ID, сверенных со
+    /// списком System events из TIA; текст с апострофом в начале сохраняется целиком.
     /// </summary>
     [Fact]
-    public void SamplePanel_EnglishEvents()
+    public void SamplePanel_EnglishEvents_MatchExpected()
     {
         using var dir = new TestDirectory();
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
@@ -23,12 +24,9 @@ public sealed class SystemEventsRunTests
         RunAssertions.HasLine(run.StdOut, "Системных событий: 585");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Системных событий=585");
         var rows = SystemEventsSheetDump.Read(dir.PanelDataWorkbook);
-        Assert.Equal(586, rows.Count);
-        Assert.Equal("ID | 0x409 — English (United States)", rows[0]);
-        Assert.Equal("9999 | Global: Unknown error %1,%2,%3,%4,%5,%6,%7,%8,%9.", rows[1]);
-        Assert.Contains("10108 | Tag", rows);
+        var expected = File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/системные-события.txt"));
+        Assert.Equal(expected, rows);
         Assert.Contains("200102 | 'Project ID' area pointer: Error in type conversion.", rows);
-        Assert.Equal("620000 | %1", rows[^1]);
     }
 
     /// <summary>

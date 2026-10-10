@@ -20,7 +20,8 @@ public static class SysMsgHandlerParser
 
     /// <summary>
     /// Прочитать таблицу SYSMSGHANDLER и добавить события в <see cref="FwxDocument.SystemEvents"/>
-    /// в порядке файла. Нет таблицы в TOC — ничего не делает. Байты после списка не разбираются:
+    /// в порядке файла. Элементов в файлах один; если их несколько, события всех элементов идут
+    /// подряд в один список. Нет таблицы в TOC — ничего не делает. Байты после списка не разбираются:
     /// в Project1 их нет, в A603A0097 — 40 байт неизвестной структуры.
     /// </summary>
     /// <exception cref="FwxFormatException">Элемент выходит за пределы таблицы или список событий — за пределы элемента.</exception>
@@ -39,7 +40,7 @@ public static class SysMsgHandlerParser
     }
 
     /// <summary>
-    /// Один элемент: число событий на <see cref="CountOffset"/>, с <see cref="PairsOffset"/> —
+    /// Один элемент таблицы: число событий на <see cref="CountOffset"/>, с <see cref="PairsOffset"/> —
     /// пары (номер события, номер строки текста). Каждое событие сразу добавляется в документ.
     /// </summary>
     /// <exception cref="FwxFormatException">Элемент короче заголовка или список событий не помещается в элемент.</exception>

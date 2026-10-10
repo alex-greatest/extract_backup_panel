@@ -1,0 +1,586 @@
+ID | 0x409 — English (United States)
+9999 | Global: Unknown error %1,%2,%3,%4,%5,%6,%7,%8,%9.
+10000 | Print: Unknown error %1.
+10001 | Printing not possible: no default printer available.
+10002 | Overflow: graphics will not be printed.
+10003 | Overflow status on printing of graphics ended.
+10004 | Overflow: lines in text mode will not be printed.
+10005 | Overflow status on printing of text lines ended.
+10006 | Printer error %1: %2.
+10100 | No.
+10101 | Time
+10102 | Date
+10103 | AGR
+10104 | Status
+10105 | PLC
+10106 | Recipe
+10107 | Data record
+10108 | Tag
+10109 | Type
+10110 | Value
+10111 | Number
+10112 | Recipe does not contain any data records.
+10113 | Recipe does not contain data record %1.
+10114 | There are no recipes.
+10115 | There are no data records with numbers between %1 and %2.
+10116 | Name
+10117 | RecordID
+10118 | Time stamp
+10119 | DeltaToUTC
+10120 | UserID
+10121 | ObjectID
+10122 | Description
+10123 | Comments
+20010 | Error %1 in script <%2> in line %3.
+20011 | Error %1 in line %2 of called script <%3> of script <%4>.
+20012 | Error in script <%1> during access to tag/system function.
+20013 | Error creating scripts; error code: %1.
+20014 | Return value of script <%1> could not be assigned.
+20015 | Overflow: script <%1> is rejected.
+20016 | Warning: script <%1> has already been running longer than %2 seconds.
+30010 | Error writing a tag, error code: %1,%2.
+30011 | Invalid value %1 in parameter %2, error code: %3.
+30012 | Invalid value %1 in parameter %2, valid range [%3 - %4], error code: %5.
+40010 | Error in system function 'LinearScaling', error code: %1,%2.
+40011 | Error in system function 'IncreaseValue' or 'DecreaseValue', error code: %1,%2.
+50000 | Overflow: no data exchange with the PLC.
+50001 | Overflow status ended: data exchange is running again.
+60000 | %1
+60010 | Error copying the file: %1 to %2, error code: %3.
+60011 | Error copying files, source and destination are identical.
+70010 | Error starting the application: %1, error code: %2,%3.
+70011 | Date/time could not be set, error code: %1,%2.
+70012 | Cannot exit Windows, error code: %1.
+70013 | Invalid input of date/time.
+70014 | Date/time could not be set.
+70015 | Date/time could not be read.
+70016 | Cannot select screen number %1.
+70017 | Area pointer 'Date/Time', PLC address error.
+70018 | User administration imported successfully.
+70019 | User administration exported successfully.
+70020 | Alarm reporting is activated.
+70021 | Alarm reporting is deactivated.
+70022 | User administration import started.
+70023 | User administration export started.
+70024 | Error in system function 'IncreaseValue': Tag range exceeded.
+70025 | Error in system function 'DecreaseValue': Tag range exceeded.
+70026 | Cannot move back one screen. No more screens saved.
+70027 | Backup of the RAM file system has been started.
+70028 | RAM file system backup successful.
+70029 | Backup of the RAM file system has failed. Error code: %1.
+70030 | Parameter error in system function 'ChangeConnection'. Error code: %1.
+70031 | Error in system function 'ChangeConnection': Authorized only for S7 PLCs.
+70032 | Object selection with number in the tab sequence: %1 not possible.
+70033 | No connection to SMTP server or authentication not possible.
+70034 | Connection to SMTP server established.
+70036 | No SMTP server configured.
+70037 | Cannot send e-mail.
+70038 | Domain of recipient is unknown or authentication not possible.
+70039 | %1 : invalid e-mail address.
+70040 | %1 : invalid return address in e-mail.
+70041 | User administration import aborted with error.
+70042 | Error in system function 'LinearScaling': Tag value range exceeded.
+70043 | Error in system function 'InvertLinearScaling': Tag value range exceeded.
+70044 | One or more e-mails could not be sent. Please check the SMTP settings %1
+70045 | One or more encrypted e-mails could not be sent.
+70046 | One or more encrypted e-mails could not be sent. %1
+70047 | One or more encrypted e-mails could not be sent. It is not possible to establish an encrypted connection.
+70048 | The device '%1' can now be removed.
+70049 | Device '%1' cannot be stopped right now.
+70050 | Controller %1: The operating mode of the controller could not be set.
+70051 | Controller %1: The operating mode of the controller could not be read.
+70052 | Controller %1: The system time of the controller could not be set.
+80001 | Log %1 is %2 percent full and must be swapped out.
+80002 | Error saving a line in log %1.
+80003 | Error copying a log to %1.
+80006 | ODBC(ADO) error: Cannot log to log %1.
+80009 | Log copied successfully.
+80010 | Invalid path for log %1.
+80012 | Logging overload - values will be lost.
+80013 | Logging overload status has ended.
+80014 | Log copy in progress, new activation ignored.
+80015 | %1
+80016 | The buffer for the log is full. Data will be rejected.
+80017 | The buffer for the log is full. Actions will be rejected.
+80019 | All logs have been closed successfully.
+80020 | Overload: Log copy will not be executed.
+80021 | Log copy in progress. Deletion not possible at present.
+80022 | Incorrect type. Change to next log is not possible.
+80023 | Source and target are identical. Log cannot be copied.
+80024 | Destination log not empty. Log cannot be copied.
+80025 | Log copy aborted by user.
+80026 | Log initialization ended. All logs OK.
+80027 | Log %1: Internal flash is not a valid storage medium.
+80028 | Log initialization started.
+80029 | Log initialization ended. %1 logs reported errors.
+80030 | The %1 table columns do not fit. Stopping log.
+80031 | A CSV log is corrupt. Please delete the file.
+80032 | Log %1 is already full. Event will not be triggered.
+80033 | Automatic DSN generation failed.
+80034 | Initialization error, backup generation and reset successful.
+80035 | Initialization error, backup generation and reset failed.
+80036 | Logs
+80037 | Copy log '%1' to '%2'.
+80038 | Clear content of log '%1'.
+80039 | Start of log '%1'.
+80040 | Stop of log '%1'.
+80041 | Change over to next log '%1'.
+80042 | Start Audit Trail '%1'. All GMP relevant user actions will be logged.
+80043 | Stop Audit Trail '%1'. No user actions will be logged.
+80044 | Found job ('%1') of function 'ExportLog' in file system, trying to complete job.
+80045 | Job ('%1') of function 'ExportLog' failed, retrying to complete job in %2 seconds.
+80046 | The destination file '%1' could not be written while exporting log '%2'.
+80047 | The log '%1' could not be read while exporting it.
+80048 | The log '%1' was successfully exported to '%2'.
+80049 | The log '%1' could not be renamed to '%2' while preparing to export it. The job can not be completed.
+80050 | The log '%1' that you want to export is not closed. 
+80051 | The log %1 contains an invalid checksum as of line %2.
+80052 | Error during read access to log %1
+80053 | Error during read access to closed log %1
+80054 | Initialization of logs, determination of storage medium.
+90000 | Alarm
+90001 | Acknowledgment of alarm %1 of PLC %2.
+90002 | Acknowledgment of alarm %1 of PLC %2; this alarm is part of acknowledgment group %3.
+90003 | Signed
+90004 | Forced
+90005 | Tag
+90006 | Changing the tag value from '%1' to '%2'.
+90007 | Change cannot be made due to a limit violation.
+90008 | Change failed and was recalled.
+90009 | System
+90010 | WinCC Runtime %1
+90011 | Please confirm the following action by signing / through signature.
+90012 | Please confirm the following intended action with a comment.
+90013 | Please confirm the following intended action.
+90014 | <unknown object>
+90015 | <unknown current value>
+90016 | <unknown new value>
+90017 | Application
+90018 | <unknown user>
+90019 | Runtime start of %1 on HMI device %2. Project: '%3.%4 - %5' Build %6, created with %7
+90020 | New log file during run of %1 on HMI device %2. Project: '%3.%4 - %5' Build %6, created with %7.
+90021 | Stopping program run of %1 on device %2.
+90022 | Log files open again.
+90023 | Log files closed.
+90024 | No operator actions can be logged due to lack of space on the storage medium for log '%1'. The operator action will not be executed.
+90025 | Because of error state of the log '%1' no user actions can be logged. Therefore the user action will not be executed.
+90026 | No operator actions can be logged because the log is closed. The operator action will not be executed.
+90027 | Audit Trail
+90028 | The entered password is incorrect, please try again.
+90029 | The last known sequential number for operator actions differs from the number in the log. Continuing with a higher number %1.
+90030 | The last program run was not correctly exited. This may result in the loss of data.
+90031 | Continuing with sequential number %1 for the operator actions because the last program run was not exited correctly.
+90032 | Running out of space on the storage medium for log '%1'.
+90033 | No more space on the storage medium for log '%1'. As of now, no more operator actions requiring logging will be executed.
+90034 | <unknown>
+90035 | Shutting down application.
+90036 | Shutting down application due to problem with power supply.
+90037 | Close all logs.
+90038 | Open all logs.
+90039 | Forcing a user action requires authorization 'Administration'.
+90040 | Audit Trail is switched off because of a forced user action.
+90041 | A user action which has to be logged has been triggered without a logged on user.
+90042 | Exporting a log.
+90043 | Some information was lost when trying to write to the log previously.
+90044 | A user action which has to be confirmed was blocked, because there is another user action pending.
+90045 | Acknowledgment of alarm %1.
+90046 | Acknowledgment of alarm %1; this alarm is part of alarm group %2.
+90047 | Changing the tag value from '%1' to '%2' by entering '%3'.
+90048 | Printing not possible: Please stop the logging of data relevant to Audit Trail.
+90049 | There was an error during access to %1. The procedure was cancelled.
+90050 | Data logs
+90051 | Alarm logs
+90052 | Change of the tag value '%1' from '%2' to '%3'.
+90053 | Change of the tag value '%1' from '%2' to '%3' by entering '%4'.
+90054 | Change to tag %1 cannot be made due to a limit violation.
+90055 | Change of the tag %1 failed and was recalled.
+90056 | The recipe import could not be executed. %1 does not contain a checksum.
+90057 | The recipe import could not be executed. %1 contains an invalid checksum as of line %2.
+90058 | The verification of the checksum for file %1 during recipe import was successful.
+110000 | Change to operating mode 'offline'.
+110001 | Change to operating mode 'online'.
+110002 | Cannot change operating mode.
+110003 | Controller %1: Change to operating mode 'offline'.
+110004 | Controller %1: Change to operating mode 'online'.
+110005 | Controller %1: The operating mode could not be changed.
+110006 | Invalid project ID. Terminating WinCC Runtime.
+120000 | Trend no. %1 cannot be displayed referenced to a time axis.
+120001 | Trend no. %1 required to display a time axis.
+120002 | Trend %1: PLC address error.
+130000 | Insufficient RAM space available.
+130001 | Insufficient hard disk space available.
+130002 | Insufficient virtual memory available.
+130003 | Error: No data medium inserted. Operation will be aborted.
+130004 | Error: The floppy disk is write-protected. Operation will be aborted.
+130005 | Error: The file is write-protected. Operation will be aborted.
+130006 | Error. File access violation. Operation will be aborted.
+130007 | Error: Network connection interrupted.
+130008 | Error: Storage card not available.
+130009 | Error: Storage card directory not on a storage card.
+130010 | Error: Maximum nesting depth exceeded.
+130011 | SIMATIC WinCC Runtime
+130012 | You must exit WinCC Runtime before you can place the computer in standby mode.
+130013 | Storage card not available: %1
+140000 | Connection established: %1, Station %2, Rack %3, Slot %4.
+140001 | Connection disconnected: %1, Station %2, Rack %3, Slot %4.
+140003 | General connection error %1.
+140004 | Incorrect access point or module configuration.
+140005 | Incorrect HMI device address.
+140006 | Invalid baud rate.
+140007 | Error in bus profile, error code: %1.
+140008 | Error in configuration data on bus profile, error code: %1.
+140009 | Module for S7 communication not found.
+140010 | No S7 communication peer found.
+140011 | Interference on bus.
+140012 | Communication drivers cannot be loaded.
+140013 | PC/TS adapter does not respond.
+140014 | Configured bus address already assigned.
+140015 | Incorrect baud rate or interrupt number set.
+140016 | Configured interrupt is not supported by the hardware.
+140017 | Configured interrupt in used by another driver.
+140018 | Consistency check disabled: %1.
+140019 | Reconfiguration of PLC: %1.
+140020 | Error in consistency check or reconfiguration running: %1.
+140021 | The legitimation of connection %1 failed. The password is incorrect!
+140022 | The PLC is protected. A password must be configured for connection %1!
+140023 | Error during time synchronization: The system time of PLC %1 could not be read.
+140024 | Error during time synchronization: The system time of PLC %1 could not be written.
+140025 | Legitimation of connection %1 failed. The password is locked. Please unlock it locally (for example, on the display).
+150000 | Connection to interface %1 is interrupted.
+150001 | Connection to interface %1 is restored.
+160000 | Connection to PLC %1 %2 is interrupted.
+160001 | Connection to PLC %1 %2 is restored.
+160010 | No connection, access to %1 %2 denied.
+160011 | No connection, server %1 %2 not registered.
+160012 | No connection to %1 %2, error code: %3.
+160013 | Warning: InProc activation of server %1 not released.
+160014 | OPC server project already started. Second OPC server not possible.
+160015 | The time stamps of the client and the OPC UA server do not match.
+160016 | Error in the OPC UA connection. Offline mode will be activated.
+160017 | OPC UA connection error: Unable to establish connection to server %1.
+170000 | %1 Logon to S7 diagnostics not possible.
+170001 | %1 Cannot read diagnostics buffer: PLC not online.
+170002 | %1 Cannot read diagnostics buffer, error code: %2.
+170003 | %1 Diagnostics not possible, error code: %2.
+170004 | %1 Diagnostics not possible, error code: %2,%3.
+170007 | %1 Reading of diagnostics buffer not possible, error code: %2,%3.
+170008 | Error while reading the diagnostic buffer.
+180000 | Component %1: data version %2 is not supported.
+180001 | Overload: Too many simultaneous actions.
+180002 | Screen keyboard not available.
+180003 | unknown
+190000 | Tag %1: unknown error.
+190001 | Tag %1: error status ended.
+190002 | Tag %1: no processing because PLC is not online.
+190004 | Tag %1: PLC address error.
+190005 | Tag %1: unknown PLC type.
+190006 | Tag %1: data type of tag does not match PLC type.
+190007 | Tag %1: value change not possible.
+190008 | Tag %1: limit violation. Currently [%2 - %3].
+190009 | Tag %1: maximum value range exceeded.
+190010 | Tag %1: overflow, values are lost.
+190011 | Tag %1: value could not be written to the PLC.
+190012 | Tag %1: conversion error.
+190013 | Tag %1: String length exceeded. String has been shortened to %2 characters.
+190100 | Area pointer type: %1, no. %2 PLC address error.
+190101 | Area pointer type: %1, no. %2 internal error.
+190102 | Area pointer type: %1, no. %2 error status ended.
+200000 | %1: address for area pointer not available.
+200001 | %1: cannot write to area pointer.
+200002 | %1: error during type conversion.
+200003 | %1: error status ended.
+200004 | %1: unknown error.
+200005 | %1: connection faulty.
+200100 | No address for 'Project ID' area pointer.
+200101 | Cannot write 'Project ID' area pointer.
+200102 | 'Project ID' area pointer: Error in type conversion.
+200103 | 'Project ID' area pointer: Error state closed.
+200104 | 'Project ID' area pointer: Unknown error.
+200105 | 'Project ID' area pointer: Connection error.
+210000 | 'Job mailbox' area pointer for connection %1: No address for area pointer.
+210001 | 'Job mailbox' area pointer for connection %1: Cannot read/write area pointer.
+210002 | 'Job mailbox' area pointer for connection %1: Error in type conversion.
+210003 | 'Job mailbox' area pointer for connection %1: Error state closed.
+210004 | 'Job mailbox' area pointer for connection %1: Unknown error.
+210005 | Job mailbox no: %1 invalid.
+210006 | Job mailbox no. %1 terminated with error.
+220000 | Communication driver alarm: %1.
+220001 | Communication driver %1: writing to data type bool/bit not supported.
+220002 | Communication driver %1: writing to data type byte not supported.
+220003 | Communication driver %1: loading failed.
+220004 | Communication driver %1: connection interrupted.
+220005 | Communication driver %1: connection established.
+220006 | Connection to PLC %1 (%2) is established.
+220007 | Connection to PLC %1 (%2) is interrupted.
+220008 | Interface %1 cannot be opened.
+220009 | The format of the communication path is invalid.
+220010 | General certificate error for PLC %1, detail error code %2
+220011 | PLC certificate expired for %1, detail error code %2
+220012 | Certificate for PLC %1 is revoked, detail error code %2
+220013 | PLC %1 is untrusted, manual trust is possible, detail error code %2
+220014 | PLC %1 is untrusted, manual trust is impossible, detail error code %2
+230000 | Invalid entry.
+230002 | Entry rejected.
+230003 | Screen not available.
+230005 | Value range exceeded. Valid range [%1 - %2].
+230100 | Message from Web browser: %1, %2.
+230200 | The connection from %1 to %2 is interrupted.
+230201 | The connection from %1 to %2 has been reestablished.
+230202 | An error has occurred. WININET.DLL reports the following error: number : %1 text:%2.
+230203 | An error has occurred. The HTTP server reports the following error: number : %1 text:%2.
+230300 | Error in the remote display.
+230301 | An internal error has occurred: %1. No connection possible.
+230302 | Cannot determine the address of the remote server. No connection possible.
+230303 | The connection to the remote server has failed. No connection possible.
+230304 | The remote server is incompatible. No connection possible.
+230305 | The authentication has failed. Password incorrect.
+230306 | The connection to the remote server has been interrupted. Connection no longer possible.
+230307 | The remote server has closed the connection.
+230308 | Establishing connection to remote server %1.
+230350 | An encrypted connection was established to the VNC server %1.
+230351 | A non-encrypted connection was established to the VNC server %1.
+230400 | New
+230401 | Save
+230402 | Delete
+230403 | To PLC
+230404 | From PLC
+230405 | Save As
+230406 | Rename
+230407 | Display help
+230408 | Back
+230409 | Open
+230500 | <ENTER>
+230501 | <New user>
+240000 | No License Key available. %1
+240001 | Too many tags (Powertags) have been configured.
+240002 | %1
+240003 | Authorization: Internal error %1.
+240004 | Backup authorization defective, error code: %1.
+240005 | WinCC Runtime has detected a problem with Automation License Manager. Please reinstall Automation License Manager.
+250000 | PLC address error in line %1.
+250001 | Unknown PLC type in line %1.
+250002 | Tag type in line %1 does not match PLC type.
+250003 | Connection to PLC has failed.
+260000 | Invalid password or user name. Logon has failed.
+260001 | You have insufficient authorization.
+260002 | User '%1' logged on with group '%2'.
+260003 | User logged off.
+260004 | This user name already exists. Please enter another user name.
+260005 | The length of the user name must be between 1 and 40 characters.
+260006 | Permitted length of password from %1 to %2 characters is too short or has been exceeded.
+260007 | The logoff time must be between 0 and 60 minutes.
+260008 | The file format of 'PTProRun.pwl' is not compatible. Reading of file canceled.
+260009 | User cannot be deleted.
+260010 | PLC User
+260011 | PLC Password
+260012 | The entered passwords are not identical.
+260013 | The entered password is invalid because it is already in use.
+260014 | User '%1' has failed to log on successfully %2 times. The user has been logged out and assigned to group '%3'.
+260015 | User administration
+260016 | User '%1' has failed to log on successfully %2 times.
+260017 | Password of user '%1' has been changed.
+260018 | User '%1' has been set up with group '%2' and logoff time = %3 min.
+260019 | User '%1' has been deleted.
+260020 | The group of user '%1' has been changed from '%2' to '%3'.
+260021 | The logoff time of user '%1' has been changed from %2 min. to %3 min.
+260022 | User '%1' has been renamed to '%2'.
+260023 | Unauthorized
+260024 | The password has to have at least one number.
+260025 | The password has to have at least %1 characters.
+260026 | The password has to have at least one special character.
+260028 | SIMATIC Logon: Server is not available. Only logon by a local user is possible.
+260029 | SIMATIC Logon: User is not assigned to any specific group. User will be logged off.
+260030 | SIMATIC Logon: Password could not be changed. User will be logged off.
+260031 | SIMATIC Logon: User could not be logged on.
+260032 | SIMATIC Logon: User could not be logged on. The user account is blocked.
+260033 | SIMATIC Logon: Error
+260034 | A logon operation is currently active. Please wait.
+260035 | Attempting to change the password. Please wait.
+260036 | Check the licenses on the SIMATIC Logon Server. A logon was still possible.
+260037 | Logon via the SIMATIC Logon Server is not possible because of missing licenses. Only local logon is possible.
+260038 | Attempting to establish a connection to the SIMATIC Logon server.
+260039 | Connection to SIMATIC Logon Server possible.
+260040 | SIMATIC Logon: Cannot reach the %1 domain. Use local users.
+260041 | The password entered is not valid.
+260042 | The user %1 cannot be created because the password is invalid.
+260043 | SIMATIC Logon: User '%1' could not be logged on.
+260044 | SIMATIC Logon: User '%1' could not be logged on. The user account is blocked.
+260045 | SIMATIC Logon: User '%1' is not assigned to any specific group. User will be logged off.
+260048 | The control task 'Logon' failed because there is no group with the ID '%1' in the project.
+270000 | Alarm no. %1: PLC address error.
+270001 | Overflow: Pending alarms will be rejected.
+270002 | No configuration data available for alarms from the log.
+270003 | The SIMOTION message service cannot be created.
+270004 | Access to persistent alarm buffer is not possible: Alarms cannot be restored or saved.
+270005 | Persistent alarm buffer damaged: Alarms cannot be restored.
+270006 | Project modified: Alarms cannot be restored from the persistent alarm buffer.
+270007 | Single alarms cannot be restored from the persistent alarm buffer.
+280000 | Connection to PLC %1 is established.
+280001 | Connection to PLC %1 is interrupted.
+280002 | Program in PLC %1 has responded.
+280003 | Program in PLC %1 is not responding, error code: %2.
+280004 | Communication error to PLC %1, error code: %2, %3.
+290000 | Recipe tag %1: PLC address error.
+290001 | Data record tag %1: maximum value range exceeded.
+290002 | Data record tag %1: conversion error.
+290003 | More than 5 recipe tags: PLC address error.
+290004 | More than 5 data record tags: maximum value range exceeded.
+290005 | More than 5 data record tags: conversion error.
+290006 | Limit violation. Currently [%1 - %2].
+290007 | Invalid data record tag %1: value rejected.
+290008 | Start value is used for tag %1 in recipe %2.
+290010 | Invalid storage location for recipe %1.
+290011 | Data record %1 does not exist.
+290012 | Recipe %1 does not exist.
+290013 | Data record %1 already exists.
+290014 | File %1 does not exist.
+290020 | Data record %1: Transfer to PLC started.
+290021 | Data record %1: Transfer to PLC successfully completed.
+290022 | Data record %1: Transfer to PLC aborted with error.
+290023 | Data record %1: Transfer from PLC started.
+290024 | Data record %1: Transfer from PLC successfully completed.
+290025 | Data record %1: Transfer from PLC aborted with error.
+290026 | Transfer not possible: Reset data mailbox on PLC.
+290027 | Transfer not possible: No connection to PLC.
+290030 | The data record may have changed.\nReload data record ?
+290031 | Data record %1 of recipe %2 already exists. Overwrite data record?
+290032 | File %1 already exists.\nOverwrite file?
+290033 | Do you really want to delete data record %1 in recipe %2?
+290040 | General data record error. Error code: %1.
+290041 | Data medium is full.
+290042 | Cannot edit data records because a recipe action is already running.
+290043 | Save changes to data record %1 of recipe %2?
+290044 | Data storage for this recipe is corrupt and will be deleted.
+290050 | Export of data records started.
+290051 | Export of data records successfully completed.
+290052 | Export of data records aborted with error.
+290053 | Import of data records started.
+290054 | Import of data records successfully completed.
+290055 | Import of data records aborted with error.
+290056 | Import/Export: Error in file %1; line %2; column %3.
+290057 | The tags in recipe %1 are 'online'.
+290058 | The tags in recipe %1 are 'offline'.
+290059 | Data record no. %1 has been successfully saved.
+290060 | Data record memory was successfully deleted.
+290061 | Delete data record memory operation aborted with error.
+290062 | Maximum data record number range exceeded.
+290063 | File exists already.
+290064 | Deletion of data records started.
+290065 | Deletion of data records successfully completed.
+290066 | Do you really want to delete the recipe files?
+290067 | Save as
+290068 | Do you really want to delete all data records in recipe %1?
+290069 | Do you really want to delete all data records in all recipes?
+290070 | Data record %1 does not exist in file %2.
+290071 | Lower limit exceeded.
+290072 | Upper limit exceeded.
+290073 | Error: action aborted.
+290074 | %1: A data record with the no. %2 already exists. Do you want to overwrite data record %3 with data record %4?
+290075 | Data record name already exists.
+290076 | Data record %1: Save displayed data record to data medium. 
+290077 | Data record %1: Saving displayed data record aborted due to error. 
+290078 | Data record %1: Save tags to data medium.
+290079 | Data record %1: Saving tags aborted due to error. 
+290080 | Data record %1: Save displayed data record in data medium %2. 
+290081 | Data record %1: Saving of displayed data record %2 aborted due to error. 
+290082 | Data record %1: Displayed data record deleted.
+290083 | Data record %1: Deletion of displayed data record aborted due to error. 
+290084 | Data record %1: Synchronization executed.
+290085 | Data record %1: Synchronization aborted due to error. 
+290086 | Data record %1: Transfer displayed data record to PLC.
+290087 | Data record %1: Transfer of displayed data record to PLC aborted due to error. 
+290088 | Data record %1: Transfer data from PLC to displayed data record. 
+290089 | Data record %1: Transfer of data from PLC aborted due to error. 
+290090 | Data record %1: Rename displayed data record to %2. 
+290091 | Data record %1: Renaming to %2 aborted due to error. 
+290092 | Data record %1: Transfer data medium to PLC.
+290093 | Data record %1: Transfer of data medium aborted due to error. 
+290094 | Data record %1: Transfer data from PLC to data medium.
+290095 | Data record %1: Transfer from PLC aborted due to error. 
+290096 | Transfer tags to PLC.
+290097 | Transfer of tags aborted due to error. 
+290098 | Transfer data from PLC to tags.
+290099 | Transfer of data from PLC aborted due to error. 
+290100 | Data record %1: Import data from file.
+290101 | Data record %1: Import data from file aborted due to error. 
+290102 | Data record %1: Load data medium to displayed data record.
+290103 | Data record %1: Loading of data medium to displayed data record aborted due to error. 
+290104 | Data record %1: Load data medium to tag.
+290105 | Data record %1: Loading of data medium to tags aborted due to error. 
+290106 | Set update of recipe tags 'Online'.
+290107 | Set update of recipe tags 'Offline'.
+290108 | Setting of recipe tags 'Online/Offline' aborted due to error. 
+290109 | Set default values for recipe. 
+290110 | Setting of default values aborted due to error.
+300000 | Overflow: Pending ALARM_S alarms in %1 will be rejected.
+300001 | Controller %1: Cannot log on for Alarm-S service.
+300100 | The CPU %1 no longer has sufficient resources. Controller alarms will not be displayed.
+300101 | Controller alarms have different versions. Please update your configuration.
+300102 | Limited resources. Repeat process.
+300103 | Controller %1 does not support automatic update of alarm texts.
+310000 | Print job rejected. Only one report can be printed at a time.
+310001 | Printing of report %1 aborted due to error.
+330001 | Yes
+330002 | No
+330003 | Cancel
+330004 | OK
+330005 | ?
+330006 | Login
+330007 | User:
+330008 | Password:
+330009 | Data record no.:
+330010 | Data record name:
+330011 | Rename
+330012 | Group:
+330013 | Logoff time:
+330014 | Data record
+330015 | Name:
+330016 | Number:
+330017 | !
+330024 | New password:
+330025 | Confirmation:
+330026 | Password expiry: %1 day(s)
+330027 | Password has expired
+330028 | Comment
+330029 | Action
+330030 | Required field
+330031 | Force
+330032 | Change password
+330049 | Select file
+330050 | Select path
+330051 | Name
+330052 | Type
+330053 | Size
+330054 | Last change
+330055 | All files
+330056 | File browser
+330057 | New folder
+330058 | Delete
+330059 | Rename
+330060 | \'%s\' cannot be found. Make sure that the correct path is specified.
+330061 | It is not possible to access \'%s\'. Check the access authorizations.
+330062 | A new folder could not be created in the specified path.
+330063 | The selected object could not be renamed.
+330064 | The selected object could not be deleted.
+330065 | This link no longer works because the object to which the link refers has been moved or changed.
+330066 | The file browser must be closed due to an unexpected error.
+330067 | Do you really want to move the selected object to the Recycle Bin?
+330068 | Do you really want to delete the selected object?
+330069 | You cannot create any files because this path is read-only.
+330070 | Cannot save in the selected folder. Please specify a different path.
+330071 | New server certificate
+330072 | Do you want to accept the new server certificate?\nOnly accept the server certificate and the connection to Sm@rtServer if you are sure that the certificate is trustworthy.
+340001 | Info text
+340002 | Info text for object
+340003 | Info text for screen
+340004 | No info text available.
+340005 | Complete message text
+380000 | The Sm@rtAccess Web server cannot use default ports 80 (http) and 443 (https) because they are in use; the server will use ports %1 (http) and %2 (https) instead.
+380001 | The Sm@rtAccess Web server cannot use the configured http and https ports because they are in use and has closed.
+380002 | Assign the user name and password for the web services in the WinCC Internet Settings applet, because the web services cannot be executed otherwise.
+380100 | Assign a password for the Sm@rtServer in the WinCC Internet Settings applet, because the connection cannot be established otherwise.
+390000 | Certificate for password decryption cannot be found.
+390001 | Transport password
+390003 | Invalid password
+600000 | %1
+620000 | %1

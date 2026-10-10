@@ -154,6 +154,35 @@ public sealed partial class DamagedInputTests
     }
 
     /// <summary>
+    /// Копия <c>samples/pdata.fwc</c>, в которой смещение единственной записи SYSMSGHANDLER в
+    /// каталоге сдвинуто так, что запись — последние 0x10 байт таблицы, короче заголовка 0x2c.
+    /// Код 1, предупреждение с таблицей и смещением записи, листа «Системные события» нет.
+    /// </summary>
+    [Fact]
+    public void ShortSysMsgHandlerRecord_WarnsAndNoEventsSheet()
+    {
+        using var dir = new TestDirectory();
+        var input = dir.CopyFromRepo("samples/pdata.fwc", "pdata.fwc");
+        var doc = FwxReader.Read(input);
+        var table = doc.FindTable("SYSMSGHANDLER")!;
+        var item = FwxReader.Items(doc.Binary, table).Single();
+        const int shortLength = 0x10;
+        var bytes = File.ReadAllBytes(input);
+        // каталог смещений — сразу за заголовком таблицы 0x34; смещение — от начала блока данных
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan((int)table.Offset + FwxReader.TableHeaderSize), (uint)(item.Length - shortLength));
+        File.WriteAllBytes(input, bytes);
+
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+
+        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasLine(run.StdOut, "Системных событий: 0");
+        RunAssertions.HasLine(run.StdErr,
+            $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SYSMSGHANDLER @ 0x{item.Offset + item.Length - shortLength:X}: запись 1: длина {shortLength} меньше заголовка 0x2c");
+        RunAssertions.NoStackTrace(run);
+        SystemEventsSheetDump.Absent(dir.PanelDataWorkbook);
+    }
+
+    /// <summary>
     /// Проверяет, что у каждого PLC-тега (Connection не <c>&lt;Internal tag&gt;</c>) колонки
     /// PLC name, PLC tag и Source comment — «неизвестно».
     /// </summary>
