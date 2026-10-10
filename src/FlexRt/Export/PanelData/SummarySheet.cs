@@ -13,7 +13,7 @@ public static class SummarySheet
 
     /// <summary>
     /// Добавить лист «Сводка» в книгу. Строки: панель (файл, модель, версия Runtime, IP и маска,
-    /// языки, число строк и тегов), пустая строка, по строке на соединение (имя и IP ПЛК),
+    /// языки, число строк, тегов и системных событий), пустая строка, по строке на соединение (имя и IP ПЛК),
     /// пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя, модель CPU,
     /// IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
     /// </summary>
@@ -46,6 +46,7 @@ public static class SummarySheet
         yield return ("Языки панели", languages.Count == 0 ? Unknown : string.Join(", ", languages));
         yield return ("Строк языков", doc.Strings.Count.ToString());
         yield return ("Тегов панели", doc.Tags.Count.ToString());
+        yield return ("Системных событий", doc.SystemEvents.Count.ToString());
     }
 
     /// <summary>Строки соединений: <c>Соединение HMI1</c> — <c>IP ПЛК 192.168.1.1</c>.</summary>

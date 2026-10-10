@@ -126,6 +126,34 @@ public sealed partial class DamagedInputTests
     }
 
     /// <summary>
+    /// Копия <c>samples/pdata.fwc</c>, в которой число событий SYSMSGHANDLER (+0x2a) — 0xffff:
+    /// список не помещается в запись. Код 1, предупреждение с таблицей и смещением записи,
+    /// «Системных событий: 0», листа «Системные события» нет, лист «Теги» — как в эталоне.
+    /// </summary>
+    [Fact]
+    public void BrokenSysMsgHandler_WarnsAndNoEventsSheet()
+    {
+        using var dir = new TestDirectory();
+        var input = dir.CopyFromRepo("samples/pdata.fwc", "pdata.fwc");
+        var doc = FwxReader.Read(input);
+        var item = FwxReader.Items(doc.Binary, doc.FindTable("SYSMSGHANDLER")!).Single();
+        var bytes = File.ReadAllBytes(input);
+        // +0x2a — число событий, см. SysMsgHandlerParser
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan((int)item.Offset + 0x2a), 0xffff);
+        File.WriteAllBytes(input, bytes);
+
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+
+        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasLine(run.StdOut, "Системных событий: 0");
+        RunAssertions.HasLine(run.StdErr,
+            $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SYSMSGHANDLER @ 0x{item.Offset:X}: запись 1: 65535 событий не помещаются в {item.Length} байт");
+        RunAssertions.NoStackTrace(run);
+        SystemEventsSheetDump.Absent(dir.PanelDataWorkbook);
+        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/теги.txt");
+    }
+
+    /// <summary>
     /// Проверяет, что у каждого PLC-тега (Connection не <c>&lt;Internal tag&gt;</c>) колонки
     /// PLC name, PLC tag и Source comment — «неизвестно».
     /// </summary>

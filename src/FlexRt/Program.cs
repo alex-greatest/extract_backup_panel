@@ -151,7 +151,7 @@ string OutPath(string defaultPath, string nameInOut) => string.IsNullOrWhiteSpac
     ? defaultPath
     : Path.Combine(outOverride, nameInOut);
 
-// Напечатать сводку панели: файл, таблицы TOC, строки, теги, предупреждения разбора; то же — в лог.
+// Напечатать сводку панели: файл, таблицы TOC, строки, теги, системные события, предупреждения разбора; то же — в лог.
 void PrintSummary(FwxDocument doc)
 {
     Console.WriteLine($"Файл:    {fwxPath} ({doc.Binary.Length} байт)");
@@ -162,8 +162,9 @@ void PrintSummary(FwxDocument doc)
     }
     Console.WriteLine($"Строк языков: {doc.Strings.Count}");
     Console.WriteLine($"Тегов: {doc.Tags.Count}");
-    Log.Information("Панель: {Bytes} байт, таблиц {Tables}, строк языков {Strings}, тегов {Tags}, связей с ПЛК {Links}, указателей областей {AreaLinks}, соединений {Connections}",
-        doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
+    Console.WriteLine($"Системных событий: {doc.SystemEvents.Count}");
+    Log.Information("Панель: {Bytes} байт, таблиц {Tables}, строк языков {Strings}, тегов {Tags}, системных событий {SystemEvents}, связей с ПЛК {Links}, указателей областей {AreaLinks}, соединений {Connections}",
+        doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.SystemEvents.Count, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
     foreach (var connection in doc.Connections)
     {
         Log.Information("Соединение {Index}: {Name}, IP ПЛК {Ip}", connection.Index, connection.Name, IpAddressText.Format(connection.Ip));

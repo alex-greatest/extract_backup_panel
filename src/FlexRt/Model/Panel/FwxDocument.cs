@@ -26,6 +26,8 @@ public sealed class FwxDocument
     public List<HmiConnection> Connections { get; } = [];
     /// <summary>Сетевые параметры панели из DEVICE_OMSP в порядке каталога (в файлах — один элемент).</summary>
     public List<HmiDevice> Devices { get; } = [];
+    /// <summary>Системные события из SYSMSGHANDLER в порядке файла.</summary>
+    public List<SystemEvent> SystemEvents { get; } = [];
     /// <summary>Таблицы, которые не удалось разобрать (остальное при этом читается).</summary>
     public List<string> Warnings { get; } = [];
 

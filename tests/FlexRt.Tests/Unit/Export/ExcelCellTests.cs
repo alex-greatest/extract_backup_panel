@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using FlexRt.Export;
 using Xunit;
 
@@ -5,7 +6,7 @@ namespace FlexRt.Tests.Unit.Export;
 
 /// <summary>
 /// Текст ячейки Excel <see cref="ExcelCell.Text"/>: строка длиннее 32767 символов
-/// обрезается (CLAUDE.md, «Установленное поведение», раздел XLSX).
+/// обрезается, апостроф в начале сохраняется (CLAUDE.md, «Установленное поведение», раздел XLSX).
 /// </summary>
 public sealed class ExcelCellTests
 {
@@ -45,5 +46,55 @@ public sealed class ExcelCellTests
     public void Text_FormulaLike_NotAltered()
     {
         Assert.Equal("=SUM(A1:A2)", ExcelCell.Text("=SUM(A1:A2)"));
+    }
+
+    /// <summary>
+    /// Текст с апострофом в начале получает второй апостроф: ClosedXML при записи снимает
+    /// первый как префикс текста Excel.
+    /// </summary>
+    [Fact]
+    public void Text_LeadingApostrophe_Doubled()
+    {
+        Assert.Equal("''Project ID' area pointer", ExcelCell.Text("'Project ID' area pointer"));
+    }
+
+    /// <summary>
+    /// Текст, записанный через <c>SetValue(ExcelCell.Text(...))</c>, читается из ячейки без
+    /// изменений: апостроф в начале, апостроф в середине, перенос строки, пробел в конце.
+    /// </summary>
+    [Theory]
+    [InlineData("'Project ID' area pointer: Unknown error.")]
+    [InlineData("''")]
+    [InlineData("'")]
+    [InlineData("Project ID' area pointer")]
+    [InlineData("File %1 already exists.\nOverwrite file?")]
+    [InlineData("Set default values for recipe. ")]
+    public void Text_WrittenToCell_ReadBackUnchanged(string value)
+    {
+        using var workbook = new XLWorkbook();
+        var cell = workbook.Worksheets.Add("Лист").Cell(1, 1);
+
+        cell.SetValue(ExcelCell.Text(value));
+
+        Assert.Equal(value, cell.GetString());
+    }
+
+    /// <summary>
+    /// Длинный текст с апострофом в начале записывается в ячейку без исключения ClosedXML
+    /// (предел 32767 проверяется до снятия апострофа): в ячейке — первые 32766 символов.
+    /// </summary>
+    [Theory]
+    [InlineData(Limit - 1)]
+    [InlineData(Limit)]
+    [InlineData(Limit + 1)]
+    public void Text_LongWithLeadingApostrophe_WrittenToCell(int length)
+    {
+        var value = "'" + new string('a', length - 1);
+        using var workbook = new XLWorkbook();
+        var cell = workbook.Worksheets.Add("Лист").Cell(1, 1);
+
+        cell.SetValue(ExcelCell.Text(value));
+
+        Assert.Equal(value[..(Limit - 1)], cell.GetString());
     }
 }

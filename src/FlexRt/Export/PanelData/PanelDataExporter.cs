@@ -6,12 +6,13 @@ using FlexRt.Model.Summary;
 
 namespace FlexRt.Export.PanelData;
 
-/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
+/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
 public static class PanelDataExporter
 {
     /// <summary>
     /// Записать книгу: первым — лист «Сводка» (<see cref="SummarySheet.Write"/>), затем лист
-    /// «Теги» (<see cref="TagsSheet.Write"/>); лист «Ошибки» — только если
+    /// «Теги» (<see cref="TagsSheet.Write"/>), лист «Системные события»
+    /// (<see cref="SystemEventsSheet.Write"/>) — если они есть; лист «Ошибки» — только если
     /// <paramref name="errors"/> не пуст, по строке на сообщение. Текст пишется как есть
     /// (<c>=...</c> не становится формулой).
     /// </summary>
@@ -22,6 +23,10 @@ public static class PanelDataExporter
         using var workbook = new XLWorkbook();
         SummarySheet.Write(workbook, doc, project, summary);
         TagsSheet.Write(workbook, doc, matches);
+        if (doc.SystemEvents.Count > 0)
+        {
+            SystemEventsSheet.Write(workbook, doc);
+        }
         if (errors.Count > 0)
         {
             WriteErrors(workbook, errors);
