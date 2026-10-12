@@ -1,18 +1,7 @@
 using System.Diagnostics;
 using System.Text;
-using FlexRt.Binary;
-using FlexRt.Export;
-using FlexRt.Export.Hex;
-using FlexRt.Export.PanelData;
-using FlexRt.Export.Strings;
-using FlexRt.Model.Matching;
-using FlexRt.Model.Panel;
-using FlexRt.Model.Plc;
-using FlexRt.Model.Summary;
-using FlexRt.Parsing.Matching;
-using FlexRt.Parsing.Panel;
-using FlexRt.Parsing.Plc.Card;
-using FlexRt.Parsing.Plc.Plf;
+using FlexRt;
+using FlexRt.Extraction;
 using Serilog;
 
 // ---- статичные пути: поменяй под себя ----
@@ -66,82 +55,15 @@ finally
     Log.CloseAndFlush();
 }
 
-// Сознательно не поддерживается (решение пользователя): у панели больше одного соединения с ПЛК
-// и данные ПЛК заданы — есть файл PEData.plf или папка карты ПЛК. ПЛК для соединения тогда
-// нужно выбирать по IP, а это проверено не на всех источниках. Печатает сообщение и пишет в лог;
-// файлы результата не создаются, старые не трогаются. Без данных ПЛК такая панель читается.
-// Возвращает true, если запуск нужно прекратить.
-bool IsUnsupported(FwxDocument doc)
-{
-    if (doc.Connections.Count <= 1 || (!File.Exists(plcPath) && !Directory.Exists(plcPath)))
-    {
-        return false;
-    }
-    var message = $"не поддерживается: соединений панели с ПЛК - {doc.Connections.Count}, а данные ПЛК заданы ({plcPath}) - "
-        + "сопоставление сделано только для панели с одним соединением; файлы не созданы";
-    Console.Error.WriteLine($"ОШИБКА: {message}");
-    Log.Error("Запуск прекращён: {Message}", message);
-    return true;
-}
-
-// Весь запуск: чтение панели, проекта ПЛК, сопоставление, три независимых экспорта.
-// Возвращает код возврата: 0 — без предупреждений и ошибок, 1 — иначе.
+// Весь запуск: пути и переменные окружения — в лог, затем ExtractionRun с выводом в консоль
+// и лог (ConsoleReporter). Возвращает код возврата: 0 — без предупреждений и ошибок, 1 — иначе.
 int RunAll()
 {
     Log.Information("Запуск FlexRt: панель {Panel} (FLEXRT_INPUT: {InputOverride}), проект ПЛК {Plc} (FLEXRT_PLC: {PlcOverride}), каталог результата {Out} (FLEXRT_OUT: {OutOverride})",
         fwxPath, inputOverride ?? "не задана", plcPath, plcOverride ?? "не задана",
         Path.GetDirectoryName(stringsWorkbookPath), outOverride ?? "не задана");
-
-    FwxDocument doc;
-    try
-    {
-        doc = FwxReader.Read(fwxPath);
-    }
-    catch (Exception e) when (e is FwxFormatException or IOException or UnauthorizedAccessException)
-    {
-        Console.Error.WriteLine($"Не удалось прочитать {fwxPath}: {e.Message}");
-        Log.Error(e, "Не удалось прочитать панель {Panel}", fwxPath);
-        return 1;
-    }
-
-    PrintSummary(doc);
-    if (IsUnsupported(doc))
-    {
-        return 1;
-    }
-    var failed = doc.Warnings.Count;
-
-    var plcErrors = new List<string>();
-    var (plcProject, plcSource) = ReadPlcProject(plcPath, plcErrors);
-    var matches = MatchTags(doc, plcProject, plcErrors);
-    var summary = new RunSummary(fwxPath, PanelFilesReader.Read(fwxPath), plcSource);
-    foreach (var error in plcErrors)
-    {
-        failed++;
-        Console.Error.WriteLine($"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {error}");
-        Log.Warning("Файл ПЛК: {Error}", error);
-    }
-
-    failed += Run("Языки -> XLSX", () => WriteWorkbook(stringsWorkbookPath, doc.Strings.Count == 0, "в STRINGSTORE нет строк, пропуск",
-        () => $"{XlsxExporter.Export(doc.Strings, stringsWorkbookPath)} языков, {doc.Strings.Count} строк -> {stringsWorkbookPath}"));
-
-    failed += Run("Теги -> XLSX", () => WriteWorkbook(panelWorkbookPath, doc.Tags.Count == 0, "в VAR нет тегов, пропуск",
-        () => $"{PanelDataExporter.Export(doc, plcProject, summary, matches, plcErrors, panelWorkbookPath)} тегов -> {panelWorkbookPath}"));
-
-    var hexWarnings = new List<string>();
-    failed += Run("Explode -> HEX", () =>
-    {
-        var files = HexExporter.Export(doc, hexDir, hexWarnings);
-        foreach (var warning in hexWarnings)
-        {
-            Console.Error.WriteLine($"ПРЕДУПРЕЖДЕНИЕ: таблица сохранена целиком (raw.hex.txt) - {warning}");
-            Log.Warning("Таблица сохранена целиком (raw.hex.txt): {Warning}", warning);
-        }
-        return $"{files} файлов -> {hexDir}";
-    });
-    failed += hexWarnings.Count;
-
-    return failed == 0 ? 0 : 1;
+    var paths = new ExtractionPaths(fwxPath, plcPath, stringsWorkbookPath, panelWorkbookPath, hexDir);
+    return ExtractionRun.Execute(paths, new ConsoleReporter()).ExitCode;
 }
 
 // Путь выхода: без FLEXRT_OUT — путь по умолчанию (константа) как есть; с FLEXRT_OUT — фиксированное
@@ -150,129 +72,3 @@ int RunAll()
 string OutPath(string defaultPath, string nameInOut) => string.IsNullOrWhiteSpace(outOverride)
     ? defaultPath
     : Path.Combine(outOverride, nameInOut);
-
-// Напечатать сводку панели: файл, таблицы TOC, строки, теги, системные события, дискретные алармы, предупреждения разбора; то же — в лог.
-void PrintSummary(FwxDocument doc)
-{
-    Console.WriteLine($"Файл:    {fwxPath} ({doc.Binary.Length} байт)");
-    Console.WriteLine($"Таблиц:  {doc.Toc.Count}");
-    foreach (var t in doc.Toc)
-    {
-        Console.WriteLine($"  0x{t.Id,-4:x} {t.Name,-24} элементов: {t.Entries,-6} offset: 0x{t.Offset:x} size: {t.Size}");
-    }
-    Console.WriteLine($"Строк языков: {doc.Strings.Count}");
-    Console.WriteLine($"Тегов: {doc.Tags.Count}");
-    Console.WriteLine($"Системных событий: {doc.SystemEvents.Count}");
-    Console.WriteLine($"Дискретных алармов: {doc.DiscreteAlarms.Count}");
-    Log.Information("Панель: {Bytes} байт, таблиц {Tables}, строк языков {Strings}, тегов {Tags}, системных событий {SystemEvents}, дискретных алармов {DiscreteAlarms}, связей с ПЛК {Links}, указателей областей {AreaLinks}, соединений {Connections}",
-        doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.SystemEvents.Count, doc.DiscreteAlarms.Count, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
-    foreach (var connection in doc.Connections)
-    {
-        Log.Information("Соединение {Index}: {Name}, IP ПЛК {Ip}", connection.Index, connection.Name, IpAddressText.Format(connection.Ip));
-    }
-    foreach (var warning in doc.Warnings)
-    {
-        Console.Error.WriteLine($"ПРЕДУПРЕЖДЕНИЕ: не разобрано - {warning}");
-        Log.Warning("Не разобрано: {Warning}", warning);
-    }
-}
-
-// Выполнить экспорт, напечатать его итог и записать в лог с временем. Экспорты независимы:
-// сбой одного не отменяет остальные. Возвращает 1 при ошибке, иначе 0.
-int Run(string title, Func<string> action)
-{
-    var timer = Stopwatch.StartNew();
-    try
-    {
-        var result = action();
-        Console.WriteLine($"[{title}] {result}");
-        Log.Information("[{Title}] {Result} ({Elapsed} мс)", title, result, timer.ElapsedMilliseconds);
-        return 0;
-    }
-    catch (Exception e)
-    {
-        Console.Error.WriteLine($"[{title}] ОШИБКА: {e.Message}");
-        Log.Error(e, "[{Title}] ошибка экспорта", title);
-        return 1;
-    }
-}
-
-// Прочитать проект ПЛК и напечатать строку сводки. Путь — папка: это карта ПЛК (SIMATIC.S7S),
-// иначе файл PEData.plf. Нет ни папки, ни файла — строка «не найден», null, ошибкой не
-// считается. Файл или карта сломаны или не открываются — сообщение в errors, null. Любая
-// другая (непредвиденная) ошибка разбора — так же, с типом ошибки в сообщении: данные панели
-// всё равно выгружаются; полный стек — в лог. Теги ПЛК, которые не удалось разобрать, —
-// сообщения в errors, проект при этом возвращается. Второе значение — откуда данные ПЛК для
-// листа «Сводка»: «карта ПЛК: путь», «PEData.plf: путь», «не найден: путь», «не прочитан: путь».
-(PlcProject? Project, string Source) ReadPlcProject(string path, List<string> errors)
-{
-    var isCard = Directory.Exists(path);
-    if (!isCard && !File.Exists(path))
-    {
-        Console.WriteLine($"Файл ПЛК: {path} не найден - данные ПЛК: неизвестно");
-        Log.Information("Файл ПЛК {Plc} не найден: данные ПЛК неизвестны", path);
-        return (null, $"не найден: {path}");
-    }
-    var timer = Stopwatch.StartNew();
-    try
-    {
-        var project = isCard ? CardReader.Read(path) : PlfReader.Read(path);
-        Console.WriteLine($"Файл ПЛК: {path} ({(isCard ? "карта ПЛК; " : "")}ПЛК: {project.Devices.Count}, тегов ПЛК: {project.Tags.Count})");
-        Log.Information("Проект ПЛК прочитан за {Elapsed} мс: ПЛК {Devices} ({Names}), тегов ПЛК {Tags}, DB {Dbs}, неразобранных объектов {Problems}",
-            timer.ElapsedMilliseconds, project.Devices.Count, string.Join(", ", project.Devices.Select(d => d.Name ?? "?")),
-            project.Tags.Count, project.Dbs.Count, project.Problems.Count);
-        errors.AddRange(project.Problems);
-        return (project, $"{(isCard ? "карта ПЛК" : "PEData.plf")}: {path}");
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine($"Файл ПЛК: {path} не прочитан - данные ПЛК: неизвестно");
-        Log.Error(e, "Файл ПЛК {Plc} не прочитан", path);
-        errors.Add($"{path}: {Describe(e)}");
-        return (null, $"не прочитан: {path}");
-    }
-}
-
-// Сопоставить теги панели с проектом ПЛК и записать в лог итог по видам результата.
-// Непредвиденная ошибка сопоставления — сообщение в errors, полный стек в лог и сопоставление
-// без проекта ПЛК (колонки ПЛК «неизвестно»).
-List<PlcMatch?> MatchTags(FwxDocument doc, PlcProject? project, List<string> errors)
-{
-    List<PlcMatch?> matches;
-    try
-    {
-        matches = TagMatcher.Match(doc, project);
-    }
-    catch (Exception e)
-    {
-        Log.Error(e, "Ошибка сопоставления с ПЛК");
-        errors.Add($"сопоставление с ПЛК: {Describe(e)}");
-        matches = TagMatcher.Match(doc, null);
-    }
-    var byLookup = matches.Where(m => m is not null).GroupBy(m => m!.Lookup).Select(g => $"{g.Key}: {g.Count()}").ToList();
-    Log.Information("Сопоставление: внутренних тегов {Internal}, PLC-тегов {Plc}{ByLookup}",
-        matches.Count(m => m is null), matches.Count(m => m is not null), byLookup.Count == 0 ? "" : $" ({string.Join(", ", byLookup)})");
-    return matches;
-}
-
-// Текст ошибки для сводки и листа «Ошибки»: ошибки формата и чтения — их сообщение,
-// непредвиденная — «непредвиденная ошибка <тип>: <сообщение>».
-string Describe(Exception e) => e is FwxFormatException or IOException or UnauthorizedAccessException
-    ? e.Message
-    : $"непредвиденная ошибка {e.GetType().Name}: {e.Message}";
-
-// Записать книгу XLSX и вернуть итог экспорта. Нет данных — удалить файл прошлого запуска
-// и вернуть сообщение о пропуске; иначе создать каталог файла и выполнить экспорт.
-string WriteWorkbook(string path, bool isEmpty, string skipMessage, Func<string> export)
-{
-    if (isEmpty)
-    {
-        if (File.Exists(path))
-        {
-            File.Delete(path);
-        }
-        return skipMessage;
-    }
-    Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-    return export();
-}

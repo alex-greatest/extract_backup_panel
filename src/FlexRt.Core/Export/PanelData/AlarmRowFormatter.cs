@@ -1,4 +1,3 @@
-using ClosedXML.Excel;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 
@@ -39,7 +38,7 @@ public static class AlarmRowFormatter
     /// <see cref="AlarmBitAddress.Format"/>.
     /// </summary>
     /// <returns>10 значений: текст или число.</returns>
-    public static XLCellValue[] Format(FwxDocument doc, IReadOnlyList<PlcMatch?> matches, AlarmTagIndex tagIndex, Func<long, string> firstLanguageText, DiscreteAlarm alarm)
+    public static ReportCell[] Format(FwxDocument doc, IReadOnlyList<PlcMatch?> matches, AlarmTagIndex tagIndex, Func<long, string> firstLanguageText, DiscreteAlarm alarm)
     {
         var trigger = TagColumns(doc, matches, tagIndex.Find(alarm.Id, AlarmBitRole.Trigger));
         var hmi = TagColumns(doc, matches, tagIndex.Find(alarm.Id, AlarmBitRole.HmiAcknowledgment));
@@ -68,7 +67,7 @@ public static class AlarmRowFormatter
 
     /// <summary>Имя тега, бит и адрес бита для одного назначения.</summary>
     /// <returns>Три значения колонок.</returns>
-    private static (XLCellValue Tag, XLCellValue Bit, XLCellValue Address) TagColumns(FwxDocument doc, IReadOnlyList<PlcMatch?> matches, (int? Tag, int Bit)? found)
+    private static (ReportCell Tag, ReportCell Bit, ReportCell Address) TagColumns(FwxDocument doc, IReadOnlyList<PlcMatch?> matches, (int? Tag, int Bit)? found)
     {
         if (found is null)
         {

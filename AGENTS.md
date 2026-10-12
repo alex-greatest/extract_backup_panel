@@ -48,22 +48,30 @@ R-код не эталон и не источник требований, све
 
 ## Стек проекта
 
-- C#, .NET 10, консольное приложение.
-- ClosedXML для записи XLSX, Serilog и Serilog.Sinks.File для лога,
-  SharpZipLib для распаковки zlib со словарём (карта ПЛК). Других пакетов в
-  программе нет.
-- Решение `FlexRt.sln`: программа `src/FlexRt/FlexRt.csproj` и тестовый
-  проект `tests/FlexRt.Tests/FlexRt.Tests.csproj` (xUnit,
-  Microsoft.NET.Test.Sdk, xunit.runner.visualstudio; ссылается на
-  программу, ей открыты `internal` через `InternalsVisibleTo`).
+- C#, .NET 10, консольное приложение; ядро вынесено в библиотеку, чтобы потом
+  поставить на него окно (Blazor Hybrid или WinForms) — решение пользователя.
+- ClosedXML для записи XLSX и SharpZipLib для распаковки zlib со словарём
+  (карта ПЛК) — в ядре; Serilog и Serilog.Sinks.File для лога — только в
+  консоли. Других пакетов в программе нет.
+- Решение `FlexRt.sln`:
+  - `src/FlexRt.Core/FlexRt.Core.csproj` — библиотека: разбор, сопоставление,
+    экспорты и сценарий запуска (`RootNamespace` — `FlexRt`, поэтому namespace
+    те же, что были в одном проекте); `internal` открыты тестам через
+    `InternalsVisibleTo`;
+  - `src/FlexRt/FlexRt.csproj` — консоль (`FlexRt.dll`): `Program.cs` и
+    `ConsoleReporter`, ссылается на ядро;
+  - `tests/FlexRt.Tests/FlexRt.Tests.csproj` (xUnit, Microsoft.NET.Test.Sdk,
+    xunit.runner.visualstudio) ссылается на ядро и на консоль: сборка консоли
+    копируется к тестам для запуска отдельным процессом.
 
 ## Структура
 
-Исходники в `src/FlexRt/` разложены по папкам-ролям и подпапкам по смыслу,
-namespace совпадает с путём папки (`Parsing/Plc/Plf/Tags/` —
-`FlexRt.Parsing.Plc.Plf.Tags`):
+Исходники ядра в `src/FlexRt.Core/` разложены по папкам-ролям и подпапкам по
+смыслу, namespace совпадает с путём папки (`Parsing/Plc/Plf/Tags/` —
+`FlexRt.Parsing.Plc.Plf.Tags`). В `src/FlexRt/` — только консоль:
 
 ```
+src/FlexRt.Core/
 Binary/                       чтение байтов, FwxFormatException
 Model/    Panel/              данные панели (pdata.fwc)
           Plc/                данные ПЛК (общие для PEData.plf и карты)
@@ -77,20 +85,32 @@ Parsing/  Panel/              разбор pdata.fwc и файлов рядом 
               Card/           карта ПЛК (SIMATIC.S7S): распаковка, теги, DB, CPU
           Codes/              коды областей, типов, адреса (общие для панели и ПЛК)
           Matching/           TagMatcher, DbPathResolver
-Export/   PanelData/          panel_data.xlsx: листы «Сводка», «Теги», «Ошибки»
+Export/   PanelData/          panel_data.xlsx: строки листов (*Table, SummaryRows) и их запись (*Sheet)
           Strings/ Hex/       строки языков, hex
-          ExcelCell, IpAddressText   общие для экспортов (в корне Export/)
-Program.cs
+          ExcelCell, IpAddressText, ReportCell, ReportTable, ReportTableWriter
+                              общие для экспортов (в корне Export/)
+Extraction/                   сценарий запуска: ExtractionRun, IExtractionReporter, …
+
+src/FlexRt/
+Program.cs, ConsoleReporter.cs   пути, лог, вывод в консоль
 ```
 
 `Parsing/Panel` и `Parsing/Plc` друг от друга не зависят; общее у них —
 `Parsing/Codes`.
 
-- `Program.cs` — в корне проекта, top-level statements: шесть статичных
-  путей (входные можно подменить `FLEXRT_INPUT` и `FLEXRT_PLC`, каталог
-  выходов `data\out` — `FLEXRT_OUT`), чтение
-  проекта ПЛК, сопоставление тегов, сводка в консоль, запуск трёх экспортов.
-  Экспорты независимы: сбой одного не отменяет остальные.
+- `src/FlexRt/Program.cs` — top-level statements: шесть статичных путей
+  (входные можно подменить `FLEXRT_INPUT` и `FLEXRT_PLC`, каталог выходов
+  `data\out` — `FLEXRT_OUT`), настройка Serilog, строка старта в лог и вызов
+  `ExtractionRun.Execute` с `ConsoleReporter`; код возврата — из результата.
+  `src/FlexRt/ConsoleReporter.cs` — реализация `IExtractionReporter`: весь
+  текст консоли (stdout и stderr) и лога запуска.
+- `Extraction/` — `ExtractionRun.Execute(ExtractionPaths, IExtractionReporter)`:
+  чтение панели, проверка «не поддерживается», чтение проекта ПЛК,
+  сопоставление тегов, три экспорта; сам ничего не печатает, о ходе запуска
+  сообщает событиями `IExtractionReporter` и возвращает `ExtractionResult`
+  (код возврата, панель, проект ПЛК, сопоставление, ошибки ПЛК, сводка, итоги
+  экспортов `ExportOutcome`). Экспорты независимы: сбой одного, в том числе
+  сбой сообщения о его успехе, не отменяет остальные.
 - `Binary/` — чтение байтов файла: `FwxBinary.cs` — примитивы little endian
   (`D1`, `D2`, `D4`, `GetName`, `GetNameLen`, `GetUtf8`, `Span`, `ToHex`) и
   `D4BigEndian` (IP-адреса панели) с
@@ -131,10 +151,17 @@ Program.cs
 - `Parsing/Codes/` — `PlcAreaCodes`, `PlcTypeCodes`, `PlcAddress`,
   `PlcMemberTypes`. `Parsing/Matching/` — `TagMatcher`, `DbPathResolver`.
 - `Export/` — `PanelData/PanelDataExporter` (книга `panel_data.xlsx`: листы
-  «Сводка», «Теги», «Системные события», «Дискретные алармы» и «Ошибки»),
-  `PanelData/SummarySheet` (лист «Сводка»), `PanelData/TagsSheet` (лист «Теги»),
+  «Сводка», «Теги», «Системные события», «Дискретные алармы» и «Ошибки»).
+  Строки листов строятся без ClosedXML, чтобы их мог показать и UI:
+  `PanelData/SummaryRows` (подписи и значения «Сводки»), `PanelData/TagsTable`,
+  `PanelData/SystemEventsTable`, `PanelData/DiscreteAlarmsTable` — каждая
+  возвращает `ReportTable` (заголовки и строки `ReportCell`: текст или число).
+  Листы только записывают: `PanelData/SummarySheet` (лист «Сводка»),
+  `PanelData/TagsSheet` (лист «Теги»: статистика и таблица),
   `PanelData/SystemEventsSheet` (лист «Системные события»),
-  `PanelData/DiscreteAlarmsSheet` (лист «Дискретные алармы»), `AlarmRowFormatter`
+  `PanelData/DiscreteAlarmsSheet` (лист «Дискретные алармы»); таблицу на лист
+  пишет `ReportTableWriter` (число — числом, пустой текст не пишется, текст через
+  `ExcelCell`). `AlarmRowFormatter`
   (класс, теги, биты, Report), `AlarmBitAddress` (адрес бита), `AlarmText` (поля
   в тексте), `AlarmTagIndex` (тег аларма по ссылке VAR на AREAPTR),
   `AlarmFieldNames` (тег поля по связи DATALINK),
@@ -187,7 +214,10 @@ Program.cs
   алармы»). Каждый
   интеграционный тест пишет в свой временный каталог через `FLEXRT_OUT` и
   удаляет его; `data/out` тесты не трогают. Хост — `DOTNET_HOST_PATH`, иначе
-  `dotnet` из PATH.
+  `dotnet` из PATH. `Extraction/` — `ExtractionRun` внутри процесса на файлах
+  `samples/` с подставным `RecordingReporter`: порядок событий, код возврата,
+  «не поддерживается», независимость экспортов, сбой сообщения об успехе
+  экспорта; выходы — во временный каталог.
 - `data/` — `out/` (результат) и `real/` — реальные копии
   `pdata.fwc`, в том числе пошаговые `real/steps/` (V17, внутренние теги) и
   `real/steps-v21/` (V21, PLC-теги). Каталог исключён из git.
@@ -202,15 +232,22 @@ Program.cs
 ## Модульность
 
 - Зависимости идут в одну сторону: `Binary` ← `Model` ← `Parsing` ←
-  `Export` ← `Program.cs`. Папка пользуется только теми, что левее неё:
-  парсер не знает про экспортёры, экспортёр не вызывает `Parse` парсеров,
-  модели зависят только от `Binary`. Namespace совпадает с папкой, поэтому
-  зависимость не в ту сторону видна как неожиданный `using`.
+  `Export` ← `Extraction` ← консоль (`Program.cs`, `ConsoleReporter`). Папка
+  пользуется только теми, что левее неё: парсер не знает про экспортёры,
+  экспортёр не вызывает `Parse` парсеров, модели зависят только от `Binary`.
+  Namespace совпадает с папкой, поэтому зависимость не в ту сторону видна как
+  неожиданный `using`.
+- Ядро (`FlexRt.Core`) не пишет в консоль и не знает про Serilog: всё, что видит
+  пользователь, идёт через `IExtractionReporter`. Отдельная библиотека и этот
+  интерфейс с одной пока реализацией — решение пользователя (подготовка к
+  UI), исключение из правила «без интерфейсов про запас и новых проектов».
+  Будущий UI — второй проект, ссылающийся на ядро, со своей реализацией
+  `IExtractionReporter`.
 - Одна таблица — один парсер, один выходной формат — один экспортёр. Новая
   таблица — это новые файлы (парсер и модель записи) плюс точечные строки
   подключения: список в `FwxDocument`, строка `TryParse` в `FwxReader.Read`
-  и, если нужно, строка сводки в `Program.cs`. Логику существующих парсеров
-  и экспортёров при этом править не приходится.
+  и, если нужно, строка сводки в `ConsoleReporter.PanelRead`. Логику
+  существующих парсеров и экспортёров при этом править не приходится.
 - Модели — только данные: логики разбора и форматирования в них нет.
 
 ## Источники фактов о формате
@@ -602,7 +639,7 @@ kebab-case, например `формат-fwx/таблица-var.md`. Стан�
   `using var x = ...;`, цепочки `??`, инициализаторы объектов и коллекций.
   Правило проверяет сборка: `.editorconfig` (`csharp_prefer_braces`,
   `dotnet_diagnostic.IDE0011.severity = warning`) плюс
-  `EnforceCodeStyleInBuild` в `FlexRt.csproj`. Пропущенная скобка — это
+  `EnforceCodeStyleInBuild` в каждом `.csproj` (ядро, консоль, тесты). Пропущенная скобка — это
   предупреждение сборки, и проверка «0 предупреждений» не проходит.
 - Смещения пиши в hex, как в hex-редакторе: `0x34`, `p + 0x14`.
 - Над каждым типом, методом, конструктором, константой и статическим полем —
@@ -616,7 +653,7 @@ kebab-case, например `формат-fwx/таблица-var.md`. Стан�
   над функцией: XML-документация для них не действует.
 - Текст в консоли и сообщения об ошибках — на русском.
 
-Новый парсер таблицы панели: файл `Parsing/Panel/<Имя>Parser.cs` с namespace
+Новый парсер таблицы панели: файл `src/FlexRt.Core/Parsing/Panel/<Имя>Parser.cs` с namespace
 `FlexRt.Parsing.Panel`, в нём `public static class <Имя>Parser` с методом
 `Parse(FwxDocument doc)`. Модель записи — отдельный файл в `Model/Panel/`,
 список записей — свойство в `Model/Panel/FwxDocument.cs`. Подключай одной
@@ -625,8 +662,9 @@ kebab-case, например `формат-fwx/таблица-var.md`. Стан�
 объекты — через `PlfFile`, связи — `PlfRelations`, подключение — в
 `PlfReader.Read`; с карты ПЛК — в `Parsing/Plc/Card/`, подключение — в
 `CardReader.Read`.
-Если число записей должно попасть в сводку, строку сводки добавляй в
-`Program.cs`. `HexExporter` берёт любую таблицу TOC сам — править его не
+Если число записей должно попасть в сводку, строку консоли добавляй в
+`ConsoleReporter.PanelRead` (`src/FlexRt/`), строку листа «Сводка» — в
+`SummaryRows`. `HexExporter` берёт любую таблицу TOC сам — править его не
 нужно.
 
 Найди таблицу через `FwxDocument.FindTable` — нет таблицы, просто вернись без

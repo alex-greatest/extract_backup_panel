@@ -1,38 +1,24 @@
-using ClosedXML.Excel;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;
 using FlexRt.Model.Summary;
 
 namespace FlexRt.Export.PanelData;
 
-/// <summary>Лист «Сводка»: основные сведения о панели, соединениях и ПЛК — подпись в A, значение в B.</summary>
-public static class SummarySheet
+/// <summary>Строки листа «Сводка»: основные сведения о панели, соединениях и ПЛК — подпись и значение.</summary>
+public static class SummaryRows
 {
     /// <summary>Текст, если значения нет в прочитанных файлах.</summary>
     private const string Unknown = "неизвестно";
 
     /// <summary>
-    /// Добавить лист «Сводка» в книгу. Строки: панель (файл, модель, версия Runtime, IP и маска,
-    /// языки, число строк, тегов, системных событий и дискретных алармов), пустая строка, по строке на соединение (имя и IP ПЛК),
-    /// пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя, модель CPU,
-    /// IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
+    /// Построить строки: панель (файл, модель, версия Runtime, IP и маска, языки, число строк,
+    /// тегов, системных событий и дискретных алармов), пустая строка, по строке на соединение
+    /// (имя и IP ПЛК), пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя,
+    /// модель CPU, IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
     /// </summary>
-    public static void Write(XLWorkbook workbook, FwxDocument doc, PlcProject? project, RunSummary summary)
-    {
-        var sheet = workbook.Worksheets.Add("Сводка");
-        var rows = PanelRows(doc, summary).Append(("", "")).Concat(ConnectionRows(doc)).Append(("", "")).Concat(PlcRows(project, summary));
-        var r = 1;
-        foreach (var (label, value) in rows)
-        {
-            if (label.Length > 0)
-            {
-                sheet.Cell(r, 1).SetValue(label);
-                sheet.Cell(r, 2).SetValue(ExcelCell.Text(value));
-            }
-            r++;
-        }
-        sheet.Column(1).AdjustToContents();
-    }
+    /// <returns>Подписи и значения по порядку строк; пустая строка — пустые подпись и значение.</returns>
+    public static IReadOnlyList<(string Label, string Value)> Build(FwxDocument doc, PlcProject? project, RunSummary summary) =>
+        PanelRows(doc, summary).Append(("", "")).Concat(ConnectionRows(doc)).Append(("", "")).Concat(PlcRows(project, summary)).ToList();
 
     /// <summary>Строки панели.</summary>
     /// <returns>Подписи и значения.</returns>
