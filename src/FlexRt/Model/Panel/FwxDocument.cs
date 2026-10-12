@@ -28,6 +28,17 @@ public sealed class FwxDocument
     public List<HmiDevice> Devices { get; } = [];
     /// <summary>Системные события из SYSMSGHANDLER в порядке файла.</summary>
     public List<SystemEvent> SystemEvents { get; } = [];
+    /// <summary>Дискретные алармы из MSG_NUMEVENT в порядке файла.</summary>
+    public List<DiscreteAlarm> DiscreteAlarms { get; } = [];
+    /// <summary>Классы алармов из MSG_NUMHANDLER в порядке файла; на номер в списке ссылается <see cref="DiscreteAlarm.ClassIndex"/>.</summary>
+    public List<AlarmClass> AlarmClasses { get; } = [];
+    /// <summary>Теги срабатывания и квитирования дискретных алармов из AREAPTR в порядке каталога.</summary>
+    public List<AlarmBits> AlarmBits { get; } = [];
+    /// <summary>
+    /// AREAPTR прочитана целиком (или её нет): аларм без тега какого-то назначения действительно
+    /// без тега. <c>false</c> — элементы пропущены или разбор оборвался, отсутствие тега не известно.
+    /// </summary>
+    public bool AlarmBitsComplete { get; set; }
     /// <summary>Таблицы, которые не удалось разобрать (остальное при этом читается).</summary>
     public List<string> Warnings { get; } = [];
 

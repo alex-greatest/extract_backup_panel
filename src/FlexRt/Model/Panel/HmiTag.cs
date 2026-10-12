@@ -16,4 +16,10 @@ public sealed record HmiTag(int Index, string Name, int TypeCode, int Elements, 
 {
     /// <summary>Бит массива в коде типа: <c>0x2005</c> — Array of LReal, <c>0x0005</c> — LReal.</summary>
     public const int ArrayFlag = 0x2000;
+
+    /// <summary>
+    /// Все незавершающие ссылки записи (Id таблицы не 0) в порядке файла: связь с ПЛК, элементы
+    /// AREAPTR дискретных алармов и другие.
+    /// </summary>
+    public IReadOnlyList<VarReference> References { get; init; } = [];
 }

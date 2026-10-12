@@ -82,8 +82,9 @@ public static class VarParser
     /// <c>[u16 Id таблицы][u16 номер элемента][u16][u16]</c>, хвост из 12 байт: код типа (2),
     /// число элементов (2), <c>Data4</c> (4), нулевое слово (4). Хвост кончается ровно на
     /// конце элемента. Внутренний тег: N = 0. PLC-тег: среди ссылок есть ссылка на
-    /// DATALINK_READWR; другие ссылки (указатели аварий, обратные ссылки) не используются.
-    /// Ссылка с Id таблицы 0 — завершающая.
+    /// DATALINK_READWR. Все незавершающие ссылки сохраняются в <see cref="HmiTag.References"/>:
+    /// по ссылкам на AREAPTR находятся теги дискретных алармов; остальные (обратные ссылки) не
+    /// используются. Ссылка с Id таблицы 0 — завершающая.
     /// </summary>
     /// <returns>Тег.</returns>
     /// <exception cref="FwxFormatException">
@@ -126,8 +127,20 @@ public static class VarParser
         {
             throw new FwxFormatException("VAR", p + tail + 2, $"запись {number}: массив без элементов");
         }
-        return new HmiTag(number, name, typeCode, elements, data4, p, linkTable, linkIndex);
+        return new HmiTag(number, name, typeCode, elements, data4, p, linkTable, linkIndex)
+        {
+            References = ReadReferences(b, p + aligned + 4, (int)links)
+        };
     }
+
+    /// <summary>Все ссылки записи, кроме завершающих (Id таблицы 0), в порядке файла.</summary>
+    /// <returns>Ссылки.</returns>
+    private static List<VarReference> ReadReferences(FwxBinary b, long pos, int count) =>
+    [
+        .. Enumerable.Range(0, count)
+            .Select(i => new VarReference(b.D2(pos + i * LinkSize), b.D2(pos + i * LinkSize + 2)))
+            .Where(r => r.Table != 0)
+    ];
 
     /// <summary>
     /// Выбрать ссылку тега: ссылку на DATALINK_READWR, если она есть; иначе первую
