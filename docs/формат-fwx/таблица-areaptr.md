@@ -2,7 +2,7 @@
 
 Для каждого тега, который служит дискретным алармам тегом срабатывания или
 квитирования, — элемент со списком пар «ID аларма — бит тега». Программа читает
-таблицу в `Parsing/Panel/AreaPtrParser.cs`; сами алармы — в `MSG_NUMEVENT`
+таблицу в `Parsing/Panel/Alarms/AreaPtrParser.cs`; сами алармы — в `MSG_NUMEVENT`
 ([таблица-msg-numevent.md](таблица-msg-numevent.md)).
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md).

@@ -2,8 +2,8 @@
 
 Дискретные алармы панели (в TIA: HMI alarms → Discrete alarms): ID, текст,
 класс, Report и поля вывода в тексте. Программа читает таблицу в
-`Parsing/Panel/MsgNumEventParser.cs`, раскладку элемента — кодом
-`Parsing/Panel/AlarmMessageLayout.cs`, общим с аналоговыми алармами
+`Parsing/Panel/Alarms/MsgNumEventParser.cs`, раскладку элемента — кодом
+`Parsing/Panel/Alarms/AlarmMessageLayout.cs`, общим с аналоговыми алармами
 ([таблица-msg-analogcreat.md](таблица-msg-analogcreat.md)). Класс аларма — номер записи в
 `MSG_NUMHANDLER` ([таблица-msg-numhandler.md](таблица-msg-numhandler.md)),
 теги срабатывания и квитирования — в `AREAPTR`

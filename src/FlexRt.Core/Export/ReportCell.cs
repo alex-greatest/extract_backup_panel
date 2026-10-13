@@ -1,7 +1,7 @@
 namespace FlexRt.Export;
 
 /// <summary>
-/// Значение ячейки таблицы отчёта: текст или число. Не зависит от Excel: те же таблицы может
+/// Значение ячейки таблицы отчёта: текст или число и, если нужно, цвет заливки. Не зависит от Excel: те же таблицы может
 /// показать и окно программы. Пустой текст — пустая ячейка.
 /// </summary>
 public readonly record struct ReportCell
@@ -11,6 +11,9 @@ public readonly record struct ReportCell
 
     /// <summary>Число ячейки; <c>null</c>, если ячейка — текст.</summary>
     public long? Number { get; }
+
+    /// <summary>Цвет заливки ячейки <c>0xRRGGBB</c>; <c>null</c> — без заливки.</summary>
+    public int? FillRgb { get; init; }
 
     /// <summary>Создаёт ячейку; ровно одно из значений не <c>null</c>.</summary>
     private ReportCell(string? text, long? number)

@@ -1,5 +1,6 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
+using FlexRt.Parsing.Panel.Alarms;
 
 namespace FlexRt.Parsing.Panel;
 
@@ -14,8 +15,8 @@ public static class FwxReader
     /// ошибка в отдельной таблице попадает в <see cref="FwxDocument.Warnings"/>,
     /// чтобы остальные экспорты (xlsx, explode) могли отработать.
     /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK, CONNECTION_OMSP, DEVICE_OMSP,
-    /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT и
-    /// MSG_ANALOG_OBSE.
+    /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT,
+    /// MSG_ANALOG_OBSE, RECMSG, ARCHIVES, MSG_LOGGER и FUNC_SEND_EMAIL.
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
     /// <exception cref="IOException">Файл не удалось прочитать.</exception>
@@ -38,6 +39,10 @@ public static class FwxReader
         TryParse(doc, MsgAnalogHandlParser.Parse);
         TryParse(doc, MsgAnalogCreatParser.Parse);
         TryParse(doc, MsgAnalogObseParser.Parse);
+        TryParse(doc, RecMsgParser.Parse);
+        TryParse(doc, ArchivesParser.Parse);
+        TryParse(doc, MsgLoggerParser.Parse);
+        TryParse(doc, FuncSendEmailParser.Parse);
         return doc;
     }
 

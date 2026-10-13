@@ -2,7 +2,7 @@
 
 Предел аналогового аларма: значение или тег предела, Limit mode и связь с
 тегом срабатывания. Программа читает таблицу в
-`Parsing/Panel/MsgAnalogObseParser.cs`. Сам аларм — в `MSG_ANALOGCREAT`
+`Parsing/Panel/Alarms/MsgAnalogObseParser.cs`. Сам аларм — в `MSG_ANALOGCREAT`
 ([таблица-msg-analogcreat.md](таблица-msg-analogcreat.md)), связь — по ID.
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md).

@@ -1,4 +1,4 @@
-using FlexRt.Export.PanelData;
+using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;

@@ -1,4 +1,4 @@
-using FlexRt.Export.PanelData;
+using FlexRt.Export.PanelData.Alarms;
 using Xunit;
 
 namespace FlexRt.Tests.Unit.Export.PanelData;

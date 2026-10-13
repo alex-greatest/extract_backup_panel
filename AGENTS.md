@@ -25,14 +25,14 @@ R-код не эталон и не источник требований, све
 Сейчас приложение за один запуск:
 
 - печатает сводку таблиц TOC, числа строк языков, тегов, системных событий,
-  дискретных и аналоговых алармов и строку `Файл ПЛК:` (число ПЛК и тегов ПЛК или «не найден»);
+  дискретных и аналоговых алармов, классов алармов и строку `Файл ПЛК:` (число ПЛК и тегов ПЛК или «не найден»);
 - пишет `panel_data.xlsx` — первым лист «Сводка» (панель, соединения, ПЛК); лист
   «Теги»: сверху статистика тегов, ниже таблица с колонками как в HMI tags в
   TIA, данные ПЛК сопоставлены по проекту ПЛК; лист «Системные события» (ID и
   текст на каждом языке, как System events в TIA); лист «Дискретные алармы» (как
   Discrete alarms в TIA, без имени аларма); лист «Аналоговые алармы» (как
-  Analog alarms в TIA, без имени аларма); лист «Ошибки» при проблемах
-  проекта ПЛК;
+  Analog alarms в TIA, без имени аларма); лист «Классы алармов» (как Alarm
+  classes в TIA); лист «Ошибки» при проблемах проекта ПЛК;
 - пишет `PDATA.xlsx` — строки всех языков, лист на каждый LCID;
 - раскладывает каждую таблицу TOC в папку с hex-файлами;
 - пишет лог запуска в `data/out/logs/flexrt-<дата>.log`.
@@ -75,11 +75,13 @@ R-код не эталон и не источник требований, све
 src/FlexRt.Core/
 Binary/                       чтение байтов, FwxFormatException
 Model/    Panel/              данные панели (pdata.fwc)
+              Alarms/         системные события, алармы, классы алармов, журналы
           Plc/                данные ПЛК (общие для PEData.plf и карты)
               Plf/ Card/      сырые объекты PEData.plf и потоки карты
           Matching/           результат сопоставления
           Summary/            сведения о запуске для листа «Сводка»
 Parsing/  Panel/              разбор pdata.fwc и файлов рядом с ним
+              Alarms/         таблицы системных событий, алармов, классов и журналов
           Plc/                PlcDbMemberXml (член DB из XML, общий для plf и карты)
               Plf/            каркас PEData.plf (кадры, объекты, текст, связи)
                   Tags/ Devices/ DataBlocks/   теги ПЛК, ПЛК и IP, DB
@@ -87,8 +89,9 @@ Parsing/  Panel/              разбор pdata.fwc и файлов рядом 
           Codes/              коды областей, типов, адреса (общие для панели и ПЛК)
           Matching/           TagMatcher, DbPathResolver
 Export/   PanelData/          panel_data.xlsx: строки листов (*Table, SummaryRows) и их запись (*Sheet)
+              Tags/ Alarms/   лист «Теги»; листы событий, алармов и классов алармов
           Strings/ Hex/       строки языков, hex
-          ExcelCell, IpAddressText, ReportCell, ReportTable, ReportTableWriter
+          ExcelCell, IpAddressText, LanguageText, ReportCell, ReportTable, ReportTableWriter
                               общие для экспортов (в корне Export/)
 Extraction/                   сценарий запуска: ExtractionRun, IExtractionReporter, …
 
@@ -118,7 +121,9 @@ Program.cs, ConsoleReporter.cs   пути, лог, вывод в консоль
   проверкой границ, для `.fwc` и `.plf`; `FwxFormatException.cs` — ошибка
   формата с секцией и смещением.
 - `Model/` — данные разбора, по одному типу на файл: панель (`FwxDocument`,
-  `HmiTag`, `PlcLink`, `HmiConnection`, `HmiDevice`, `PanelFiles`, …), проект
+  `HmiTag`, `PlcLink`, `HmiConnection`, `HmiDevice`, `PanelFiles`, …; в
+  `Panel/Alarms/` — `SystemEvent`, `DiscreteAlarm`, `AnalogAlarm`, `AlarmClass`,
+  `AlarmLogClasses`, `PanelArchive`, `AlarmClassFunction`, `EmailFunction`, …), проект
   ПЛК (`PlcProject`, `PlcDevice`, `PlcTag`, `PlcDb`, `PlcDbMember`, …; сырые
   `Plf/PlfObject`, `Plf/PlfRelation`, `Card/CardStream`, `Card/CardStreamKind`),
   результат сопоставления (`PlcMatch`, `PlcLookup`, `DbResolution`), сведения о запуске
@@ -128,18 +133,22 @@ Program.cs, ConsoleReporter.cs   пути, лог, вывод в консоль
   `StringStoreParser`, `VarParser`, `DatalinkReadWrParser` (`DATALINK_READWR`
   и `DATALINK` — исключение из «одна таблица — один парсер»: раскладка
   элементов одна), `ConnectionParser` (`CONNECTION_OMSP`), `DeviceParser`
-  (`DEVICE_OMSP`: IP и маска панели), `SysMsgHandlerParser` (`SYSMSGHANDLER`:
-  системные события), `MsgNumHandlerParser` (`MSG_NUMHANDLER`: классы алармов),
-  `MsgNumEventParser` (`MSG_NUMEVENT`: дискретные алармы), `AreaPtrParser`
-  (`AREAPTR`: теги срабатывания и квитирования алармов), `MsgAnalogHandlParser`
-  (`MSG_ANALOGHANDL`: классы аналоговых алармов), `MsgAnalogCreatParser`
-  (`MSG_ANALOGCREAT`: аналоговые алармы), `MsgAnalogObseParser` (`MSG_ANALOG_OBSE`:
-  пределы аналоговых алармов); раскладки, общие для дискретных и аналоговых, —
-  `AlarmMessageLayout` (элемент `MSG_NUMEVENT`/`MSG_ANALOGCREAT`) и
-  `AlarmHandlerLayout` (записи классов `MSG_NUMHANDLER`/`MSG_ANALOGHANDL`),
-  `internal`; `PanelFilesReader` (модель панели из
+  (`DEVICE_OMSP`: IP и маска панели), `PanelFilesReader` (модель панели из
   `ProjectCharacteristics.rdf` и версия Runtime из `BuildInfo.txt` рядом с
-  `pdata.fwc`).
+  `pdata.fwc`). В `Parsing/Panel/Alarms/` — `SysMsgHandlerParser`
+  (`SYSMSGHANDLER`: системные события), `MsgNumHandlerParser` (`MSG_NUMHANDLER`:
+  классы алармов), `MsgNumEventParser` (`MSG_NUMEVENT`: дискретные алармы),
+  `AreaPtrParser` (`AREAPTR`: теги срабатывания и квитирования алармов),
+  `MsgAnalogHandlParser` (`MSG_ANALOGHANDL`: классы аналоговых алармов),
+  `MsgAnalogCreatParser` (`MSG_ANALOGCREAT`: аналоговые алармы),
+  `MsgAnalogObseParser` (`MSG_ANALOG_OBSE`: пределы аналоговых алармов),
+  `RecMsgParser` (`RECMSG`: классы журнала алармов), `ArchivesParser`
+  (`ARCHIVES`: имена журналов и ссылки), `MsgLoggerParser` (`MSG_LOGGER`:
+  функции классов), `FuncSendEmailParser` (`FUNC_SEND_EMAIL`: адрес письма
+  класса); раскладки, общие для двух таблиц, — `AlarmMessageLayout` (элемент
+  `MSG_NUMEVENT`/`MSG_ANALOGCREAT`), `AlarmHandlerLayout` (записи классов
+  `MSG_NUMHANDLER`/`MSG_ANALOGHANDL`) и `ClassListHeader` (начало элемента
+  `RECMSG`/`MSG_LOGGER`), `internal`.
 - `Parsing/Plc/` — `PlcDbMemberXml` (элемент `<Member>` → `PlcDbMember`, общий
   для PEData.plf и карты); `Plf/` — `PlfReader` (точка входа PEData.plf: кадры
   с SHA-256, актуальные версии объектов), `PlfFile` (байты + живые объекты),
@@ -159,30 +168,32 @@ Program.cs, ConsoleReporter.cs   пути, лог, вывод в консоль
   `PlcMemberTypes`. `Parsing/Matching/` — `TagMatcher`, `DbPathResolver`.
 - `Export/` — `PanelData/PanelDataExporter` (книга `panel_data.xlsx`: листы
   «Сводка», «Теги», «Системные события», «Дискретные алармы», «Аналоговые
-  алармы» и «Ошибки»).
+  алармы», «Классы алармов» и «Ошибки»).
   Строки листов строятся без ClosedXML, чтобы их мог показать и UI:
-  `PanelData/SummaryRows` (подписи и значения «Сводки»), `PanelData/TagsTable`,
-  `PanelData/SystemEventsTable`, `PanelData/DiscreteAlarmsTable`,
-  `PanelData/AnalogAlarmsTable` — каждая
-  возвращает `ReportTable` (заголовки и строки `ReportCell`: текст или число).
+  `PanelData/SummaryRows` (подписи и значения «Сводки»),
+  `PanelData/Tags/TagsTable`, в `PanelData/Alarms/` — `SystemEventsTable`,
+  `DiscreteAlarmsTable`, `AnalogAlarmsTable`, `AlarmClassesTable` — каждая
+  возвращает `ReportTable` (заголовки и строки `ReportCell`: текст или число и,
+  если нужно, цвет заливки `FillRgb`).
   Листы только записывают: `PanelData/SummarySheet` (лист «Сводка»),
-  `PanelData/TagsSheet` (лист «Теги»: статистика и таблица),
-  `PanelData/SystemEventsSheet` (лист «Системные события»),
-  `PanelData/DiscreteAlarmsSheet` (лист «Дискретные алармы»),
-  `PanelData/AnalogAlarmsSheet` (лист «Аналоговые алармы»); таблицу на лист
-  пишет `ReportTableWriter` (число — числом, пустой текст не пишется, текст через
-  `ExcelCell`). `AlarmRowFormatter`
+  `PanelData/Tags/TagsSheet` (лист «Теги»: статистика и таблица), в
+  `PanelData/Alarms/` — `SystemEventsSheet`, `DiscreteAlarmsSheet`,
+  `AnalogAlarmsSheet`, `AlarmClassesSheet`; таблицу на лист пишет
+  `ReportTableWriter` (число — числом, пустой текст не пишется, текст через
+  `ExcelCell`, `FillRgb` — заливка ячейки, на тёмной заливке текст белый).
+  В `PanelData/Alarms/`: `AlarmRowFormatter`
   (класс, теги, биты, Report), `AlarmBitAddress` (адрес бита), `AlarmText` (поля
   в тексте), `AlarmTagIndex` (тег аларма по ссылке VAR на AREAPTR),
   `AlarmFieldNames` (тег поля по связи DATALINK), `AlarmClassName` (класс аларма
   словом или Display name), `AnalogAlarmRowFormatter` (класс, тег срабатывания,
-  Limit, Limit mode, Report), `AnalogLimitValue` (значение предела-константы), `AlarmLanguageTexts`
-  (колонки текста аларма по языкам, общие для двух листов алармов),
-  `PanelData/TagRowFormatter` (значения колонок), `PanelData/TagStatistics`
-  (статистика над таблицей), `PanelData/TagTypeNames`, `Strings/XlsxExporter`
-  (строки языков), `Hex/HexExporter` (все таблицы TOC), `ExcelCell` (текст
-  ячейки: обрезка и апостроф в начале, общий для двух Excel), `IpAddressText`
-  (IP в точечной записи).
+  Limit, Limit mode, Report), `AnalogLimitValue` (значение предела-константы),
+  `AlarmClassRowFormatter` (Name, State machine, Log, E-mail address и цвета
+  класса), `AlarmLanguageTexts` (колонки текста по языкам, общие для листов
+  алармов и классов). В `PanelData/Tags/`: `TagRowFormatter` (значения колонок),
+  `TagStatistics` (статистика над таблицей), `TagTypeNames`.
+  `Strings/XlsxExporter` (строки языков), `Hex/HexExporter` (все таблицы TOC),
+  `ExcelCell` (текст ячейки: обрезка и апостроф в начале, общий для двух Excel),
+  `LanguageText` (код и название языка), `IpAddressText` (IP в точечной записи).
 - `samples/` — `plc-udt/`: `pdata.fwc` и `PEData.plf` тестового проекта с одним
   ПЛК и пользовательским типом (члены тега входов и DB этого типа) и его карта
   `PLC_1-card.zip` (лист «Теги» по ней совпадает с листом по PEData.plf), эталон
@@ -207,7 +218,11 @@ Program.cs, ConsoleReporter.cs   пути, лог, вывод в консоль
   того же проекта после шаговых правок аналоговых алармов (4 аларма: пределы
   Int, Real, UInt и тег, поле тега в тексте); эталон
   `expected/a603-analog/аналоговые-алармы.txt` — лист «Аналоговые алармы» целиком,
-  сверен с TIA (ячейки через ` | `). Эталоны:
+  сверен с TIA (ячейки через ` | `). `a603-classes/` — `pdata.fwc` того же
+  проекта после шаговых правок классов алармов (State machine, Log, E-mail
+  address, цвета, тексты состояний), сверенных с TIA; эталон
+  `expected/a603-classes/классы-алармов.txt` — лист «Классы алармов» целиком
+  (ячейки через ` | `). Эталоны:
   `expected/теги.txt`, `expected/plc/теги.txt` (`pdata-one-connection.fwc` +
   `PEData.plf`; 67 его строк совпали с прежним эталоном, сверенным через
   Openness) и `expected/card/теги.txt` —
@@ -227,9 +242,10 @@ Program.cs, ConsoleReporter.cs   пути, лог, вывод в консоль
   отдельным процессом на файлах `samples/`, карта — распаковкой
   `CCB-A03.zip` во временный каталог; испорченные входы — копии `samples/`,
   изменённые в рантайме, в том числе испорченные `MSG_NUMEVENT`, `MSG_NUMHANDLER`,
-  `AREAPTR`, `MSG_ANALOGCREAT`, `MSG_ANALOG_OBSE` и `MSG_ANALOGHANDL`; листы
-  «Теги», «Сводка», «Системные события», «Дискретные алармы» и «Аналоговые
-  алармы»). Каждый
+  `AREAPTR`, `MSG_ANALOGCREAT`, `MSG_ANALOG_OBSE`, `MSG_ANALOGHANDL`, `RECMSG`,
+  `ARCHIVES`, `MSG_LOGGER` и `FUNC_SEND_EMAIL`; листы «Теги», «Сводка»,
+  «Системные события», «Дискретные алармы», «Аналоговые алармы» и «Классы
+  алармов»). Каждый
   интеграционный тест пишет в свой временный каталог через `FLEXRT_OUT` и
   удаляет его; `data/out` тесты не трогают. Хост — `DOTNET_HOST_PATH`, иначе
   `dotnet` из PATH. `Extraction/` — `ExtractionRun` внутри процесса на файлах
@@ -284,7 +300,9 @@ Program.cs, ConsoleReporter.cs   пути, лог, вывод в консоль
 S7-1200 без панели; карта ПЛК — на одной карте CCB-A03 (S7-1500F, TIA V19) с
 бэкапом панели CCB-A13 (TP1500 Comfort, Runtime V17); дискретные алармы — на
 шаговых копиях A603A0097 (TP1900 Comfort, V21), сверенных со списком из TIA;
-аналоговые алармы — на одной шаговой копии того же проекта (4 аларма).
+аналоговые алармы — на одной шаговой копии того же проекта (4 аларма);
+классы алармов — на шаговых копиях A603A0097 и Project1 (V21), журнал алармов и
+адрес письма — по одному.
 Называй вывод проверенным именно на этом.
 
 ## Установленное поведение
@@ -353,7 +371,7 @@ S7-1200 без панели; карта ПЛК — на одной карте CC
   байт длины на 0x65), версия Runtime (`BuildInfo.txt` рядом, `Build=N_<версия>_…`),
   IP и маска панели (`DEVICE_OMSP` +0x0c, +0x10), языки (`0x419 — русский
   (Россия)`: код и название языка на нём самом), строки, теги, системные события,
-  дискретные алармы, аналоговые алармы;
+  дискретные алармы, аналоговые алармы, классы алармов;
   пустая строка; по строке на соединение (`Соединение <имя>` — `IP ПЛК …`;
   соединений нет — `Соединения с ПЛК` — `нет`);
   пустая строка; `Данные ПЛК` — `карта ПЛК: путь`, `PEData.plf: путь`,
@@ -463,6 +481,53 @@ S7-1200 без панели; карта ПЛК — на одной карте CC
     дискретных), Trigger tag, Limit, Limit mode, Report; строки по возрастанию ID.
     Колонки Name нет. Данные ПЛК не используются;
   - строка `Аналоговых алармов: N` в консоли после `Дискретных алармов:` и на «Сводке».
+- Классы алармов (сверено с TIA на шаговых копиях A603A0097 и Project1, V21):
+  - классы — записи `MSG_NUMHANDLER`, а если их нет — `MSG_ANALOGHANDL` (в
+    известных файлах одинаковы); запись 0x24: +0x00 строка Display name, +0x04,
+    +0x08, +0x0c строки Incoming, Outgoing, Acknowledged, +0x10…+0x1c четыре u32
+    цвета (байты R, G, B, признак) в порядке колонок листа, +0x20 u8 ID, +0x21
+    u16 State machine, +0x23 0. Классов System и Diagnosis events в этих
+    таблицах нет, на листе их нет;
+  - Log: `RECMSG` (Id 0x43) — u32 1, u32 R, R ссылок по 8 байт (одна, на
+    `MSG_HNDQUEUE` 0x1a), u16 2 (не разобрано), u16 K, K u16 ID классов журнала,
+    нули до кратности 4 (Log у Warnings добавил ID 2); `ARCHIVES` (Id 0x44) —
+    элемент на журнал: u16 3, u16 длина имени в символах, имя UTF-16LE, нули до
+    кратности 4, u32 R, R ссылок по 8 байт (u16 таблица, u16 элемент, два слова;
+    журналы данных — на `RECVAR` 0x42, журнал алармов — на элемент `RECMSG`),
+    остальное не читается, R не ограничено. Log класса — имя журнала со ссылкой
+    на элемент `RECMSG`, где есть ID класса;
+  - E-mail address: `MSG_LOGGER` (Id 0x25, пустой список есть во всех панелях) —
+    u32 1, u32 R, ссылки, u16 1, u16 K, K записей по 8 байт: u16 ID класса, u16
+    Id таблицы (`FUNC_SEND_EMAIL` 0x107), u16 номер элемента (гипотеза: встречен
+    только 0), u16 0; `FUNC_SEND_EMAIL` — на +0x50 u32 длина в байтах и адрес
+    UTF-16LE (гипотеза по одному элементу `test@test.com`); `SEND_EMAIL` (0x106)
+    не читается. Начало элемента `RECMSG` и `MSG_LOGGER` разбирает общий код.
+    Несколько журналов или адресов у класса — берётся первый (не встречалось);
+  - сбой разбора `RECMSG`, `ARCHIVES`, `MSG_LOGGER` или `FUNC_SEND_EMAIL`
+    (длина не сходится, R > 0x20 в `RECMSG`/`MSG_LOGGER`, первое слово `ARCHIVES`
+    не 3, адрес не помещается) — `FwxFormatException`: предупреждение, код 1,
+    лист всё равно пишется; если `RECMSG` или `ARCHIVES` прочитана не целиком,
+    Log класса без найденного журнала — `?`, если `MSG_LOGGER` или
+    `FUNC_SEND_EMAIL` — E-mail address без найденного адреса `?`;
+  - лист «Классы алармов» после «Аналоговые алармы», нет классов — листа нет:
+    `ID`, `Display name <язык>` на каждом языке
+    (`Display name 0x409 — English (United States)`), Name (Errors, Warnings,
+    Acknowledgement, No Acknowledgement по ID; свой — `?`: Name в панели не
+    хранится, а вывод его из непереведённого Display name пользователь
+    отклонил), State machine (`0c 03` — `Alarm with single-mode
+    acknowledgment`, `04 01` — `Alarm without acknowledgment`, иначе `?`; других
+    в TIA нет), Log (нет — `<No log>`), E-mail address (нет — пусто),
+    `Background color "Incoming"`, `Background color "Incoming/Outgoing"`,
+    `Background color "Incoming/Acknowledged"`,
+    `Background color "Incoming/Outgoing/Acknowledged"` — `R, G, B` с заливкой
+    ячейки этим цветом, текст белый при яркости 0.299R + 0.587G + 0.114B < 64;
+    признак `0x20` — «цвета классов выключены» без заливки (флажок цветов
+    классов в Runtime settings выключен, цвета в файле нет — установлено на
+    Project1, V21), другой признак — `?`; затем `Incoming <язык>`,
+    `Outgoing <язык>`, `Acknowledged <язык>`. Строки по возрастанию ID. Колонка
+    Alarm class листов алармов не меняется (свой класс — Display name на первом
+    языке);
+  - строка `Классов алармов: N` в консоли после `Аналоговых алармов:` и на «Сводке».
 - Таблица, не подходящая под «каталог смещений», сохраняется целиком в
   `raw.hex.txt` с предупреждением; остальные таблицы обрабатываются.
 - Любое предупреждение — неразобранная таблица или запись, таблица,
@@ -539,6 +604,14 @@ S7-1200 без панели; карта ПЛК — на одной карте CC
   и другие типы не проверены, 8-байтовый предел LReal неизвестен.
   `MSG_ANALOG_OBSE` +0x00 и слова ссылки на
   `MSG_ANALOGHANDL` не разобраны.
+- Классы алармов: сверены шаговые копии A603A0097 и Project1 (V21), реального
+  бэкапа с журналом алармов или адресом письма нет. Встречены один журнал
+  алармов и один адрес; положение адреса в `FUNC_SEND_EMAIL` — гипотеза по
+  одному элементу; `SEND_EMAIL`, u16 перед K в `RECMSG`/`MSG_LOGGER`, номер
+  элемента в записи `MSG_LOGGER` (только 0) и байты `ARCHIVES` после ссылок не
+  разобраны. Name своего класса в панели нет. Классы System и Diagnosis events
+  не выводятся: в списках классов их нет; +0x20 заголовка `SYSMSGHANDLER` похоже
+  на цвет — наблюдение, не разобрано. Common alarm class и Flashing не искались.
 - Карта ПЛК: IP CPU — из объекта «Network Parameters», имя ПЛК — из объекта CPU.
   Сверено с проектом TIA на карте `PLC_1` тестового проекта (имя, оба IP, весь
   лист «Теги» совпали с PEData.plf); `MyPLC` есть на обеих картах — системное
@@ -698,8 +771,10 @@ kebab-case, например `формат-fwx/таблица-var.md`. Стан�
 - Текст в консоли и сообщения об ошибках — на русском.
 
 Новый парсер таблицы панели: файл `src/FlexRt.Core/Parsing/Panel/<Имя>Parser.cs` с namespace
-`FlexRt.Parsing.Panel`, в нём `public static class <Имя>Parser` с методом
-`Parse(FwxDocument doc)`. Модель записи — отдельный файл в `Model/Panel/`,
+`FlexRt.Parsing.Panel` (таблицы системных событий, алармов, классов и журналов —
+в `Parsing/Panel/Alarms/`, namespace `FlexRt.Parsing.Panel.Alarms`), в нём
+`public static class <Имя>Parser` с методом `Parse(FwxDocument doc)`. Модель
+записи — отдельный файл в `Model/Panel/` (для алармов — `Model/Panel/Alarms/`),
 список записей — свойство в `Model/Panel/FwxDocument.cs`. Подключай одной
 строкой `TryParse(doc, <Имя>Parser.Parse);` в `Parsing/Panel/FwxReader.cs`,
 метод `Read`. Новые данные проекта ПЛК: парсер в `Parsing/Plc/Plf/<роль>/`,

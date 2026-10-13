@@ -1,4 +1,5 @@
 using FlexRt.Binary;
+using FlexRt.Model.Panel.Alarms;
 
 namespace FlexRt.Model.Panel;
 
@@ -45,6 +46,22 @@ public sealed class FwxDocument
     public List<AlarmClass> AnalogAlarmClasses { get; } = [];
     /// <summary>Пределы аналоговых алармов из MSG_ANALOG_OBSE в порядке каталога.</summary>
     public List<AnalogAlarmLimit> AnalogLimits { get; } = [];
+    /// <summary>Списки классов журналов алармов из RECMSG в порядке каталога.</summary>
+    public List<AlarmLogClasses> AlarmLogClasses { get; } = [];
+    /// <summary>Журналы панели из ARCHIVES в порядке каталога.</summary>
+    public List<PanelArchive> Archives { get; } = [];
+    /// <summary>Функции классов алармов из MSG_LOGGER в порядке файла.</summary>
+    public List<AlarmClassFunction> AlarmClassFunctions { get; } = [];
+    /// <summary>Отправки писем из FUNC_SEND_EMAIL в порядке каталога.</summary>
+    public List<EmailFunction> EmailFunctions { get; } = [];
+    /// <summary>RECMSG прочитана целиком (или её нет); <c>false</c> — разбор оборвался.</summary>
+    public bool AlarmLogClassesComplete { get; set; }
+    /// <summary>ARCHIVES прочитана целиком (или её нет); <c>false</c> — разбор оборвался.</summary>
+    public bool ArchivesComplete { get; set; }
+    /// <summary>MSG_LOGGER прочитана целиком (или её нет); <c>false</c> — разбор оборвался.</summary>
+    public bool AlarmClassFunctionsComplete { get; set; }
+    /// <summary>FUNC_SEND_EMAIL прочитана целиком (или её нет); <c>false</c> — разбор оборвался.</summary>
+    public bool EmailFunctionsComplete { get; set; }
     /// <summary>Таблицы, которые не удалось разобрать (остальное при этом читается).</summary>
     public List<string> Warnings { get; } = [];
 

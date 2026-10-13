@@ -1,4 +1,4 @@
-using FlexRt.Export.PanelData;
+using FlexRt.Export.PanelData.Tags;
 using FlexRt.Model.Panel;
 using Xunit;
 

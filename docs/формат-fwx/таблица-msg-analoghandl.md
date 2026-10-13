@@ -1,8 +1,8 @@
 # MSG_ANALOGHANDL — классы аналоговых алармов
 
 Обработчик аналоговых алармов: число алармов, список ID и классы. Программа
-читает таблицу в `Parsing/Panel/MsgAnalogHandlParser.cs`, раскладку — общим с
-`MSG_NUMHANDLER` кодом `Parsing/Panel/AlarmHandlerLayout.cs`. На номер класса
+читает таблицу в `Parsing/Panel/Alarms/MsgAnalogHandlParser.cs`, раскладку — общим с
+`MSG_NUMHANDLER` кодом `Parsing/Panel/Alarms/AlarmHandlerLayout.cs`. На номер класса
 ссылается аларм в `MSG_ANALOGCREAT`
 ([таблица-msg-analogcreat.md](таблица-msg-analogcreat.md)).
 
@@ -29,5 +29,7 @@
 ## Что делает программа
 
 - Читает записи классов в отдельный список аналоговых алармов.
+- Лист «Классы алармов» берёт этот список, только если список `MSG_NUMHANDLER`
+  пуст (в известных файлах списки одинаковы).
 - Длина элемента не сходится с N и K — `FwxFormatException`: предупреждение,
   код 1; у аналоговых алармов класс `?`.

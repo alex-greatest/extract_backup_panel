@@ -2,8 +2,8 @@
 
 Аналоговые алармы панели (в TIA: HMI alarms → Analog alarms): ID, текст,
 класс, Report и поля вывода в тексте. Программа читает таблицу в
-`Parsing/Panel/MsgAnalogCreatParser.cs`, раскладку элемента — общим с
-`MSG_NUMEVENT` кодом `Parsing/Panel/AlarmMessageLayout.cs`. Класс — номер
+`Parsing/Panel/Alarms/MsgAnalogCreatParser.cs`, раскладку элемента — общим с
+`MSG_NUMEVENT` кодом `Parsing/Panel/Alarms/AlarmMessageLayout.cs`. Класс — номер
 записи в `MSG_ANALOGHANDL`
 ([таблица-msg-analoghandl.md](таблица-msg-analoghandl.md)), тег срабатывания,
 предел и Limit mode — в `MSG_ANALOG_OBSE`

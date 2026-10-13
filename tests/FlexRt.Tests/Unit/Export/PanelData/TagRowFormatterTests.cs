@@ -1,5 +1,5 @@
 using FlexRt.Binary;
-using FlexRt.Export.PanelData;
+using FlexRt.Export.PanelData.Tags;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;

@@ -1,5 +1,5 @@
 using ClosedXML.Excel;
-using FlexRt.Export.PanelData;
+using FlexRt.Export.PanelData.Tags;
 
 namespace FlexRt.Tests.Integration;
 
