@@ -12,13 +12,13 @@ public static class SummaryRows
 
     /// <summary>
     /// Построить строки: панель (файл, модель, версия Runtime, IP и маска, языки, число строк,
-    /// тегов, системных событий и дискретных алармов), пустая строка, по строке на соединение
-    /// (имя и IP ПЛК), пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя,
+    /// тегов, системных событий, дискретных и аналоговых алармов), пустая строка, по строке на
+    /// соединение (имя и IP ПЛК), пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя,
     /// модель CPU, IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
     /// </summary>
     /// <returns>Подписи и значения по порядку строк; пустая строка — пустые подпись и значение.</returns>
     public static IReadOnlyList<(string Label, string Value)> Build(FwxDocument doc, PlcProject? project, RunSummary summary) =>
-        PanelRows(doc, summary).Append(("", "")).Concat(ConnectionRows(doc)).Append(("", "")).Concat(PlcRows(project, summary)).ToList();
+        [.. PanelRows(doc, summary), ("", ""), .. ConnectionRows(doc), ("", ""), .. PlcRows(project, summary)];
 
     /// <summary>Строки панели.</summary>
     /// <returns>Подписи и значения.</returns>
@@ -34,6 +34,7 @@ public static class SummaryRows
         yield return ("Тегов панели", doc.Tags.Count.ToString());
         yield return ("Системных событий", doc.SystemEvents.Count.ToString());
         yield return ("Дискретных алармов", doc.DiscreteAlarms.Count.ToString());
+        yield return ("Аналоговых алармов", doc.AnalogAlarms.Count.ToString());
     }
 
     /// <summary>Строки соединений: <c>Соединение HMI1</c> — <c>IP ПЛК 192.168.1.1</c>.</summary>

@@ -6,14 +6,15 @@ using FlexRt.Model.Summary;
 
 namespace FlexRt.Export.PanelData;
 
-/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события», лист «Дискретные алармы» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
+/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события», лист «Дискретные алармы», лист «Аналоговые алармы» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
 public static class PanelDataExporter
 {
     /// <summary>
     /// Записать книгу: первым — лист «Сводка» (<see cref="SummarySheet.Write"/>), затем лист
     /// «Теги» (<see cref="TagsSheet.Write"/>), лист «Системные события»
-    /// (<see cref="SystemEventsSheet.Write"/>) и лист «Дискретные алармы»
-    /// (<see cref="DiscreteAlarmsSheet.Write"/>) — если они есть; лист «Ошибки» — только если
+    /// (<see cref="SystemEventsSheet.Write"/>), лист «Дискретные алармы»
+    /// (<see cref="DiscreteAlarmsSheet.Write"/>) и лист «Аналоговые алармы»
+    /// (<see cref="AnalogAlarmsSheet.Write"/>) — если они есть; лист «Ошибки» — только если
     /// <paramref name="errors"/> не пуст, по строке на сообщение. Текст пишется как есть
     /// (<c>=...</c> не становится формулой).
     /// </summary>
@@ -31,6 +32,10 @@ public static class PanelDataExporter
         if (doc.DiscreteAlarms.Count > 0)
         {
             DiscreteAlarmsSheet.Write(workbook, doc, matches);
+        }
+        if (doc.AnalogAlarms.Count > 0)
+        {
+            AnalogAlarmsSheet.Write(workbook, doc);
         }
         if (errors.Count > 0)
         {

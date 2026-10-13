@@ -3,7 +3,7 @@ using FlexRt.Model.Panel;
 
 namespace FlexRt.Export.PanelData;
 
-/// <summary>Текст дискретного аларма с полями вывода в виде, как в колонке Alarm text в TIA.</summary>
+/// <summary>Текст дискретного или аналогового аларма с полями вывода в виде, как в колонке Alarm text в TIA.</summary>
 public static partial class AlarmText
 {
     /// <summary>
@@ -20,9 +20,9 @@ public static partial class AlarmText
     /// A603A0097 (алармы 30 и 70).
     /// </summary>
     /// <returns>Подписи по порядку полей.</returns>
-    public static List<string> FieldLabels(DiscreteAlarm alarm, AlarmFieldNames names) =>
+    public static List<string> FieldLabels(IEnumerable<AlarmField> fields, AlarmFieldNames names) =>
     [
-        .. alarm.Fields.Select(f => f.TextList ? "<Text list, ?>" : $"<Tag : {f.Length}, {names.Find(f)}>")
+        .. fields.Select(f => f.TextList ? "<Text list, ?>" : $"<Tag : {f.Length}, {names.Find(f)}>")
     ];
 
     /// <summary>

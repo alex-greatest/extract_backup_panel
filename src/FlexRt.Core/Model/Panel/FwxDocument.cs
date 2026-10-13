@@ -39,6 +39,12 @@ public sealed class FwxDocument
     /// без тега. <c>false</c> — элементы пропущены или разбор оборвался, отсутствие тега не известно.
     /// </summary>
     public bool AlarmBitsComplete { get; set; }
+    /// <summary>Аналоговые алармы из MSG_ANALOGCREAT в порядке файла.</summary>
+    public List<AnalogAlarm> AnalogAlarms { get; } = [];
+    /// <summary>Классы аналоговых алармов из MSG_ANALOGHANDL в порядке файла; на номер в списке ссылается <see cref="AnalogAlarm.ClassIndex"/>.</summary>
+    public List<AlarmClass> AnalogAlarmClasses { get; } = [];
+    /// <summary>Пределы аналоговых алармов из MSG_ANALOG_OBSE в порядке каталога.</summary>
+    public List<AnalogAlarmLimit> AnalogLimits { get; } = [];
     /// <summary>Таблицы, которые не удалось разобрать (остальное при этом читается).</summary>
     public List<string> Warnings { get; } = [];
 

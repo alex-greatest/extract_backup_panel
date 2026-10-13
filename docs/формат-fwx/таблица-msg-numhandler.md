@@ -2,8 +2,10 @@
 
 Классы алармов панели (в TIA: HMI alarms → Alarm classes): ID класса, Display
 name, тексты состояний, цвета. Программа читает таблицу в
-`Parsing/Panel/MsgNumHandlerParser.cs`; на номер записи класса ссылается
-аларм в `MSG_NUMEVENT` ([таблица-msg-numevent.md](таблица-msg-numevent.md)).
+`Parsing/Panel/MsgNumHandlerParser.cs` (раскладка — `AlarmHandlerLayout.cs`, общая с
+`MSG_ANALOGHANDL`, [таблица-msg-analoghandl.md](таблица-msg-analoghandl.md)); на номер
+записи класса ссылается аларм в `MSG_NUMEVENT`
+([таблица-msg-numevent.md](таблица-msg-numevent.md)).
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md).
 

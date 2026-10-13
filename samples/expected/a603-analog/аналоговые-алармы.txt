@@ -1,0 +1,5 @@
+ID | 0x409 — English (United States) | 0x419 — русский (Россия) | 0x415 — polski (Polska) | Alarm class | Trigger tag | Limit | Limit mode | Report
+1 | <Tag : 5, DB_ST7_BasicLogic_Work_Mode_Machine_mode_no>ANA2 | <Tag : 5, DB_ST7_BasicLogic_Work_Mode_Machine_mode_no> | <Tag : 5, DB_ST7_BasicLogic_Work_Mode_Machine_mode_no> | Errors | DB_ST7_A603_SQL_COMM_TRACE_O_FB_Active_State | 50 | Lower | On
+2 | ANA3 |  |  | Errors | DB_ST7_Analog_Channel_2_Value | 13 | Higher | On
+3 | VVVV |  |  | Errors | DB_ST7_Audit_ForceLeft_Results_Summary_HMI_Status | 555 | Higher | On
+7 | ANA1 |  |  | Warnings | DB_ST7_A603_SQL_COMM_TRACE_O_FB_Active_State | DB_ST7_Cylinders_BLOCKADES_Y5_BLOCK_NR | Higher | On

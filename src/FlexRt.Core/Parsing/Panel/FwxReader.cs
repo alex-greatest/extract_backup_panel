@@ -14,7 +14,8 @@ public static class FwxReader
     /// ошибка в отдельной таблице попадает в <see cref="FwxDocument.Warnings"/>,
     /// чтобы остальные экспорты (xlsx, explode) могли отработать.
     /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK, CONNECTION_OMSP, DEVICE_OMSP,
-    /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT и AREAPTR.
+    /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT и
+    /// MSG_ANALOG_OBSE.
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
     /// <exception cref="IOException">Файл не удалось прочитать.</exception>
@@ -34,6 +35,9 @@ public static class FwxReader
         TryParse(doc, MsgNumHandlerParser.Parse);
         TryParse(doc, MsgNumEventParser.Parse);
         TryParse(doc, AreaPtrParser.Parse);
+        TryParse(doc, MsgAnalogHandlParser.Parse);
+        TryParse(doc, MsgAnalogCreatParser.Parse);
+        TryParse(doc, MsgAnalogObseParser.Parse);
         return doc;
     }
 

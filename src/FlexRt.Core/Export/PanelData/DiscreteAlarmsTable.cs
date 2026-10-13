@@ -17,34 +17,25 @@ public static class DiscreteAlarmsTable
     /// <summary>
     /// Построить таблицу. Колонки: <c>ID</c>, по колонке текста на язык в порядке STRINGSTORE
     /// (<c>0x409 — English (United States)</c>) и <see cref="TailColumns"/>. Строки — по аларму, по
-    /// возрастанию ID. Текст — строка языка с номером <see cref="DiscreteAlarm.TextIdx"/> с
-    /// подписями полей (<see cref="AlarmText.Format"/>), нет строки — пустая ячейка; остальное —
-    /// <see cref="AlarmRowFormatter.Format"/>. Колонки Name нет: имени аларма нет ни в панели, ни
-    /// в ПЛК.
+    /// возрастанию ID. Текст — <see cref="AlarmLanguageTexts.Cells"/> по строке
+    /// <see cref="DiscreteAlarm.TextIdx"/>; остальное — <see cref="AlarmRowFormatter.Format"/>.
+    /// Колонки Name нет: имени аларма нет ни в панели, ни в ПЛК.
     /// </summary>
     /// <returns>Заголовки и строки алармов.</returns>
     public static ReportTable Build(FwxDocument doc, IReadOnlyList<PlcMatch?> matches)
     {
-        var languages = doc.Strings.Select(s => s.Lcid).Distinct().ToList();
-        var texts = doc.Strings.ToLookup(s => (s.Lcid, (long)s.Idx), s => s.Str);
-        var columns = languages.Select(LanguageText.Format).Prepend("ID").Concat(TailColumns).ToList();
+        var texts = new AlarmLanguageTexts(doc);
         var tagIndex = new AlarmTagIndex(doc);
-        var fieldNames = new AlarmFieldNames(doc);
+        List<string> columns = ["ID", .. texts.Columns, .. TailColumns];
         var rows = doc.DiscreteAlarms.OrderBy(a => a.Id).Select(Row).ToList();
         return new ReportTable(columns, rows);
 
         // строка одного аларма: ID, тексты на языках, колонки после текстов
-        ReportCell[] Row(DiscreteAlarm alarm)
-        {
-            var labels = AlarmText.FieldLabels(alarm, fieldNames);
-            var alarmTexts = languages.Select(lcid => Text(lcid, alarm.TextIdx))
-                .Select(text => (ReportCell)(text.Length > 0 ? AlarmText.Format(text, labels) : ""));
-            var tail = AlarmRowFormatter.Format(doc, matches, tagIndex, FirstLanguageText, alarm);
-            return alarmTexts.Prepend(alarm.Id).Concat(tail).ToArray();
-        }
-        // строка языка lcid с номером idx; нет такой строки — пусто
-        string Text(int lcid, long idx) => texts[(lcid, idx)].FirstOrDefault() ?? "";
-        // строка с номером idx на первом языке панели (Display name своего класса); языков нет — пусто
-        string FirstLanguageText(long idx) => languages.Count == 0 ? "" : Text(languages[0], idx);
+        ReportCell[] Row(DiscreteAlarm alarm) =>
+        [
+            alarm.Id,
+            .. texts.Cells(alarm.TextIdx, alarm.Fields),
+            .. AlarmRowFormatter.Format(doc, matches, tagIndex, texts.FirstLanguageText, alarm)
+        ];
     }
 }

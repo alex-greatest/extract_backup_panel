@@ -13,25 +13,10 @@ public static class AlarmRowFormatter
     private const string Unknown = "неизвестно";
 
     /// <summary>
-    /// Стандартные классы по ID: сверено с полем ID класса в TIA на A603A0097. Их Display name
-    /// бывает пустым, а имени класса в панели нет.
-    /// </summary>
-    private static readonly Dictionary<int, string> StandardClasses = new()
-    {
-        [1] = "Errors",
-        [2] = "Warnings",
-        [3] = "System",
-        [4] = "Diagnosis events",
-        [33] = "Acknowledgement",
-        [34] = "No Acknowledgement"
-    };
-
-    /// <summary>
     /// Значения колонок Alarm class, Trigger tag, Trigger bit, Trigger address, HMI
-    /// acknowledgment tag, bit, address, PLC acknowledgment tag, bit, Report. Класс: стандартный —
-    /// по ID словом, свой — его Display name на первом языке панели (имени своего класса в панели
-    /// нет), номер класса вне списка — <c>?</c>. Тега нет — <c>&lt;No tag&gt;</c>, бит 0, адрес
-    /// пустой, как в TIA; но если AREAPTR прочитана не целиком
+    /// acknowledgment tag, bit, address, PLC acknowledgment tag, bit, Report. Класс —
+    /// <see cref="AlarmClassName.Format"/> по списку классов MSG_NUMHANDLER. Тега нет —
+    /// <c>&lt;No tag&gt;</c>, бит 0, адрес пустой, как в TIA; но если AREAPTR прочитана не целиком
     /// (<see cref="FwxDocument.AlarmBitsComplete"/>), отсутствие тега не известно — имя и бит
     /// <c>?</c>, адрес «неизвестно». У квитирования из ПЛК адреса нет и в TIA. Элемент AREAPTR
     /// есть, но ни один тег VAR на него не ссылается, — имя <c>?</c>, адрес «неизвестно». Адрес —
@@ -45,24 +30,12 @@ public static class AlarmRowFormatter
         var plc = TagColumns(doc, matches, tagIndex.Find(alarm.Id, AlarmBitRole.PlcAcknowledgment));
         return
         [
-            ClassName(doc, firstLanguageText, alarm),
+            AlarmClassName.Format(doc.AlarmClasses, alarm.ClassIndex, firstLanguageText),
             trigger.Tag, trigger.Bit, trigger.Address,
             hmi.Tag, hmi.Bit, hmi.Address,
             plc.Tag, plc.Bit,
             alarm.Report ? "On" : "Off"
         ];
-    }
-
-    /// <summary>Класс аларма для колонки Alarm class.</summary>
-    /// <returns>Имя стандартного класса, Display name своего или <c>?</c>.</returns>
-    private static string ClassName(FwxDocument doc, Func<long, string> firstLanguageText, DiscreteAlarm alarm)
-    {
-        if (alarm.ClassIndex >= doc.AlarmClasses.Count)
-        {
-            return "?";
-        }
-        var alarmClass = doc.AlarmClasses[alarm.ClassIndex];
-        return StandardClasses.GetValueOrDefault(alarmClass.Id) ?? firstLanguageText(alarmClass.DisplayNameIdx);
     }
 
     /// <summary>Имя тега, бит и адрес бита для одного назначения.</summary>
