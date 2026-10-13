@@ -20,7 +20,7 @@ public sealed class AlarmLanguageTexts
     /// <summary>Собрать языки и строки документа и индекс имён тегов полей.</summary>
     public AlarmLanguageTexts(FwxDocument doc)
     {
-        _languages = doc.Strings.Select(s => s.Lcid).Distinct().ToList();
+        _languages = [.. doc.Strings.Select(s => s.Lcid).Distinct()];
         _texts = doc.Strings.ToLookup(s => (s.Lcid, (long)s.Idx), s => s.Str);
         _fieldNames = new AlarmFieldNames(doc);
     }
