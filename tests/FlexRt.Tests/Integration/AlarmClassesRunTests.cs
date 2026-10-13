@@ -16,6 +16,12 @@ public sealed class AlarmClassesRunTests
     /// <summary>A603A0097 с шестью классами: журнал у 1 и 2, адрес письма и свои цвета у 64.</summary>
     private const string ClassesPanel = "samples/a603-classes/pdata.fwc";
 
+    /// <summary>
+    /// Project1 (V21) с цветами классов, двумя журналами алармов и двумя адресами: у класса 65 —
+    /// <c>Alarm_log_1</c> и <c>a@test.com</c>, у 66 — <c>Alarm_log_2</c> и <c>b@test.com</c>; сверено с TIA.
+    /// </summary>
+    private const string TwoLogsPanel = "samples/project1-classes/pdata.fwc";
+
     /// <summary>Лист «Классы алармов» по <see cref="ClassesPanel"/> целиком.</summary>
     private const string Expected = "samples/expected/a603-classes/классы-алармов.txt";
 
@@ -77,6 +83,25 @@ public sealed class AlarmClassesRunTests
             "65 | FF0000 | FF0000 | FFFFFF | FFFFFF"
         ];
         Assert.Equal(expected, AlarmClassesSheetDump.Fills(dir.PanelDataWorkbook));
+    }
+
+    /// <summary>
+    /// <see cref="TwoLogsPanel"/>: код 0, без предупреждений, у каждого класса свой журнал и свой
+    /// адрес — записи MSG_LOGGER по 6 байт, номер элемента FUNC_SEND_EMAIL 0 и 1.
+    /// </summary>
+    [Fact]
+    public void TwoLogsPanel_LogAndEmailPerClass()
+    {
+        using var dir = new TestDirectory();
+        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(TwoLogsPanel), dir.MissingFile(), dir.OutDir);
+
+        RunAssertions.ExitCode(run, 0);
+        Assert.DoesNotContain("ПРЕДУПРЕЖДЕНИЕ", run.StdErr + run.StdOut);
+        var rows = AlarmClassesSheetDump.Read(dir.PanelDataWorkbook);
+        string[] logs = ["<No log>", "<No log>", "<No log>", "<No log>", "<No log>", "Alarm_log_1", "Alarm_log_2"];
+        string[] emails = ["", "", "", "", "", "a@test.com", "b@test.com"];
+        Assert.Equal(logs, AlarmClassesSheetDump.Column(rows, LogColumn));
+        Assert.Equal(emails, AlarmClassesSheetDump.Column(rows, EmailColumn));
     }
 
     /// <summary>

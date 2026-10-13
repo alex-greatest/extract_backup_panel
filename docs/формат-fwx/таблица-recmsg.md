@@ -9,7 +9,8 @@ HMI alarms → Alarm classes). Программа читает таблицу в
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md).
 Проверено на шаговых копиях A603A0097 (V21, один журнал алармов
-`OP70_AlarmsHistory`, `samples/a603-classes/`).
+`OP70_AlarmsHistory`, `samples/a603-classes/`) и Project1 (V21, два журнала
+алармов у двух классов — элемент на журнал, `samples/project1-classes/`).
 
 ## Таблица
 
