@@ -23,8 +23,8 @@ public static class MsgNumEventParser
 
         foreach (var item in FwxReader.CheckedItems(doc.Binary, table))
         {
-            var (id, textIdx, classIndex, report, fields) = AlarmMessageLayout.Read(doc.Binary, item);
-            doc.DiscreteAlarms.Add(new DiscreteAlarm(id, textIdx, classIndex, report, fields));
+            var (id, textIdx, classIndex, group, report, fields) = AlarmMessageLayout.Read(doc.Binary, item);
+            doc.DiscreteAlarms.Add(new DiscreteAlarm(id, textIdx, classIndex, group, report, fields));
         }
     }
 }

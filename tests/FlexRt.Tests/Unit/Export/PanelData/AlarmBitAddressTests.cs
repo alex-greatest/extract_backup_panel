@@ -79,13 +79,15 @@ public sealed class AlarmBitAddressTests
         Assert.Equal("неизвестно", AlarmBitAddress.Format(Tag(IntType), null, 3));
     }
 
-    /// <summary>Внутренний тег: адреса нет.</summary>
-    [Fact]
-    public void Format_InternalTag_Empty()
+    /// <summary>Внутренний тег: адрес — номер бита, как в TIA (Project1, V21: бит 0 → <c>0</c>, бит 5 → <c>5</c>).</summary>
+    [Theory]
+    [InlineData(0, "0")]
+    [InlineData(5, "5")]
+    public void Format_InternalTag_BitNumber(int bit, string expected)
     {
         var tag = new HmiTag(1, "Tag", IntType, 1, 0, 0, null, null);
 
-        Assert.Equal("", AlarmBitAddress.Format(tag, null, 0));
+        Assert.Equal(expected, AlarmBitAddress.Format(tag, null, bit));
     }
 
     /// <summary>PLC-тег с кодом типа <paramref name="typeCode"/>.</summary>

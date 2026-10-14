@@ -16,6 +16,15 @@ public static class MsgAnalogObseParser
     /// <summary>Размер полей после ссылок: u16 ID, u8 Limit mode, u8 вид значения, u32 значение.</summary>
     private const int BodySize = 8;
 
+    /// <summary>
+    /// Байт вида значения 8-байтового предела: float64 вместо u32 (установлено на Project1, V21:
+    /// тег LReal, Limit <c>1.5</c> — вид 3 и <c>00 00 00 00 00 00 f8 3f</c>).
+    /// </summary>
+    private const int Float64Kind = 3;
+
+    /// <summary>Сколько байт значение float64 занимает сверх u32 обычного предела.</summary>
+    private const int Float64Extra = 4;
+
     /// <summary>Наибольшее число ссылок, которое принимается без ошибки (наблюдение: 1 и 2).</summary>
     private const long MaxReferences = 0x20;
 
@@ -45,11 +54,11 @@ public static class MsgAnalogObseParser
     /// не разобрано), <c>+0x04</c> u32 R — число ссылок, R ссылок по 8 байт в разном порядке
     /// (наблюдение: на MSG_ANALOGHANDL со словами <c>0x4e</c>, <c>0x8000</c> — всегда; на запись
     /// VAR со словами 0, <c>0x1a</c> — тег предела), затем u16 ID аларма, u8 Limit mode, u8 вид
-    /// значения и u32 значение предела. Элемент кончается ровно там. Если ссылок на VAR несколько,
-    /// берётся первая.
+    /// значения и значение предела: u32, а у вида <see cref="Float64Kind"/> — 8 байт float64.
+    /// Элемент кончается ровно там. Если ссылок на VAR несколько, берётся первая.
     /// </summary>
     /// <returns>Предел аларма.</returns>
-    /// <exception cref="FwxFormatException">Длина элемента не сходится с числом ссылок.</exception>
+    /// <exception cref="FwxFormatException">Длина элемента не сходится с числом ссылок и видом значения.</exception>
     private static AnalogAlarmLimit ReadRecord(FwxBinary b, TableItem item, int? varTable)
     {
         var p = item.Offset;
@@ -59,13 +68,20 @@ public static class MsgAnalogObseParser
             throw new FwxFormatException(b.Section, p, $"запись {number}: длина {item.Length} меньше 0x{ReferencesOffset + BodySize:x}");
         }
         var references = b.D4(p + 4);
-        if (references > MaxReferences || ReferencesOffset + references * ReferenceSize + BodySize != item.Length)
+        var body = p + ReferencesOffset + references * ReferenceSize;
+        if (references > MaxReferences || body + BodySize > p + item.Length)
         {
             throw new FwxFormatException(b.Section, p, $"запись {number}: длина {item.Length} не сходится с {references} ссылками");
         }
-        var body = p + ReferencesOffset + references * ReferenceSize;
+        var kind = b.D1(body + 3);
+        var extra = kind == Float64Kind ? Float64Extra : 0;
+        if (body + BodySize + extra != p + item.Length)
+        {
+            throw new FwxFormatException(b.Section, p, $"запись {number}: длина {item.Length} не сходится с {references} ссылками и видом значения {kind}");
+        }
+        var value = kind == Float64Kind ? b.D4(body + 4) | (b.D4(body + 8) << 32) : b.D4(body + 4);
         var limitTag = FindLimitTag(b, p + ReferencesOffset, (int)references, varTable);
-        return new AnalogAlarmLimit(item.Index, b.D2(body), b.D1(body + 2), b.D1(body + 3), b.D4(body + 4), limitTag);
+        return new AnalogAlarmLimit(item.Index, b.D2(body), b.D1(body + 2), kind, value, limitTag);
     }
 
     /// <summary>

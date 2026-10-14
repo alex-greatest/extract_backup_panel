@@ -34,10 +34,17 @@ public sealed class AnalogLimitValueTests
         Assert.Equal("12.5", AnalogLimitValue.Format(2, 0x41480000).Text);
     }
 
+    /// <summary>Вид 3 — float64 текстом в инвариантной культуре (Project1: тег LReal, <c>1.5</c>).</summary>
+    [Fact]
+    public void Float64_InvariantText()
+    {
+        Assert.Equal("1.5", AnalogLimitValue.Format(3, 0x3ff8000000000000).Text);
+    }
+
     /// <summary>Незнакомый вид — <c>?</c>.</summary>
     [Fact]
     public void UnknownKind_Question()
     {
-        Assert.Equal("?", AnalogLimitValue.Format(3, 7).Text);
+        Assert.Equal("?", AnalogLimitValue.Format(4, 7).Text);
     }
 }

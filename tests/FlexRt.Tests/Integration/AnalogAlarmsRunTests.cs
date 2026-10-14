@@ -65,8 +65,8 @@ public sealed class AnalogAlarmsRunTests
         RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOG_OBSE @ 0x{item.Offset:X}: запись 2: длина {item.Length} не сходится с 5 ссылками");
         var rows = AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(5, rows.Count);
-        Assert.EndsWith("| Warnings | DB_ST7_A603_SQL_COMM_TRACE_O_FB_Active_State | DB_ST7_Cylinders_BLOCKADES_Y5_BLOCK_NR | Higher | On", rows[4]);
-        Assert.All(rows.Skip(1).Take(3), r => Assert.EndsWith("| Errors | ? | ? | ? | On", r));
+        Assert.EndsWith("| Warnings | <No alarm group> | DB_ST7_A603_SQL_COMM_TRACE_O_FB_Active_State | DB_ST7_Cylinders_BLOCKADES_Y5_BLOCK_NR | Higher | On", rows[4]);
+        Assert.All(rows.Skip(1).Take(3), r => Assert.EndsWith("| Errors | <No alarm group> | ? | ? | ? | On", r));
         RunAssertions.NoStackTrace(run);
     }
 
@@ -105,7 +105,7 @@ public sealed class AnalogAlarmsRunTests
         RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGHANDL @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
         var rows = AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(5, rows.Count);
-        Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | DB_ST7_", r));
+        Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | <No alarm group> | DB_ST7_", r));
     }
 
     /// <summary>

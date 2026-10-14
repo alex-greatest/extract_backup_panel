@@ -1,3 +1,4 @@
+using System.Globalization;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;
@@ -26,15 +27,17 @@ public static class AlarmBitAddress
     /// <c>%DB80.DBX60.0</c> бит 20 → <c>%DB80.DBX63.4</c>; у I/Q/M — <c>%I1.0</c> (не проверено).
     /// Символьный доступ: имя тега ПЛК и <c>.x</c> с битом, у массива — номер элемента и бит в нём:
     /// <c>DB.Member.x7</c>, <c>Data_block_1.11[1].x4</c>. Сверено с TIA на A603A0097: 12 адресов
-    /// (Int, массив Word абсолютный и массив Int символьный). Внутренний тег — пусто; тег не
-    /// найден в ПЛК — «отсутствует в файле ПЛК»; нет данных — «неизвестно».
+    /// (Int, массив Word абсолютный и массив Int символьный). Внутренний тег — номер бита, как в
+    /// TIA (сверено на Project1, V21: бит 0 → <c>0</c>, бит 5 → <c>5</c>, квитирование HMI бит 4 →
+    /// <c>4</c>); тег не найден в ПЛК —
+    /// «отсутствует в файле ПЛК»; нет данных — «неизвестно».
     /// </summary>
     /// <returns>Адрес.</returns>
     public static string Format(HmiTag tag, PlcMatch? match, int bit)
     {
         if (tag.LinkTable is null)
         {
-            return "";
+            return bit.ToString(CultureInfo.InvariantCulture);
         }
         if (match?.Link is not { } link)
         {

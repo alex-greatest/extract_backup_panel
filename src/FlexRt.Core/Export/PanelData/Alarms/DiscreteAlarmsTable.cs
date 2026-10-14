@@ -7,10 +7,10 @@ namespace FlexRt.Export.PanelData.Alarms;
 /// <summary>Таблица листа «Дискретные алармы»: алармы панели с колонками как Discrete alarms в TIA, без имени аларма.</summary>
 public static class DiscreteAlarmsTable
 {
-    /// <summary>Колонки после текстов — как в таблице Discrete alarms в TIA, плюс квитирование из ПЛК.</summary>
+    /// <summary>Колонки после текстов — как в таблице Discrete alarms в TIA и Alarm group из свойств аларма, плюс квитирование из ПЛК.</summary>
     private static readonly string[] TailColumns =
     [
-        "Alarm class", "Trigger tag", "Trigger bit", "Trigger address",
+        "Alarm class", "Alarm group", "Trigger tag", "Trigger bit", "Trigger address",
         "HMI acknowledgment tag", "HMI acknowledgment bit", "HMI acknowledgment address",
         "PLC acknowledgment tag", "PLC acknowledgment bit", "Report"
     ];

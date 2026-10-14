@@ -13,7 +13,7 @@ public static class SummaryRows
 
     /// <summary>
     /// Построить строки: панель (файл, модель, версия Runtime, IP и маска, языки, число строк,
-    /// тегов, системных событий, дискретных и аналоговых алармов, классов алармов), пустая строка, по строке на
+    /// тегов, системных событий, дискретных и аналоговых алармов, классов и групп алармов), пустая строка, по строке на
     /// соединение (имя и IP ПЛК), пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя,
     /// модель CPU, IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
     /// </summary>
@@ -37,6 +37,7 @@ public static class SummaryRows
         yield return ("Дискретных алармов", doc.DiscreteAlarms.Count.ToString());
         yield return ("Аналоговых алармов", doc.AnalogAlarms.Count.ToString());
         yield return ("Классов алармов", AlarmClassesTable.Classes(doc).Count.ToString());
+        yield return ("Групп алармов", AlarmGroupsTable.Groups(doc).Count.ToString());
     }
 
     /// <summary>Строки соединений: <c>Соединение HMI1</c> — <c>IP ПЛК 192.168.1.1</c>.</summary>

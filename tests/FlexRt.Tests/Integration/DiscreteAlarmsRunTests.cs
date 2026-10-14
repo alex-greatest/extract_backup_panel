@@ -83,7 +83,7 @@ public sealed class DiscreteAlarmsRunTests
         RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - AREAPTR: пропущено элементов с незнакомой раскладкой: 1, первый — элемент 2 на 0x{item.Offset:x}: вид 7");
         var first = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook)[1];
         Assert.StartsWith("1 | ", first);
-        Assert.EndsWith("| Errors | Alarms_Events | 0 | %DB1000.DBX1.0 | ? | ? | неизвестно | Alarms_Events | 2000 | Off", first);
+        Assert.EndsWith("| Errors | <No alarm group> | Alarms_Events | 0 | %DB1000.DBX1.0 | ? | ? | неизвестно | Alarms_Events | 2000 | Off", first);
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public sealed class DiscreteAlarmsRunTests
         RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMHANDLER @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
         var rows = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(2001, rows.Count);
-        Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | Alarms_Events | ", r));
+        Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | <No alarm group> | Alarms_Events | ", r));
     }
 
     /// <summary>

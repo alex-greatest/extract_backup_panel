@@ -3,7 +3,7 @@ using FlexRt.Model.Panel.Alarms;
 
 namespace FlexRt.Export.PanelData.Alarms;
 
-/// <summary>Колонки листа «Аналоговые алармы» после текстов: класс, тег срабатывания, предел, Limit mode и Report.</summary>
+/// <summary>Колонки листа «Аналоговые алармы» после текстов: класс, группа, тег срабатывания, предел, Limit mode и Report.</summary>
 public sealed class AnalogAlarmRowFormatter
 {
     /// <summary>Байт Limit mode = Higher; сверено с TIA на шаговых копиях A603A0097.</summary>
@@ -44,22 +44,24 @@ public sealed class AnalogAlarmRowFormatter
     }
 
     /// <summary>
-    /// Значения колонок Alarm class, Trigger tag, Limit, Limit mode, Report. Класс —
-    /// <see cref="AlarmClassName.Format"/> по списку классов MSG_ANALOGHANDL. Нет элемента
+    /// Значения колонок Alarm class, Alarm group, Trigger tag, Limit, Limit mode, Report. Класс —
+    /// <see cref="AlarmClassName.Format"/> по списку классов MSG_ANALOGHANDL, группа —
+    /// <see cref="AlarmGroupText.Format"/>. Нет элемента
     /// MSG_ANALOG_OBSE с ID аларма (таблица не прочитана) — Trigger tag, Limit и Limit mode
     /// <c>?</c>; ни один тег VAR не ссылается на элемент — Trigger tag <c>?</c>. Limit —
     /// <see cref="Limit"/>; Limit mode — <c>Higher</c>, <c>Lower</c>, незнакомый байт — <c>?</c>.
     /// </summary>
-    /// <returns>5 значений: текст или число.</returns>
+    /// <returns>6 значений: текст или число.</returns>
     public ReportCell[] Format(AnalogAlarm alarm, Func<long, string> firstLanguageText)
     {
         var className = AlarmClassName.Format(_classes, alarm.ClassIndex, firstLanguageText);
+        var group = AlarmGroupText.Format(alarm.Group);
         var report = alarm.Report ? "On" : "Off";
         if (!_limits.TryGetValue(alarm.Id, out var limit))
         {
-            return [className, "?", "?", "?", report];
+            return [className, group, "?", "?", "?", report];
         }
-        return [className, _triggerByLimit.GetValueOrDefault(limit.Index, "?"), Limit(limit), Mode(limit.Mode), report];
+        return [className, group, _triggerByLimit.GetValueOrDefault(limit.Index, "?"), Limit(limit), Mode(limit.Mode), report];
     }
 
     /// <summary>

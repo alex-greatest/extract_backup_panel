@@ -1,16 +1,16 @@
-ID | 0x409 — English (United States) | 0x419 — русский (Россия) | 0x415 — polski (Polska) | Alarm class | Trigger tag | Trigger bit | Trigger address | HMI acknowledgment tag | HMI acknowledgment bit | HMI acknowledgment address | PLC acknowledgment tag | PLC acknowledgment bit | Report
-1 | Machine off - press 'START' to switch on | Машина выключена - нажмите "ПУСК", чтобы включить | Maszyna wyłączona - naciśnij 'START' aby włączyć | Errors | COM_ALARMS\DB_ALARM_WORD0 | 0 | %DB80.DBX1.0 | <No tag> | 0 |  | <No tag> | 0 | On
-2 | Alarm2 |  | Alarm2 | Acknowledgement | COM_ALARMS\DB_ALARM_WORD0 | 1 | %DB80.DBX1.1 | DB_ST7_BasicLogic_Work_Mode_Machine_mode_no | 3 | неизвестно | <No tag> | 0 | Off
-3 | E-STOP button pressed on panel! (I:11.0) |  | E-STOP wciśnięty na panelu! (I:11.0) | Errors | COM_ALARMS\DB_ALARM_WORD35 | 2 | %DB80.DBX71.2 | <No tag> | 0 |  | COM_ALARMS\DB_ALARM_WORD35 | 15 | Off
-4 | E-STOP button pressed on machine! (I:0.3) |  | E-STOP wciśnięty na maszynie! (I:0.3) | Errors | T_ARR | 3 | %DB80.DBX61.3 | <No tag> | 0 |  | <No tag> | 0 | Off
-5 | Alarm 5 |  | Alarm 5 | Errors | T_ARR | 12 | %DB80.DBX60.4 | <No tag> | 0 |  | <No tag> | 0 | Off
-6 | Alarm 6 |  | Alarm 6 | Errors | T_ARR | 20 | %DB80.DBX63.4 | <No tag> | 0 |  | <No tag> | 0 | Off
-7 | Power supplay 4PS2 is disable (I:1.1) |  | Zasilanie 4PS2 wyłączone (I:1.1) | Errors | T_ARR | 63 | %DB80.DBX66.7 | <No tag> | 0 |  | <No tag> | 0 | Off
-30 | Drive fault - Axis #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_FAULT_CODE> <Text list, ?> | <Tag : 6, DB_ST7_Axis_Axis_Receive_FAULT_CODE><Text list, ?> | Błąd napędu – Oś #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_FAULT_CODE> <Text list, ?> | Errors | COM_ALARMS\DB_ALARM_WORD1 | 13 | %DB80.DBX2.5 | <No tag> | 0 |  | <No tag> | 0 | Off
-31 | Drive alarm - Axis #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_ALARM_CODE> <Text list, ?> | <Tag : 6, DB_ST7_Axis_Axis_Receive_ALARM_CODE><Text list, ?> | Alarm napędu - Oś #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_ALARM_CODE> <Text list, ?> | Errors | COM_ALARMS\DB_ALARM_WORD1 | 14 | %DB80.DBX2.6 | <No tag> | 0 |  | <No tag> | 0 | Off
-70 | TRACE: Function block error: <Text list, ?>, <Text list, ?> | TRACE: Ошибка блока FB: <Text list, ?>, <Text list, ?> | TRACE: Błąd bloku FB: <Text list, ?>, <Text list, ?> | Errors | COM_ALARMS\DB_ALARM_WORD4 | 5 | %DB80.DBX9.5 | <No tag> | 0 |  | <No tag> | 0 | Off
-99 | Alarm99 |  | Alarm99 | Errors | COM_ALARMS\DB_ALARM_WORD6 | 2 | %DB80.DBX13.2 | <No tag> | 0 |  | <No tag> | 0 | Off
-194 | Alarm 194 | Тревога 194 | Alarm 194 | Warnings | COM_ALARMS\DB_ALARM_WORD12 | 1 | %DB80.DBX25.1 | <No tag> | 0 |  | <No tag> | 0 | Off
-353 |  |  |  | DISP | DB_ST7_HMI_MANU_Axis_Parameter_DEC | 7 | неизвестно | DB_ST7_HMI_MANU_Axis_Parameter_ACC | 1 | неизвестно | <No tag> | 0 | On
-354 |  |  |  | DISP | DB_ST7_HMI_MANU_Axis_Parameter_DEC | 8 | неизвестно | DB_ST7_HMI_MANU_Axis_Parameter_ACC | 2 | неизвестно | <No tag> | 0 | On
-355 |  |  |  | DISP | T_500ms_1 | 20 | неизвестно | DB_ST7_HMI_MANU_Axis_Parameter_ACC | 15 | неизвестно | <No tag> | 0 | On
+ID | 0x409 — English (United States) | 0x419 — русский (Россия) | 0x415 — polski (Polska) | Alarm class | Alarm group | Trigger tag | Trigger bit | Trigger address | HMI acknowledgment tag | HMI acknowledgment bit | HMI acknowledgment address | PLC acknowledgment tag | PLC acknowledgment bit | Report
+1 | Machine off - press 'START' to switch on | Машина выключена - нажмите "ПУСК", чтобы включить | Maszyna wyłączona - naciśnij 'START' aby włączyć | Errors | <No alarm group> | COM_ALARMS\DB_ALARM_WORD0 | 0 | %DB80.DBX1.0 | <No tag> | 0 |  | <No tag> | 0 | On
+2 | Alarm2 |  | Alarm2 | Acknowledgement | <No alarm group> | COM_ALARMS\DB_ALARM_WORD0 | 1 | %DB80.DBX1.1 | DB_ST7_BasicLogic_Work_Mode_Machine_mode_no | 3 | неизвестно | <No tag> | 0 | Off
+3 | E-STOP button pressed on panel! (I:11.0) |  | E-STOP wciśnięty na panelu! (I:11.0) | Errors | <No alarm group> | COM_ALARMS\DB_ALARM_WORD35 | 2 | %DB80.DBX71.2 | <No tag> | 0 |  | COM_ALARMS\DB_ALARM_WORD35 | 15 | Off
+4 | E-STOP button pressed on machine! (I:0.3) |  | E-STOP wciśnięty na maszynie! (I:0.3) | Errors | <No alarm group> | T_ARR | 3 | %DB80.DBX61.3 | <No tag> | 0 |  | <No tag> | 0 | Off
+5 | Alarm 5 |  | Alarm 5 | Errors | <No alarm group> | T_ARR | 12 | %DB80.DBX60.4 | <No tag> | 0 |  | <No tag> | 0 | Off
+6 | Alarm 6 |  | Alarm 6 | Errors | <No alarm group> | T_ARR | 20 | %DB80.DBX63.4 | <No tag> | 0 |  | <No tag> | 0 | Off
+7 | Power supplay 4PS2 is disable (I:1.1) |  | Zasilanie 4PS2 wyłączone (I:1.1) | Errors | <No alarm group> | T_ARR | 63 | %DB80.DBX66.7 | <No tag> | 0 |  | <No tag> | 0 | Off
+30 | Drive fault - Axis #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_FAULT_CODE> <Text list, ?> | <Tag : 6, DB_ST7_Axis_Axis_Receive_FAULT_CODE><Text list, ?> | Błąd napędu – Oś #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_FAULT_CODE> <Text list, ?> | Errors | <No alarm group> | COM_ALARMS\DB_ALARM_WORD1 | 13 | %DB80.DBX2.5 | <No tag> | 0 |  | <No tag> | 0 | Off
+31 | Drive alarm - Axis #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_ALARM_CODE> <Text list, ?> | <Tag : 6, DB_ST7_Axis_Axis_Receive_ALARM_CODE><Text list, ?> | Alarm napędu - Oś #1\nNo.:<Tag : 6, DB_ST7_Axis_Axis_Receive_ALARM_CODE> <Text list, ?> | Errors | <No alarm group> | COM_ALARMS\DB_ALARM_WORD1 | 14 | %DB80.DBX2.6 | <No tag> | 0 |  | <No tag> | 0 | Off
+70 | TRACE: Function block error: <Text list, ?>, <Text list, ?> | TRACE: Ошибка блока FB: <Text list, ?>, <Text list, ?> | TRACE: Błąd bloku FB: <Text list, ?>, <Text list, ?> | Errors | <No alarm group> | COM_ALARMS\DB_ALARM_WORD4 | 5 | %DB80.DBX9.5 | <No tag> | 0 |  | <No tag> | 0 | Off
+99 | Alarm99 |  | Alarm99 | Errors | <No alarm group> | COM_ALARMS\DB_ALARM_WORD6 | 2 | %DB80.DBX13.2 | <No tag> | 0 |  | <No tag> | 0 | Off
+194 | Alarm 194 | Тревога 194 | Alarm 194 | Warnings | <No alarm group> | COM_ALARMS\DB_ALARM_WORD12 | 1 | %DB80.DBX25.1 | <No tag> | 0 |  | <No tag> | 0 | Off
+353 |  |  |  | DISP | <No alarm group> | DB_ST7_HMI_MANU_Axis_Parameter_DEC | 7 | неизвестно | DB_ST7_HMI_MANU_Axis_Parameter_ACC | 1 | неизвестно | <No tag> | 0 | On
+354 |  |  |  | DISP | <No alarm group> | DB_ST7_HMI_MANU_Axis_Parameter_DEC | 8 | неизвестно | DB_ST7_HMI_MANU_Axis_Parameter_ACC | 2 | неизвестно | <No tag> | 0 | On
+355 |  |  |  | DISP | <No alarm group> | T_500ms_1 | 20 | неизвестно | DB_ST7_HMI_MANU_Axis_Parameter_ACC | 15 | неизвестно | <No tag> | 0 | On

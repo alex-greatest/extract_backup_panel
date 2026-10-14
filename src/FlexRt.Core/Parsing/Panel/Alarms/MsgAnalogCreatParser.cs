@@ -11,8 +11,9 @@ public static class MsgAnalogCreatParser
     /// Прочитать таблицу MSG_ANALOGCREAT и добавить алармы в <see cref="FwxDocument.AnalogAlarms"/>
     /// в порядке файла. Раскладка элемента та же, что у MSG_NUMEVENT
     /// (<see cref="AlarmMessageLayout.Read"/>; сверено на шаговых копиях A603A0097: ID, текст,
-    /// класс, Report, одно поле тега); номер класса — в списке классов MSG_ANALOGHANDL. Таблица есть
-    /// только в панелях с аналоговыми алармами; нет таблицы в TOC — ничего не делает.
+    /// класс, Report, одно поле тега; группа — на шаговых копиях Project1); номер класса — в списке
+    /// классов MSG_ANALOGHANDL. Таблица есть только в панелях с аналоговыми алармами; нет таблицы
+    /// в TOC — ничего не делает.
     /// </summary>
     /// <exception cref="FwxFormatException">Элемент выходит за пределы таблицы или его раскладка не сходится.</exception>
     public static void Parse(FwxDocument doc)
@@ -25,8 +26,8 @@ public static class MsgAnalogCreatParser
 
         foreach (var item in FwxReader.CheckedItems(doc.Binary, table))
         {
-            var (id, textIdx, classIndex, report, fields) = AlarmMessageLayout.Read(doc.Binary, item);
-            doc.AnalogAlarms.Add(new AnalogAlarm(id, textIdx, classIndex, report, fields));
+            var (id, textIdx, classIndex, group, report, fields) = AlarmMessageLayout.Read(doc.Binary, item);
+            doc.AnalogAlarms.Add(new AnalogAlarm(id, textIdx, classIndex, group, report, fields));
         }
     }
 }

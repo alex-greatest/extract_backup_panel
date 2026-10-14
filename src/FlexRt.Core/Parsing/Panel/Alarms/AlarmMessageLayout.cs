@@ -6,7 +6,7 @@ namespace FlexRt.Parsing.Panel.Alarms;
 
 /// <summary>
 /// Раскладка элемента аларма, общая для MSG_NUMEVENT (дискретные) и MSG_ANALOGCREAT
-/// (аналоговые): ID, текст, класс, Report и поля в тексте.
+/// (аналоговые): ID, текст, класс, группа, Report и поля в тексте.
 /// </summary>
 internal static class AlarmMessageLayout
 {
@@ -37,6 +37,16 @@ internal static class AlarmMessageLayout
     /// </summary>
     private const int ReportFlag = 0x40;
 
+    /// <summary>
+    /// Сдвиг ID группы аларма в байте флагов: байт = ID группы &lt;&lt; 1, 0 — без группы. Сверено с
+    /// TIA на шаговых копиях Project1 (V21): группы 1, 2, 17 у дискретных (<c>02</c>, <c>04</c>,
+    /// <c>22</c>), 31 у аналогового (<c>3e</c>), группа 1 с Report — <c>42</c>.
+    /// </summary>
+    private const int GroupShift = 1;
+
+    /// <summary>ID группы — 5 бит (в TIA назначаются группы с ID 1…31); биты 0 и 7 не встречались.</summary>
+    private const int GroupMask = 0x1f;
+
     /// <summary>Бит поля текстового списка в коде поля; без него — поле тега.</summary>
     private const int TextListFlag = 0x8000;
 
@@ -44,12 +54,13 @@ internal static class AlarmMessageLayout
     /// Один элемент: <c>+0x00</c> u32 0, <c>+0x04</c> u32 R — число ссылок (по две на поле), R
     /// ссылок по 8 байт, затем u32 строка текста, u32 вторая строка (наблюдение: имя соединения
     /// панели, <c>HMI_ST7</c>, <c>HMI1</c>; не выводится), u16 ID, u8 класс (младшие 5 бит — номер
-    /// класса, старшие 3 — число полей), u8 флаги (<see cref="ReportFlag"/>), по u16 коду на поле и
+    /// класса, старшие 3 — число полей), u8 флаги (<see cref="ReportFlag"/>, ID группы — биты 1…5,
+    /// <see cref="GroupShift"/>), по u16 коду на поле и
     /// нули до кратности 4. Элемент кончается ровно там.
     /// </summary>
-    /// <returns>ID, номер строки текста, номер класса, Report и поля.</returns>
+    /// <returns>ID, номер строки текста, номер класса, ID группы (0 — без группы), Report и поля.</returns>
     /// <exception cref="FwxFormatException">Длина элемента, число ссылок или число полей не сходятся.</exception>
-    public static (long Id, long TextIdx, int ClassIndex, bool Report, List<AlarmField> Fields) Read(FwxBinary b, TableItem item)
+    public static (long Id, long TextIdx, int ClassIndex, int Group, bool Report, List<AlarmField> Fields) Read(FwxBinary b, TableItem item)
     {
         var p = item.Offset;
         var number = item.Index + 1;
@@ -75,7 +86,8 @@ internal static class AlarmMessageLayout
         var fields = Enumerable.Range(0, (int)fieldCount)
             .Select(i => ReadField(b, p + ReferencesOffset + i * ReferencesPerField * ReferenceSize, b.D2(body + BodySize + i * 2L)))
             .ToList();
-        return (b.D2(body + 8), b.D4(body), classByte & ClassIndexMask, (b.D1(body + 0xb) & ReportFlag) != 0, fields);
+        var flags = b.D1(body + 0xb);
+        return (b.D2(body + 8), b.D4(body), classByte & ClassIndexMask, (flags >> GroupShift) & GroupMask, (flags & ReportFlag) != 0, fields);
     }
 
     /// <summary>

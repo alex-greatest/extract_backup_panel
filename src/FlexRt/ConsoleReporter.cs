@@ -23,12 +23,14 @@ internal sealed class ConsoleReporter : IExtractionReporter
 
     /// <summary>
     /// Сводка панели: файл, таблицы TOC, строки, теги, системные события, дискретные и аналоговые алармы,
-    /// классы алармов (<see cref="AlarmClassesTable.Classes"/>); в
+    /// классы алармов (<see cref="AlarmClassesTable.Classes"/>), группы алармов
+    /// (<see cref="AlarmGroupsTable.Groups"/>); в
     /// лог — те же числа и соединения; предупреждения разбора — в stderr и в лог.
     /// </summary>
     public void PanelRead(string path, FwxDocument doc)
     {
         var alarmClasses = AlarmClassesTable.Classes(doc).Count;
+        var alarmGroups = AlarmGroupsTable.Groups(doc).Count;
         Console.WriteLine($"Файл:    {path} ({doc.Binary.Length} байт)");
         Console.WriteLine($"Таблиц:  {doc.Toc.Count}");
         foreach (var t in doc.Toc)
@@ -41,8 +43,9 @@ internal sealed class ConsoleReporter : IExtractionReporter
         Console.WriteLine($"Дискретных алармов: {doc.DiscreteAlarms.Count}");
         Console.WriteLine($"Аналоговых алармов: {doc.AnalogAlarms.Count}");
         Console.WriteLine($"Классов алармов: {alarmClasses}");
-        Log.Information("Панель: {Bytes} байт, таблиц {Tables}, строк языков {Strings}, тегов {Tags}, системных событий {SystemEvents}, дискретных алармов {DiscreteAlarms}, аналоговых алармов {AnalogAlarms}, классов алармов {AlarmClasses}, связей с ПЛК {Links}, указателей областей {AreaLinks}, соединений {Connections}",
-            doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.SystemEvents.Count, doc.DiscreteAlarms.Count, doc.AnalogAlarms.Count, alarmClasses, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
+        Console.WriteLine($"Групп алармов: {alarmGroups}");
+        Log.Information("Панель: {Bytes} байт, таблиц {Tables}, строк языков {Strings}, тегов {Tags}, системных событий {SystemEvents}, дискретных алармов {DiscreteAlarms}, аналоговых алармов {AnalogAlarms}, классов алармов {AlarmClasses}, групп алармов {AlarmGroups}, связей с ПЛК {Links}, указателей областей {AreaLinks}, соединений {Connections}",
+            doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.SystemEvents.Count, doc.DiscreteAlarms.Count, doc.AnalogAlarms.Count, alarmClasses, alarmGroups, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
         foreach (var connection in doc.Connections)
         {
             Log.Information("Соединение {Index}: {Name}, IP ПЛК {Ip}", connection.Index, connection.Name, IpAddressText.Format(connection.Ip));

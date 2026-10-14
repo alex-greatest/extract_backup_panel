@@ -6,8 +6,8 @@ namespace FlexRt.Export.PanelData.Alarms;
 /// <summary>Таблица листа «Аналоговые алармы»: алармы панели с колонками как Analog alarms в TIA, без имени аларма.</summary>
 public static class AnalogAlarmsTable
 {
-    /// <summary>Колонки после текстов — как в таблице Analog alarms в TIA.</summary>
-    private static readonly string[] TailColumns = ["Alarm class", "Trigger tag", "Limit", "Limit mode", "Report"];
+    /// <summary>Колонки после текстов — как в таблице Analog alarms в TIA и Alarm group из свойств аларма.</summary>
+    private static readonly string[] TailColumns = ["Alarm class", "Alarm group", "Trigger tag", "Limit", "Limit mode", "Report"];
 
     /// <summary>
     /// Построить таблицу. Колонки: <c>ID</c>, по колонке текста на язык в порядке STRINGSTORE

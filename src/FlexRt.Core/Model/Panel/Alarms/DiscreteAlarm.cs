@@ -4,6 +4,7 @@ namespace FlexRt.Model.Panel.Alarms;
 /// <param name="Id">Номер аларма, как в колонке ID в TIA.</param>
 /// <param name="TextIdx">Номер строки текста аларма в STRINGSTORE (<see cref="LangString.Idx"/>), один для всех языков.</param>
 /// <param name="ClassIndex">Номер класса аларма в списке <see cref="FwxDocument.AlarmClasses"/>, с нуля.</param>
+/// <param name="Group">ID группы аларма (Alarm group в TIA, 1…31); 0 — без группы. Имени группы в панели нет.</param>
 /// <param name="Report">Report = On в TIA.</param>
 /// <param name="Fields">Поля вывода в тексте (<c>&lt;Tag : 6, …&gt;</c>, <c>&lt;Text list, …&gt;</c>) по порядку номеров в тексте.</param>
-public sealed record DiscreteAlarm(long Id, long TextIdx, int ClassIndex, bool Report, IReadOnlyList<AlarmField> Fields);
+public sealed record DiscreteAlarm(long Id, long TextIdx, int ClassIndex, int Group, bool Report, IReadOnlyList<AlarmField> Fields);

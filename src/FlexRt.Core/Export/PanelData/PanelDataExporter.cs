@@ -8,7 +8,7 @@ using FlexRt.Model.Summary;
 
 namespace FlexRt.Export.PanelData;
 
-/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события», лист «Дискретные алармы», лист «Аналоговые алармы», лист «Классы алармов» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
+/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события», лист «Дискретные алармы», лист «Аналоговые алармы», лист «Классы алармов», лист «Группы алармов» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
 public static class PanelDataExporter
 {
     /// <summary>
@@ -16,8 +16,9 @@ public static class PanelDataExporter
     /// «Теги» (<see cref="TagsSheet.Write"/>), лист «Системные события»
     /// (<see cref="SystemEventsSheet.Write"/>), лист «Дискретные алармы»
     /// (<see cref="DiscreteAlarmsSheet.Write"/>), лист «Аналоговые алармы»
-    /// (<see cref="AnalogAlarmsSheet.Write"/>) и лист «Классы алармов»
-    /// (<see cref="AlarmClassesSheet.Write"/>) — если они есть; лист «Ошибки» — только если
+    /// (<see cref="AnalogAlarmsSheet.Write"/>), лист «Классы алармов»
+    /// (<see cref="AlarmClassesSheet.Write"/>) и лист «Группы алармов»
+    /// (<see cref="AlarmGroupsSheet.Write"/>) — если они есть; лист «Ошибки» — только если
     /// <paramref name="errors"/> не пуст, по строке на сообщение. Текст пишется как есть
     /// (<c>=...</c> не становится формулой).
     /// </summary>
@@ -43,6 +44,10 @@ public static class PanelDataExporter
         if (AlarmClassesTable.Classes(doc).Count > 0)
         {
             AlarmClassesSheet.Write(workbook, doc);
+        }
+        if (AlarmGroupsTable.Groups(doc).Count > 0)
+        {
+            AlarmGroupsSheet.Write(workbook, doc);
         }
         if (errors.Count > 0)
         {
