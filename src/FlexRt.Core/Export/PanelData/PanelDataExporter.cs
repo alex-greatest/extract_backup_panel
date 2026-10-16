@@ -1,5 +1,6 @@
 using ClosedXML.Excel;
 using FlexRt.Export.PanelData.Alarms;
+using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
@@ -8,7 +9,7 @@ using FlexRt.Model.Summary;
 
 namespace FlexRt.Export.PanelData;
 
-/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события», лист «Дискретные алармы», лист «Аналоговые алармы», лист «Классы алармов», лист «Группы алармов» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
+/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события», лист «Дискретные алармы», лист «Аналоговые алармы», лист «Классы алармов», лист «Группы алармов», лист «Экраны» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
 public static class PanelDataExporter
 {
     /// <summary>
@@ -17,8 +18,8 @@ public static class PanelDataExporter
     /// (<see cref="SystemEventsSheet.Write"/>), лист «Дискретные алармы»
     /// (<see cref="DiscreteAlarmsSheet.Write"/>), лист «Аналоговые алармы»
     /// (<see cref="AnalogAlarmsSheet.Write"/>), лист «Классы алармов»
-    /// (<see cref="AlarmClassesSheet.Write"/>) и лист «Группы алармов»
-    /// (<see cref="AlarmGroupsSheet.Write"/>) — если они есть; лист «Ошибки» — только если
+    /// (<see cref="AlarmClassesSheet.Write"/>), лист «Группы алармов»
+    /// (<see cref="AlarmGroupsSheet.Write"/>) и лист «Экраны» (<see cref="ScreensSheet.Write"/>) — если они есть; лист «Ошибки» — только если
     /// <paramref name="errors"/> не пуст, по строке на сообщение. Текст пишется как есть
     /// (<c>=...</c> не становится формулой).
     /// </summary>
@@ -48,6 +49,10 @@ public static class PanelDataExporter
         if (AlarmGroupsTable.Groups(doc).Count > 0)
         {
             AlarmGroupsSheet.Write(workbook, doc);
+        }
+        if (ScreensTable.Screens(doc).Count > 0)
+        {
+            ScreensSheet.Write(workbook, doc);
         }
         if (errors.Count > 0)
         {

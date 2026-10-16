@@ -1,6 +1,7 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Parsing.Panel.Alarms;
+using FlexRt.Parsing.Panel.Screens;
 
 namespace FlexRt.Parsing.Panel;
 
@@ -43,6 +44,9 @@ public static class FwxReader
         TryParse(doc, ArchivesParser.Parse);
         TryParse(doc, MsgLoggerParser.Parse);
         TryParse(doc, FuncSendEmailParser.Parse);
+        TryParse(doc, ScreenParser.Parse);
+        TryParse(doc, AdaptValueChangParser.Parse);
+        TryParse(doc, GuiParser.Parse);
         return doc;
     }
 

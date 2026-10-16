@@ -55,6 +55,12 @@ FlexRt читает скомпилированную конфигурацию п
   функции классов алармов (E-mail address класса).
 - [формат-fwx/таблица-func-send-email.md](формат-fwx/таблица-func-send-email.md)
   — адрес письма класса аларма.
+- [формат-fwx/таблица-screen.md](формат-fwx/таблица-screen.md) — экраны:
+  имя, размер, объекты, вид (экран, pop-up, slide-in, Permanent area).
+- [формат-fwx/таблица-adaptvaluechang.md](формат-fwx/таблица-adaptvaluechang.md)
+  — номера экранов.
+- [формат-fwx/таблица-gui.md](формат-fwx/таблица-gui.md) — номер стартового
+  экрана.
 
 ## Формат проекта TIA
 

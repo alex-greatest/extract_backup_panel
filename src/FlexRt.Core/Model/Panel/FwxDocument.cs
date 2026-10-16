@@ -1,5 +1,6 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel.Alarms;
+using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Model.Panel;
 
@@ -62,6 +63,14 @@ public sealed class FwxDocument
     public bool AlarmClassFunctionsComplete { get; set; }
     /// <summary>FUNC_SEND_EMAIL прочитана целиком (или её нет); <c>false</c> — разбор оборвался.</summary>
     public bool EmailFunctionsComplete { get; set; }
+    /// <summary>Записи SCREEN в порядке каталога, вместе со служебными записями pop-up.</summary>
+    public List<Screen> Screens { get; } = [];
+    /// <summary>Номера экранов из элемента ADAPTVALUECHANG со ссылкой на GUI, в порядке файла.</summary>
+    public List<ScreenNumber> ScreenNumbers { get; } = [];
+    /// <summary>ADAPTVALUECHANG прочитана целиком (или её нет); <c>false</c> — разбор оборвался, номер экрана без пары не известен.</summary>
+    public bool ScreenNumbersComplete { get; set; }
+    /// <summary>Номер стартового экрана из GUI; <c>null</c> — таблицы нет или разбор оборвался.</summary>
+    public int? StartScreenNumber { get; set; }
     /// <summary>Таблицы, которые не удалось разобрать (остальное при этом читается).</summary>
     public List<string> Warnings { get; } = [];
 

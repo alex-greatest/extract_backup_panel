@@ -1,4 +1,5 @@
 using FlexRt.Export.PanelData.Alarms;
+using FlexRt.Export.PanelData.Screens;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;
 using FlexRt.Model.Summary;
@@ -13,7 +14,7 @@ public static class SummaryRows
 
     /// <summary>
     /// Построить строки: панель (файл, модель, версия Runtime, IP и маска, языки, число строк,
-    /// тегов, системных событий, дискретных и аналоговых алармов, классов и групп алармов), пустая строка, по строке на
+    /// тегов, системных событий, дискретных и аналоговых алармов, классов и групп алармов, обычных экранов, стартовый экран), пустая строка, по строке на
     /// соединение (имя и IP ПЛК), пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя,
     /// модель CPU, IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
     /// </summary>
@@ -38,6 +39,8 @@ public static class SummaryRows
         yield return ("Аналоговых алармов", doc.AnalogAlarms.Count.ToString());
         yield return ("Классов алармов", AlarmClassesTable.Classes(doc).Count.ToString());
         yield return ("Групп алармов", AlarmGroupsTable.Groups(doc).Count.ToString());
+        yield return ("Экранов", ScreensTable.ScreenCount(doc).ToString());
+        yield return ("Стартовый экран", StartScreenText.Format(doc));
     }
 
     /// <summary>Строки соединений: <c>Соединение HMI1</c> — <c>IP ПЛК 192.168.1.1</c>.</summary>
