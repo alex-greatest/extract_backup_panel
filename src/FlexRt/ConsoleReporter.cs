@@ -26,7 +26,7 @@ internal sealed class ConsoleReporter : IExtractionReporter
     /// Сводка панели: файл, таблицы TOC, строки, теги, системные события, дискретные и аналоговые алармы,
     /// классы алармов (<see cref="AlarmClassesTable.Classes"/>), группы алармов
     /// (<see cref="AlarmGroupsTable.Groups"/>), число обычных экранов (<see cref="ScreensTable.ScreenCount"/>) и стартовый
-    /// экран (<see cref="StartScreenText.Format"/>); в лог — те же числа и стартовый экран и соединения; предупреждения разбора — в stderr и в лог.
+    /// экран (<see cref="StartScreenText.Format"/>), число картинок; в лог — те же числа и стартовый экран и соединения; предупреждения разбора — в stderr и в лог.
     /// </summary>
     public void PanelRead(string path, FwxDocument doc)
     {
@@ -49,8 +49,9 @@ internal sealed class ConsoleReporter : IExtractionReporter
         Console.WriteLine($"Групп алармов: {alarmGroups}");
         Console.WriteLine($"Экранов: {screens}");
         Console.WriteLine($"Стартовый экран: {startScreen}");
-        Log.Information("Панель: {Bytes} байт, таблиц {Tables}, строк языков {Strings}, тегов {Tags}, системных событий {SystemEvents}, дискретных алармов {DiscreteAlarms}, аналоговых алармов {AnalogAlarms}, классов алармов {AlarmClasses}, групп алармов {AlarmGroups}, экранов {Screens}, стартовый экран {StartScreen}, связей с ПЛК {Links}, указателей областей {AreaLinks}, соединений {Connections}",
-            doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.SystemEvents.Count, doc.DiscreteAlarms.Count, doc.AnalogAlarms.Count, alarmClasses, alarmGroups, screens, startScreen, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
+        Console.WriteLine($"Картинок: {doc.Pictures.Count}");
+        Log.Information("Панель: {Bytes} байт, таблиц {Tables}, строк языков {Strings}, тегов {Tags}, системных событий {SystemEvents}, дискретных алармов {DiscreteAlarms}, аналоговых алармов {AnalogAlarms}, классов алармов {AlarmClasses}, групп алармов {AlarmGroups}, экранов {Screens}, стартовый экран {StartScreen}, картинок {Pictures}, связей с ПЛК {Links}, указателей областей {AreaLinks}, соединений {Connections}",
+            doc.Binary.Length, doc.Toc.Count, doc.Strings.Count, doc.Tags.Count, doc.SystemEvents.Count, doc.DiscreteAlarms.Count, doc.AnalogAlarms.Count, alarmClasses, alarmGroups, screens, startScreen, doc.Pictures.Count, doc.Links.Count, doc.AreaLinks.Count, doc.Connections.Count);
         foreach (var connection in doc.Connections)
         {
             Log.Information("Соединение {Index}: {Name}, IP ПЛК {Ip}", connection.Index, connection.Name, IpAddressText.Format(connection.Ip));

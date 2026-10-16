@@ -6,4 +6,5 @@ namespace FlexRt.Extraction;
 /// <param name="StringsWorkbookPath">Книга строк языков (<c>PDATA.xlsx</c>).</param>
 /// <param name="PanelWorkbookPath">Книга данных панели (<c>panel_data.xlsx</c>).</param>
 /// <param name="HexDir">Папка hex-файлов таблиц; удаляется перед записью.</param>
-public sealed record ExtractionPaths(string FwxPath, string PlcPath, string StringsWorkbookPath, string PanelWorkbookPath, string HexDir);
+/// <param name="PicturesDir">Папка картинок панели (<c>images</c>); удаляется перед записью.</param>
+public sealed record ExtractionPaths(string FwxPath, string PlcPath, string StringsWorkbookPath, string PanelWorkbookPath, string HexDir, string PicturesDir);

@@ -14,7 +14,7 @@ public static partial class RunAssertions
     /// <summary>
     /// Запуск сознательно не поддерживается (у панели несколько соединений, данные ПЛК заданы):
     /// код 1, строка «ОШИБКА: не поддерживается…» в stderr, без трассы стека, файлы результата
-    /// (<c>panel_data.xlsx</c>, <c>PDATA.xlsx</c>, папка <c>pdata</c>) не созданы.
+    /// (<c>panel_data.xlsx</c>, <c>PDATA.xlsx</c>, папки <c>pdata</c> и <c>images</c>) не созданы.
     /// </summary>
     /// <param name="run">Результат запуска.</param>
     /// <param name="connections">Число соединений панели.</param>
@@ -29,6 +29,7 @@ public static partial class RunAssertions
         Assert.False(File.Exists(dir.PanelDataWorkbook), "panel_data.xlsx создан");
         Assert.False(File.Exists(dir.StringsWorkbook), "PDATA.xlsx создан");
         Assert.False(Directory.Exists(dir.HexDir), "папка pdata создана");
+        Assert.False(Directory.Exists(dir.PicturesDir), "папка images создана");
     }
 
     /// <summary>Строка трассы стека .NET в английской или русской локали.</summary>

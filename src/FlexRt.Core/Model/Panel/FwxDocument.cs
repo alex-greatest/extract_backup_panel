@@ -1,5 +1,6 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel.Alarms;
+using FlexRt.Model.Panel.Pictures;
 using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Model.Panel;
@@ -71,6 +72,8 @@ public sealed class FwxDocument
     public bool ScreenNumbersComplete { get; set; }
     /// <summary>Номер стартового экрана из GUI; <c>null</c> — таблицы нет или разбор оборвался.</summary>
     public int? StartScreenNumber { get; set; }
+    /// <summary>Картинки из PICTURE, затем из TILED_PICTURE, в порядке каталога.</summary>
+    public List<PanelPicture> Pictures { get; } = [];
     /// <summary>Таблицы, которые не удалось разобрать (остальное при этом читается).</summary>
     public List<string> Warnings { get; } = [];
 

@@ -11,6 +11,8 @@ const string defaultFwxPath = @"C:\Users\Alexander\Desktop\extract_backup_data\P
 const string xlsxPath = @"D:\projects\extract_backup\data\out\PDATA.xlsx";
 // hex-файлы всех таблиц панели; папка удаляется перед записью
 const string explodeDir = @"D:\projects\extract_backup\data\out\pdata";
+// картинки панели (PICTURE, TILED_PICTURE) файлами; папка удаляется перед записью
+const string imagesDir = @"D:\projects\extract_backup\data\out\images";
 // лист «Теги» (и «Ошибки»)
 const string panelDataPath = @"D:\projects\extract_backup\data\out\panel_data.xlsx";
 // проект ПЛК: System\PEData.plf проекта TIA или папка карты ПЛК с SIMATIC.S7S (подменяется FLEXRT_PLC)
@@ -30,6 +32,7 @@ var plcPath = string.IsNullOrWhiteSpace(plcOverride) ? defaultPlcPath : plcOverr
 var outOverride = Environment.GetEnvironmentVariable("FLEXRT_OUT");
 var stringsWorkbookPath = OutPath(xlsxPath, "PDATA.xlsx");
 var hexDir = OutPath(explodeDir, "pdata");
+var picturesDir = OutPath(imagesDir, "images");
 var panelWorkbookPath = OutPath(panelDataPath, "panel_data.xlsx");
 var logFilePath = OutPath(logPath, Path.Combine("logs", "flexrt-.log"));
 
@@ -62,7 +65,7 @@ int RunAll()
     Log.Information("Запуск FlexRt: панель {Panel} (FLEXRT_INPUT: {InputOverride}), проект ПЛК {Plc} (FLEXRT_PLC: {PlcOverride}), каталог результата {Out} (FLEXRT_OUT: {OutOverride})",
         fwxPath, inputOverride ?? "не задана", plcPath, plcOverride ?? "не задана",
         Path.GetDirectoryName(stringsWorkbookPath), outOverride ?? "не задана");
-    var paths = new ExtractionPaths(fwxPath, plcPath, stringsWorkbookPath, panelWorkbookPath, hexDir);
+    var paths = new ExtractionPaths(fwxPath, plcPath, stringsWorkbookPath, panelWorkbookPath, hexDir, picturesDir);
     return ExtractionRun.Execute(paths, new ConsoleReporter()).ExitCode;
 }
 

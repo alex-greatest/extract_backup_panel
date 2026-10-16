@@ -27,6 +27,9 @@ public sealed class TestDirectory : IDisposable
     /// <summary>Каталог hex-файлов таблиц <c>&lt;out&gt;\pdata</c>.</summary>
     public string HexDir => Path.Combine(OutDir, "pdata");
 
+    /// <summary>Каталог картинок панели <c>&lt;out&gt;\images</c>.</summary>
+    public string PicturesDir => Path.Combine(OutDir, "images");
+
     /// <summary>Книга со строками языков <c>&lt;out&gt;\PDATA.xlsx</c>.</summary>
     public string StringsWorkbook => Path.Combine(OutDir, "PDATA.xlsx");
 

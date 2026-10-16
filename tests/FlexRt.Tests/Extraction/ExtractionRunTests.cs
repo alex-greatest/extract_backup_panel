@@ -21,9 +21,12 @@ public sealed class ExtractionRunTests
     /// <summary>Экспорт hex-файлов.</summary>
     private const string Hex = "Explode -> HEX";
 
+    /// <summary>Экспорт картинок.</summary>
+    private const string Pictures = "Картинки -> файлы";
+
     /// <summary>
-    /// <c>samples/pdata.fwc</c> без проекта ПЛК: панель, «не найден», сопоставление, три
-    /// успешных экспорта; код 0; в результате панель, сводка «не найден» и три итога без ошибок.
+    /// <c>samples/pdata.fwc</c> без проекта ПЛК: панель, «не найден», сопоставление, четыре
+    /// успешных экспорта; код 0; в результате панель, сводка «не найден» и четыре итога без ошибок.
     /// </summary>
     [Fact]
     public void SamplePanel_WithoutPlc_ReportsEventsInOrder()
@@ -34,14 +37,14 @@ public sealed class ExtractionRunTests
 
         var result = ExtractionRun.Execute(Paths(dir, "samples/pdata.fwc", plc), reporter);
 
-        Assert.Equal(["PanelRead", "PlcNotFound", "Matched", Ok(Strings), Ok(Panel), Ok(Hex)], reporter.Events);
+        Assert.Equal(["PanelRead", "PlcNotFound", "Matched", Ok(Strings), Ok(Panel), Ok(Hex), Ok(Pictures)], reporter.Events);
         Assert.Equal(0, result.ExitCode);
         Assert.Equal(16, result.Document?.Tags.Count);
         Assert.Null(result.PlcProject);
         Assert.Equal(16, result.Matches.Count);
         Assert.Empty(result.PlcErrors);
         Assert.Equal($"не найден: {plc}", result.Summary?.PlcSource);
-        Assert.Equal([Strings, Panel, Hex], result.Exports.Select(e => e.Title));
+        Assert.Equal([Strings, Panel, Hex, Pictures], result.Exports.Select(e => e.Title));
         Assert.All(result.Exports, e => Assert.Null(e.Error));
     }
 
@@ -57,7 +60,7 @@ public sealed class ExtractionRunTests
 
         var result = ExtractionRun.Execute(Paths(dir, "samples/plc/pdata-one-connection.fwc", RepositoryPaths.InRepo("samples/plc/PEData.plf")), reporter);
 
-        Assert.Equal(["PanelRead", "PlcRead plf", "Matched", Ok(Strings), Ok(Panel), Ok(Hex)], reporter.Events);
+        Assert.Equal(["PanelRead", "PlcRead plf", "Matched", Ok(Strings), Ok(Panel), Ok(Hex), Ok(Pictures)], reporter.Events);
         Assert.Equal(0, result.ExitCode);
         Assert.Equal(51, result.PlcProject?.Tags.Count);
     }
@@ -117,7 +120,7 @@ public sealed class ExtractionRunTests
 
         var result = ExtractionRun.Execute(Paths(dir, "samples/pdata.fwc", plc), reporter);
 
-        Assert.Equal(["PanelRead", "PlcReadFailed", "Matched", "PlcError", Ok(Strings), Ok(Panel), Ok(Hex)], reporter.Events);
+        Assert.Equal(["PanelRead", "PlcReadFailed", "Matched", "PlcError", Ok(Strings), Ok(Panel), Ok(Hex), Ok(Pictures)], reporter.Events);
         Assert.Equal(1, result.ExitCode);
         Assert.Single(result.PlcErrors);
         Assert.Equal($"не прочитан: {plc}", result.Summary?.PlcSource);
@@ -137,7 +140,7 @@ public sealed class ExtractionRunTests
 
         var result = ExtractionRun.Execute(Paths(dir, "samples/pdata.fwc", dir.MissingFile()), reporter);
 
-        Assert.Equal(["PanelRead", "PlcNotFound", "Matched", Ok(Strings), Failed(Panel), Ok(Hex)], reporter.Events);
+        Assert.Equal(["PanelRead", "PlcNotFound", "Matched", Ok(Strings), Failed(Panel), Ok(Hex), Ok(Pictures)], reporter.Events);
         Assert.Equal(1, result.ExitCode);
         Assert.NotNull(result.Exports[1].Error);
     }
@@ -155,16 +158,16 @@ public sealed class ExtractionRunTests
 
         var result = ExtractionRun.Execute(Paths(dir, "samples/pdata.fwc", dir.MissingFile()), reporter);
 
-        Assert.Equal(["PanelRead", "PlcNotFound", "Matched", Failed(Strings), Ok(Panel), Ok(Hex)], reporter.Events);
+        Assert.Equal(["PanelRead", "PlcNotFound", "Matched", Failed(Strings), Ok(Panel), Ok(Hex), Ok(Pictures)], reporter.Events);
         Assert.Equal(1, result.ExitCode);
-        Assert.Equal([Strings, Panel, Hex], result.Exports.Select(e => e.Title));
+        Assert.Equal([Strings, Panel, Hex, Pictures], result.Exports.Select(e => e.Title));
         Assert.IsType<IOException>(result.Exports[0].Error);
     }
 
     /// <summary>Пути запуска: панель из репозитория, проект ПЛК и выходы — в каталоге теста.</summary>
     /// <returns>Пути для <see cref="ExtractionRun.Execute"/>.</returns>
     private static ExtractionPaths Paths(TestDirectory dir, string panel, string plc) =>
-        new(RepositoryPaths.InRepo(panel), plc, dir.StringsWorkbook, dir.PanelDataWorkbook, dir.HexDir);
+        new(RepositoryPaths.InRepo(panel), plc, dir.StringsWorkbook, dir.PanelDataWorkbook, dir.HexDir, dir.PicturesDir);
 
     /// <summary>Событие успешного экспорта.</summary>
     /// <returns>Текст события <see cref="RecordingReporter"/>.</returns>
