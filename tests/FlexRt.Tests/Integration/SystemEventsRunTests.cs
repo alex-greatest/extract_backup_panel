@@ -3,7 +3,7 @@ using Xunit;
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Системные события (таблица SYSMSGHANDLER): строка консоли, строка листа «Сводка» и лист
+/// Системные события (таблица SYSMSGHANDLER): строка текста запуска, строка листа «Сводка» и лист
 /// «Системные события» в <c>panel_data.xlsx</c>. Ожидаемые тексты сверены со списком
 /// System events из TIA Portal (Project1, TIA V21).
 /// </summary>
@@ -21,7 +21,7 @@ public sealed class SystemEventsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Системных событий: 585");
+        RunAssertions.HasLine(run.Output, "Системных событий: 585");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Системных событий=585");
         var rows = SystemEventsSheetDump.Read(dir.PanelDataWorkbook);
         var expected = File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/системные-события.txt"));
@@ -40,7 +40,7 @@ public sealed class SystemEventsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/card/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Системных событий: 585");
+        RunAssertions.HasLine(run.Output, "Системных событий: 585");
         var rows = SystemEventsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(586, rows.Count);
         Assert.Equal("ID | 0x419 — русский (Россия)", rows[0]);

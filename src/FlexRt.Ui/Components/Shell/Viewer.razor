@@ -1,9 +1,8 @@
 @using System.IO
-@using FlexRt.Export.PanelData.Screens
-@using FlexRt.Parsing.Panel
+@inject NotificationService Notifications
 
 <div class="shell">
-    <Toolbar Loading="_loading" OnOpen="OpenAsync" />
+    <Toolbar Loading="_loading" PlcPath="@_plcPath" OnOpen="OpenAsync" OnPlc="ChoosePlcAsync" />
 
     <RadzenSplitter class="workspace">
         <RadzenSplitterPane Size="300px" Min="150px" Max="700px">
@@ -31,18 +30,22 @@
                 </RadzenSplitterPane>
                 <RadzenSplitterPane Min="120px">
                     <section class="pane">
-                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Hint="@InspectorHint()" Warnings="_warnings" />
+                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Hint="@InspectorHint()" Lines="_lines" />
                     </section>
                 </RadzenSplitterPane>
             </RadzenSplitter>
         </RadzenSplitterPane>
     </RadzenSplitter>
 
-    <StatusBar Loading="_loading" Path="@_path" Error="@_error" ScreenCount="_screenCount" WarningCount="_warnings.Count"
+    <StatusBar Loading="_loading" Path="@_path" Error="@_error" ScreenCount="_screenCount" WarningCount="@_lines.Count(l => l.Level != TranscriptLevel.Info)"
                RowCount="@(ShownTable() is null ? null : _rowCount)" RowTotal="@ShownTable()?.Rows.Count" Notice="@_notice" />
+    <RadzenNotification />
 </div>
 
 @code {
+    /// <summary>Сколько миллисекунд висит уведомление об ошибках после открытия.</summary>
+    private const double NotificationDuration = 6000;
+
     /// <summary>Подсказка в панели свойств, когда открыта таблица, а строка не выбрана.</summary>
     private const string NoRowHint = "Выберите строку таблицы";
 
@@ -61,11 +64,17 @@
     /// <summary>Разделы открытой панели; <c>null</c> — панель не открыта.</summary>
     private PanelView? _view;
 
-    /// <summary>Число обычных экранов (вида Screen) — то же, что строка «Экранов» в консоли и на «Сводке».</summary>
+    /// <summary>Число обычных экранов (вида Screen) — то же, что строка «Экранов» на вкладке Info и на «Сводке».</summary>
     private int _screenCount;
 
-    /// <summary>Сообщения вкладки Info: предупреждения разбора (те же, что печатает консоль) и разделы, которые не построены.</summary>
-    private IReadOnlyList<string> _warnings = [];
+    /// <summary>
+    /// Строки вкладки Info: текст чтения панели и данных ПЛК (<see cref="RunTranscript"/> — то, что раньше печатала
+    /// консоль) и предупреждения о разделах, которые не построены.
+    /// </summary>
+    private IReadOnlyList<TranscriptLine> _lines = [];
+
+    /// <summary>Выбранные данные ПЛК: файл <c>PEData.plf</c> или папка карты ПЛК; <c>null</c> — не заданы.</summary>
+    private string? _plcPath;
 
     /// <summary>Выбранный в дереве узел: экран (<see cref="ScreenItem"/>) или раздел (<see cref="PanelSection"/>); <c>null</c> — ничего.</summary>
     private object? _selected;
@@ -85,12 +94,7 @@
     /// <summary>Идёт чтение файла: кнопка открытия занята.</summary>
     private bool _loading;
 
-    /// <summary>
-    /// Выбрать файл диалогом и прочитать его вне потока окна. Успех — экраны, разделы и предупреждения панели, выбран
-    /// стартовый экран, а если его нет — первый. Прежняя панель убирается сразу, до чтения, чтобы во время чтения
-    /// не показывать смесь старого и нового файла. Ошибка чтения — текст в строке состояния. Отмена диалога ничего
-    /// не меняет.
-    /// </summary>
+    /// <summary>Выбрать файл диалогом и прочитать его (<see cref="LoadAsync"/>). Отмена диалога ничего не меняет.</summary>
     private async Task OpenAsync()
     {
         var chosen = PanelFileDialog.Ask();
@@ -99,22 +103,55 @@
             return;
         }
         _path = chosen;
+        await LoadAsync();
+    }
+
+    /// <summary>
+    /// Пункт меню данных ПЛК: файл <c>PEData.plf</c> или папка карты — диалогом, «Без данных ПЛК» — сброс. Открытая панель
+    /// перечитывается с новым выбором. Отмена диалога ничего не меняет.
+    /// </summary>
+    private async Task ChoosePlcAsync(string? item)
+    {
+        var chosen = item switch
+        {
+            Toolbar.PlcFile => PlcDataDialog.AskFile(),
+            Toolbar.PlcCard => PlcDataDialog.AskCardFolder(),
+            _ => null
+        };
+        if (chosen is null && item != Toolbar.PlcNone)
+        {
+            return;
+        }
+        _plcPath = chosen;
+        if (_path is not null)
+        {
+            await LoadAsync();
+        }
+    }
+
+    /// <summary>
+    /// Прочитать файл <see cref="_path"/> с данными ПЛК <see cref="_plcPath"/>, если они выбраны (<see cref="PanelLoader.LoadAsync"/>:
+    /// тяжёлые шаги — вне потока окна). Успех — экраны, разделы и строки Info, выбран стартовый экран, а если его нет —
+    /// первый. Прежняя панель убирается сразу, до чтения, чтобы во время чтения не показывать смесь старого и нового
+    /// файла. Сбой — панель не показывается, ошибка в строке состояния и на Info.
+    /// </summary>
+    private async Task LoadAsync()
+    {
+        var path = _path!;
+        var plcPath = _plcPath;
         _loading = true;
         _error = null;
         ClearPanel();
         try
         {
-            var doc = await Task.Run(() => FwxReader.Read(chosen));
-            _screens = ScreenItems.From(doc);
-            _view = await Task.Run(() => PanelViews.From(doc, chosen));
-            _screenCount = ScreensTable.ScreenCount(doc);
-            _warnings = [.. doc.Warnings, .. PanelViews.Errors(_view)];
+            var panel = await PanelLoader.LoadAsync(path, plcPath);
+            _screens = panel.Screens;
+            _view = panel.View;
+            _screenCount = panel.ScreenCount;
+            _lines = panel.Lines;
+            _error = panel.Error;
             _selected = _screens.FirstOrDefault(s => s.IsStart) ?? _screens.FirstOrDefault();
-        }
-        catch (Exception e)
-        {
-            ClearPanel();
-            _error = ErrorText(e);
+            NotifyProblems();
         }
         finally
         {
@@ -122,21 +159,33 @@
         }
     }
 
-    /// <summary>Убрать данные открытой панели: экраны, разделы, их числа, предупреждения и выбор.</summary>
+    /// <summary>
+    /// Всплывающее уведомление после открытия, если на вкладке «Ошибки» что-то есть (решение пользователя): красное
+    /// «Есть ошибки», если есть хоть одна ошибка, иначе жёлтое «Есть предупреждения»; число — всех строк вкладки.
+    /// </summary>
+    private void NotifyProblems()
+    {
+        var problems = _lines.Count(l => l.Level != TranscriptLevel.Info);
+        if (problems == 0)
+        {
+            return;
+        }
+        var hasErrors = _lines.Any(l => l.Level == TranscriptLevel.Error);
+        Notifications.Notify(hasErrors ? NotificationSeverity.Error : NotificationSeverity.Warning,
+            hasErrors ? "Есть ошибки" : "Есть предупреждения", $"{problems} — вкладка «Ошибки»", NotificationDuration);
+    }
+
+    /// <summary>Убрать данные открытой панели: экраны, разделы, их числа, строки Info и выбор.</summary>
     private void ClearPanel()
     {
         _screens = [];
         _view = null;
         _screenCount = 0;
-        _warnings = [];
+        _lines = [];
         _selected = null;
         _row = null;
         _notice = null;
     }
-
-    /// <summary>Текст ошибки чтения файла: «Файл не прочитан» и причина (<see cref="FailureText.Describe"/>).</summary>
-    /// <returns>Текст для строки состояния.</returns>
-    private static string ErrorText(Exception e) => $"Файл не прочитан: {FailureText.Describe(e)}";
 
     /// <summary>
     /// Выбрать узел дерева: экран или раздел. У раздела с таблицей выбирается первая строка, число строк — все строки

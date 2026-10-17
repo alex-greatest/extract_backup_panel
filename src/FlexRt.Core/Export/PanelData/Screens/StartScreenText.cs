@@ -2,7 +2,7 @@ using FlexRt.Model.Panel;
 
 namespace FlexRt.Export.PanelData.Screens;
 
-/// <summary>Текст стартового экрана для «Сводки» и консоли.</summary>
+/// <summary>Текст стартового экрана для «Сводки», текста запуска и лога.</summary>
 public static class StartScreenText
 {
     /// <summary>Текст, если стартовый экран не известен.</summary>

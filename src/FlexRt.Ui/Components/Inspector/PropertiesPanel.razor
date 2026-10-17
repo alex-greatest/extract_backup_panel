@@ -9,24 +9,32 @@
         <button type="button" role="tab" aria-selected="@(_outer == InfoTab ? "true" : "false")" class="head-tab @(_outer == InfoTab ? "active" : "")"
                 @onclick="() => _outer = InfoTab">
             <RadzenIcon Icon="info" /> Info
-            @if (Warnings.Count > 0)
+        </button>
+        <button type="button" role="tab" aria-selected="@(_outer == ErrorsTab ? "true" : "false")" class="head-tab @(_outer == ErrorsTab ? "active" : "")"
+                @onclick="() => _outer = ErrorsTab">
+            @if (Problems().Count > 0)
             {
-                <span class="badge">@Warnings.Count</span>
+                <RadzenIcon Icon="@(HasErrors() ? "error" : "warning")" class="@(HasErrors() ? "problem-error" : "problem-warning")" />
+            }
+            Ошибки
+            @if (Problems().Count > 0)
+            {
+                <span class="badge @(HasErrors() ? "badge-error" : "")">@Problems().Count</span>
             }
         </button>
     </div>
 </div>
 
-@if (_outer == InfoTab)
+@if (_outer != PropertiesTab)
 {
     <div class="info-body" role="tabpanel">
-        @if (Warnings.Count == 0)
+        @if (ShownLines().Count == 0)
         {
-            <div class="muted">Предупреждений разбора нет</div>
+            <div class="muted">@(_outer == InfoTab ? "Сообщений нет" : "Ошибок и предупреждений нет")</div>
         }
-        @foreach (var warning in Warnings)
+        @foreach (var line in ShownLines())
         {
-            <div class="info-line"><RadzenIcon Icon="warning" IconStyle="IconStyle.Warning" /> @warning</div>
+            <div class="info-line @LineClass(line.Level)"><RadzenIcon Icon="@(line.Level == TranscriptLevel.Error ? "error" : "warning")" Visible="@(line.Level != TranscriptLevel.Info)" />@line.Text</div>
         }
     </div>
 }
@@ -56,8 +64,11 @@ else
     /// <summary>Вкладка заголовка со свойствами объекта.</summary>
     private const string PropertiesTab = "Properties";
 
-    /// <summary>Вкладка заголовка с предупреждениями разбора.</summary>
+    /// <summary>Вкладка заголовка с основным текстом чтения панели и данных ПЛК (строки уровня Info).</summary>
     private const string InfoTab = "Info";
+
+    /// <summary>Вкладка заголовка с ошибками и предупреждениями (решение пользователя: отдельно от Info, со значком).</summary>
+    private const string ErrorsTab = "Ошибки";
 
     /// <summary>Группа свойств по умолчанию.</summary>
     private const string GeneralGroup = "General";
@@ -69,7 +80,7 @@ else
         ["Height"] = "Layout"
     };
 
-    /// <summary>Открытая вкладка заголовка: <see cref="PropertiesTab"/> или <see cref="InfoTab"/>.</summary>
+    /// <summary>Открытая вкладка заголовка: <see cref="PropertiesTab"/>, <see cref="InfoTab"/> или <see cref="ErrorsTab"/>.</summary>
     private string _outer = PropertiesTab;
 
     /// <summary>Открытая внутренняя вкладка (Properties, Animations, Events): хранится здесь, чтобы не сбрасываться при переходе на Info.</summary>
@@ -90,9 +101,12 @@ else
     [Parameter]
     public string? Hint { get; set; }
 
-    /// <summary>Предупреждения разбора открытой панели для вкладки Info.</summary>
+    /// <summary>
+    /// Текст чтения панели и данных ПЛК (<see cref="RunTranscript"/>, раньше его печатала консоль) и сообщения о
+    /// разделах, которые не построены: строки Info — на вкладке Info, предупреждения и ошибки — на вкладке «Ошибки».
+    /// </summary>
     [Parameter]
-    public IReadOnlyList<string> Warnings { get; set; } = [];
+    public IReadOnlyList<TranscriptLine> Lines { get; set; } = [];
 
     /// <summary>
     /// Вкладка свойств: список групп слева (как Property list в TIA) и поля показываемой группы — выбранной, если она
@@ -144,6 +158,31 @@ else
     /// <returns>Разметка подсказки.</returns>
     private RenderFragment NotParsed(string tab) =>
         @<div class="muted">@(Item is null ? NoSelectionHint : $"{tab}: не разобрано — в pdata.fwc пока не найдено.")</div>;
+
+    /// <summary>Строки вкладки Info: уровня <see cref="TranscriptLevel.Info"/>.</summary>
+    /// <returns>Строки в порядке текста.</returns>
+    private List<TranscriptLine> InfoLines() => [.. Lines.Where(l => l.Level == TranscriptLevel.Info)];
+
+    /// <summary>Строки вкладки «Ошибки»: предупреждения и ошибки в порядке текста.</summary>
+    /// <returns>Строки не уровня <see cref="TranscriptLevel.Info"/>.</returns>
+    private List<TranscriptLine> Problems() => [.. Lines.Where(l => l.Level != TranscriptLevel.Info)];
+
+    /// <summary>Есть ли ошибки: значок вкладки «Ошибки» красный, иначе (одни предупреждения) — жёлтый.</summary>
+    /// <returns><c>true</c>, если есть строка уровня <see cref="TranscriptLevel.Error"/>.</returns>
+    private bool HasErrors() => Lines.Any(l => l.Level == TranscriptLevel.Error);
+
+    /// <summary>Строки открытой вкладки сообщений: Info — <see cref="InfoLines"/>, «Ошибки» — <see cref="Problems"/>.</summary>
+    /// <returns>Строки в порядке текста.</returns>
+    private List<TranscriptLine> ShownLines() => _outer == InfoTab ? InfoLines() : Problems();
+
+    /// <summary>CSS-класс строки по уровню: предупреждение и ошибка — с иконкой и цветом, обычная строка — без.</summary>
+    /// <returns>Имена классов; у обычной строки — пусто.</returns>
+    private static string LineClass(TranscriptLevel level) => level switch
+    {
+        TranscriptLevel.Warning => "problem-line info-warning",
+        TranscriptLevel.Error => "problem-line info-error",
+        _ => ""
+    };
 
     /// <summary>Свойства объекта по группам в порядке первого свойства группы.</summary>
     /// <returns>Группы свойств.</returns>

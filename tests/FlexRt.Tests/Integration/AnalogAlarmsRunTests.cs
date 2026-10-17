@@ -6,7 +6,7 @@ using Xunit;
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Аналоговые алармы (таблицы MSG_ANALOGCREAT, MSG_ANALOG_OBSE, MSG_ANALOGHANDL): строка консоли,
+/// Аналоговые алармы (таблицы MSG_ANALOGCREAT, MSG_ANALOG_OBSE, MSG_ANALOGHANDL): строка текста запуска,
 /// строка листа «Сводка» и лист «Аналоговые алармы» в <c>panel_data.xlsx</c>. Образец — шаговая
 /// копия A603A0097 (TIA V21) с четырьмя аналоговыми алармами, сверенными со списком Analog
 /// alarms в TIA.
@@ -20,7 +20,7 @@ public sealed class AnalogAlarmsRunTests
     private const string Expected = "samples/expected/a603-analog/аналоговые-алармы.txt";
 
     /// <summary>
-    /// A603A0097 без данных ПЛК: код 0, 4 аларма в консоли и на «Сводке», лист совпадает с
+    /// A603A0097 без данных ПЛК: код 0, 4 аларма в тексте запуска и на «Сводке», лист совпадает с
     /// эталоном: ID, текст с полем тега, классы Errors и Warnings, теги срабатывания, пределы
     /// <c>50</c>, <c>13</c>, <c>555</c> и тег предела, Limit mode, Report.
     /// </summary>
@@ -31,7 +31,7 @@ public sealed class AnalogAlarmsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo(AnalogPanel), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Аналоговых алармов: 4");
+        RunAssertions.HasLine(run.Output, "Аналоговых алармов: 4");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Аналоговых алармов=4");
         Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook));
     }
@@ -44,7 +44,7 @@ public sealed class AnalogAlarmsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Аналоговых алармов: 0");
+        RunAssertions.HasLine(run.Output, "Аналоговых алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Аналоговых алармов=0");
         AnalogAlarmsSheetDump.Absent(dir.PanelDataWorkbook);
     }
@@ -62,7 +62,7 @@ public sealed class AnalogAlarmsRunTests
         var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOG_OBSE @ 0x{item.Offset:X}: запись 2: длина {item.Length} не сходится с 5 ссылками");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOG_OBSE @ 0x{item.Offset:X}: запись 2: длина {item.Length} не сходится с 5 ссылками");
         var rows = AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(5, rows.Count);
         Assert.EndsWith("| Warnings | <No alarm group> | DB_ST7_A603_SQL_COMM_TRACE_O_FB_Active_State | DB_ST7_Cylinders_BLOCKADES_Y5_BLOCK_NR | Higher | On", rows[4]);
@@ -83,8 +83,8 @@ public sealed class AnalogAlarmsRunTests
         var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGCREAT @ 0x{item.Offset:X}: запись 3: длина {item.Length} не сходится с 1 ссылками");
-        RunAssertions.HasLine(run.StdOut, "Аналоговых алармов: 2");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGCREAT @ 0x{item.Offset:X}: запись 3: длина {item.Length} не сходится с 1 ссылками");
+        RunAssertions.HasLine(run.Output, "Аналоговых алармов: 2");
         Assert.Equal(3, AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook).Count);
         RunAssertions.NoStackTrace(run);
     }
@@ -102,7 +102,7 @@ public sealed class AnalogAlarmsRunTests
         var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGHANDL @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGHANDL @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
         var rows = AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(5, rows.Count);
         Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | <No alarm group> | DB_ST7_", r));

@@ -1,14 +1,38 @@
 <div class="toolbar">
     <RadzenButton Text="Открыть pdata.fwc…" Icon="folder_open" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base"
                   Size="ButtonSize.Small" Click="@(() => OnOpen.InvokeAsync())" IsBusy="Loading" BusyText="Чтение…" />
+    <RadzenSplitButton Text="Данные ПЛК" Icon="memory" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Small"
+                       AlwaysOpenPopup="true" Disabled="Loading" Click="@(item => OnPlc.InvokeAsync(item.Value))">
+        <RadzenSplitButtonItem Text="Файл PEData.plf…" Value="@PlcFile" />
+        <RadzenSplitButtonItem Text="Карта ПЛК…" Value="@PlcCard" />
+        <RadzenSplitButtonItem Text="Без данных ПЛК" Value="@PlcNone" />
+    </RadzenSplitButton>
+    <span class="toolbar-note">Данные ПЛК: @(PlcPath ?? "не заданы")</span>
 </div>
 
 @code {
-    /// <summary>Идёт чтение файла: кнопка открытия занята.</summary>
+    /// <summary>Пункт меню данных ПЛК: выбрать файл <c>PEData.plf</c>.</summary>
+    public const string PlcFile = "file";
+
+    /// <summary>Пункт меню данных ПЛК: выбрать папку копии карты ПЛК.</summary>
+    public const string PlcCard = "card";
+
+    /// <summary>Пункт меню данных ПЛК: отказаться от данных ПЛК.</summary>
+    public const string PlcNone = "none";
+
+    /// <summary>Идёт чтение файла: кнопки открытия и данных ПЛК заняты.</summary>
     [Parameter]
     public bool Loading { get; set; }
+
+    /// <summary>Выбранные данные ПЛК: файл или папка карты; <c>null</c> — не заданы.</summary>
+    [Parameter]
+    public string? PlcPath { get; set; }
 
     /// <summary>Щелчок по кнопке открытия файла.</summary>
     [Parameter]
     public EventCallback OnOpen { get; set; }
+
+    /// <summary>Выбран пункт меню данных ПЛК: <see cref="PlcFile"/>, <see cref="PlcCard"/> или <see cref="PlcNone"/>.</summary>
+    [Parameter]
+    public EventCallback<string?> OnPlc { get; set; }
 }

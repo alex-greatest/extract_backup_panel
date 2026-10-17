@@ -5,7 +5,7 @@ using Xunit;
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Дискретные алармы (таблицы MSG_NUMEVENT, MSG_NUMHANDLER, AREAPTR): строка консоли, строка
+/// Дискретные алармы (таблицы MSG_NUMEVENT, MSG_NUMHANDLER, AREAPTR): строка текста запуска, строка
 /// листа «Сводка» и лист «Дискретные алармы» в <c>panel_data.xlsx</c>. Раскладка таблиц и вид
 /// листа сверены с TIA на A603A0097 (TIA V21, <c>samples/a603/</c>); полный эталон — CCB-A13,
 /// проекта TIA которого нет.
@@ -19,7 +19,7 @@ public sealed class DiscreteAlarmsRunTests
     private const string Expected = "samples/expected/card/дискретные-алармы.txt";
 
     /// <summary>
-    /// CCB-A13 с картой ПЛК CCB-A03: код 0, 2000 алармов в консоли и на «Сводке», лист совпадает
+    /// CCB-A13 с картой ПЛК CCB-A03: код 0, 2000 алармов в тексте запуска и на «Сводке», лист совпадает
     /// с эталоном. Эталон — слепок вывода программы, сверенный с TIA только по правилам листа на
     /// A603A0097 (адреса массивов Word, классы, квитирование): тест ловит регрессии.
     /// </summary>
@@ -31,7 +31,7 @@ public sealed class DiscreteAlarmsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo(CardPanel), card, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Дискретных алармов: 2000");
+        RunAssertions.HasLine(run.Output, "Дискретных алармов: 2000");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Дискретных алармов=2000");
         Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook));
     }
@@ -51,7 +51,7 @@ public sealed class DiscreteAlarmsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Дискретных алармов: 355");
+        RunAssertions.HasLine(run.Output, "Дискретных алармов: 355");
         var rows = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(356, rows.Count);
         foreach (var expected in File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/a603/дискретные-алармы-сверено.txt")))
@@ -80,7 +80,7 @@ public sealed class DiscreteAlarmsRunTests
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - AREAPTR: пропущено элементов с незнакомой раскладкой: 1, первый — элемент 2 на 0x{item.Offset:x}: вид 7");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - AREAPTR: пропущено элементов с незнакомой раскладкой: 1, первый — элемент 2 на 0x{item.Offset:x}: вид 7");
         var first = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook)[1];
         Assert.StartsWith("1 | ", first);
         Assert.EndsWith("| Errors | <No alarm group> | Alarms_Events | 0 | %DB1000.DBX1.0 | ? | ? | неизвестно | Alarms_Events | 2000 | Off", first);
@@ -104,7 +104,7 @@ public sealed class DiscreteAlarmsRunTests
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMHANDLER @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMHANDLER @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
         var rows = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(2001, rows.Count);
         Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | <No alarm group> | Alarms_Events | ", r));
@@ -132,7 +132,7 @@ public sealed class DiscreteAlarmsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Дискретных алармов: 0");
+        RunAssertions.HasLine(run.Output, "Дискретных алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Дискретных алармов=0");
         DiscreteAlarmsSheetDump.Absent(dir.PanelDataWorkbook);
     }
@@ -155,8 +155,8 @@ public sealed class DiscreteAlarmsRunTests
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMEVENT @ 0x{item.Offset:X}: запись 5: длина {item.Length} не сходится с 3 ссылками");
-        RunAssertions.HasLine(run.StdOut, "Дискретных алармов: 4");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMEVENT @ 0x{item.Offset:X}: запись 5: длина {item.Length} не сходится с 3 ссылками");
+        RunAssertions.HasLine(run.Output, "Дискретных алармов: 4");
         Assert.Equal(5, DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook).Count);
         RunAssertions.NoStackTrace(run);
     }

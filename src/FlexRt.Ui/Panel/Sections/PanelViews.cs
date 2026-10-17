@@ -3,6 +3,7 @@ using FlexRt.Export.PanelData;
 using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
+using FlexRt.Extraction;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Summary;
@@ -12,12 +13,15 @@ namespace FlexRt.Ui.Panel.Sections;
 
 /// <summary>
 /// Разделы прочитанной панели для окна. Таблицы строит ядро теми же методами, что пишут листы Excel, поэтому окно
-/// показывает то же, что консоль выгрузила бы без данных ПЛК. Разделы строятся независимо: сбой одного не мешает
-/// остальным и экранам (решение пользователя).
+/// показывает то же, что консоль выгрузила бы с теми же данными ПЛК. Разделы строятся независимо: сбой одного не
+/// мешает остальным и экранам (решение пользователя).
 /// </summary>
 public static class PanelViews
 {
-    /// <summary>Значение строки «Данные ПЛК» в «Сводке»: окно данные ПЛК не читает (решение пользователя).</summary>
+    /// <summary>
+    /// Значение строки «Данные ПЛК» в «Сводке», когда данные ПЛК в окне не выбраны или не поддерживаются для панели с
+    /// несколькими соединениями (решения пользователя).
+    /// </summary>
     private const string NoPlc = "не задан";
 
     /// <summary>Разделитель частей пути в заголовке таблицы, как у экранов.</summary>
@@ -36,18 +40,21 @@ public static class PanelViews
     private static readonly string[] TextColumns = ["idx", "str"];
 
     /// <summary>
-    /// Построить разделы. Теги сопоставляются без проекта ПЛК (<see cref="TagMatcher.Match"/> с <c>null</c>), как в консоли,
-    /// когда данные ПЛК не найдены: колонки ПЛК — «неизвестно». В «Сводке» модель панели и версия Runtime — «неизвестно»
-    /// (файлы рядом с <c>pdata.fwc</c> окно не читает), данные ПЛК — «не задан». Раздел, таблицу которого ядро построить
-    /// не смогло, остаётся в дереве с пустой таблицей и причиной в <see cref="PanelSection.Error"/>.
+    /// Построить разделы. Данные ПЛК прочитаны и поддерживаются (<paramref name="plc"/> не <c>null</c> и не
+    /// <see cref="PlcData.IsUnsupported"/>) — теги и дискретные алармы строятся по их сопоставлению, «Сводка» — с проектом
+    /// ПЛК и строкой «Данные ПЛК» из <see cref="PlcData.Source"/>, как в консоли. Иначе теги сопоставляются без проекта
+    /// ПЛК (<see cref="TagMatcher.Match"/> с <c>null</c>): колонки ПЛК — «неизвестно», данные ПЛК — «не задан». В «Сводке»
+    /// модель панели и версия Runtime — «неизвестно» (файлы рядом с <c>pdata.fwc</c> окно не читает). Раздел, таблицу
+    /// которого ядро построить не смогло, остаётся в дереве с пустой таблицей и причиной в <see cref="PanelSection.Error"/>.
     /// </summary>
     /// <returns>Разделы для дерева проекта.</returns>
-    public static PanelView From(FwxDocument doc, string path)
+    public static PanelView From(FwxDocument doc, string path, PlcData? plc)
     {
+        var used = plc is { IsUnsupported: false } ? plc : null;
         // сопоставление нужно тегам и дискретным алармам; Lazy считает его один раз и повторяет его ошибку обоим
-        var matches = new Lazy<List<PlcMatch?>>(() => TagMatcher.Match(doc, null));
+        var matches = new Lazy<IReadOnlyList<PlcMatch?>>(() => used?.Matches ?? TagMatcher.Match(doc, null));
         return new PanelView(
-            Summary(doc, path),
+            Summary(doc, path, used),
             Tags(doc, matches),
             Alarms(doc, matches),
             Section("Screens", "Screens", "Экраны", "folder", () => ScreensTable.Build(doc)),
@@ -63,18 +70,18 @@ public static class PanelViews
             .Select(s => $"Раздел «{s.Title}» не построен: {s.Error}")
     ];
 
-    /// <summary>«Сводка» — строки <see cref="SummaryRows.Build"/> без проекта ПЛК.</summary>
+    /// <summary>«Сводка» — строки <see cref="SummaryRows.Build"/> с проектом ПЛК из <paramref name="plc"/>; <c>null</c> — без него.</summary>
     /// <returns>Раздел «Сводка».</returns>
-    private static PanelSection Summary(FwxDocument doc, string path) =>
+    private static PanelSection Summary(FwxDocument doc, string path, PlcData? plc) =>
         Section("Сводка", "Сводка", "Сводка", "summary", () =>
         {
-            var rows = SummaryRows.Build(doc, null, new RunSummary(path, new PanelFiles(null, null), NoPlc));
+            var rows = SummaryRows.Build(doc, plc?.Project, new RunSummary(path, new PanelFiles(null, null), plc?.Source ?? NoPlc));
             return new ReportTable(SummaryColumns, [.. rows.Select(r => new ReportCell[] { r.Label, r.Value })]);
         }, isSummary: true);
 
     /// <summary>HMI tags — таблица листа «Теги» и строки статистики над ней.</summary>
     /// <returns>Раздел HMI tags.</returns>
-    private static PanelSection Tags(FwxDocument doc, Lazy<List<PlcMatch?>> matches)
+    private static PanelSection Tags(FwxDocument doc, Lazy<IReadOnlyList<PlcMatch?>> matches)
     {
         try
         {
@@ -93,7 +100,7 @@ public static class PanelViews
     /// упало и условие — раздел показывается с ошибкой.
     /// </summary>
     /// <returns>Разделы алармов; нет ни одного — пусто.</returns>
-    private static List<PanelSection> Alarms(FwxDocument doc, Lazy<List<PlcMatch?>> matches) =>
+    private static List<PanelSection> Alarms(FwxDocument doc, Lazy<IReadOnlyList<PlcMatch?>> matches) =>
     [
         .. new[]
         {
@@ -160,8 +167,8 @@ public static class PanelViews
         }
     }
 
-    /// <summary>Раздел, таблицу которого построить не удалось: пустая таблица и причина (<see cref="FailureText.Describe"/>).</summary>
+    /// <summary>Раздел, таблицу которого построить не удалось: пустая таблица и причина (<see cref="ReadFailure.Describe"/>).</summary>
     /// <returns>Раздел с ошибкой.</returns>
     private static PanelSection Failed(string title, string path, string sheet, string icon, Exception e) =>
-        new(title, path, sheet, icon, new ReportTable([], []), [], Error: FailureText.Describe(e));
+        new(title, path, sheet, icon, new ReportTable([], []), [], Error: ReadFailure.Describe(e));
 }

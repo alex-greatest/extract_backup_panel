@@ -22,7 +22,7 @@
         <span>Экранов: @ScreenCount</span>
         @if (WarningCount > 0)
         {
-            <span class="status-warning">Предупреждений разбора: @WarningCount (вкладка Info)</span>
+            <span class="status-warning">Предупреждений и ошибок: @WarningCount (вкладка «Ошибки»)</span>
         }
     }
     else
@@ -44,11 +44,11 @@
     [Parameter]
     public string? Error { get; set; }
 
-    /// <summary>Число обычных экранов открытой панели (вида Screen), как строка «Экранов» в консоли.</summary>
+    /// <summary>Число обычных экранов открытой панели (вида Screen), как строка «Экранов» на вкладке Info и на «Сводке».</summary>
     [Parameter]
     public int ScreenCount { get; set; }
 
-    /// <summary>Число предупреждений разбора открытой панели.</summary>
+    /// <summary>Число предупреждений и ошибок на вкладке «Ошибки»: разбор панели, данные ПЛК, разделы, которые не построены.</summary>
     [Parameter]
     public int WarningCount { get; set; }
 

@@ -6,7 +6,7 @@ using Xunit;
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Классы алармов (MSG_NUMHANDLER, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL): строка консоли,
+/// Классы алармов (MSG_NUMHANDLER, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL): строка текста запуска,
 /// строка листа «Сводка» и лист «Классы алармов» в <c>panel_data.xlsx</c> с заливкой цветов фона.
 /// Образец — шаговая копия A603A0097 (TIA V21, TP1900 Comfort, 3 языка) после правок классов,
 /// сверенных со списком Alarm classes в TIA.
@@ -44,7 +44,7 @@ public sealed class AlarmClassesRunTests
     private static readonly string[] AllUnknown = ["?", "?", "?", "?", "?", "?"];
 
     /// <summary>
-    /// A603A0097 без данных ПЛК: код 0, 6 классов в консоли и на «Сводке», лист совпадает с
+    /// A603A0097 без данных ПЛК: код 0, 6 классов в тексте запуска и на «Сводке», лист совпадает с
     /// эталоном: Display name и тексты состояний на трёх языках, имена стандартных классов, State
     /// machine, журнал <c>OP70_AlarmsHistory</c> у классов 1 и 2, адрес <c>test@test.com</c> у 64,
     /// цвета фона.
@@ -56,7 +56,7 @@ public sealed class AlarmClassesRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo(ClassesPanel), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Классов алармов: 6");
+        RunAssertions.HasLine(run.Output, "Классов алармов: 6");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Классов алармов=6");
         Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), AlarmClassesSheetDump.Read(dir.PanelDataWorkbook));
     }
@@ -96,7 +96,7 @@ public sealed class AlarmClassesRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo(TwoLogsPanel), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        Assert.DoesNotContain("ПРЕДУПРЕЖДЕНИЕ", run.StdErr + run.StdOut);
+        Assert.DoesNotContain("ПРЕДУПРЕЖДЕНИЕ", run.Errors + run.Output);
         var rows = AlarmClassesSheetDump.Read(dir.PanelDataWorkbook);
         string[] logs = ["<No log>", "<No log>", "<No log>", "<No log>", "<No log>", "Alarm_log_1", "Alarm_log_2"];
         string[] emails = ["", "", "", "", "", "a@test.com", "b@test.com"];
@@ -115,7 +115,7 @@ public sealed class AlarmClassesRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Классов алармов: 2");
+        RunAssertions.HasLine(run.Output, "Классов алармов: 2");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Классов алармов=2");
         var colors = string.Join(" | ", Enumerable.Repeat(ColorsOff, 4));
         string[] expected =
@@ -208,7 +208,7 @@ public sealed class AlarmClassesRunTests
     }
 
     /// <summary>
-    /// Запуск на испорченной копии: код 1, в stderr предупреждение «не разобрано» с
+    /// Запуск на испорченной копии: код 1, среди предупреждений запуска — предупреждение «не разобрано» с
     /// <paramref name="message"/>, без трассы стека, классов по-прежнему 6.
     /// </summary>
     /// <param name="run">Результат запуска.</param>
@@ -216,8 +216,8 @@ public sealed class AlarmClassesRunTests
     private static void AssertWarned(ProgramRun run, string message)
     {
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - {message}");
-        RunAssertions.HasLine(run.StdOut, "Классов алармов: 6");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - {message}");
+        RunAssertions.HasLine(run.Output, "Классов алармов: 6");
         RunAssertions.NoStackTrace(run);
     }
 

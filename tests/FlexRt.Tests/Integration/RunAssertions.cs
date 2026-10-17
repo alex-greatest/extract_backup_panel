@@ -6,14 +6,14 @@ namespace FlexRt.Tests.Integration;
 
 /// <summary>
 /// Проверки результата запуска FlexRt, общие для интеграционных тестов: код возврата,
-/// строки консоли целиком, лист «Теги», лист «Ошибки», книга строк языков и hex-файлы.
+/// строки текста запуска целиком, лист «Теги», лист «Ошибки», книга строк языков и hex-файлы.
 /// Сообщение о провале всегда показывает, что ожидалось и что получено.
 /// </summary>
 public static partial class RunAssertions
 {
     /// <summary>
     /// Запуск сознательно не поддерживается (у панели несколько соединений, данные ПЛК заданы):
-    /// код 1, строка «ОШИБКА: не поддерживается…» в stderr, без трассы стека, файлы результата
+    /// код 1, строка «ОШИБКА: не поддерживается…» среди ошибок запуска, без трассы стека, файлы результата
     /// (<c>panel_data.xlsx</c>, <c>PDATA.xlsx</c>, папки <c>pdata</c> и <c>images</c>) не созданы.
     /// </summary>
     /// <param name="run">Результат запуска.</param>
@@ -23,7 +23,7 @@ public static partial class RunAssertions
     public static void Unsupported(ProgramRun run, int connections, string plc, TestDirectory dir)
     {
         ExitCode(run, 1);
-        HasLine(run.StdErr, $"ОШИБКА: не поддерживается: соединений панели с ПЛК - {connections}, а данные ПЛК заданы ({plc}) - "
+        HasLine(run.Errors, $"ОШИБКА: не поддерживается: соединений панели с ПЛК - {connections}, а данные ПЛК заданы ({plc}) - "
             + "сопоставление сделано только для панели с одним соединением; файлы не созданы");
         NoStackTrace(run);
         Assert.False(File.Exists(dir.PanelDataWorkbook), "panel_data.xlsx создан");
@@ -49,19 +49,19 @@ public static partial class RunAssertions
     /// Проверяет, что в выводе есть строка, равная <paramref name="line"/> целиком
     /// (<c>Тегов: 16</c> не совпадёт с <c>Тегов: 160</c>).
     /// </summary>
-    /// <param name="output">Весь stdout или stderr.</param>
+    /// <param name="output">Строки Info или предупреждения и ошибки запуска (<see cref="ProgramRun"/>).</param>
     /// <param name="line">Ожидаемая строка без перевода строки.</param>
     public static void HasLine(string output, string line)
     {
         Assert.True(Lines(output).Contains(line), $"в выводе нет строки «{line}»:\n{output}");
     }
 
-    /// <summary>Проверяет, что ни в stdout, ни в stderr нет трассы стека.</summary>
+    /// <summary>Проверяет, что в тексте запуска нет трассы стека (пустые stdout и stderr процесса проверяет <see cref="FlexRtProcess.Run"/>).</summary>
     /// <param name="run">Результат запуска.</param>
     public static void NoStackTrace(ProgramRun run)
     {
-        Assert.False(StackTraceLine().IsMatch(run.StdErr), $"в stderr трасса стека:\n{run.StdErr}");
-        Assert.False(StackTraceLine().IsMatch(run.StdOut), $"в stdout трасса стека:\n{run.StdOut}");
+        Assert.False(StackTraceLine().IsMatch(run.Errors), $"в предупреждениях и ошибках трасса стека:\n{run.Errors}");
+        Assert.False(StackTraceLine().IsMatch(run.Output), $"в тексте запуска трасса стека:\n{run.Output}");
     }
 
     /// <summary>
@@ -133,14 +133,14 @@ public static partial class RunAssertions
             $"на листе «Ошибки» нет сообщения с «{fragment}»; есть:\n{string.Join("\n", messages)}");
     }
 
-    /// <summary>Текст запуска для сообщения о провале: код возврата, stdout и stderr.</summary>
+    /// <summary>Текст запуска для сообщения о провале: код возврата, строки Info, предупреждения и ошибки.</summary>
     /// <param name="run">Результат запуска.</param>
     /// <returns>Многострочное описание запуска.</returns>
     private static string Describe(ProgramRun run) =>
-        $"код возврата {run.ExitCode}\nstdout:\n{run.StdOut}\nstderr:\n{run.StdErr}";
+        $"код возврата {run.ExitCode}\nтекст запуска:\n{run.Output}\nпредупреждения и ошибки:\n{run.Errors}";
 
     /// <summary>Разбивает вывод на строки без <c>\r</c>.</summary>
-    /// <param name="output">Весь вывод потока.</param>
+    /// <param name="output">Текст запуска.</param>
     /// <returns>Строки вывода.</returns>
     private static string[] Lines(string output) => [.. output.Split('\n').Select(l => l.TrimEnd('\r'))];
 }

@@ -99,3 +99,13 @@
 .status-warning {
     color: #ffd27a;
 }
+
+/* Выбранные данные ПЛК рядом с кнопкой; длинный путь обрезается многоточием */
+.toolbar-note {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

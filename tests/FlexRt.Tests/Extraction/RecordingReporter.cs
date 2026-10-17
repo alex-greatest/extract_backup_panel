@@ -72,7 +72,7 @@ public sealed class RecordingReporter : IExtractionReporter
     {
         if (outcome.Error is null && outcome.Title == _failOnSuccessOf)
         {
-            throw new IOException("stdout не пишется");
+            throw new IOException("лог не пишется");
         }
         Events.Add($"ExportFinished {outcome.Title}: {(outcome.Error is null ? "ok" : "ошибка")}");
     }

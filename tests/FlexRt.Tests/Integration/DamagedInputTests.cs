@@ -56,8 +56,8 @@ public sealed partial class DamagedInputTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), plc, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Тегов: 69");
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} не найден - данные ПЛК: неизвестно");
+        RunAssertions.HasLine(run.Output, "Тегов: 69");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {plc} не найден - данные ПЛК: неизвестно");
         AssertPlcColumnsUnknown(dir.PanelDataWorkbook);
         AssertRow(dir.PanelDataWorkbook, CharIb3Row);
         AssertRow(dir.PanelDataWorkbook, DIntId6Row);
@@ -71,7 +71,7 @@ public sealed partial class DamagedInputTests
     /// <summary>
     /// Копия <c>samples/plc/PEData.plf</c> с инвертированным байтом в середине данных первого
     /// кадра, панель <c>samples/card/pdata.fwc</c> (одно соединение): SHA-256 кадра не совпадает.
-    /// Код 1, предупреждение в stderr, лист «Ошибки» с сообщением, колонки ПЛК «неизвестно».
+    /// Код 1, предупреждение в тексте запуска, лист «Ошибки» с сообщением, колонки ПЛК «неизвестно».
     /// </summary>
     [Fact]
     public void BrokenPlcFrame_WarnsAndPlcColumnsUnknown()
@@ -89,8 +89,8 @@ public sealed partial class DamagedInputTests
 
         var message = $"{plc}: PEData.plf @ 0x{PlfHeaderSize:X}: контрольная сумма кадра не совпала";
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}");
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} не прочитан - данные ПЛК: неизвестно");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {plc} не прочитан - данные ПЛК: неизвестно");
         RunAssertions.NoStackTrace(run);
         RunAssertions.ErrorsSheetContains(dir.PanelDataWorkbook, message);
         SummarySheetDump.Contains(dir.PanelDataWorkbook, $"Данные ПЛК=не прочитан: {plc}");
@@ -118,8 +118,8 @@ public sealed partial class DamagedInputTests
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdOut, $"Тегов: {tags.Count - 1}");
-        RunAssertions.HasLine(run.StdErr,
+        RunAssertions.HasLine(run.Output, $"Тегов: {tags.Count - 1}");
+        RunAssertions.HasLine(run.Errors,
             $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - VAR: пропущено записей с незнакомой раскладкой: 1, первая — VAR @ 0x{broken.Offset:X}: запись {broken.Index}: первое слово 0x4, ожидалось 0x3");
         RunAssertions.NoStackTrace(run);
         var expected = WithoutRow(File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/теги.txt")), TagSheetDump.HeaderRow + broken.Index);
@@ -146,8 +146,8 @@ public sealed partial class DamagedInputTests
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdOut, "Системных событий: 0");
-        RunAssertions.HasLine(run.StdErr,
+        RunAssertions.HasLine(run.Output, "Системных событий: 0");
+        RunAssertions.HasLine(run.Errors,
             $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SYSMSGHANDLER @ 0x{item.Offset:X}: запись 1: 65535 событий не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
         SystemEventsSheetDump.Absent(dir.PanelDataWorkbook);
@@ -176,8 +176,8 @@ public sealed partial class DamagedInputTests
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdOut, "Системных событий: 0");
-        RunAssertions.HasLine(run.StdErr,
+        RunAssertions.HasLine(run.Output, "Системных событий: 0");
+        RunAssertions.HasLine(run.Errors,
             $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SYSMSGHANDLER @ 0x{item.Offset + item.Length - shortLength:X}: запись 1: длина {shortLength} меньше заголовка 0x2c");
         RunAssertions.NoStackTrace(run);
         SystemEventsSheetDump.Absent(dir.PanelDataWorkbook);

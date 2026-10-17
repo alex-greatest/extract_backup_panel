@@ -36,7 +36,6 @@ var picturesDir = OutPath(imagesDir, "images");
 var panelWorkbookPath = OutPath(panelDataPath, "panel_data.xlsx");
 var logFilePath = OutPath(logPath, Path.Combine("logs", "flexrt-.log"));
 
-Console.OutputEncoding = Encoding.UTF8;
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 14, encoding: Encoding.UTF8,
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
@@ -50,23 +49,24 @@ try
 }
 catch (Exception e)
 {
-    Log.Fatal(e, "Аварийное завершение");
-    throw;
+    // непредвиденная ошибка — только в лог со стеком (решение пользователя: в консоль ничего не пишется), код 1
+    Log.Fatal(e, "Аварийное завершение, код возврата 1");
+    return 1;
 }
 finally
 {
     Log.CloseAndFlush();
 }
 
-// Весь запуск: пути и переменные окружения — в лог, затем ExtractionRun с выводом в консоль
-// и лог (ConsoleReporter). Возвращает код возврата: 0 — без предупреждений и ошибок, 1 — иначе.
+// Весь запуск: пути и переменные окружения — в лог, затем ExtractionRun с событиями в лог
+// (LogReporter); в консоль программа ничего не пишет. Возвращает код возврата: 0 — без предупреждений и ошибок, 1 — иначе.
 int RunAll()
 {
     Log.Information("Запуск FlexRt: панель {Panel} (FLEXRT_INPUT: {InputOverride}), проект ПЛК {Plc} (FLEXRT_PLC: {PlcOverride}), каталог результата {Out} (FLEXRT_OUT: {OutOverride})",
         fwxPath, inputOverride ?? "не задана", plcPath, plcOverride ?? "не задана",
         Path.GetDirectoryName(stringsWorkbookPath), outOverride ?? "не задана");
     var paths = new ExtractionPaths(fwxPath, plcPath, stringsWorkbookPath, panelWorkbookPath, hexDir, picturesDir);
-    return ExtractionRun.Execute(paths, new ConsoleReporter()).ExitCode;
+    return ExtractionRun.Execute(paths, new LogReporter()).ExitCode;
 }
 
 // Путь выхода: без FLEXRT_OUT — путь по умолчанию (константа) как есть; с FLEXRT_OUT — фиксированное

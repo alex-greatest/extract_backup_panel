@@ -73,13 +73,50 @@
     border-top: 8px solid var(--surface-alt);
 }
 
+/* Текст чтения панели — как его печатала консоль: моноширинный, пробелы выравнивания сохраняются */
+.info-body:has(.info-line) {
+    padding: 6px 0;
+}
+
 .info-line {
+    padding: 0 14px;
+    font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 12px;
+    line-height: 18px;
+    white-space: pre;
+}
+
+.badge-error {
+    background: var(--error);
+    color: #fff;
+}
+
+/* три класса — сильнее подсветки активной вкладки */
+.head-tab .rzi.problem-error {
+    color: var(--error);
+}
+
+.head-tab .rzi.problem-warning {
+    color: var(--warning);
+}
+
+/* Строка вкладки «Ошибки»: иконка уровня перед текстом */
+.problem-line {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
+    gap: 6px;
+}
+
+.problem-line .rzi {
+    font-size: 16px;
+}
+
+.info-warning {
     color: var(--warning);
-    border-bottom: 1px solid var(--border);
+}
+
+.info-error {
+    color: var(--error);
 }
 
 /* Вкладки Radzen: фон наведения и фокуса Radzen убран переменными, а не перебиванием свойств */

@@ -3,7 +3,7 @@ using Xunit;
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Интеграционные тесты: запуск FlexRt на файлах из <c>samples/</c> и сверка консоли,
+/// Интеграционные тесты: запуск FlexRt на файлах из <c>samples/</c> и сверка текста запуска,
 /// кода возврата, листа «Теги», книги строк языков и hex-файлов с эталонами
 /// в <c>samples/expected/</c>. Каждый тест пишет результат в свой временный каталог
 /// (<c>FLEXRT_OUT</c>, см. <see cref="TestDirectory"/>); <c>data\out</c> не трогается.
@@ -22,9 +22,9 @@ public sealed class SampleRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), plc, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Тегов: 16");
-        RunAssertions.HasLine(run.StdOut, "Строк языков: 625");
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} не найден - данные ПЛК: неизвестно");
+        RunAssertions.HasLine(run.Output, "Тегов: 16");
+        RunAssertions.HasLine(run.Output, "Строк языков: 625");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {plc} не найден - данные ПЛК: неизвестно");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook,
             "Модель панели=неизвестно",
@@ -37,7 +37,7 @@ public sealed class SampleRunTests
     }
 
     /// <summary>
-    /// <c>samples/bad.fwc</c> (обрезанная копия): код 1, понятное сообщение в stderr
+    /// <c>samples/bad.fwc</c> (обрезанная копия): код 1, понятное сообщение среди ошибок запуска
     /// без трассы стека.
     /// </summary>
     [Fact]
@@ -47,8 +47,8 @@ public sealed class SampleRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/bad.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        Assert.Contains("Не удалось прочитать", run.StdErr);
-        Assert.Contains("bad.fwc", run.StdErr);
+        Assert.Contains("Не удалось прочитать", run.Errors);
+        Assert.Contains("bad.fwc", run.Errors);
         RunAssertions.NoStackTrace(run);
     }
 
@@ -67,9 +67,9 @@ public sealed class SampleRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata-one-connection.fwc"), plc, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Тегов: 66");
-        RunAssertions.HasLine(run.StdOut, "Строк языков: 641");
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} (ПЛК: 2, тегов ПЛК: 51)");
+        RunAssertions.HasLine(run.Output, "Тегов: 66");
+        RunAssertions.HasLine(run.Output, "Строк языков: 641");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {plc} (ПЛК: 2, тегов ПЛК: 51)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook,
             "IP панели=192.168.0.2 / 255.255.255.0",
@@ -101,8 +101,8 @@ public sealed class SampleRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc-udt/pdata.fwc"), plc, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Тегов: 68");
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {plc} (ПЛК: 1, тегов ПЛК: 49)");
+        RunAssertions.HasLine(run.Output, "Тегов: 68");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {plc} (ПЛК: 1, тегов ПЛК: 49)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc-udt/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "ПЛК=PLC_1", "Блоков данных (DB)=1");
     }
@@ -110,7 +110,7 @@ public sealed class SampleRunTests
     /// <summary>
     /// <c>samples/plc/pdata.fwc</c> (два соединения с ПЛК) с <c>samples/plc/PEData.plf</c>:
     /// сознательно не поддерживается — сводка панели напечатана, затем сообщение «не
-    /// поддерживается» в stderr, код 1, файлы результата не созданы.
+    /// поддерживается» среди ошибок запуска, код 1, файлы результата не созданы.
     /// </summary>
     [Fact]
     public void PlcPanel_TwoConnectionsWithPlcProject_Unsupported()
@@ -120,6 +120,6 @@ public sealed class SampleRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), plc, dir.OutDir);
 
         RunAssertions.Unsupported(run, 2, plc, dir);
-        RunAssertions.HasLine(run.StdOut, "Тегов: 69");
+        RunAssertions.HasLine(run.Output, "Тегов: 69");
     }
 }

@@ -43,8 +43,8 @@ public sealed class CardRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Тегов: 517");
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 591)");
+        RunAssertions.HasLine(run.Output, "Тегов: 517");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 591)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/card/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook,
             "Модель панели=TP1500 Comfort V2",
@@ -91,7 +91,7 @@ public sealed class CardRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata-one-connection.fwc"), card, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 48)");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 48)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook,
             "ПЛК=PLC_1",
@@ -113,13 +113,13 @@ public sealed class CardRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc-udt/pdata.fwc"), card, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 49)");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 49)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc-udt/теги.txt");
     }
 
     /// <summary>
     /// Карта с панелью <c>samples/plc/pdata.fwc</c> (два соединения с ПЛК): сознательно не
-    /// поддерживается — код 1, сообщение в stderr, файлы результата не созданы.
+    /// поддерживается — код 1, сообщение среди ошибок запуска, файлы результата не созданы.
     /// </summary>
     [Fact]
     public void CardWithTwoConnectionPanel_Unsupported()
@@ -132,8 +132,8 @@ public sealed class CardRunTests
     }
 
     /// <summary>
-    /// Папка без <c>SIMATIC.S7S\OMSSTORE</c>: карта не прочитана — код 1, предупреждение в stderr
-    /// и на листе «Ошибки», строка «не прочитан» в stdout, без трассы стека.
+    /// Папка без <c>SIMATIC.S7S\OMSSTORE</c>: карта не прочитана — код 1, предупреждение среди предупреждений запуска
+    /// и на листе «Ошибки», строка «не прочитан» в тексте запуска, без трассы стека.
     /// </summary>
     [Fact]
     public void FolderWithoutStore_WarnsAndCardNotRead()
@@ -145,8 +145,8 @@ public sealed class CardRunTests
 
         var message = $"{card}: в папке нет {Path.Combine("SIMATIC.S7S", "OMSSTORE")}";
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}");
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {card} не прочитан - данные ПЛК: неизвестно");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}");
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} не прочитан - данные ПЛК: неизвестно");
         RunAssertions.ErrorsSheetContains(dir.PanelDataWorkbook, message);
         RunAssertions.NoStackTrace(run);
     }
@@ -154,7 +154,7 @@ public sealed class CardRunTests
     /// <summary>
     /// Копия карты с инвертированным байтом внутри первого сжатого интерфейса блока: поток не
     /// распаковывается, карта не прочитана целиком — код 1, сообщение с файлом и смещением потока
-    /// в stderr и на листе «Ошибки», колонки ПЛК «неизвестно».
+    /// среди предупреждений запуска и на листе «Ошибки», колонки ПЛК «неизвестно».
     /// </summary>
     [Fact]
     public void BrokenInterfaceStream_CardNotRead()
@@ -166,8 +166,8 @@ public sealed class CardRunTests
 
         var message = $"{card}: {file} @ 0x{offset:X}: поток zlib";
         RunAssertions.ExitCode(run, 1);
-        Assert.Contains(run.StdErr.Split('\n'), line => line.StartsWith($"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}", StringComparison.Ordinal));
-        RunAssertions.HasLine(run.StdOut, $"Файл ПЛК: {card} не прочитан - данные ПЛК: неизвестно");
+        Assert.Contains(run.Errors.Split('\n'), line => line.StartsWith($"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}", StringComparison.Ordinal));
+        RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} не прочитан - данные ПЛК: неизвестно");
         RunAssertions.ErrorsSheetContains(dir.PanelDataWorkbook, message);
         Assert.Contains(TagSheetDump.Read(dir.PanelDataWorkbook), row => row.StartsWith("A13=GlobalDB_bResetAlarmCmd | B13=Bool | C13=HMI1 | D13=неизвестно | E13=неизвестно |", StringComparison.Ordinal));
         RunAssertions.NoStackTrace(run);

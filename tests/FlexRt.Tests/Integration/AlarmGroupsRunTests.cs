@@ -4,7 +4,7 @@ namespace FlexRt.Tests.Integration;
 
 /// <summary>
 /// Группы алармов (байт флагов MSG_NUMEVENT и MSG_ANALOGCREAT): колонка Alarm group листов
-/// «Дискретные алармы» и «Аналоговые алармы», лист «Группы алармов», строка консоли и «Сводки».
+/// «Дискретные алармы» и «Аналоговые алармы», лист «Группы алармов», строка текста запуска и «Сводки».
 /// Образец — шаговая копия Project1 (TIA V21, TP700 Comfort), сверенная с TIA.
 /// </summary>
 public sealed class AlarmGroupsRunTests
@@ -21,7 +21,7 @@ public sealed class AlarmGroupsRunTests
     private const string GroupsPanel = "samples/project1-groups/pdata.fwc";
 
     /// <summary>
-    /// Project1 без данных ПЛК: «Групп алармов: 4» в консоли и на «Сводке», лист групп — ID по
+    /// Project1 без данных ПЛК: «Групп алармов: 4» в тексте запуска и на «Сводке», лист групп — ID по
     /// возрастанию и число алармов каждого вида, в колонке Alarm group — ID группы или
     /// <c>&lt;No alarm group&gt;</c>, как в TIA. Внутренний тег срабатывания — внутренний тег на
     /// листе «Теги», без предупреждения, код 0; адрес бита у внутреннего тега — номер бита, у
@@ -34,7 +34,7 @@ public sealed class AlarmGroupsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo(GroupsPanel), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Групп алармов: 4");
+        RunAssertions.HasLine(run.Output, "Групп алармов: 4");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Групп алармов=4");
         Assert.Equal(["ID | Discrete alarms | Analog alarms", "1 | 1 | 0", "2 | 2 | 0", "17 | 1 | 0", "31 | 0 | 6"],
             AlarmGroupsSheetDump.Read(dir.PanelDataWorkbook));
@@ -66,7 +66,7 @@ public sealed class AlarmGroupsRunTests
         ], AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook));
     }
 
-    /// <summary><c>samples/pdata.fwc</c> без алармов: «Групп алармов: 0» в консоли и на «Сводке», листа групп нет.</summary>
+    /// <summary><c>samples/pdata.fwc</c> без алармов: «Групп алармов: 0» в тексте запуска и на «Сводке», листа групп нет.</summary>
     [Fact]
     public void SamplePanel_NoGroups_NoSheet()
     {
@@ -74,7 +74,7 @@ public sealed class AlarmGroupsRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Групп алармов: 0");
+        RunAssertions.HasLine(run.Output, "Групп алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Групп алармов=0");
         AlarmGroupsSheetDump.Absent(dir.PanelDataWorkbook);
     }

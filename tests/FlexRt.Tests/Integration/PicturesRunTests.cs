@@ -6,7 +6,7 @@ using Xunit;
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Картинки панели (PICTURE, TILED_PICTURE): файлы в папке <c>images</c>, строка «Картинок» в консоли и на
+/// Картинки панели (PICTURE, TILED_PICTURE): файлы в папке <c>images</c>, строка «Картинок» в тексте запуска и на
 /// «Сводке». Испорченный вход — копия <c>samples/pdata.fwc</c>, изменённая в рантайме во временном каталоге теста.
 /// </summary>
 public sealed class PicturesRunTests
@@ -21,7 +21,7 @@ public sealed class PicturesRunTests
     private static readonly byte[] IendChunkTail = [0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82];
 
     /// <summary>
-    /// <c>samples/pdata.fwc</c>: 8 картинок PICTURE и 4 TILED_PICTURE, все PNG; «Картинок: 12» в консоли и на
+    /// <c>samples/pdata.fwc</c>: 8 картинок PICTURE и 4 TILED_PICTURE, все PNG; «Картинок: 12» в тексте запуска и на
     /// «Сводке», строка экспорта с путём папки <c>images</c>, код 0. Каждый файл — PNG, кончается чанком IEND.
     /// </summary>
     [Fact]
@@ -31,8 +31,8 @@ public sealed class PicturesRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Картинок: 12");
-        RunAssertions.HasLine(run.StdOut, $"[Картинки -> файлы] 12 картинок -> {dir.PicturesDir}");
+        RunAssertions.HasLine(run.Output, "Картинок: 12");
+        RunAssertions.HasLine(run.Output, $"[Картинки -> файлы] 12 картинок -> {dir.PicturesDir}");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Картинок=12");
         Assert.Equal(
         [
@@ -59,7 +59,7 @@ public sealed class PicturesRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Картинок: 76");
+        RunAssertions.HasLine(run.Output, "Картинок: 76");
         var names = FileNames(dir.PicturesDir);
         Assert.Equal(76, names.Count);
         Assert.Equal(["PICTURE_16.jpg", "PICTURE_17.jpg", "PICTURE_18.jpg", "PICTURE_26.jpg"], names.Where(n => n.EndsWith(".jpg")));
@@ -79,9 +79,9 @@ public sealed class PicturesRunTests
         var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - PICTURE @ 0x{item.Offset:X}: запись 3: картинка 65535 байт не помещается в {item.Length} байт");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - PICTURE @ 0x{item.Offset:X}: запись 3: картинка 65535 байт не помещается в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
-        RunAssertions.HasLine(run.StdOut, "Картинок: 6");
+        RunAssertions.HasLine(run.Output, "Картинок: 6");
         Assert.Equal(
         [
             "PICTURE_1.png", "PICTURE_2.png",

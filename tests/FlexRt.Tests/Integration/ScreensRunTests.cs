@@ -7,7 +7,7 @@ namespace FlexRt.Tests.Integration;
 
 /// <summary>
 /// Экраны панели (SCREEN, номера из ADAPTVALUECHANG, стартовый экран из GUI): лист «Экраны», строки
-/// «Экранов» и «Стартовый экран» в консоли и на «Сводке». Испорченные входы — копии <c>samples/pdata.fwc</c>,
+/// «Экранов» и «Стартовый экран» в тексте запуска и на «Сводке». Испорченные входы — копии <c>samples/pdata.fwc</c>,
 /// изменённые в рантайме во временном каталоге теста.
 /// </summary>
 public sealed class ScreensRunTests
@@ -17,7 +17,7 @@ public sealed class ScreensRunTests
 
     /// <summary>
     /// <c>samples/pdata.fwc</c>: Permanent area (запись <c>Overview</c>), <c>Root screen</c> — номер 1 и стартовый,
-    /// четыре slide-in TP700 Comfort. «Экранов: 1», «Стартовый экран: Root screen (1)» в консоли и на «Сводке», код 0.
+    /// четыре slide-in TP700 Comfort. «Экранов: 1», «Стартовый экран: Root screen (1)» в тексте запуска и на «Сводке», код 0.
     /// </summary>
     [Fact]
     public void SamplePanel_ScreensSheetAndStartScreen()
@@ -26,8 +26,8 @@ public sealed class ScreensRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Экранов: 1");
-        RunAssertions.HasLine(run.StdOut, "Стартовый экран: Root screen (1)");
+        RunAssertions.HasLine(run.Output, "Экранов: 1");
+        RunAssertions.HasLine(run.Output, "Стартовый экран: Root screen (1)");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Экранов=1", "Стартовый экран=Root screen (1)");
         Assert.Equal(
         [
@@ -53,8 +53,8 @@ public sealed class ScreensRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/screens/05_popup.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Экранов: 3");
-        RunAssertions.HasLine(run.StdOut, "Стартовый экран: Screen_2 (5)");
+        RunAssertions.HasLine(run.Output, "Экранов: 3");
+        RunAssertions.HasLine(run.Output, "Стартовый экран: Screen_2 (5)");
         Assert.Equal(
         [
             Header,
@@ -81,8 +81,8 @@ public sealed class ScreensRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Экранов: 49");
-        RunAssertions.HasLine(run.StdOut, "Стартовый экран: 998_LOGIN (998)");
+        RunAssertions.HasLine(run.Output, "Экранов: 49");
+        RunAssertions.HasLine(run.Output, "Стартовый экран: 998_LOGIN (998)");
         var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal(1 + 1 + 49 + 1 + 4, rows.Count);
         Assert.Equal("Permanent area |  |  | 1366 | 768 | Permanent area", rows[1]);
@@ -103,8 +103,8 @@ public sealed class ScreensRunTests
         var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/card/pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
-        RunAssertions.HasLine(run.StdOut, "Экранов: 10");
-        RunAssertions.HasLine(run.StdOut, "Стартовый экран: 001_MainScreen (1)");
+        RunAssertions.HasLine(run.Output, "Экранов: 10");
+        RunAssertions.HasLine(run.Output, "Стартовый экран: 001_MainScreen (1)");
         var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Equal("001_MainScreen | 1 | Yes | 1280 | 800 | Screen", rows[2]);
         Assert.Equal(["UZ70", "UZ60", "UZ40", "HPU", "UZ10", "UZ72", "UZ90"],
@@ -123,9 +123,9 @@ public sealed class ScreensRunTests
         var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN @ 0x{item.Offset:X}: запись 3: первое слово 7, ожидалось 3 или 1");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN @ 0x{item.Offset:X}: запись 3: первое слово 7, ожидалось 3 или 1");
         RunAssertions.NoStackTrace(run);
-        RunAssertions.HasLine(run.StdOut, "Стартовый экран: Root screen (1)");
+        RunAssertions.HasLine(run.Output, "Стартовый экран: Root screen (1)");
         Assert.Equal(
         [
             Header,
@@ -147,10 +147,10 @@ public sealed class ScreensRunTests
         var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - ADAPTVALUECHANG @ 0x{item.Offset:X}: запись 1: 65535 пар не помещаются в {item.Length} байт");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - ADAPTVALUECHANG @ 0x{item.Offset:X}: запись 1: 65535 пар не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
-        RunAssertions.HasLine(run.StdOut, "Экранов: 0");
-        RunAssertions.HasLine(run.StdOut, "Стартовый экран: неизвестно (1)");
+        RunAssertions.HasLine(run.Output, "Экранов: 0");
+        RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно (1)");
         var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Contains("Root screen | ? |  | 800 | 420 | ?", rows);
         Assert.Contains("Slide-in screen top | ? |  | 800 | 160 | Slide-in screen", rows);
@@ -169,10 +169,10 @@ public sealed class ScreensRunTests
         var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
-        RunAssertions.HasLine(run.StdErr, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - GUI @ 0x{item.Offset:X}: запись 1: 48 ссылок не помещаются в {item.Length} байт");
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - GUI @ 0x{item.Offset:X}: запись 1: 48 ссылок не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
-        RunAssertions.HasLine(run.StdOut, "Экранов: 1");
-        RunAssertions.HasLine(run.StdOut, "Стартовый экран: неизвестно");
+        RunAssertions.HasLine(run.Output, "Экранов: 1");
+        RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно");
         var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
         Assert.Contains("Root screen | 1 |  | 800 | 420 | Screen", rows);
         Assert.DoesNotContain(rows, r => r.Contains(" | Yes | "));

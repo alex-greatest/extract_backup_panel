@@ -5,8 +5,9 @@ using FlexRt.Model.Plc;
 namespace FlexRt.Extraction;
 
 /// <summary>
-/// Получатель событий запуска <see cref="ExtractionRun"/>: консоль, окно или лог. События
-/// приходят по ходу запуска в порядке, описанном у <see cref="ExtractionRun.Execute"/>.
+/// Получатель событий запуска <see cref="ExtractionRun"/> и шага данных ПЛК <see cref="PlcDataReader"/>: лог консоли
+/// или текст запуска (<see cref="RunTranscript"/>). События приходят в порядке, описанном у
+/// <see cref="ExtractionRun.Execute"/> и <see cref="PlcDataReader.Read"/>.
 /// </summary>
 public interface IExtractionReporter
 {
@@ -16,7 +17,7 @@ public interface IExtractionReporter
     /// <summary>Панель прочитана; предупреждения разбора — в <see cref="FwxDocument.Warnings"/>.</summary>
     void PanelRead(string path, FwxDocument doc);
 
-    /// <summary>Сочетание входов не поддерживается; запуск прекращён, файлы не созданы.</summary>
+    /// <summary>Сочетание входов не поддерживается: данные ПЛК не читаются; конец сообщения говорит, что стало с результатом.</summary>
     void Unsupported(string message);
 
     /// <summary>Проекта ПЛК по пути нет: данные ПЛК неизвестны, ошибкой не считается.</summary>
