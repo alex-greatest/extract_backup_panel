@@ -6,11 +6,11 @@ namespace FlexRt.Tests.Unit.Export;
 
 /// <summary>
 /// Текст ячейки Excel <see cref="ExcelCell.Text"/>: строка длиннее 32767 символов
-/// обрезается, апостроф в начале сохраняется (CLAUDE.md, «Установленное поведение», раздел XLSX).
+/// обрезается, апостроф в начале сохраняется (<c>.claude/rules/выходы-и-запуск.md</c>, пункт XLSX).
 /// </summary>
 public sealed class ExcelCellTests
 {
-    /// <summary>Предел длины текста ячейки Excel из CLAUDE.md.</summary>
+    /// <summary>Предел длины текста ячейки Excel из <c>.claude/rules/выходы-и-запуск.md</c>.</summary>
     private const int Limit = 32767;
 
     /// <summary>Строка не длиннее предела возвращается без изменений.</summary>

@@ -10,7 +10,7 @@ public sealed class PlcAddressTests
     /// <summary>
     /// Адреса тегов <c>samples/plc/pdata.fwc</c> с абсолютным доступом. Входные поля — разбор
     /// этого файла, ожидаемый адрес — колонка Address в <c>samples/expected/plc/теги.txt</c>
-    /// (адреса из TIA; <c>%IW44</c>, <c>%I1.5</c>, <c>%T0</c> — ещё и CLAUDE.md).
+    /// (адреса из TIA; <c>%IW44</c>, <c>%I1.5</c>, <c>%T0</c> — ещё и <c>.claude/rules/теги.md</c>).
     /// </summary>
     [Theory]
     [InlineData(PlcArea.Input, 1, 5, 1, "%I1.5")]
@@ -29,7 +29,7 @@ public sealed class PlcAddressTests
     }
 
     /// <summary>
-    /// Адрес в DB: <c>%DB80.DBW0</c> — CLAUDE.md, <c>%DB80.DBW46</c> — документ
+    /// Адрес в DB: <c>%DB80.DBW0</c> — <c>.claude/rules/теги.md</c>, <c>%DB80.DBW46</c> — документ
     /// таблицы DATALINK_READWR (236 адресов A603A0097 совпали с проектом),
     /// <c>%DB80.DBX0.1</c> — XML-документация метода.
     /// </summary>
@@ -56,7 +56,7 @@ public sealed class PlcAddressTests
     }
 
     /// <summary>
-    /// Символьный доступ — адреса нет (CLAUDE.md: «у символьного пусто, как в TIA»);
+    /// Символьный доступ — адреса нет (<c>.claude/rules/теги.md</c>: «у символьного пусто, как в TIA»);
     /// неизвестная область — тоже <c>null</c> (XML-документация метода).
     /// </summary>
     [Fact]

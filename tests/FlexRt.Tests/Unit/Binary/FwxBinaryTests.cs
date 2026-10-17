@@ -5,7 +5,7 @@ namespace FlexRt.Tests.Unit.Binary;
 
 /// <summary>
 /// Примитивы чтения <see cref="FwxBinary"/>: little endian, строки, hex и проверка границ.
-/// Ожидания — XML-документация методов и CLAUDE.md («Выход за границы файла даёт
+/// Ожидания — XML-документация методов и <c>.claude/rules/формат-панели.md</c> («Выход за границы файла даёт
 /// FwxFormatException с секцией и смещением»).
 /// </summary>
 public sealed class FwxBinaryTests

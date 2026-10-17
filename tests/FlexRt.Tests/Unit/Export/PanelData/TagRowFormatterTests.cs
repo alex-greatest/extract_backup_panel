@@ -10,15 +10,15 @@ namespace FlexRt.Tests.Unit.Export.PanelData;
 /// <summary>
 /// Строка листа «Теги» <see cref="TagRowFormatter.Format"/>. Ожидания — строки
 /// <c>samples/expected/теги.txt</c> и <c>samples/expected/plc/теги.txt</c> и правила листа
-/// «Теги» в CLAUDE.md («Установленное поведение»). Документ панели в памяти содержит только
+/// «Теги» в <c>.claude/rules/теги.md</c>. Документ панели в памяти содержит только
 /// соединение: другие его части функция не читает.
 /// </summary>
 public sealed class TagRowFormatterTests
 {
-    /// <summary>Текст «данных нет» из CLAUDE.md.</summary>
+    /// <summary>Текст «данных нет» из <c>.claude/rules/теги.md</c>.</summary>
     private const string Unknown = "неизвестно";
 
-    /// <summary>Текст «тега нет в проекте ПЛК» из CLAUDE.md.</summary>
+    /// <summary>Текст «тега нет в проекте ПЛК» из <c>.claude/rules/теги.md</c>.</summary>
     private const string NotInPlcFile = "отсутствует в файле ПЛК";
 
     /// <summary>Id таблицы DATALINK_READWR в файлах TIA (документ таблицы).</summary>
@@ -62,7 +62,7 @@ public sealed class TagRowFormatterTests
 
     /// <summary>
     /// Символьный тег не найден: «отсутствует в файле ПЛК» в PLC name, PLC tag и Source
-    /// comment (CLAUDE.md); тип — по коду ПЛК из панели.
+    /// comment (<c>.claude/rules/теги.md</c>); тип — по коду ПЛК из панели.
     /// </summary>
     [Fact]
     public void Format_SymbolicNotInPlcFile()
@@ -75,7 +75,7 @@ public sealed class TagRowFormatterTests
     }
 
     /// <summary>
-    /// Абсолютный тег без тега ПЛК: PLC name есть, PLC tag и Source comment пустые (CLAUDE.md).
+    /// Абсолютный тег без тега ПЛК: PLC name есть, PLC tag и Source comment пустые (<c>.claude/rules/теги.md</c>).
     /// Имя тега условное: в <c>samples/plc</c> у <c>%IW44</c> тег ПЛК есть, здесь его нет.
     /// </summary>
     [Fact]
@@ -105,7 +105,7 @@ public sealed class TagRowFormatterTests
 
     /// <summary>
     /// Нет проекта ПЛК: тип по коду из панели, неразличимые пары через косую черту
-    /// (<c>USInt/Char</c>, <c>DInt/Time</c> — CLAUDE.md), колонки ПЛК «неизвестно».
+    /// (<c>USInt/Char</c>, <c>DInt/Time</c> — <c>.claude/rules/теги.md</c>), колонки ПЛК «неизвестно».
     /// </summary>
     [Theory]
     [InlineData(0x11, "USInt/Char")]
@@ -146,8 +146,8 @@ public sealed class TagRowFormatterTests
 
     /// <summary>
     /// Цикл опроса (колонка H): 100 ms, 1 s и 10 s — эталон <c>samples/expected/plc/теги.txt</c>;
-    /// 500 ms — XML-документация метода (сверено с проектом); 1 min и 1 h — CLAUDE.md;
-    /// 0 — пусто (CLAUDE.md).
+    /// 500 ms — XML-документация метода (сверено с проектом); 1 min и 1 h — <c>.claude/rules/теги.md</c>;
+    /// 0 — пусто (<c>.claude/rules/теги.md</c>).
     /// </summary>
     [Theory]
     [InlineData(100L, "100 ms")]
