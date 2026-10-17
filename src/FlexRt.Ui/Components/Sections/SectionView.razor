@@ -1,0 +1,66 @@
+<div class="editor-title">@Title</div>
+@if (Section.Statistics.Count > 0)
+{
+    <div class="section-stats">
+        @foreach (var (label, count) in Section.Statistics)
+        {
+            <span>@label: <b>@count</b></span>
+        }
+    </div>
+}
+@if (Section.Error is not null)
+{
+    <div class="section-error"><RadzenIcon Icon="error" /> Раздел не построен: @Section.Error</div>
+}
+else if (Section.IsSummary)
+{
+    <div class="summary-scroll">
+        <table class="summary-list">
+            @foreach (var cells in Section.Table.Rows)
+            {
+                @if (cells.All(c => GridData.Text(c) == ""))
+                {
+                    <tr class="summary-gap"><td colspan="2"></td></tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@GridData.Text(cells[0])</td>
+                        <td>@GridData.Text(cells[1])</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+}
+else
+{
+    @* ключ — раздел: у каждой таблицы свой экземпляр, иначе Radzen переносит фильтр колонки c0 на колонку другого типа *@
+    <ReportGrid @key="Section" Table="Section.Table" SelectedRow="SelectedRow" OnRowSelect="OnRowSelect" OnCountChanged="OnCountChanged" OnCopyFailed="OnCopyFailed" />
+}
+
+@code {
+    /// <summary>Строка заголовка: путь раздела, как у экрана.</summary>
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    /// <summary>Показываемый раздел.</summary>
+    [Parameter, EditorRequired]
+    public PanelSection Section { get; set; } = null!;
+
+    /// <summary>Номер выбранной строки листа с нуля; <c>null</c> — не выбрана.</summary>
+    [Parameter]
+    public int? SelectedRow { get; set; }
+
+    /// <summary>Выбор строки таблицы: номер строки листа с нуля; <c>null</c> — фильтр скрыл выбранную строку.</summary>
+    [Parameter]
+    public EventCallback<int?> OnRowSelect { get; set; }
+
+    /// <summary>Изменилось число строк таблицы после фильтра.</summary>
+    [Parameter]
+    public EventCallback<int> OnCountChanged { get; set; }
+
+    /// <summary>Строку не удалось скопировать в буфер обмена: текст ошибки.</summary>
+    [Parameter]
+    public EventCallback<string> OnCopyFailed { get; set; }
+}

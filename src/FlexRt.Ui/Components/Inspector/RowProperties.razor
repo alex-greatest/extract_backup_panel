@@ -1,0 +1,23 @@
+<div class="props-layout">
+    <div class="props-body">
+        <RadzenFieldset Text="@($"Строка {Row.Index + 1} листа «{Row.Section.Sheet}»")" class="prop-group row-group">
+            @foreach (var (name, value) in Row.Section.Table.Columns.Zip(Row.Section.Table.Rows[Row.Index]))
+            {
+                <div class="prop-row">
+                    <RadzenLabel Text="@($"{name}:")" title="@name" />
+                    @if (value.FillRgb is { } rgb)
+                    {
+                        <span class="swatch" style="background:#@rgb.ToString("x6")"></span>
+                    }
+                    <PropertyValue Value="value" />
+                </div>
+            }
+        </RadzenFieldset>
+    </div>
+</div>
+
+@code {
+    /// <summary>Строка таблицы раздела: поля — ячейки строки под заголовками колонок листа.</summary>
+    [Parameter, EditorRequired]
+    public SectionRow Row { get; set; } = null!;
+}

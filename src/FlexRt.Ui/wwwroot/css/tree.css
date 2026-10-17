@@ -50,3 +50,29 @@
     font-size: 10px;
     margin-left: 6px;
 }
+
+/* подпись узла тянется на всю строку, чтобы число записей встало у правого края */
+.project-tree .rz-treenode-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+/* число записей узла — справа, серым */
+.tree-count {
+    margin-left: auto;
+    padding-left: 12px;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* таблица раздела не построена */
+.tree-error {
+    margin-left: auto;
+    padding-left: 12px;
+    color: var(--error);
+    font-size: 12px;
+}

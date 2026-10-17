@@ -1,5 +1,5 @@
 <div class="inspector-head">
-    <span class="inspector-title">@(Item is null ? "Свойства" : $"{Item.Name} [{Item.Kind}]")</span>
+    <span class="inspector-title">@HeadTitle()</span>
     <span class="spacer"></span>
     <div class="head-tabs" role="tablist">
         <button type="button" role="tab" aria-selected="@(_outer == PropertiesTab ? "true" : "false")" class="head-tab @(_outer == PropertiesTab ? "active" : "")"
@@ -29,6 +29,14 @@
             <div class="info-line"><RadzenIcon Icon="warning" IconStyle="IconStyle.Warning" /> @warning</div>
         }
     </div>
+}
+else if (Row is not null)
+{
+    <RowProperties Row="Row" />
+}
+else if (Hint is not null)
+{
+    <div class="muted">@Hint</div>
 }
 else
 {
@@ -74,6 +82,14 @@ else
     [Parameter]
     public ScreenItem? Item { get; set; }
 
+    /// <summary>Выбранная строка таблицы раздела: вместо свойств экрана — её ячейки; <c>null</c> — показывается экран.</summary>
+    [Parameter]
+    public SectionRow? Row { get; set; }
+
+    /// <summary>Подсказка вместо свойств, когда открыт раздел, а строка не выбрана; <c>null</c> — показывается экран.</summary>
+    [Parameter]
+    public string? Hint { get; set; }
+
     /// <summary>Предупреждения разбора открытой панели для вкладки Info.</summary>
     [Parameter]
     public IReadOnlyList<string> Warnings { get; set; } = [];
@@ -108,6 +124,21 @@ else
             </div>
         </div>
     };
+
+    /// <summary>
+    /// Заголовок панели: у строки раздела — первая ячейка и раздел (<c>Screen Number [HMI tags]</c>), у экрана — имя и вид,
+    /// иначе — «Свойства».
+    /// </summary>
+    /// <returns>Текст заголовка.</returns>
+    private string HeadTitle()
+    {
+        if (Row is null)
+        {
+            return Item is null || Hint is not null ? "Свойства" : $"{Item.Name} [{Item.Kind}]";
+        }
+        var first = GridData.Text(Row.Section.Table.Rows[Row.Index][0]);
+        return $"{(first == "" ? $"Строка {Row.Index + 1}" : first)} [{Row.Section.Title}]";
+    }
 
     /// <summary>Вкладка, данных для которой в pdata.fwc пока не найдено.</summary>
     /// <returns>Разметка подсказки.</returns>

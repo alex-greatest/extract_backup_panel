@@ -11,6 +11,14 @@
     {
         <span>@Path</span>
         <span class="spacer"></span>
+        @if (Notice is not null)
+        {
+            <span class="status-error">@Notice</span>
+        }
+        @if (RowCount is { } shown && RowTotal is { } total)
+        {
+            <span>Строк: @shown из @total</span>
+        }
         <span>Экранов: @ScreenCount</span>
         @if (WarningCount > 0)
         {
@@ -43,4 +51,16 @@
     /// <summary>Число предупреждений разбора открытой панели.</summary>
     [Parameter]
     public int WarningCount { get; set; }
+
+    /// <summary>Строк таблицы раздела после фильтра; <c>null</c> — таблица не показана.</summary>
+    [Parameter]
+    public int? RowCount { get; set; }
+
+    /// <summary>Всего строк таблицы раздела; <c>null</c> — таблица не показана.</summary>
+    [Parameter]
+    public int? RowTotal { get; set; }
+
+    /// <summary>Сообщение об ошибке действия в окне (строка не скопирована); <c>null</c> — нет.</summary>
+    [Parameter]
+    public string? Notice { get; set; }
 }

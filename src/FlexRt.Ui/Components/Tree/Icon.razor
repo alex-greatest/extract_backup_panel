@@ -12,6 +12,27 @@
     case "popup":
         <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="10" fill="#ffffff" stroke="#4a6a8c" /><rect x="4.5" y="5.5" width="7" height="5" fill="#cfe3f5" stroke="#4a6a8c" /></svg>
         break;
+    case "summary":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="2.5" y="1.5" width="11" height="13" rx="1" fill="#ffffff" stroke="#4a6a8c" /><path d="M5 5h6M5 8h6M5 11h4" stroke="#4a6a8c" /></svg>
+        break;
+    case "tags":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" fill="#ffffff" stroke="#4a6a8c" /><rect x="2" y="3" width="12" height="2.5" fill="#8fb3d9" /><path d="M1.5 6h13M6 2.5v11" stroke="#4a6a8c" /></svg>
+        break;
+    case "alarm":
+        <svg class="icon" viewBox="0 0 16 16"><path d="M8 1.5 15 14H1z" fill="#ffd27a" stroke="#9a5b00" stroke-linejoin="round" /><path d="M8 6v4M8 11.5v1" stroke="#3d2a00" stroke-width="1.4" /></svg>
+        break;
+    case "events":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1" fill="#ffffff" stroke="#4a6a8c" /><circle cx="8" cy="8" r="2.5" fill="#8fb3d9" stroke="#4a6a8c" /></svg>
+        break;
+    case "classes":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="1.5" width="6" height="6" fill="#ff5a4a" stroke="#7a2a20" /><rect x="8.5" y="1.5" width="6" height="6" fill="#ffcc00" stroke="#7a5a00" /><rect x="1.5" y="8.5" width="6" height="6" fill="#ffffff" stroke="#4a6a8c" /><rect x="8.5" y="8.5" width="6" height="6" fill="#8fb3d9" stroke="#4a6a8c" /></svg>
+        break;
+    case "groups":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="4.5" y="1.5" width="10" height="8" fill="#cfe3f5" stroke="#4a6a8c" /><rect x="1.5" y="6.5" width="10" height="8" fill="#ffffff" stroke="#4a6a8c" /></svg>
+        break;
+    case "text":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1" fill="#ffffff" stroke="#4a6a8c" /><path d="M4 6h8M8 6v5" stroke="#4a6a8c" stroke-width="1.5" /></svg>
+        break;
     default:
         <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="10" fill="#eceff3" stroke="#7a8794" stroke-dasharray="2 1" /></svg>
         break;
@@ -20,7 +41,9 @@
 @code {
     /// <summary>
     /// Значок узла дерева, нарисованный SVG 16×16: <c>file</c> — панель, <c>folder</c> — папка, <c>screen</c> — экран,
-    /// <c>popup</c> — pop-up экран; другое имя — экран неопознанного вида.
+    /// <c>popup</c> — pop-up экран, <c>summary</c> — «Сводка», <c>tags</c> — теги, <c>alarm</c> — дискретные и аналоговые
+    /// алармы, <c>events</c> — системные события, <c>classes</c> — классы алармов, <c>groups</c> — группы алармов,
+    /// <c>text</c> — тексты языка; другое имя — экран неопознанного вида.
     /// </summary>
     [Parameter, EditorRequired]
     public string Name { get; set; } = "";

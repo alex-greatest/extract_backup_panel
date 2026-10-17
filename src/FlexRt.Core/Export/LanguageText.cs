@@ -3,7 +3,7 @@ using System.Globalization;
 namespace FlexRt.Export;
 
 /// <summary>Код языка панели (LCID) в виде для отчёта.</summary>
-internal static class LanguageText
+public static class LanguageText
 {
     /// <summary>
     /// Код и название языка на нём самом: <c>0x419 — русский (Россия)</c>,

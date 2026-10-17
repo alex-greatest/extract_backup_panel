@@ -1,5 +1,4 @@
 @using System.IO
-@using FlexRt.Binary
 @using FlexRt.Export.PanelData.Screens
 @using FlexRt.Parsing.Panel
 
@@ -7,48 +6,78 @@
     <Toolbar Loading="_loading" OnOpen="OpenAsync" />
 
     <RadzenSplitter class="workspace">
-        <RadzenSplitterPane Size="280px" Min="150px" Max="700px">
+        <RadzenSplitterPane Size="300px" Min="150px" Max="700px">
             <section class="pane">
                 <header class="pane-title">Дерево проекта</header>
                 <div class="tree-scroll">
-                    <ProjectTree Loading="_loading" FileName="@FileName()" Screens="_screens" Selected="_selected" OnSelect="Select" />
+                    <ProjectTree Loading="_loading" FileName="@FileName()" View="_view" Screens="_screens" Selected="_selected" OnSelect="Select" />
                 </div>
             </section>
         </RadzenSplitterPane>
         <RadzenSplitterPane>
             <RadzenSplitter Orientation="Orientation.Vertical" class="editor-split">
-                <RadzenSplitterPane Size="calc(100% - 368px)" Min="150px">
+                <RadzenSplitterPane Size="calc(100% - 340px)" Min="150px">
                     <section class="pane">
-                        <ScreenCanvas Title="@Breadcrumb()" Item="_selected" />
+                        @if (_selected is PanelSection section)
+                        {
+                            <SectionView Title="@Breadcrumb()" Section="section" SelectedRow="_row" OnRowSelect="SelectRow"
+                                         OnCountChanged="count => _rowCount = count" OnCopyFailed="text => _notice = text" />
+                        }
+                        else
+                        {
+                            <ScreenCanvas Title="@Breadcrumb()" Item="@(_selected as ScreenItem)" />
+                        }
                     </section>
                 </RadzenSplitterPane>
                 <RadzenSplitterPane Min="120px">
                     <section class="pane">
-                        <PropertiesPanel Item="_selected" Warnings="_warnings" />
+                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Hint="@InspectorHint()" Warnings="_warnings" />
                     </section>
                 </RadzenSplitterPane>
             </RadzenSplitter>
         </RadzenSplitterPane>
     </RadzenSplitter>
 
-    <StatusBar Loading="_loading" Path="@_path" Error="@_error" ScreenCount="_screenCount" WarningCount="_warnings.Count" />
+    <StatusBar Loading="_loading" Path="@_path" Error="@_error" ScreenCount="_screenCount" WarningCount="_warnings.Count"
+               RowCount="@(ShownTable() is null ? null : _rowCount)" RowTotal="@ShownTable()?.Rows.Count" Notice="@_notice" />
 </div>
 
 @code {
+    /// <summary>Подсказка в панели свойств, когда открыта таблица, а строка не выбрана.</summary>
+    private const string NoRowHint = "Выберите строку таблицы";
+
+    /// <summary>Подсказка в панели свойств для раздела, таблицу которого построить не удалось.</summary>
+    private const string FailedHint = "Таблица раздела не построена — причина на вкладке Info";
+
+    /// <summary>Подсказка в панели свойств для «Сводки»: у неё нет строк со свойствами.</summary>
+    private const string SummaryHint = "У «Сводки» нет свойств строк";
+
     /// <summary>Путь открытого или открываемого файла; <c>null</c> — файл ещё не выбирали.</summary>
     private string? _path;
 
     /// <summary>Экраны открытой панели в порядке листа «Экраны».</summary>
     private IReadOnlyList<ScreenItem> _screens = [];
 
+    /// <summary>Разделы открытой панели; <c>null</c> — панель не открыта.</summary>
+    private PanelView? _view;
+
     /// <summary>Число обычных экранов (вида Screen) — то же, что строка «Экранов» в консоли и на «Сводке».</summary>
     private int _screenCount;
 
-    /// <summary>Предупреждения разбора открытой панели (те же, что печатает консоль).</summary>
+    /// <summary>Сообщения вкладки Info: предупреждения разбора (те же, что печатает консоль) и разделы, которые не построены.</summary>
     private IReadOnlyList<string> _warnings = [];
 
-    /// <summary>Выбранный в дереве экран; <c>null</c> — не выбран.</summary>
-    private ScreenItem? _selected;
+    /// <summary>Выбранный в дереве узел: экран (<see cref="ScreenItem"/>) или раздел (<see cref="PanelSection"/>); <c>null</c> — ничего.</summary>
+    private object? _selected;
+
+    /// <summary>Выбранная строка таблицы раздела (номер в листе с нуля); <c>null</c> — не выбрана.</summary>
+    private int? _row;
+
+    /// <summary>Строк таблицы раздела после фильтра.</summary>
+    private int _rowCount;
+
+    /// <summary>Сообщение об ошибке действия в окне для строки состояния; <c>null</c> — нет.</summary>
+    private string? _notice;
 
     /// <summary>Текст ошибки чтения файла; <c>null</c> — ошибки нет.</summary>
     private string? _error;
@@ -57,7 +86,7 @@
     private bool _loading;
 
     /// <summary>
-    /// Выбрать файл диалогом и прочитать его вне потока окна. Успех — экраны и предупреждения панели, выбран
+    /// Выбрать файл диалогом и прочитать его вне потока окна. Успех — экраны, разделы и предупреждения панели, выбран
     /// стартовый экран, а если его нет — первый. Прежняя панель убирается сразу, до чтения, чтобы во время чтения
     /// не показывать смесь старого и нового файла. Ошибка чтения — текст в строке состояния. Отмена диалога ничего
     /// не меняет.
@@ -77,8 +106,9 @@
         {
             var doc = await Task.Run(() => FwxReader.Read(chosen));
             _screens = ScreenItems.From(doc);
+            _view = await Task.Run(() => PanelViews.From(doc, chosen));
             _screenCount = ScreensTable.ScreenCount(doc);
-            _warnings = doc.Warnings;
+            _warnings = [.. doc.Warnings, .. PanelViews.Errors(_view)];
             _selected = _screens.FirstOrDefault(s => s.IsStart) ?? _screens.FirstOrDefault();
         }
         catch (Exception e)
@@ -92,33 +122,78 @@
         }
     }
 
-    /// <summary>Убрать данные открытой панели: экраны, их число, предупреждения и выбранный экран.</summary>
+    /// <summary>Убрать данные открытой панели: экраны, разделы, их числа, предупреждения и выбор.</summary>
     private void ClearPanel()
     {
         _screens = [];
+        _view = null;
         _screenCount = 0;
         _warnings = [];
         _selected = null;
+        _row = null;
+        _notice = null;
     }
 
-    /// <summary>Текст ошибки чтения: ошибка формата и ввода-вывода — сообщением, другая — с типом ошибки.</summary>
+    /// <summary>Текст ошибки чтения файла: «Файл не прочитан» и причина (<see cref="FailureText.Describe"/>).</summary>
     /// <returns>Текст для строки состояния.</returns>
-    private static string ErrorText(Exception e) => e switch
-    {
-        FwxFormatException or IOException or UnauthorizedAccessException => $"Файл не прочитан: {e.Message}",
-        _ => $"Файл не прочитан: непредвиденная ошибка {e.GetType().Name}: {e.Message}"
-    };
+    private static string ErrorText(Exception e) => $"Файл не прочитан: {FailureText.Describe(e)}";
 
-    /// <summary>Выбрать экран в дереве.</summary>
-    private void Select(ScreenItem item) => _selected = item;
+    /// <summary>
+    /// Выбрать узел дерева: экран или раздел. У раздела с таблицей выбирается первая строка, число строк — все строки
+    /// таблицы, пока таблица не сообщит своё. Повторный выбор показанного узла (дерево сообщает его после щелчка по
+    /// папке) ничего не меняет: таблица того же раздела не пересоздаётся и хранит свои фильтр, сортировку и выбор.
+    /// </summary>
+    private void Select(object node)
+    {
+        if (ReferenceEquals(node, _selected))
+        {
+            return;
+        }
+        _selected = node;
+        _notice = null;
+        var table = ShownTable();
+        _row = table is { Rows.Count: > 0 } ? 0 : null;
+        _rowCount = table?.Rows.Count ?? 0;
+    }
+
+    /// <summary>Выбрать строку таблицы раздела; <c>null</c> — снять выбор (фильтр скрыл строку).</summary>
+    private void SelectRow(int? row)
+    {
+        _row = row;
+        _notice = null;
+    }
+
+    /// <summary>Таблица выбранного раздела; экран, «Сводка», раздел без таблицы или ничего не выбрано — <c>null</c>.</summary>
+    /// <returns>Таблица листа или <c>null</c>.</returns>
+    private ReportTable? ShownTable() => _selected is PanelSection { IsSummary: false, Error: null } section ? section.Table : null;
+
+    /// <summary>Строка для панели свойств: выбранная строка таблицы раздела.</summary>
+    /// <returns>Строка; не выбрана или открыт не раздел — <c>null</c>.</returns>
+    private SectionRow? InspectedRow() => _selected is PanelSection section && _row is { } row ? new SectionRow(section, row) : null;
+
+    /// <summary>Подсказка панели свойств для раздела без выбранной строки.</summary>
+    /// <returns>Текст подсказки; открыт экран или выбрана строка — <c>null</c>.</returns>
+    private string? InspectorHint() => _selected switch
+    {
+        PanelSection { Error: not null } => FailedHint,
+        PanelSection { IsSummary: true } => SummaryHint,
+        PanelSection when _row is null => NoRowHint,
+        _ => null
+    };
 
     /// <summary>Имя открытого файла для корня дерева.</summary>
     /// <returns>Имя файла; файл не открыт или не прочитан — <c>null</c>.</returns>
     private string? FileName() => _path is null || _error is not null || _loading ? null : Path.GetFileName(_path);
 
-    /// <summary>Путь в заголовке редактора, как в TIA: <c>pdata.fwc ▸ Screen ▸ Root screen</c>.</summary>
-    /// <returns>Текст строки; экран не выбран — пусто.</returns>
-    private string Breadcrumb() => _selected is null || _path is null
-        ? ""
-        : $"{Path.GetFileName(_path)}  ▸  {_selected.Kind}  ▸  {_selected.Name}";
+    /// <summary>
+    /// Путь в заголовке редактора, как в TIA: <c>pdata.fwc ▸ Screen ▸ Root screen</c> у экрана,
+    /// <c>pdata.fwc ▸ HMI alarms ▸ Discrete alarms</c> у раздела.
+    /// </summary>
+    /// <returns>Текст строки; ничего не выбрано — пусто.</returns>
+    private string Breadcrumb() => (_selected, _path) switch
+    {
+        (ScreenItem item, not null) => $"{Path.GetFileName(_path)}  ▸  {item.Kind}  ▸  {item.Name}",
+        (PanelSection section, not null) => $"{Path.GetFileName(_path)}  ▸  {section.Path}",
+        _ => ""
+    };
 }

@@ -1,0 +1,14 @@
+namespace FlexRt.Ui.Panel.Sections;
+
+/// <summary>Разделы открытой панели для дерева проекта: листы <c>panel_data.xlsx</c> и языки <c>PDATA.xlsx</c> без данных ПЛК.</summary>
+/// <param name="Summary">«Сводка».</param>
+/// <param name="Tags">HMI tags — лист «Теги».</param>
+/// <param name="Alarms">Разделы папки HMI alarms: только те, чьи листы есть в книге.</param>
+/// <param name="Screens">Таблица листа «Экраны» для папки Screens.</param>
+/// <param name="Texts">Тексты: по разделу на язык, в порядке листов <c>PDATA.xlsx</c>.</param>
+public sealed record PanelView(
+    PanelSection Summary,
+    PanelSection Tags,
+    IReadOnlyList<PanelSection> Alarms,
+    PanelSection Screens,
+    IReadOnlyList<PanelSection> Texts);

@@ -1,0 +1,138 @@
+@using System.Runtime.InteropServices
+@using System.Windows
+
+<div class="report-grid">
+    <RadzenDataGrid @ref="_grid" TItem="IDictionary<string, object>" Data="_rows" @bind-Value="_selection" RowSelect="SelectRow"
+                    Render="OnRender" KeyDown="OnKeyDown" SelectionMode="DataGridSelectionMode.Single" AllowSorting="true" AllowFiltering="true"
+                    FilterMode="FilterMode.Simple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowVirtualization="true"
+                    AllowColumnResize="true" Density="Density.Compact" ColumnWidth="180px" EmptyText="Нет строк" class="section-grid">
+        <Columns>
+            @foreach (var column in _columns)
+            {
+                <RadzenDataGridColumn @key="column.Key" TItem="IDictionary<string, object>" Title="@column.Title"
+                                      Type="@column.ValueType"
+                                      Property="@PropertyAccess.GetDynamicPropertyExpression(column.Key, column.ValueType)"
+                                      FilterOperator="@(column.IsNumber ? FilterOperator.Equals : FilterOperator.Contains)"
+                                      TextAlign="@(column.IsNumber ? TextAlign.Right : TextAlign.Left)">
+                    <Template>
+                        @{
+                            var cell = CellOf(context, column);
+                            var text = GridData.Text(cell);
+                        }
+                        @if (cell.FillRgb is { } rgb)
+                        {
+                            <span class="swatch" style="background:#@rgb.ToString("x6")"></span>
+                        }
+                        <span title="@text">@text</span>
+                    </Template>
+                </RadzenDataGridColumn>
+            }
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    /// <summary>Таблица Radzen: из неё берётся число строк после фильтра.</summary>
+    private RadzenDataGrid<IDictionary<string, object>>? _grid;
+
+    /// <summary>Колонки показываемой таблицы.</summary>
+    private IReadOnlyList<GridColumn> _columns = [];
+
+    /// <summary>Строки показываемой таблицы в порядке листа.</summary>
+    private List<IDictionary<string, object>> _rows = [];
+
+    /// <summary>Выделенная строка таблицы Radzen (одна или ни одной).</summary>
+    private IList<IDictionary<string, object>>? _selection;
+
+    /// <summary>Число строк после фильтра, о котором уже сообщено <see cref="OnCountChanged"/>.</summary>
+    private int? _reportedCount;
+
+    /// <summary>Таблица листа; у экземпляра не меняется — <c>SectionView</c> задаёт ключ <c>@key</c> по разделу.</summary>
+    [Parameter, EditorRequired]
+    public ReportTable Table { get; set; } = null!;
+
+    /// <summary>Номер выбранной строки листа с нуля; <c>null</c> — не выбрана.</summary>
+    [Parameter]
+    public int? SelectedRow { get; set; }
+
+    /// <summary>Выбор строки: номер строки листа с нуля по щелчку; <c>null</c> — фильтр скрыл выбранную строку, выбор снят.</summary>
+    [Parameter]
+    public EventCallback<int?> OnRowSelect { get; set; }
+
+    /// <summary>Изменилось число строк после фильтра.</summary>
+    [Parameter]
+    public EventCallback<int> OnCountChanged { get; set; }
+
+    /// <summary>Строку не удалось скопировать в буфер обмена: текст ошибки.</summary>
+    [Parameter]
+    public EventCallback<string> OnCopyFailed { get; set; }
+
+    /// <summary>Построить колонки и строки таблицы один раз: другая таблица — другой экземпляр компонента.</summary>
+    protected override void OnInitialized()
+    {
+        _columns = GridData.Columns(Table);
+        _rows = GridData.Rows(Table, _columns);
+    }
+
+    /// <summary>Выделение — по <see cref="SelectedRow"/>.</summary>
+    protected override void OnParametersSet() =>
+        _selection = SelectedRow is { } row && row < _rows.Count ? [_rows[row]] : [];
+
+    /// <summary>Ячейка таблицы листа для строки Radzen и колонки: из неё берутся текст и заливка.</summary>
+    /// <returns>Ячейка листа.</returns>
+    private ReportCell CellOf(IDictionary<string, object> row, GridColumn column) =>
+        Table.Rows[(int)row[GridData.RowKey]][column.Index];
+
+    /// <summary>Щелчок по строке — сообщить номер строки листа.</summary>
+    private Task SelectRow(IDictionary<string, object> row) => OnRowSelect.InvokeAsync((int)row[GridData.RowKey]);
+
+    /// <summary>Выбранная строка осталась среди строк после фильтра.</summary>
+    /// <returns><c>true</c>, если строка не выбрана или видна.</returns>
+    private bool SelectedVisible(IQueryable<IDictionary<string, object>> view) =>
+        SelectedRow is not { } row || view.Any(r => (int)r[GridData.RowKey] == row);
+
+    /// <summary>
+    /// После отрисовки таблицы Radzen: фильтр скрыл выбранную строку — снять выбор (<see cref="OnRowSelect"/> с <c>null</c>);
+    /// число строк после фильтра изменилось — сообщить. Событие Radzen синхронное, поэтому ожидать сообщения здесь нельзя:
+    /// они лишь перерисовывают окно.
+    /// </summary>
+    private void OnRender(DataGridRenderEventArgs<IDictionary<string, object>> args)
+    {
+        if (_grid is null)
+        {
+            return;
+        }
+        if (!SelectedVisible(_grid.View))
+        {
+            _ = OnRowSelect.InvokeAsync(null);
+        }
+        var count = _grid.View.Count();
+        if (count == _reportedCount)
+        {
+            return;
+        }
+        _reportedCount = count;
+        _ = OnCountChanged.InvokeAsync(count);
+    }
+
+    /// <summary>
+    /// Ctrl+C — выбранную строку в буфер обмена: значения ячеек через табуляцию, при вставке в Excel ложатся по ячейкам.
+    /// Клавиша определяется по коду (<c>KeyC</c>), чтобы работало и в русской раскладке. Буфер занят другой программой —
+    /// текст ошибки в <see cref="OnCopyFailed"/>.
+    /// </summary>
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (!e.CtrlKey || e.Code != "KeyC" || SelectedRow is not { } row || row >= Table.Rows.Count)
+        {
+            return;
+        }
+        try
+        {
+            Clipboard.SetText(string.Join('\t', Table.Rows[row].Select(GridData.Text)));
+        }
+        catch (ExternalException ex)
+        {
+            await OnCopyFailed.InvokeAsync($"Строка не скопирована: {ex.Message}");
+        }
+    }
+}

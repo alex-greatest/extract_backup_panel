@@ -2,7 +2,7 @@
 {
     <div class="tree-empty">Чтение файла…</div>
 }
-else if (FileName is null)
+else if (FileName is null || View is null)
 {
     <div class="tree-empty">Откройте pdata.fwc</div>
 }
@@ -12,9 +12,18 @@ else
         <RadzenTreeItem Text="@FileName" Value="RootKey" Expanded="true">
             <Template><Icon Name="file" /><span class="tree-text">@context.Text</span></Template>
             <ChildContent>
-                @if (Any(OfKind(ScreenKind.Screen)))
+                @Section(View.Summary)
+                @Section(View.Tags)
+                @if (View.Alarms.Count > 0)
                 {
-                    @Folder("Screens", OfKind(ScreenKind.Screen))
+                    @SectionFolder("HMI alarms", View.Alarms)
+                }
+                @if (Any(OfKind(ScreenKind.Screen)) || View.Screens.Table.Rows.Count > 0 || View.Screens.Error is not null)
+                {
+                    <RadzenTreeItem Text="Screens" Value="View.Screens" Selected="@ReferenceEquals(View.Screens, Selected)" Expanded="true">
+                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span>@Badge(View.Screens)</Template>
+                        <ChildContent>@Items(OfKind(ScreenKind.Screen))</ChildContent>
+                    </RadzenTreeItem>
                 }
                 @if (Any(OfKind(ScreenKind.PopUp)) || Any(OfKind(ScreenKind.SlideIn)) || Any(OfKind(ScreenKind.PermanentArea)))
                 {
@@ -37,6 +46,10 @@ else
                 {
                     @Folder("Вид не опознан", Unrecognized)
                 }
+                @if (View.Texts.Count > 0)
+                {
+                    @SectionFolder("Тексты", View.Texts)
+                }
             </ChildContent>
         </RadzenTreeItem>
     </RadzenTree>
@@ -54,17 +67,60 @@ else
     [Parameter]
     public string? FileName { get; set; }
 
+    /// <summary>Разделы открытой панели; <c>null</c> — файл не открыт.</summary>
+    [Parameter]
+    public PanelView? View { get; set; }
+
     /// <summary>Экраны панели в порядке листа «Экраны».</summary>
     [Parameter, EditorRequired]
     public IReadOnlyList<ScreenItem> Screens { get; set; } = [];
 
-    /// <summary>Выбранный экран: подсвечивается.</summary>
+    /// <summary>Выбранный узел: экран (<see cref="ScreenItem"/>) или раздел (<see cref="PanelSection"/>); подсвечивается.</summary>
     [Parameter]
-    public ScreenItem? Selected { get; set; }
+    public object? Selected { get; set; }
 
-    /// <summary>Щелчок по экрану.</summary>
+    /// <summary>Щелчок по экрану или разделу (в том числе по папке Screens — таблица листа «Экраны»).</summary>
     [Parameter]
-    public EventCallback<ScreenItem> OnSelect { get; set; }
+    public EventCallback<object> OnSelect { get; set; }
+
+    /// <summary>Узел раздела: значок, имя и отметка справа (<see cref="Badge"/>).</summary>
+    /// <returns>Разметка узла.</returns>
+    private RenderFragment Section(PanelSection section) =>
+        @<RadzenTreeItem Text="@section.Title" Value="section" Selected="@ReferenceEquals(section, Selected)">
+            <Template>
+                <Icon Name="@section.Icon" /><span class="tree-text">@context.Text</span>@Badge(section)
+            </Template>
+        </RadzenTreeItem>;
+
+    /// <summary>
+    /// Отметка справа от узла раздела: таблица не построена — красный значок с причиной во всплывающей подсказке;
+    /// иначе, кроме «Сводки», — число строк таблицы.
+    /// </summary>
+    /// <returns>Разметка отметки.</returns>
+    private static RenderFragment Badge(PanelSection section) => __builder =>
+    {
+        if (section.Error is not null)
+        {
+            <span class="tree-error" title="@section.Error">⚠</span>
+        }
+        else if (!section.IsSummary)
+        {
+            <Count Value="section.Table.Rows.Count" />
+        }
+    };
+
+    /// <summary>Папка дерева с узлами разделов <paramref name="sections"/>; раскрыта.</summary>
+    /// <returns>Разметка папки.</returns>
+    private RenderFragment SectionFolder(string title, IReadOnlyList<PanelSection> sections) =>
+        @<RadzenTreeItem Text="@title" Value="title" Expanded="true">
+            <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span></Template>
+            <ChildContent>
+                @foreach (var section in sections)
+                {
+                    @Section(section)
+                }
+            </ChildContent>
+        </RadzenTreeItem>;
 
     /// <summary>Папка дерева с экранами, которые отбирает <paramref name="filter"/>; раскрыта.</summary>
     /// <returns>Разметка папки.</returns>
@@ -80,7 +136,7 @@ else
         @<text>
             @foreach (var item in Screens.Where(filter))
             {
-                <RadzenTreeItem Text="@item.Name" Value="item" Selected="@(item == Selected)">
+                <RadzenTreeItem Text="@item.Name" Value="item" Selected="@ReferenceEquals(item, Selected)">
                     <Template>
                         <Icon Name="@IconOf(item.Kind)" /><span class="tree-text">@context.Text</span>
                         @if (item.IsStart)
@@ -104,12 +160,12 @@ else
     /// <returns><c>true</c> для экрана неопознанного вида.</returns>
     private static bool Unrecognized(ScreenItem item) => !ScreenKind.Recognized.Contains(item.Kind);
 
-    /// <summary>Щелчок по узлу дерева: экран — сообщить о выборе; папка или файл — только подсветка.</summary>
+    /// <summary>Щелчок по узлу дерева: экран или раздел — сообщить о выборе; другая папка или файл — только подсветка.</summary>
     private async Task OnChange(TreeEventArgs args)
     {
-        if (args.Value is ScreenItem item)
+        if (args.Value is ScreenItem or PanelSection)
         {
-            await OnSelect.InvokeAsync(item);
+            await OnSelect.InvokeAsync(args.Value);
         }
     }
 

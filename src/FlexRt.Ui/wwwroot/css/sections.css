@@ -1,0 +1,119 @@
+/* Разделы панели: строки статистики, таблица листа (RadzenDataGrid), «Сводка», заливка ячеек */
+
+.section-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 22px;
+    padding: 7px 12px;
+    background: var(--surface-alt);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.section-stats b {
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+/* таблица занимает остаток панели: виртуальной прокрутке Radzen нужна заданная высота */
+.report-grid {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    outline: none;
+}
+
+.section-grid.rz-data-grid {
+    --rz-grid-header-background-color: var(--surface-alt);
+    --rz-grid-header-color: var(--text-secondary);
+    --rz-grid-header-font-weight: 600;
+    --rz-grid-header-text-transform: none;
+    --rz-grid-header-font-size: 12.5px;
+    --rz-grid-cell-font-size: 12.5px;
+    --rz-grid-cell-color: var(--text);
+    --rz-grid-hover-background-color: var(--hover);
+    --rz-grid-selected-background-color: var(--accent-soft);
+    --rz-grid-selected-color: var(--text);
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+}
+
+.section-grid .rz-cell-data {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-grid .rz-cell-data .rz-text {
+    font-variant-numeric: tabular-nums;
+}
+
+.swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    vertical-align: -2px;
+    flex-shrink: 0;
+}
+
+/* «Сводка»: список подпись — значение */
+.summary-scroll {
+    flex: 1;
+    overflow: auto;
+}
+
+.summary-list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.summary-list td {
+    padding: 7px 14px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.summary-list td:first-child {
+    width: 240px;
+    color: var(--text-secondary);
+}
+
+.summary-gap td {
+    padding: 6px;
+    border: none;
+    background: var(--surface-alt);
+}
+
+/* свойства строки: заголовки колонок листа длиннее имён свойств экрана */
+.row-group.rz-fieldset {
+    max-width: 760px;
+}
+
+.row-group .prop-row .rz-label {
+    width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* раздел, таблицу которого ядро построить не смогло */
+.section-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px;
+    padding: 10px 14px;
+    border: 1px solid #f1b0aa;
+    border-radius: 4px;
+    background: #fdecea;
+    color: var(--error);
+}
