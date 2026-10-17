@@ -1,0 +1,14 @@
+<div class="toolbar">
+    <RadzenButton Text="Открыть pdata.fwc…" Icon="folder_open" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base"
+                  Size="ButtonSize.Small" Click="@(() => OnOpen.InvokeAsync())" IsBusy="Loading" BusyText="Чтение…" />
+</div>
+
+@code {
+    /// <summary>Идёт чтение файла: кнопка открытия занята.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Щелчок по кнопке открытия файла.</summary>
+    [Parameter]
+    public EventCallback OnOpen { get; set; }
+}

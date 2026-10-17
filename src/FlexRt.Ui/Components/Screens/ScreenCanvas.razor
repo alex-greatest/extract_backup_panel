@@ -1,0 +1,50 @@
+@using System.Globalization
+
+<div class="editor-title">@Title</div>
+<div class="canvas-scroll">
+    @if (Item is null)
+    {
+        <div class="canvas-empty">Выберите экран в дереве проекта</div>
+    }
+    else
+    {
+        <div class="screen-frame" style="width:@Px(Item.Screen.Width); height:@Px(Item.Screen.Height);">
+            <div class="screen" style="width:@(Item.Screen.Width)px; height:@(Item.Screen.Height)px; transform:scale(@Scale());"></div>
+        </div>
+    }
+</div>
+<div class="editor-footer">
+    @if (Item is not null)
+    {
+        <span class="muted-inline">@Item.Screen.Width × @Item.Screen.Height px</span>
+    }
+    <span class="spacer"></span>
+    <RadzenDropDown TValue="int" Data="Zooms" @bind-Value="_zoom" class="zoom" title="Масштаб">
+        <Template Context="z">@z%</Template>
+        <ValueTemplate Context="z">@z%</ValueTemplate>
+    </RadzenDropDown>
+</div>
+
+@code {
+    /// <summary>Доступные масштабы холста в процентах.</summary>
+    private static readonly int[] Zooms = [25, 50, 75, 100, 125, 150, 200];
+
+    /// <summary>Текущий масштаб в процентах.</summary>
+    private int _zoom = 100;
+
+    /// <summary>Строка заголовка редактора: путь к экрану, как в TIA.</summary>
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    /// <summary>Экран для показа: прямоугольник его размера; <c>null</c> — подсказка.</summary>
+    [Parameter]
+    public ScreenItem? Item { get; set; }
+
+    /// <summary>Множитель масштаба для CSS в инвариантной культуре (<c>0.75</c>).</summary>
+    /// <returns>Текст множителя.</returns>
+    private string Scale() => (_zoom / 100.0).ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>Размер рамки экрана в пикселях окна при текущем масштабе: по нему прокручивается холст.</summary>
+    /// <returns>Текст CSS, например <c>600px</c>.</returns>
+    private string Px(int size) => $"{size * _zoom / 100}px";
+}

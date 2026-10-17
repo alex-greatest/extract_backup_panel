@@ -1,0 +1,124 @@
+@using System.IO
+@using FlexRt.Binary
+@using FlexRt.Export.PanelData.Screens
+@using FlexRt.Parsing.Panel
+
+<div class="shell">
+    <Toolbar Loading="_loading" OnOpen="OpenAsync" />
+
+    <RadzenSplitter class="workspace">
+        <RadzenSplitterPane Size="280px" Min="150px" Max="700px">
+            <section class="pane">
+                <header class="pane-title">Дерево проекта</header>
+                <div class="tree-scroll">
+                    <ProjectTree Loading="_loading" FileName="@FileName()" Screens="_screens" Selected="_selected" OnSelect="Select" />
+                </div>
+            </section>
+        </RadzenSplitterPane>
+        <RadzenSplitterPane>
+            <RadzenSplitter Orientation="Orientation.Vertical" class="editor-split">
+                <RadzenSplitterPane Size="calc(100% - 368px)" Min="150px">
+                    <section class="pane">
+                        <ScreenCanvas Title="@Breadcrumb()" Item="_selected" />
+                    </section>
+                </RadzenSplitterPane>
+                <RadzenSplitterPane Min="120px">
+                    <section class="pane">
+                        <PropertiesPanel Item="_selected" Warnings="_warnings" />
+                    </section>
+                </RadzenSplitterPane>
+            </RadzenSplitter>
+        </RadzenSplitterPane>
+    </RadzenSplitter>
+
+    <StatusBar Loading="_loading" Path="@_path" Error="@_error" ScreenCount="_screenCount" WarningCount="_warnings.Count" />
+</div>
+
+@code {
+    /// <summary>Путь открытого или открываемого файла; <c>null</c> — файл ещё не выбирали.</summary>
+    private string? _path;
+
+    /// <summary>Экраны открытой панели в порядке листа «Экраны».</summary>
+    private IReadOnlyList<ScreenItem> _screens = [];
+
+    /// <summary>Число обычных экранов (вида Screen) — то же, что строка «Экранов» в консоли и на «Сводке».</summary>
+    private int _screenCount;
+
+    /// <summary>Предупреждения разбора открытой панели (те же, что печатает консоль).</summary>
+    private IReadOnlyList<string> _warnings = [];
+
+    /// <summary>Выбранный в дереве экран; <c>null</c> — не выбран.</summary>
+    private ScreenItem? _selected;
+
+    /// <summary>Текст ошибки чтения файла; <c>null</c> — ошибки нет.</summary>
+    private string? _error;
+
+    /// <summary>Идёт чтение файла: кнопка открытия занята.</summary>
+    private bool _loading;
+
+    /// <summary>
+    /// Выбрать файл диалогом и прочитать его вне потока окна. Успех — экраны и предупреждения панели, выбран
+    /// стартовый экран, а если его нет — первый. Прежняя панель убирается сразу, до чтения, чтобы во время чтения
+    /// не показывать смесь старого и нового файла. Ошибка чтения — текст в строке состояния. Отмена диалога ничего
+    /// не меняет.
+    /// </summary>
+    private async Task OpenAsync()
+    {
+        var chosen = PanelFileDialog.Ask();
+        if (chosen is null)
+        {
+            return;
+        }
+        _path = chosen;
+        _loading = true;
+        _error = null;
+        ClearPanel();
+        try
+        {
+            var doc = await Task.Run(() => FwxReader.Read(chosen));
+            _screens = ScreenItems.From(doc);
+            _screenCount = ScreensTable.ScreenCount(doc);
+            _warnings = doc.Warnings;
+            _selected = _screens.FirstOrDefault(s => s.IsStart) ?? _screens.FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            ClearPanel();
+            _error = ErrorText(e);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    /// <summary>Убрать данные открытой панели: экраны, их число, предупреждения и выбранный экран.</summary>
+    private void ClearPanel()
+    {
+        _screens = [];
+        _screenCount = 0;
+        _warnings = [];
+        _selected = null;
+    }
+
+    /// <summary>Текст ошибки чтения: ошибка формата и ввода-вывода — сообщением, другая — с типом ошибки.</summary>
+    /// <returns>Текст для строки состояния.</returns>
+    private static string ErrorText(Exception e) => e switch
+    {
+        FwxFormatException or IOException or UnauthorizedAccessException => $"Файл не прочитан: {e.Message}",
+        _ => $"Файл не прочитан: непредвиденная ошибка {e.GetType().Name}: {e.Message}"
+    };
+
+    /// <summary>Выбрать экран в дереве.</summary>
+    private void Select(ScreenItem item) => _selected = item;
+
+    /// <summary>Имя открытого файла для корня дерева.</summary>
+    /// <returns>Имя файла; файл не открыт или не прочитан — <c>null</c>.</returns>
+    private string? FileName() => _path is null || _error is not null || _loading ? null : Path.GetFileName(_path);
+
+    /// <summary>Путь в заголовке редактора, как в TIA: <c>pdata.fwc ▸ Screen ▸ Root screen</c>.</summary>
+    /// <returns>Текст строки; экран не выбран — пусто.</returns>
+    private string Breadcrumb() => _selected is null || _path is null
+        ? ""
+        : $"{Path.GetFileName(_path)}  ▸  {_selected.Kind}  ▸  {_selected.Name}";
+}

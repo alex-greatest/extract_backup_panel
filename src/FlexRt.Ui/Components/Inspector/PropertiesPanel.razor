@@ -1,0 +1,121 @@
+<div class="inspector-head">
+    <span class="inspector-title">@(Item is null ? "Свойства" : $"{Item.Name} [{Item.Kind}]")</span>
+    <span class="spacer"></span>
+    <div class="head-tabs" role="tablist">
+        <button type="button" role="tab" aria-selected="@(_outer == PropertiesTab ? "true" : "false")" class="head-tab @(_outer == PropertiesTab ? "active" : "")"
+                @onclick="() => _outer = PropertiesTab">
+            <RadzenIcon Icon="manage_search" /> Properties
+        </button>
+        <button type="button" role="tab" aria-selected="@(_outer == InfoTab ? "true" : "false")" class="head-tab @(_outer == InfoTab ? "active" : "")"
+                @onclick="() => _outer = InfoTab">
+            <RadzenIcon Icon="info" /> Info
+            @if (Warnings.Count > 0)
+            {
+                <span class="badge">@Warnings.Count</span>
+            }
+        </button>
+    </div>
+</div>
+
+@if (_outer == InfoTab)
+{
+    <div class="info-body" role="tabpanel">
+        @if (Warnings.Count == 0)
+        {
+            <div class="muted">Предупреждений разбора нет</div>
+        }
+        @foreach (var warning in Warnings)
+        {
+            <div class="info-line"><RadzenIcon Icon="warning" IconStyle="IconStyle.Warning" /> @warning</div>
+        }
+    </div>
+}
+else
+{
+    <RadzenTabs class="inspector-tabs" @bind-SelectedIndex="_innerTab">
+        <Tabs>
+            <RadzenTabsItem Text="Properties">@PropertiesView()</RadzenTabsItem>
+            <RadzenTabsItem Text="Animations">@NotParsed("Animations")</RadzenTabsItem>
+            <RadzenTabsItem Text="Events">@NotParsed("Events")</RadzenTabsItem>
+        </Tabs>
+    </RadzenTabs>
+}
+
+@code {
+    /// <summary>Подсказка, пока объект не выбран.</summary>
+    private const string NoSelectionHint = "Выберите экран в дереве проекта";
+
+    /// <summary>Вкладка заголовка со свойствами объекта.</summary>
+    private const string PropertiesTab = "Properties";
+
+    /// <summary>Вкладка заголовка с предупреждениями разбора.</summary>
+    private const string InfoTab = "Info";
+
+    /// <summary>Группа свойств по умолчанию.</summary>
+    private const string GeneralGroup = "General";
+
+    /// <summary>Группа свойства в списке слева, как в TIA; свойства, которых здесь нет, — в <see cref="GeneralGroup"/>.</summary>
+    private static readonly Dictionary<string, string> GroupOf = new()
+    {
+        ["Width"] = "Layout",
+        ["Height"] = "Layout"
+    };
+
+    /// <summary>Открытая вкладка заголовка: <see cref="PropertiesTab"/> или <see cref="InfoTab"/>.</summary>
+    private string _outer = PropertiesTab;
+
+    /// <summary>Открытая внутренняя вкладка (Properties, Animations, Events): хранится здесь, чтобы не сбрасываться при переходе на Info.</summary>
+    private int _innerTab;
+
+    /// <summary>Выбранная группа свойств; <c>null</c> или группы нет у объекта — первая группа.</summary>
+    private string? _selectedGroup;
+
+    /// <summary>Объект, свойства которого показываются; <c>null</c> — подсказка.</summary>
+    [Parameter]
+    public ScreenItem? Item { get; set; }
+
+    /// <summary>Предупреждения разбора открытой панели для вкладки Info.</summary>
+    [Parameter]
+    public IReadOnlyList<string> Warnings { get; set; } = [];
+
+    /// <summary>
+    /// Вкладка свойств: список групп слева (как Property list в TIA) и поля показываемой группы — выбранной, если она
+    /// есть у объекта, иначе первой. Start screen показывается флажком по <see cref="ScreenItem.IsStart"/>.
+    /// Объект не выбран — подсказка.
+    /// </summary>
+    /// <returns>Разметка вкладки.</returns>
+    private RenderFragment PropertiesView() => __builder =>
+    {
+        if (Item is null)
+        {
+            <div class="muted">@NoSelectionHint</div>
+            return;
+        }
+        var groups = Groups(Item);
+        var current = groups.FirstOrDefault(g => g.Key == _selectedGroup) ?? groups[0];
+        <div class="props-layout">
+            <RadzenListBox TValue="string" Data="@groups.Select(g => g.Key).ToList()" Value="@current.Key" ValueChanged="@(g => _selectedGroup = g)" class="props-nav" />
+            <div class="props-body">
+                <RadzenFieldset Text="@current.Key" class="prop-group">
+                    @foreach (var (name, value) in current)
+                    {
+                        <div class="prop-row">
+                            <RadzenLabel Text="@($"{name}:")" />
+                            <PropertyValue Value="value" Checked="@(name == StartScreenColumn.Name ? Item.IsStart : null)" />
+                        </div>
+                    }
+                </RadzenFieldset>
+            </div>
+        </div>
+    };
+
+    /// <summary>Вкладка, данных для которой в pdata.fwc пока не найдено.</summary>
+    /// <returns>Разметка подсказки.</returns>
+    private RenderFragment NotParsed(string tab) =>
+        @<div class="muted">@(Item is null ? NoSelectionHint : $"{tab}: не разобрано — в pdata.fwc пока не найдено.")</div>;
+
+    /// <summary>Свойства объекта по группам в порядке первого свойства группы.</summary>
+    /// <returns>Группы свойств.</returns>
+    private static List<IGrouping<string, (string Name, ReportCell Value)>> Groups(ScreenItem item) =>
+        [.. item.Properties.GroupBy(p => GroupOf.GetValueOrDefault(p.Name, GeneralGroup))];
+}

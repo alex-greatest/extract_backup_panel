@@ -1,0 +1,27 @@
+@switch (Name)
+{
+    case "file":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="10" rx="1" fill="#4a6a8c" /><rect x="4" y="4" width="8" height="6" fill="#cfe3f5" /><rect x="6" y="12" width="4" height="2" fill="#4a6a8c" /></svg>
+        break;
+    case "folder":
+        <svg class="icon" viewBox="0 0 16 16"><path d="M1 4h5l1 1h8v8H1z" fill="#e8b84a" /><path d="M1 6h14v7H1z" fill="#f4cf6a" /></svg>
+        break;
+    case "screen":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="10" fill="#ffffff" stroke="#4a6a8c" /><rect x="3" y="4" width="10" height="2" fill="#8fb3d9" /></svg>
+        break;
+    case "popup":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="10" fill="#ffffff" stroke="#4a6a8c" /><rect x="4.5" y="5.5" width="7" height="5" fill="#cfe3f5" stroke="#4a6a8c" /></svg>
+        break;
+    default:
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="10" fill="#eceff3" stroke="#7a8794" stroke-dasharray="2 1" /></svg>
+        break;
+}
+
+@code {
+    /// <summary>
+    /// Значок узла дерева, нарисованный SVG 16×16: <c>file</c> — панель, <c>folder</c> — папка, <c>screen</c> — экран,
+    /// <c>popup</c> — pop-up экран; другое имя — экран неопознанного вида.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = "";
+}

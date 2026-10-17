@@ -1,0 +1,124 @@
+@if (Loading)
+{
+    <div class="tree-empty">Чтение файла…</div>
+}
+else if (FileName is null)
+{
+    <div class="tree-empty">Откройте pdata.fwc</div>
+}
+else
+{
+    <RadzenTree Value="Selected" Change="OnChange" class="project-tree">
+        <RadzenTreeItem Text="@FileName" Value="RootKey" Expanded="true">
+            <Template><Icon Name="file" /><span class="tree-text">@context.Text</span></Template>
+            <ChildContent>
+                @if (Any(OfKind(ScreenKind.Screen)))
+                {
+                    @Folder("Screens", OfKind(ScreenKind.Screen))
+                }
+                @if (Any(OfKind(ScreenKind.PopUp)) || Any(OfKind(ScreenKind.SlideIn)) || Any(OfKind(ScreenKind.PermanentArea)))
+                {
+                    <RadzenTreeItem Text="Screen management" Value="@("Screen management")" Expanded="true">
+                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span></Template>
+                        <ChildContent>
+                            @if (Any(OfKind(ScreenKind.PopUp)))
+                            {
+                                @Folder("Pop-up screens", OfKind(ScreenKind.PopUp))
+                            }
+                            @if (Any(OfKind(ScreenKind.SlideIn)))
+                            {
+                                @Folder("Slide-in screens", OfKind(ScreenKind.SlideIn))
+                            }
+                            @Items(OfKind(ScreenKind.PermanentArea))
+                        </ChildContent>
+                    </RadzenTreeItem>
+                }
+                @if (Any(Unrecognized))
+                {
+                    @Folder("Вид не опознан", Unrecognized)
+                }
+            </ChildContent>
+        </RadzenTreeItem>
+    </RadzenTree>
+}
+
+@code {
+    /// <summary>Значение корневого узла (файла панели) в дереве.</summary>
+    private const string RootKey = "";
+
+    /// <summary>Идёт чтение файла: вместо дерева — подсказка о чтении.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Имя файла панели для корневого узла; <c>null</c> — файл не открыт.</summary>
+    [Parameter]
+    public string? FileName { get; set; }
+
+    /// <summary>Экраны панели в порядке листа «Экраны».</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ScreenItem> Screens { get; set; } = [];
+
+    /// <summary>Выбранный экран: подсвечивается.</summary>
+    [Parameter]
+    public ScreenItem? Selected { get; set; }
+
+    /// <summary>Щелчок по экрану.</summary>
+    [Parameter]
+    public EventCallback<ScreenItem> OnSelect { get; set; }
+
+    /// <summary>Папка дерева с экранами, которые отбирает <paramref name="filter"/>; раскрыта.</summary>
+    /// <returns>Разметка папки.</returns>
+    private RenderFragment Folder(string title, Func<ScreenItem, bool> filter) =>
+        @<RadzenTreeItem Text="@title" Value="title" Expanded="true">
+            <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span></Template>
+            <ChildContent>@Items(filter)</ChildContent>
+        </RadzenTreeItem>;
+
+    /// <summary>Узлы экранов, которые отбирает <paramref name="filter"/>, в порядке листа; у стартового — значок ▶.</summary>
+    /// <returns>Разметка узлов.</returns>
+    private RenderFragment Items(Func<ScreenItem, bool> filter) =>
+        @<text>
+            @foreach (var item in Screens.Where(filter))
+            {
+                <RadzenTreeItem Text="@item.Name" Value="item" Selected="@(item == Selected)">
+                    <Template>
+                        <Icon Name="@IconOf(item.Kind)" /><span class="tree-text">@context.Text</span>
+                        @if (item.IsStart)
+                        {
+                            <span class="start-mark" title="Стартовый экран">▶</span>
+                        }
+                    </Template>
+                </RadzenTreeItem>
+            }
+        </text>;
+
+    /// <summary>Есть ли экраны, которые отбирает <paramref name="filter"/>.</summary>
+    /// <returns><c>true</c>, если есть хотя бы один.</returns>
+    private bool Any(Func<ScreenItem, bool> filter) => Screens.Any(filter);
+
+    /// <summary>Отбор экранов одного вида.</summary>
+    /// <returns>Условие отбора.</returns>
+    private static Func<ScreenItem, bool> OfKind(string kind) => s => s.Kind == kind;
+
+    /// <summary>Отбор экранов, вид которых не входит в <see cref="ScreenKind.Recognized"/>: <c>?</c> и любые новые.</summary>
+    /// <returns><c>true</c> для экрана неопознанного вида.</returns>
+    private static bool Unrecognized(ScreenItem item) => !ScreenKind.Recognized.Contains(item.Kind);
+
+    /// <summary>Щелчок по узлу дерева: экран — сообщить о выборе; папка или файл — только подсветка.</summary>
+    private async Task OnChange(TreeEventArgs args)
+    {
+        if (args.Value is ScreenItem item)
+        {
+            await OnSelect.InvokeAsync(item);
+        }
+    }
+
+    /// <summary>Значок экрана по виду: pop-up — свой, неопознанный вид — пунктирный, остальные — обычный экран.</summary>
+    /// <returns>Имя значка для <c>Icon</c>.</returns>
+    private static string IconOf(string kind) => kind switch
+    {
+        ScreenKind.PopUp => "popup",
+        ScreenKind.Screen or ScreenKind.SlideIn or ScreenKind.PermanentArea => "screen",
+        _ => "unknown"
+    };
+}

@@ -1,0 +1,24 @@
+@using System.Globalization
+
+@if (Checked is { } isChecked)
+{
+    <RadzenCheckBox TValue="bool" Value="@isChecked" ReadOnly="true" />
+}
+else
+{
+    <RadzenTextBox Value="@Text()" ReadOnly="true" class="@(Value.Number is null ? "prop-input" : "prop-input number")" />
+}
+
+@code {
+    /// <summary>Значение свойства — ячейка строки листа; показывается полем, если <see cref="Checked"/> не задан.</summary>
+    [Parameter, EditorRequired]
+    public ReportCell Value { get; set; }
+
+    /// <summary>Состояние флажка для свойства-флажка (Start screen); <c>null</c> — свойство показывается полем.</summary>
+    [Parameter]
+    public bool? Checked { get; set; }
+
+    /// <summary>Текст поля: число — числом, текст — как есть (пустой — пусто).</summary>
+    /// <returns>Текст значения.</returns>
+    private string Text() => Value.Number?.ToString(CultureInfo.InvariantCulture) ?? Value.Text ?? "";
+}

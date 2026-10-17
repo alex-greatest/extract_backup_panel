@@ -1,0 +1,46 @@
+<footer class="statusbar">
+    @if (Loading)
+    {
+        <span>Чтение @Path…</span>
+    }
+    else if (Error is not null)
+    {
+        <span class="status-error">@Error</span>
+    }
+    else if (Path is not null)
+    {
+        <span>@Path</span>
+        <span class="spacer"></span>
+        <span>Экранов: @ScreenCount</span>
+        @if (WarningCount > 0)
+        {
+            <span class="status-warning">Предупреждений разбора: @WarningCount (вкладка Info)</span>
+        }
+    }
+    else
+    {
+        <span>Файл не открыт</span>
+    }
+</footer>
+
+@code {
+    /// <summary>Идёт чтение файла.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Путь открытого или открываемого файла; <c>null</c> — файл ещё не выбирали.</summary>
+    [Parameter]
+    public string? Path { get; set; }
+
+    /// <summary>Текст ошибки чтения файла; <c>null</c> — ошибки нет.</summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    /// <summary>Число обычных экранов открытой панели (вида Screen), как строка «Экранов» в консоли.</summary>
+    [Parameter]
+    public int ScreenCount { get; set; }
+
+    /// <summary>Число предупреждений разбора открытой панели.</summary>
+    [Parameter]
+    public int WarningCount { get; set; }
+}

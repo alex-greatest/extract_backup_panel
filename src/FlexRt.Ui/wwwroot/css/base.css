@@ -1,0 +1,107 @@
+/* Оформление в духе TIA Portal поверх темы Radzen standard: тёмные заголовки панелей, светлые рабочие области,
+   холст экрана с точечной сеткой. Шрифт Inter — из пакета Radzen (работает без интернета).
+   Переменные --rz-* перекрашивают компоненты Radzen. */
+@font-face {
+    font-family: "Inter";
+    src: url("/_content/Radzen.Blazor/fonts/InterVariable.woff2") format("woff2");
+    font-weight: 100 900;
+    font-display: block;
+}
+
+:root {
+    --font: "Inter", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+    --font-size: 13px;
+
+    --bg: #c9d0d9;
+    --surface: #ffffff;
+    --surface-alt: #f4f6f9;
+    --border: #c3cad4;
+    --border-strong: #9aa4b2;
+    --field-border: #7d8898;
+    --title: #26354a;
+    --title-text: #ffffff;
+    --title-muted: #b9c6d8;
+    --text: #111827;
+    --text-secondary: #3f4a5a;
+    --muted: #64707f;
+    --accent: #1f6fd1;
+    --accent-soft: #dbe8fb;
+    --hover: #eef3fb;
+    --canvas: #5b6879;
+    --screen: #e3e6ea;
+    --error: #b42318;
+    --warning: #9a5b00;
+
+    --rz-primary: var(--accent);
+    --rz-primary-light: #4a8ee0;
+    --rz-primary-lighter: var(--accent-soft);
+    --rz-primary-dark: #1859a8;
+    --rz-primary-darker: #134a8c;
+    --rz-on-primary-lighter: var(--rz-primary-dark);
+    --rz-text-font-family: var(--font);
+    --rz-body-font-size: var(--font-size);
+    --rz-text-color: var(--text);
+    --rz-base-background-color: var(--surface-alt);
+    --rz-border-radius: 4px;
+    /* высоту полей Radzen задаёт классом rz-input-md через --rz-input-size-md, а не через --rz-input-height */
+    --rz-input-size-md: 28px;
+    --rz-input-font-size: var(--font-size);
+    --rz-input-border: 1px solid var(--field-border);
+    --rz-input-border-block-end: var(--rz-input-border);
+    --rz-input-hover-border: 1px solid var(--accent);
+    --rz-input-hover-border-block-end: var(--rz-input-hover-border);
+    --rz-input-focus-border: 1px solid var(--accent);
+    --rz-input-focus-shadow: 0 0 0 3px rgba(31, 111, 209, 0.2);
+    --rz-input-disabled-background-color: var(--surface-alt);
+    /* подсветка узла дерева — на всей строке (tree.css), а не на подписи, как у Radzen */
+    --rz-tree-node-selected-background-color: transparent;
+    --rz-tree-node-selected-color: var(--text);
+    --rz-tree-node-hover-background-color: transparent;
+    --rz-tree-node-hover-color: var(--text);
+    --rz-splitter-bar-background-color: transparent;
+    --rz-splitter-bar-background-color-active: var(--accent);
+    --rz-warning: var(--warning);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font: var(--font-size)/1.4 var(--font);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv11", "ss01";
+    overflow: hidden;
+}
+
+#app {
+    height: 100%;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.muted, .tree-empty {
+    color: var(--muted);
+    padding: 12px 14px;
+}
+
+.muted-inline {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 6px 12px;
+    background: #fff4ce;
+}

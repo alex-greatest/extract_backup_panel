@@ -1,0 +1,101 @@
+/* Каркас окна: панель инструментов, рабочая область с разделителями, заголовки панелей, строка состояния */
+
+.shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Панель инструментов */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 8px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.toolbar .rz-button {
+    font-weight: 500;
+}
+
+/* селектор той же силы, что у Radzen для кнопки-текста, иначе наведение красится цветом Radzen */
+.toolbar .rz-button.rz-variant-text.rz-base:not(.rz-state-disabled):hover {
+    background: var(--hover);
+}
+
+/* Рабочая область: разделители Radzen */
+.workspace.rz-splitter, .editor-split.rz-splitter {
+    border: none;
+    background: var(--bg);
+}
+
+.workspace.rz-splitter {
+    flex: 1;
+    min-height: 0;
+    padding: 4px;
+}
+
+.editor-split.rz-splitter {
+    height: 100%;
+}
+
+.rz-splitter > .rz-splitter-bar-resizable:hover {
+    background-color: var(--accent);
+    opacity: 0.6;
+}
+
+.pane {
+    height: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+}
+
+.pane-title, .editor-title, .inspector-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    background: var(--title);
+    color: var(--title-text);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+.editor-title {
+    font-weight: 500;
+    color: var(--title-muted);
+}
+
+/* Строка состояния */
+.statusbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: 28px;
+    padding: 0 12px;
+    background: var(--title);
+    color: var(--title-muted);
+    font-size: 12px;
+}
+
+.status-error {
+    color: #ffb4ab;
+}
+
+.status-warning {
+    color: #ffd27a;
+}

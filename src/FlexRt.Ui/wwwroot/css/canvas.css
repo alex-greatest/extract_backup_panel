@@ -1,0 +1,43 @@
+/* Редактор экрана */
+.canvas-scroll {
+    flex: 1;
+    overflow: auto;
+    background: var(--canvas);
+    padding: 32px;
+}
+
+.canvas-empty {
+    color: #e8edf3;
+    font-size: 14px;
+}
+
+.screen-frame {
+    position: relative;
+    outline: 1px solid #2b3442;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+.screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-origin: 0 0;
+    background-color: var(--screen);
+    background-image: radial-gradient(#a3abb6 1px, transparent 1px);
+    background-size: 10px 10px;
+}
+
+.editor-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 10px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-alt);
+    flex-shrink: 0;
+}
+
+.zoom.rz-dropdown {
+    width: 96px;
+}
