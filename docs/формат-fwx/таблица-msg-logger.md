@@ -9,7 +9,8 @@ TIA: колонка **E-mail address** в HMI alarms → Alarm classes). Про�
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md).
 Проверено на шаговой копии A603A0097 (V21, адрес у одного класса,
-`samples/a603-classes/`).
+`samples/a603-classes/`) и на Project1 (V21, адреса у классов 65 и 66,
+`samples/project1-classes/`).
 
 ## Таблица
 

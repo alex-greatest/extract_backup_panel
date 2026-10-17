@@ -9,7 +9,7 @@ alarms → Alarm classes). Программа читает таблицу в
 Проверено на шаговых копиях (V21): A603A0097 — адрес `test@test.com` у класса
 64 (`samples/a603-classes/`); Project1 — `a@test.com` и `b@test.com` у классов
 65 и 66 (`samples/project1-classes/`), затем у класса 65 адрес из 21 символа
-(копия не сохранена в репозитории). Всего 4 элемента, все сверены с TIA.
+(`samples/project1-groups/`, `samples/screens/05_popup.fwc`). Всего 4 элемента, все сверены с TIA.
 
 ## Таблица
 

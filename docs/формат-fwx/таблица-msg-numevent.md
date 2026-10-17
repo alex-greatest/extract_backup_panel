@@ -20,7 +20,7 @@
 | A603A0097 (`A603A0097_V21`), шаговые копии 10–12.10.2026 | V21, TP1900 Comfort | English, русский, polski | 352 → 355 |
 | `samples/card/pdata.fwc` (бэкап CCB-A13) | Runtime V17, TP1500 Comfort | русский | 2000 |
 | Project1 (`samples/pdata.fwc`, `samples/plc/`) | V17, V21 | English | таблицы нет |
-| Project1, шаговые копии 13.10.2026 (`samples/project1-groups/`) | V21, TP700 Comfort | English | 3 |
+| Project1, шаговые копии 13.10.2026 (`samples/project1-groups/`) | V21, TP700 Comfort | English | 4 (флаги `22`, `42`, `04`, `04`) |
 
 На A603A0097 владелец по шагам менял в TIA по одному свойству (имя, класс,
 Report, тег срабатывания, квитирование HMI и PLC, теги-массивы), после каждого

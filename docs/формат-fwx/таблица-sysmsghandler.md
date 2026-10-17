@@ -17,8 +17,8 @@
 |---|---|---|---|---|
 | Project1: `samples/pdata.fwc`, `data/real/steps/`, `samples/plc/`, `data/real/steps-v21/`, `samples/plc-udt/` | V17 и V21, TP700 Comfort | English | 585 | нет |
 | `samples/card/pdata.fwc` (бэкап CCB-A13) | Runtime V17, TP1500 Comfort | русский | 585 | нет |
-| A603A0097 (`A603A0097_V21`), перекомпилирован 10.10.2026 | V21, TP700 Comfort | English, русский, polski | 585 | 40 байт |
-| A603A0097, копии от 30.05.2026 (прежний `A603A0097_V21`, SIM_TEST) | V21, TP700 Comfort | те же | 580 | 40 байт |
+| A603A0097 (`A603A0097_V21`), перекомпилирован 10.10.2026 | V21, TP1900 Comfort | English, русский, polski | 585 | 40 байт |
+| A603A0097, копии от 30.05.2026 (прежний `A603A0097_V21`, SIM_TEST) | V21, TP1900 Comfort | те же | 580 | 40 байт |
 
 Со списками System events из TIA V21 сверены Project1 (English) и A603A0097
 (English, русский, polski): 585 ID, тексты на всех языках совпали. Отличия

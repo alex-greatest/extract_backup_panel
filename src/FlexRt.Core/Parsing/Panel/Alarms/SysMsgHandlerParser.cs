@@ -9,7 +9,7 @@ public static class SysMsgHandlerParser
 {
     /// <summary>
     /// Смещение числа событий (u16) в элементе. Поля до него не разобраны; наблюдение: 585 в
-    /// Project1 и A603A0097 (TIA V21 / TP700), 580 в копиях A603A0097, скомпилированных раньше.
+    /// Project1 (TIA V21 / TP700) и A603A0097 (TIA V21 / TP1900), 580 в копиях A603A0097, скомпилированных раньше.
     /// </summary>
     private const int CountOffset = 0x2a;
 

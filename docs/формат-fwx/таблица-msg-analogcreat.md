@@ -18,7 +18,8 @@
 | Файлы | TIA, панель | Языки | Алармов |
 |---|---|---|---|
 | A603A0097 (`A603A0097_V21`), шаговые копии 12.10.2026; последняя — `samples/a603-analog/pdata.fwc` | V21, TP1900 Comfort | English, русский, polski | 0 → 1 → 3 → 4 |
-| `samples/card/pdata.fwc` (CCB-A13), `samples/a603/pdata.fwc`, Project1 | V17, V21 | — | таблицы нет |
+| Project1, шаговые копии (`samples/project1-groups/`) | V21, TP700 Comfort | English | 7 |
+| `samples/card/pdata.fwc` (CCB-A13), `samples/a603/pdata.fwc`, Project1 (`samples/pdata.fwc`) | V17, V21 | — | таблицы нет |
 
 Таблица появляется только когда в панели есть хотя бы один аналоговый аларм:
 до первого шага её не было ни в одном файле. Владелец по шагам добавлял алармы и
