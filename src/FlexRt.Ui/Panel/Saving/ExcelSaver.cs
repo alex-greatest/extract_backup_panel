@@ -4,6 +4,7 @@ using FlexRt.Export.Strings;
 using FlexRt.Extraction;
 using FlexRt.Model.Panel;
 using FlexRt.Ui.Panel.Sections;
+using Radzen;
 
 namespace FlexRt.Ui.Panel.Saving;
 
@@ -33,17 +34,21 @@ public sealed class ExcelSaver
         var (sheets, skipped) = PanelDataSheets.Book(view);
         if (sheets.Count == 0)
         {
-            return new SaveOutcome(TranscriptLevel.Warning, $"{PanelDataName} не записан", "ни один раздел не построен");
+            return new SaveOutcome(NotificationSeverity.Warning, $"{PanelDataName} не записан", "ни один раздел не построен");
         }
-        return await SaveAsync(PanelDataName, panelPath, path => ReportSheetsExporter.Export(sheets, path), skipped);
+        var outcome = await SaveAsync(PanelDataName, panelPath, path => ReportSheetsExporter.Export(sheets, path));
+        return outcome is { Severity: NotificationSeverity.Success } && skipped.Count > 0
+            ? new SaveOutcome(NotificationSeverity.Warning, "Сохранено не всё",
+                $"{outcome.Detail}; не записаны листы (раздел не построен): {string.Join(", ", skipped)}")
+            : outcome;
     }
 
     /// <summary>Сохранить один лист раздела в свою книгу; имя файла по умолчанию — имя листа: <c>Теги.xlsx</c>.</summary>
     /// <returns>Итог; сохранение отменено — <c>null</c>.</returns>
-    public Task<SaveOutcome?> SaveSheetAsync(PanelView view, PanelSection section, string panelPath)
+    public Task<SaveOutcome?> SaveSheetAsync(PanelSection section, string panelPath)
     {
-        var sheet = PanelDataSheets.Sheet(view, section);
-        return SaveAsync($"{section.Sheet}.xlsx", panelPath, path => ReportSheetsExporter.Export([sheet], path), []);
+        var sheet = PanelDataSheets.Sheet(section);
+        return SaveAsync($"{section.Sheet}.xlsx", panelPath, path => ReportSheetsExporter.Export([sheet], path));
     }
 
     /// <summary>
@@ -55,16 +60,16 @@ public sealed class ExcelSaver
     {
         if (strings.Count == 0)
         {
-            return new SaveOutcome(TranscriptLevel.Warning, $"{StringsName} не записан", "в STRINGSTORE нет строк");
+            return new SaveOutcome(NotificationSeverity.Warning, $"{StringsName} не записан", "в STRINGSTORE нет строк");
         }
-        return await SaveAsync(StringsName, panelPath, path => XlsxExporter.Export(strings, path), []);
+        return await SaveAsync(StringsName, panelPath, path => XlsxExporter.Export(strings, path));
     }
 
     /// <summary>
     /// Спросить файл диалогом и записать его вне потока окна. Папка выбранного файла запоминается и при ошибке записи.
     /// </summary>
-    /// <returns>Итог: записано, записано без пропущенных листов или ошибка записи; отменено — <c>null</c>.</returns>
-    private async Task<SaveOutcome?> SaveAsync(string fileName, string panelPath, Func<string, int> write, IReadOnlyList<string> skipped)
+    /// <returns>Итог: «Сохранено» с путём или ошибка записи; отменено — <c>null</c>.</returns>
+    private async Task<SaveOutcome?> SaveAsync(string fileName, string panelPath, Action<string> write)
     {
         var path = ExcelSaveDialog.Ask(fileName, _folder ?? Path.GetDirectoryName(panelPath));
         if (path is null)
@@ -78,10 +83,8 @@ public sealed class ExcelSaver
         }
         catch (Exception e)
         {
-            return new SaveOutcome(TranscriptLevel.Error, "Не удалось сохранить", $"{path}: {ReadFailure.Describe(e)}");
+            return new SaveOutcome(NotificationSeverity.Error, "Не удалось сохранить", $"{path}: {ReadFailure.Describe(e)}");
         }
-        return skipped.Count == 0
-            ? new SaveOutcome(TranscriptLevel.Info, "Сохранено", path)
-            : new SaveOutcome(TranscriptLevel.Warning, "Сохранено не всё", $"{path}; не записаны листы (раздел не построен): {string.Join(", ", skipped)}");
+        return new SaveOutcome(NotificationSeverity.Success, "Сохранено", path);
     }
 }

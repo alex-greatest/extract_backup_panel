@@ -3,8 +3,8 @@
 
 <div class="shell">
     <Toolbar Loading="_loading" PlcPath="@_plcPath" OnOpen="OpenAsync" OnPlc="ChoosePlcAsync"
-             CanSave="@(_view is not null && !_loading)" CanSaveSheet="@(_view is not null && PanelDataSheets.IsSheet(_view, _selected))"
-             Saving="_saving" OnSave="SaveAsync" />
+             CanSave="@(_view is not null && !_loading && !_saving)" CanSaveSheet="@(_view is not null && PanelDataSheets.IsSheet(_view, _selected))"
+             OnSave="SaveAsync" />
 
     <RadzenSplitter class="workspace">
         <RadzenSplitterPane Size="300px" Min="150px" Max="700px">
@@ -186,20 +186,16 @@
         {
             var outcome = item switch
             {
-                Toolbar.SaveSheet when _selected is PanelSection section => await _saver.SaveSheetAsync(view, section, path),
+                Toolbar.SaveSheet => _selected is PanelSection section && PanelDataSheets.IsSheet(view, section)
+                    ? await _saver.SaveSheetAsync(section, path)
+                    : null,
                 Toolbar.SaveStrings => await _saver.SaveStringsAsync(_strings, path),
                 _ => await _saver.SavePanelDataAsync(view, path)
             };
             if (outcome is not null)
             {
-                _notice = outcome.Level == TranscriptLevel.Error ? $"{outcome.Summary}: {outcome.Detail}" : null;
-                var severity = outcome.Level switch
-                {
-                    TranscriptLevel.Error => NotificationSeverity.Error,
-                    TranscriptLevel.Warning => NotificationSeverity.Warning,
-                    _ => NotificationSeverity.Success
-                };
-                Notifications.Notify(severity, outcome.Summary, outcome.Detail, NotificationDuration);
+                _notice = outcome.Severity == NotificationSeverity.Error ? $"{outcome.Summary}: {outcome.Detail}" : null;
+                Notifications.Notify(outcome.Severity, outcome.Summary, outcome.Detail, NotificationDuration);
             }
         }
         finally

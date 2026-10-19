@@ -9,12 +9,12 @@
     </RadzenSplitButton>
     <span class="toolbar-note">Данные ПЛК: @(PlcPath ?? "не заданы")</span>
     <RadzenSplitButton Text="panel_data.xlsx" Icon="save" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Small"
-                       AlwaysOpenPopup="true" Disabled="@(!CanSave || Saving)" Click="@(item => OnSave.InvokeAsync(item.Value))">
+                       AlwaysOpenPopup="true" Disabled="@(!CanSave)" Click="@(item => OnSave.InvokeAsync(item.Value))">
         <RadzenSplitButtonItem Text="Вся книга…" Value="@SaveBook" />
         <RadzenSplitButtonItem Text="Текущий лист…" Value="@SaveSheet" Disabled="@(!CanSaveSheet)" />
     </RadzenSplitButton>
     <RadzenButton Text="PDATA.xlsx…" Icon="save" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Small"
-                  Disabled="@(!CanSave || Saving)" Click="@(() => OnSave.InvokeAsync(SaveStrings))" />
+                  Disabled="@(!CanSave)" Click="@(() => OnSave.InvokeAsync(SaveStrings))" />
 </div>
 
 @code {
@@ -44,17 +44,13 @@
     [Parameter]
     public string? PlcPath { get; set; }
 
-    /// <summary>Панель открыта и не читается: кнопки сохранения доступны.</summary>
+    /// <summary>Панель открыта, не читается и не сохраняется: кнопки сохранения доступны.</summary>
     [Parameter]
     public bool CanSave { get; set; }
 
     /// <summary>В дереве выбран построенный раздел книги данных панели: пункт «Текущий лист…» доступен.</summary>
     [Parameter]
     public bool CanSaveSheet { get; set; }
-
-    /// <summary>Идёт сохранение: кнопки сохранения заняты.</summary>
-    [Parameter]
-    public bool Saving { get; set; }
 
     /// <summary>Щелчок по кнопке открытия файла.</summary>
     [Parameter]

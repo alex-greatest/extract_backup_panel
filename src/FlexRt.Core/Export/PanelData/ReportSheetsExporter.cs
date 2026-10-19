@@ -10,13 +10,12 @@ namespace FlexRt.Export.PanelData;
 public static class ReportSheetsExporter
 {
     /// <summary>
-    /// Записать книгу: по листу на <paramref name="sheets"/> в их порядке. «Сводка» — как <see cref="SummarySheet"/>, «Теги» — как
-    /// <see cref="TagsSheet"/>, остальные — таблица с первой строки (<see cref="ReportTableWriter.Write"/>).
+    /// Записать книгу: по листу на <paramref name="sheets"/> в их порядке. «Сводка» — как <see cref="SummarySheet"/>, лист со
+    /// статистикой — как <see cref="TagsSheet"/>, остальные — таблица с первой строки (<see cref="ReportTableWriter.Write"/>).
     /// </summary>
-    /// <returns>Число записанных листов.</returns>
     /// <exception cref="ArgumentException">Листов нет: книгу без листов Excel не сохраняет.</exception>
     /// <exception cref="IOException">Файл не удалось записать (например, открыт в Excel).</exception>
-    public static int Export(IReadOnlyList<ReportSheet> sheets, string xlsxPath)
+    public static void Export(IReadOnlyList<ReportSheet> sheets, string xlsxPath)
     {
         if (sheets.Count == 0)
         {
@@ -28,23 +27,22 @@ public static class ReportSheetsExporter
             Write(workbook, sheet);
         }
         workbook.SaveAs(xlsxPath);
-        return sheets.Count;
     }
 
-    /// <summary>Добавить в книгу один лист по его раскладке.</summary>
+    /// <summary>Добавить в книгу один лист по его раскладке (<see cref="ReportSheet"/>).</summary>
     private static void Write(XLWorkbook workbook, ReportSheet sheet)
     {
-        switch (sheet.Kind)
+        if (sheet.IsSummary)
         {
-            case ReportSheetKind.Summary:
-                SummarySheet.Write(workbook, [.. sheet.Table.Rows.Select(r => (r[0].Text ?? "", r[1].Text ?? ""))]);
-                break;
-            case ReportSheetKind.Tags:
-                TagsSheet.Write(workbook, sheet.Statistics, sheet.Table);
-                break;
-            default:
-                ReportTableWriter.Write(workbook.Worksheets.Add(sheet.Name), 1, sheet.Table);
-                break;
+            SummarySheet.Write(workbook, [.. sheet.Table.Rows.Select(r => (r[0].Text ?? "", r[1].Text ?? ""))]);
+        }
+        else if (sheet.Statistics.Count > 0)
+        {
+            TagsSheet.Write(workbook, sheet.Statistics, sheet.Table);
+        }
+        else
+        {
+            ReportTableWriter.Write(workbook.Worksheets.Add(sheet.Name), 1, sheet.Table);
         }
     }
 }

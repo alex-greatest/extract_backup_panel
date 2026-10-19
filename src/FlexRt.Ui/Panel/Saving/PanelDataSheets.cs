@@ -25,7 +25,7 @@ public static class PanelDataSheets
         {
             sections.Add(view.Screens);
         }
-        return ([.. sections.Where(s => s.Error is null).Select(s => Sheet(view, s))],
+        return ([.. sections.Where(s => s.Error is null).Select(Sheet)],
             [.. sections.Where(s => s.Error is not null).Select(s => s.Sheet)]);
     }
 
@@ -34,11 +34,7 @@ public static class PanelDataSheets
     public static bool IsSheet(PanelView view, object? selected) =>
         selected is PanelSection { Error: null } section && !view.Texts.Contains(section);
 
-    /// <summary>Лист раздела с раскладкой листа книги: «Сводка», «Теги» со статистикой или таблица с первой строки.</summary>
+    /// <summary>Лист раздела: раскладка «Сводки», «Тегов» (статистика есть только у них) или таблица с первой строки.</summary>
     /// <returns>Лист.</returns>
-    public static ReportSheet Sheet(PanelView view, PanelSection section) => new(
-        section.Sheet,
-        section.IsSummary ? ReportSheetKind.Summary : ReferenceEquals(section, view.Tags) ? ReportSheetKind.Tags : ReportSheetKind.Table,
-        section.Table,
-        section.Statistics);
+    public static ReportSheet Sheet(PanelSection section) => new(section.Sheet, section.Table, section.Statistics, section.IsSummary);
 }
