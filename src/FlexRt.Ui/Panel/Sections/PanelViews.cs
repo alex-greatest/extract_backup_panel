@@ -57,7 +57,7 @@ public static class PanelViews
             Summary(doc, path, used),
             Tags(doc, matches),
             Alarms(doc, matches),
-            Section("Screens", "Screens", "Экраны", "folder", () => ScreensTable.Build(doc)),
+            Section("Screens", "Screens", ScreensSheet.Name, "folder", () => ScreensTable.Build(doc)),
             Texts(doc));
     }
 
@@ -73,7 +73,7 @@ public static class PanelViews
     /// <summary>«Сводка» — строки <see cref="SummaryRows.Build"/> с проектом ПЛК из <paramref name="plc"/>; <c>null</c> — без него.</summary>
     /// <returns>Раздел «Сводка».</returns>
     private static PanelSection Summary(FwxDocument doc, string path, PlcData? plc) =>
-        Section("Сводка", "Сводка", "Сводка", "summary", () =>
+        Section("Сводка", "Сводка", SummarySheet.Name, "summary", () =>
         {
             var rows = SummaryRows.Build(doc, plc?.Project, new RunSummary(path, new PanelFiles(null, null), plc?.Source ?? NoPlc));
             return new ReportTable(SummaryColumns, [.. rows.Select(r => new ReportCell[] { r.Label, r.Value })]);
@@ -85,12 +85,12 @@ public static class PanelViews
     {
         try
         {
-            return new PanelSection("HMI tags", "HMI tags", "Теги", "tags", TagsTable.Build(doc, matches.Value),
+            return new PanelSection("HMI tags", "HMI tags", TagsSheet.Name, "tags", TagsTable.Build(doc, matches.Value),
                 TagStatistics.Rows(doc, matches.Value));
         }
         catch (Exception e)
         {
-            return Failed("HMI tags", "HMI tags", "Теги", "tags", e);
+            return Failed("HMI tags", "HMI tags", TagsSheet.Name, "tags", e);
         }
     }
 
@@ -104,11 +104,11 @@ public static class PanelViews
     [
         .. new[]
         {
-            Alarm("Discrete alarms", "Дискретные алармы", "alarm", () => doc.DiscreteAlarms.Count > 0, () => DiscreteAlarmsTable.Build(doc, matches.Value)),
-            Alarm("Analog alarms", "Аналоговые алармы", "alarm", () => doc.AnalogAlarms.Count > 0, () => AnalogAlarmsTable.Build(doc)),
-            Alarm("System events", "Системные события", "events", () => doc.SystemEvents.Count > 0, () => SystemEventsTable.Build(doc)),
-            Alarm("Alarm classes", "Классы алармов", "classes", () => AlarmClassesTable.Classes(doc).Count > 0, () => AlarmClassesTable.Build(doc)),
-            Alarm("Alarm groups", "Группы алармов", "groups", () => AlarmGroupsTable.Groups(doc).Count > 0, () => AlarmGroupsTable.Build(doc))
+            Alarm("Discrete alarms", DiscreteAlarmsSheet.Name, "alarm", () => doc.DiscreteAlarms.Count > 0, () => DiscreteAlarmsTable.Build(doc, matches.Value)),
+            Alarm("Analog alarms", AnalogAlarmsSheet.Name, "alarm", () => doc.AnalogAlarms.Count > 0, () => AnalogAlarmsTable.Build(doc)),
+            Alarm("System events", SystemEventsSheet.Name, "events", () => doc.SystemEvents.Count > 0, () => SystemEventsTable.Build(doc)),
+            Alarm("Alarm classes", AlarmClassesSheet.Name, "classes", () => AlarmClassesTable.Classes(doc).Count > 0, () => AlarmClassesTable.Build(doc)),
+            Alarm("Alarm groups", AlarmGroupsSheet.Name, "groups", () => AlarmGroupsTable.Groups(doc).Count > 0, () => AlarmGroupsTable.Build(doc))
         }.OfType<PanelSection>()
     ];
 

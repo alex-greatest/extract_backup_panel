@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClosedXML.Excel;
 using FlexRt.Export.PanelData.Tags;
 
@@ -29,12 +30,16 @@ public static class ReportSheetsExporter
         workbook.SaveAs(xlsxPath);
     }
 
+    /// <summary>Текст ячейки для «Сводки», где подпись и значение — строки: число пишется текстом, как в консоли.</summary>
+    /// <returns>Текст ячейки; пустая ячейка — пустая строка.</returns>
+    private static string Text(ReportCell cell) => cell.Text ?? cell.Number?.ToString(CultureInfo.InvariantCulture) ?? "";
+
     /// <summary>Добавить в книгу один лист по его раскладке (<see cref="ReportSheet"/>).</summary>
     private static void Write(XLWorkbook workbook, ReportSheet sheet)
     {
         if (sheet.IsSummary)
         {
-            SummarySheet.Write(workbook, [.. sheet.Table.Rows.Select(r => (r[0].Text ?? "", r[1].Text ?? ""))]);
+            SummarySheet.Write(workbook, [.. sheet.Table.Rows.Select(r => (Text(r[0]), Text(r[1])))]);
         }
         else if (sheet.Statistics.Count > 0)
         {

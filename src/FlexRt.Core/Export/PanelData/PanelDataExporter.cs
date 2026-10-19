@@ -13,6 +13,19 @@ namespace FlexRt.Export.PanelData;
 public static class PanelDataExporter
 {
     /// <summary>
+    /// Порядок листов книги — тот, в котором их пишет <see cref="Export"/>; листа может не быть. Им же упорядочивает листы
+    /// книга окна (<see cref="ReportSheetsExporter"/>).
+    /// </summary>
+    public static IReadOnlyList<string> SheetOrder { get; } =
+    [
+        SummarySheet.Name, TagsSheet.Name, SystemEventsSheet.Name, DiscreteAlarmsSheet.Name, AnalogAlarmsSheet.Name,
+        AlarmClassesSheet.Name, AlarmGroupsSheet.Name, ScreensSheet.Name, ErrorsSheet
+    ];
+
+    /// <summary>Имя листа ошибок данных ПЛК.</summary>
+    private const string ErrorsSheet = "Ошибки";
+
+    /// <summary>
     /// Записать книгу: первым — лист «Сводка» (<see cref="SummarySheet.Write"/>), затем лист
     /// «Теги» (<see cref="TagsSheet.Write"/>), лист «Системные события»
     /// (<see cref="SystemEventsSheet.Write"/>), лист «Дискретные алармы»
@@ -65,7 +78,7 @@ public static class PanelDataExporter
     /// <summary>Лист «Ошибки»: заголовок «Сообщение» и по строке на сообщение.</summary>
     private static void WriteErrors(XLWorkbook workbook, IReadOnlyList<string> errors)
     {
-        var sheet = workbook.Worksheets.Add("Ошибки");
+        var sheet = workbook.Worksheets.Add(ErrorsSheet);
         sheet.Cell(1, 1).Value = "Сообщение";
         for (var i = 0; i < errors.Count; i++)
         {

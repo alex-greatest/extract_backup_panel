@@ -8,6 +8,9 @@ namespace FlexRt.Export.PanelData;
 /// <summary>Лист «Сводка»: основные сведения о панели, соединениях и ПЛК — подпись в A, значение в B.</summary>
 public static class SummarySheet
 {
+    /// <summary>Имя листа в книге.</summary>
+    public const string Name = "Сводка";
+
     /// <summary>
     /// Добавить лист «Сводка» в книгу: по строке на строку <see cref="SummaryRows.Build"/>, пустая
     /// строка остаётся пустой; значение — через <see cref="ExcelCell.Text"/>. Ширина колонки A — по
@@ -22,7 +25,7 @@ public static class SummarySheet
     /// </summary>
     public static void Write(XLWorkbook workbook, IReadOnlyList<(string Label, string Value)> rows)
     {
-        var sheet = workbook.Worksheets.Add("Сводка");
+        var sheet = workbook.Worksheets.Add(Name);
         var r = 1;
         foreach (var (label, value) in rows)
         {

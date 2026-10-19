@@ -66,12 +66,21 @@ public sealed class ExcelSaver
     }
 
     /// <summary>
-    /// Спросить файл диалогом и записать его вне потока окна. Папка выбранного файла запоминается и при ошибке записи.
+    /// Спросить файл диалогом и записать его вне потока окна. Папка выбранного файла запоминается и при ошибке записи;
+    /// сбой самого диалога — ошибка «диалог сохранения: причина».
     /// </summary>
-    /// <returns>Итог: «Сохранено» с путём или ошибка записи; отменено — <c>null</c>.</returns>
+    /// <returns>Итог: «Сохранено» с путём или ошибка диалога или записи; отменено — <c>null</c>.</returns>
     private async Task<SaveOutcome?> SaveAsync(string fileName, string panelPath, Action<string> write)
     {
-        var path = ExcelSaveDialog.Ask(fileName, _folder ?? Path.GetDirectoryName(panelPath));
+        string? path;
+        try
+        {
+            path = ExcelSaveDialog.Ask(fileName, _folder ?? Path.GetDirectoryName(panelPath));
+        }
+        catch (Exception e)
+        {
+            return new SaveOutcome(NotificationSeverity.Error, "Не удалось сохранить", $"диалог сохранения: {e.Message}");
+        }
         if (path is null)
         {
             return null;

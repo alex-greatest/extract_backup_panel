@@ -6,6 +6,9 @@ namespace FlexRt.Export.PanelData.Alarms;
 /// <summary>Лист «Классы алармов»: классы панели с колонками как Alarm classes в TIA.</summary>
 public static class AlarmClassesSheet
 {
+    /// <summary>Имя листа в книге.</summary>
+    public const string Name = "Классы алармов";
+
     /// <summary>
     /// Добавить лист «Классы алармов» в книгу: с первой строки — таблица
     /// <see cref="AlarmClassesTable.Build"/> (<see cref="ReportTableWriter.Write"/>: число —
@@ -13,7 +16,7 @@ public static class AlarmClassesSheet
     /// </summary>
     public static void Write(XLWorkbook workbook, FwxDocument doc)
     {
-        var sheet = workbook.Worksheets.Add("Классы алармов");
+        var sheet = workbook.Worksheets.Add(Name);
         ReportTableWriter.Write(sheet, 1, AlarmClassesTable.Build(doc));
     }
 }

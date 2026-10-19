@@ -173,7 +173,8 @@
 
     /// <summary>
     /// Пункт сохранения (<see cref="ExcelSaver"/>): вся книга данных панели, текущий лист или книга текстов. Итог —
-    /// уведомлением (успех — зелёное, не всё или нечего — жёлтое, ошибка — красное); ошибка записи — ещё и в строке состояния. Отмена диалога ничего не меняет.
+    /// уведомлением (успех — зелёное, не всё или нечего — жёлтое, ошибка — красное); ошибка записи — ещё и в строке состояния,
+    /// если за время записи не открыли другой файл. Отмена диалога ничего не меняет.
     /// </summary>
     private async Task SaveAsync(string? item)
     {
@@ -194,7 +195,10 @@
             };
             if (outcome is not null)
             {
-                _notice = outcome.Severity == NotificationSeverity.Error ? $"{outcome.Summary}: {outcome.Detail}" : null;
+                if (_path == path)
+                {
+                    _notice = outcome.Severity == NotificationSeverity.Error ? $"{outcome.Summary}: {outcome.Detail}" : null;
+                }
                 Notifications.Notify(outcome.Severity, outcome.Summary, outcome.Detail, NotificationDuration);
             }
         }
