@@ -58,9 +58,6 @@ else
 }
 
 @code {
-    /// <summary>Подсказка, пока объект не выбран.</summary>
-    private const string NoSelectionHint = "Выберите экран в дереве проекта";
-
     /// <summary>Вкладка заголовка со свойствами объекта.</summary>
     private const string PropertiesTab = "Properties";
 
@@ -118,7 +115,7 @@ else
     {
         if (Item is null)
         {
-            <div class="muted">@NoSelectionHint</div>
+            <div class="muted">@Hints.NoScreen</div>
             return;
         }
         var groups = Groups(Item);
@@ -157,7 +154,7 @@ else
     /// <summary>Вкладка, данных для которой в pdata.fwc пока не найдено.</summary>
     /// <returns>Разметка подсказки.</returns>
     private RenderFragment NotParsed(string tab) =>
-        @<div class="muted">@(Item is null ? NoSelectionHint : $"{tab}: не разобрано — в pdata.fwc пока не найдено.")</div>;
+        @<div class="muted">@(Item is null ? Hints.NoScreen : $"{tab}: не разобрано — в pdata.fwc пока не найдено.")</div>;
 
     /// <summary>Строки вкладки Info: уровня <see cref="TranscriptLevel.Info"/>.</summary>
     /// <returns>Строки в порядке текста.</returns>

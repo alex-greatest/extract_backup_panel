@@ -1,10 +1,10 @@
 @if (Loading)
 {
-    <div class="tree-empty">Чтение файла…</div>
+    <div class="tree-empty">@Hints.Reading</div>
 }
 else if (FileName is null || View is null)
 {
-    <div class="tree-empty">Откройте pdata.fwc</div>
+    <div class="tree-empty">@Hints.NoFile</div>
 }
 else
 {

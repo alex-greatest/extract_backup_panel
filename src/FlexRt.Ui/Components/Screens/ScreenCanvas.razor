@@ -4,7 +4,7 @@
 <div class="canvas-scroll">
     @if (Item is null)
     {
-        <div class="canvas-empty">Выберите экран в дереве проекта</div>
+        <div class="canvas-empty">@Empty</div>
     }
     else
     {
@@ -36,9 +36,13 @@
     [Parameter]
     public string Title { get; set; } = "";
 
-    /// <summary>Экран для показа: прямоугольник его размера; <c>null</c> — подсказка.</summary>
+    /// <summary>Экран для показа: прямоугольник его размера; <c>null</c> — подсказка <see cref="Empty"/>.</summary>
     [Parameter]
     public ScreenItem? Item { get; set; }
+
+    /// <summary>Подсказка вместо экрана: файл не открыт, читается или экран не выбран.</summary>
+    [Parameter]
+    public string Empty { get; set; } = Hints.NoScreen;
 
     /// <summary>Множитель масштаба для CSS в инвариантной культуре (<c>0.75</c>).</summary>
     /// <returns>Текст множителя.</returns>

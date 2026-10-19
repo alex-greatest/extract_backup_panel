@@ -26,7 +26,7 @@
                         }
                         else
                         {
-                            <ScreenCanvas Title="@Breadcrumb()" Item="@(_selected as ScreenItem)" />
+                            <ScreenCanvas Title="@Breadcrumb()" Item="@(_selected as ScreenItem)" Empty="@(NoPanelHint() ?? Hints.NoScreen)" />
                         }
                     </section>
                 </RadzenSplitterPane>
@@ -47,15 +47,6 @@
 @code {
     /// <summary>Сколько миллисекунд висит уведомление об ошибках после открытия.</summary>
     private const double NotificationDuration = 6000;
-
-    /// <summary>Подсказка в панели свойств, когда открыта таблица, а строка не выбрана.</summary>
-    private const string NoRowHint = "Выберите строку таблицы";
-
-    /// <summary>Подсказка в панели свойств для раздела, таблицу которого построить не удалось.</summary>
-    private const string FailedHint = "Таблица раздела не построена — причина на вкладке Info";
-
-    /// <summary>Подсказка в панели свойств для «Сводки»: у неё нет строк со свойствами.</summary>
-    private const string SummaryHint = "У «Сводки» нет свойств строк";
 
     /// <summary>Путь открытого или открываемого файла; <c>null</c> — файл ещё не выбирали.</summary>
     private string? _path;
@@ -270,15 +261,20 @@
     /// <returns>Строка; не выбрана или открыт не раздел — <c>null</c>.</returns>
     private SectionRow? InspectedRow() => _selected is PanelSection section && _row is { } row ? new SectionRow(section, row) : null;
 
-    /// <summary>Подсказка панели свойств для раздела без выбранной строки.</summary>
-    /// <returns>Текст подсказки; открыт экран или выбрана строка — <c>null</c>.</returns>
+    /// <summary>Подсказка панели свойств: файл не открыт или читается, раздел без выбранной строки.</summary>
+    /// <returns>Текст подсказки; открыт экран, выбрана строка или ничего не выбрано в открытой панели — <c>null</c>.</returns>
     private string? InspectorHint() => _selected switch
     {
-        PanelSection { Error: not null } => FailedHint,
-        PanelSection { IsSummary: true } => SummaryHint,
-        PanelSection when _row is null => NoRowHint,
+        _ when NoPanelHint() is { } hint => hint,
+        PanelSection { Error: not null } => Hints.Failed,
+        PanelSection { IsSummary: true } => Hints.Summary,
+        PanelSection when _row is null => Hints.NoRow,
         _ => null
     };
+
+    /// <summary>Подсказка, пока панели нет: файл читается или не открыт (не прочитан) — как в дереве проекта.</summary>
+    /// <returns>Текст подсказки; панель открыта — <c>null</c>.</returns>
+    private string? NoPanelHint() => _loading ? Hints.Reading : _view is null ? Hints.NoFile : null;
 
     /// <summary>Имя открытого файла для корня дерева.</summary>
     /// <returns>Имя файла; файл не открыт или не прочитан — <c>null</c>.</returns>
