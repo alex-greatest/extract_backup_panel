@@ -1,7 +1,4 @@
 using ClosedXML.Excel;
-using FlexRt.Model.Panel;
-using FlexRt.Model.Plc;
-using FlexRt.Model.Summary;
 
 namespace FlexRt.Export.PanelData;
 
@@ -10,14 +7,6 @@ public static class SummarySheet
 {
     /// <summary>Имя листа в книге.</summary>
     public const string Name = "Сводка";
-
-    /// <summary>
-    /// Добавить лист «Сводка» в книгу: по строке на строку <see cref="SummaryRows.Build"/>, пустая
-    /// строка остаётся пустой; значение — через <see cref="ExcelCell.Text"/>. Ширина колонки A — по
-    /// содержимому.
-    /// </summary>
-    public static void Write(XLWorkbook workbook, FwxDocument doc, PlcProject? project, RunSummary summary) =>
-        Write(workbook, Name, SummaryRows.Table(doc, project, summary));
 
     /// <summary>
     /// Добавить лист <paramref name="name"/> из таблицы «Сводки» (<see cref="SummaryRows.Table"/>): подпись в A, значение

@@ -1,6 +1,4 @@
 using ClosedXML.Excel;
-using FlexRt.Model.Matching;
-using FlexRt.Model.Panel;
 
 namespace FlexRt.Export.PanelData.Tags;
 
@@ -12,15 +10,6 @@ public static class TagsSheet
 
     /// <summary>Строка заголовка таблицы тегов: под статистикой и двумя пустыми строками.</summary>
     internal const int HeaderRow = 10;
-
-    /// <summary>
-    /// Добавить лист «Теги» в книгу: сверху статистика (<see cref="TagStatistics.Rows"/>, строки
-    /// 1–7: подпись в A, число в B), две пустые строки, с <see cref="HeaderRow"/> — таблица
-    /// <see cref="TagsTable.Build"/> (<see cref="ReportTableWriter.Write"/>: пустые значения не
-    /// пишутся, <c>=...</c> не становится формулой).
-    /// </summary>
-    public static void Write(XLWorkbook workbook, FwxDocument doc, IReadOnlyList<PlcMatch?> matches) =>
-        Write(workbook, Name, TagStatistics.Rows(doc, matches), TagsTable.Build(doc, matches));
 
     /// <summary>
     /// Добавить лист «Теги» из готовых строк статистики (<see cref="TagStatistics.Rows"/>) и таблицы

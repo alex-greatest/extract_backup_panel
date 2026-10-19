@@ -1,8 +1,6 @@
 using ClosedXML.Excel;
-using FlexRt.Export;
 using FlexRt.Export.PanelData;
 using FlexRt.Export.PanelData.Alarms;
-using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
@@ -15,10 +13,10 @@ using Xunit;
 namespace FlexRt.Tests.Unit.Export.PanelData;
 
 /// <summary>
-/// Книга окна (<see cref="ReportSheetsExporter"/> из тех же таблиц, что показывает окно) совпадает с книгой консоли
-/// (<see cref="PanelDataExporter"/>) ячейка в ячейку, а консоль пишет листы в порядке
-/// <see cref="PanelDataExporter.SheetOrder"/> (<c>.claude/rules/окно.md</c>, сохранение в Excel). Без данных ПЛК и
-/// ошибок ПЛК: листа «Ошибки» нет ни в одной книге.
+/// Книга окна — листы <see cref="PanelDataBook.TryBuild(PanelDataSource)"/>, записанные <see cref="ReportSheetsExporter"/>,
+/// как их собирает окно, — совпадает с книгой консоли (<see cref="PanelDataExporter"/>) ячейка в ячейку; консоль пишет
+/// листы описания книги (<see cref="PanelDataBook.Sheets"/>) по порядку и «Ошибки» последним; сбой одного листа у окна не
+/// мешает остальным (<c>.claude/rules/окно.md</c>, сохранение в Excel). Без данных ПЛК.
 /// </summary>
 public sealed class WindowWorkbookTests
 {
@@ -36,15 +34,29 @@ public sealed class WindowWorkbookTests
         var window = Path.Combine(dir.Root, "window.xlsx");
 
         PanelDataExporter.Export(doc, null, summary, matches, [], console);
-        ReportSheetsExporter.Export(Sheets(doc, matches, summary), window);
+        var built = PanelDataBook.TryBuild(new PanelDataSource(doc, null, summary, new Lazy<IReadOnlyList<PlcMatch?>>(() => matches)));
+        Assert.All(built, b => Assert.Null(b.Error));
+        ReportSheetsExporter.Export([.. built.Select(b => b.Sheet)], window);
 
         Assert.Equal(Cells(console), Cells(window));
     }
 
-    /// <summary>Консоль пишет листы в порядке <see cref="PanelDataExporter.SheetOrder"/>: окно упорядочивает по нему же.</summary>
+    /// <summary>
+    /// Порядок листов книги закреплён здесь отдельно от <see cref="PanelDataBook.Sheets"/>: его меняет только решение
+    /// пользователя.
+    /// </summary>
+    [Fact]
+    public void Sheets_InBookOrder()
+    {
+        Assert.Equal(
+            ["Сводка", "Теги", "Системные события", "Дискретные алармы", "Аналоговые алармы", "Классы алармов", "Группы алармов", "Экраны"],
+            PanelDataBook.Sheets.Select(s => s.Name));
+    }
+
+    /// <summary>Консоль пишет листы, которые есть по описанию книги, в его порядке, и «Ошибки» последним.</summary>
     [Theory]
     [MemberData(nameof(Panels))]
-    public void ConsoleBook_FollowsSheetOrder(string panel)
+    public void ConsoleBook_FollowsBookDescription(string panel)
     {
         using var dir = new TestDirectory();
         var (doc, matches, summary) = Read(panel);
@@ -53,8 +65,26 @@ public sealed class WindowWorkbookTests
         PanelDataExporter.Export(doc, null, summary, matches, ["ошибка"], console);
 
         using var workbook = new XLWorkbook(console);
-        var names = workbook.Worksheets.Select(s => s.Name).ToList();
-        Assert.Equal(PanelDataExporter.SheetOrder.Where(names.Contains), names);
+        string[] expected = [.. Present(doc), "Ошибки"];
+        Assert.Equal(expected, workbook.Worksheets.Select(s => s.Name));
+    }
+
+    /// <summary>
+    /// Сопоставление с ПЛК падает: не построены только листы, которым оно нужно («Теги», «Дискретные алармы»), остальные
+    /// построены, порядок листов тот же; у не построенного листа — пустая таблица.
+    /// </summary>
+    [Fact]
+    public void TryBuild_FailedMatching_FailsOnlyItsSheets()
+    {
+        var (doc, _, summary) = Read("samples/project1-groups/pdata.fwc");
+
+        var failing = new Lazy<IReadOnlyList<PlcMatch?>>(() => throw new InvalidOperationException("сбой"));
+
+        var built = PanelDataBook.TryBuild(new PanelDataSource(doc, null, summary, failing));
+
+        Assert.Equal(Present(doc), built.Select(b => b.Sheet.Name));
+        Assert.Equal([TagsSheet.Name, DiscreteAlarmsSheet.Name], built.Where(b => b.Error is not null).Select(b => b.Sheet.Name));
+        Assert.All(built.Where(b => b.Error is not null), b => Assert.Empty(b.Sheet.Table.Rows));
     }
 
     /// <summary>Прочитать образец без данных ПЛК: панель, сопоставление без проекта ПЛК, сводка как в окне.</summary>
@@ -66,32 +96,9 @@ public sealed class WindowWorkbookTests
         return (doc, TagMatcher.Match(doc, null), new RunSummary(path, new PanelFiles(null, null), "не задан"));
     }
 
-    /// <summary>Листы книги окна из таблиц ядра — как разделы окна, при тех же условиях, что у консоли.</summary>
-    /// <returns>Листы в порядке <see cref="PanelDataExporter.SheetOrder"/>.</returns>
-    private static List<ReportSheet> Sheets(FwxDocument doc, IReadOnlyList<PlcMatch?> matches, RunSummary summary)
-    {
-        List<ReportSheet> sheets =
-        [
-            new(SummarySheet.Name, SummaryRows.Table(doc, null, summary), [], true),
-            new(TagsSheet.Name, TagsTable.Build(doc, matches), TagStatistics.Rows(doc, matches), false)
-        ];
-        AddTable(sheets, SystemEventsSheet.Name, doc.SystemEvents.Count > 0, () => SystemEventsTable.Build(doc));
-        AddTable(sheets, DiscreteAlarmsSheet.Name, doc.DiscreteAlarms.Count > 0, () => DiscreteAlarmsTable.Build(doc, matches));
-        AddTable(sheets, AnalogAlarmsSheet.Name, doc.AnalogAlarms.Count > 0, () => AnalogAlarmsTable.Build(doc));
-        AddTable(sheets, AlarmClassesSheet.Name, AlarmClassesTable.Classes(doc).Count > 0, () => AlarmClassesTable.Build(doc));
-        AddTable(sheets, AlarmGroupsSheet.Name, AlarmGroupsTable.Groups(doc).Count > 0, () => AlarmGroupsTable.Build(doc));
-        AddTable(sheets, ScreensSheet.Name, ScreensTable.Screens(doc).Count > 0, () => ScreensTable.Build(doc));
-        return sheets;
-    }
-
-    /// <summary>Добавить лист-таблицу, если он есть в книге.</summary>
-    private static void AddTable(List<ReportSheet> sheets, string name, bool exists, Func<ReportTable> table)
-    {
-        if (exists)
-        {
-            sheets.Add(new ReportSheet(name, table(), [], false));
-        }
-    }
+    /// <summary>Имена листов, которые есть в книге по описанию (<see cref="PanelDataSheet.Exists"/>), по порядку.</summary>
+    /// <returns>Имена листов.</returns>
+    private static IEnumerable<string> Present(FwxDocument doc) => PanelDataBook.Sheets.Where(s => s.Exists(doc)).Select(s => s.Name);
 
     /// <summary>Все непустые ячейки книги: лист, адрес, тип, значение и заливка.</summary>
     /// <returns>Строки по порядку листов и ячеек.</returns>

@@ -1,7 +1,4 @@
 using ClosedXML.Excel;
-using FlexRt.Export.PanelData.Alarms;
-using FlexRt.Export.PanelData.Screens;
-using FlexRt.Export.PanelData.Tags;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;
@@ -9,66 +6,29 @@ using FlexRt.Model.Summary;
 
 namespace FlexRt.Export.PanelData;
 
-/// <summary>Данные панели в Excel: лист «Сводка», лист «Теги», лист «Системные события», лист «Дискретные алармы», лист «Аналоговые алармы», лист «Классы алармов», лист «Группы алармов», лист «Экраны» и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
+/// <summary>Данные панели в Excel у консоли: листы <see cref="PanelDataBook"/> и, если есть ошибки файла ПЛК, лист «Ошибки».</summary>
 public static class PanelDataExporter
 {
     /// <summary>Имя файла книги данных панели — у консоли в каталоге результата и по умолчанию в окне.</summary>
     public const string FileName = "panel_data.xlsx";
 
-    /// <summary>
-    /// Порядок листов книги — тот, в котором их пишет <see cref="Export"/>; листа может не быть. Им же упорядочивает листы
-    /// книга окна (<see cref="ReportSheetsExporter"/>).
-    /// </summary>
-    public static IReadOnlyList<string> SheetOrder { get; } =
-    [
-        SummarySheet.Name, TagsSheet.Name, SystemEventsSheet.Name, DiscreteAlarmsSheet.Name, AnalogAlarmsSheet.Name,
-        AlarmClassesSheet.Name, AlarmGroupsSheet.Name, ScreensSheet.Name, ErrorsSheet
-    ];
-
     /// <summary>Имя листа ошибок данных ПЛК.</summary>
     private const string ErrorsSheet = "Ошибки";
 
     /// <summary>
-    /// Записать книгу: первым — лист «Сводка» (<see cref="SummarySheet.Write"/>), затем лист
-    /// «Теги» (<see cref="TagsSheet.Write"/>), лист «Системные события»
-    /// (<see cref="SystemEventsSheet.Write"/>), лист «Дискретные алармы»
-    /// (<see cref="DiscreteAlarmsSheet.Write"/>), лист «Аналоговые алармы»
-    /// (<see cref="AnalogAlarmsSheet.Write"/>), лист «Классы алармов»
-    /// (<see cref="AlarmClassesSheet.Write"/>), лист «Группы алармов»
-    /// (<see cref="AlarmGroupsSheet.Write"/>) и лист «Экраны» (<see cref="ScreensSheet.Write"/>) — если они есть; лист «Ошибки» — только если
-    /// <paramref name="errors"/> не пуст, по строке на сообщение. Текст пишется как есть
-    /// (<c>=...</c> не становится формулой).
+    /// Записать книгу: листы <see cref="PanelDataBook.Build"/> по порядку (<see cref="ReportSheetsExporter.Write"/>) и
+    /// последним лист «Ошибки» — только если <paramref name="errors"/> не пуст, по строке на сообщение. Текст пишется как
+    /// есть (<c>=...</c> не становится формулой).
     /// </summary>
     /// <returns>Число тегов.</returns>
     /// <exception cref="IOException">Файл не удалось записать (например, открыт в Excel).</exception>
     public static int Export(FwxDocument doc, PlcProject? project, RunSummary summary, IReadOnlyList<PlcMatch?> matches, IReadOnlyList<string> errors, string xlsxPath)
     {
         using var workbook = new XLWorkbook();
-        SummarySheet.Write(workbook, doc, project, summary);
-        TagsSheet.Write(workbook, doc, matches);
-        if (doc.SystemEvents.Count > 0)
+        var source = new PanelDataSource(doc, project, summary, new Lazy<IReadOnlyList<PlcMatch?>>(() => matches));
+        foreach (var sheet in PanelDataBook.Build(source))
         {
-            SystemEventsSheet.Write(workbook, doc);
-        }
-        if (doc.DiscreteAlarms.Count > 0)
-        {
-            DiscreteAlarmsSheet.Write(workbook, doc, matches);
-        }
-        if (doc.AnalogAlarms.Count > 0)
-        {
-            AnalogAlarmsSheet.Write(workbook, doc);
-        }
-        if (AlarmClassesTable.Classes(doc).Count > 0)
-        {
-            AlarmClassesSheet.Write(workbook, doc);
-        }
-        if (AlarmGroupsTable.Groups(doc).Count > 0)
-        {
-            AlarmGroupsSheet.Write(workbook, doc);
-        }
-        if (ScreensTable.Screens(doc).Count > 0)
-        {
-            ScreensSheet.Write(workbook, doc);
+            ReportSheetsExporter.Write(workbook, sheet);
         }
         if (errors.Count > 0)
         {

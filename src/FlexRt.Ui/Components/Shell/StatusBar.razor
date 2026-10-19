@@ -1,19 +1,19 @@
 <footer class="statusbar">
     @if (Loading)
     {
-        <span>Чтение @Path…</span>
+        <span class="status-long" title="@Path">Чтение @Path…</span>
     }
     else if (Error is not null)
     {
-        <span class="status-error">@Error</span>
+        <span class="status-long status-error" title="@Error">@Error</span>
     }
     else if (Path is not null)
     {
-        <span>@Path</span>
+        <span class="status-long" title="@Path">@Path</span>
         <span class="spacer"></span>
         @if (Notice is not null)
         {
-            <span class="status-error">@Notice</span>
+            <span class="status-long status-error" title="@Notice">@Notice</span>
         }
         @if (RowCount is { } shown && RowTotal is { } total)
         {

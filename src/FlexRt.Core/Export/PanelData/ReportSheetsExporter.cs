@@ -4,8 +4,8 @@ using FlexRt.Export.PanelData.Tags;
 namespace FlexRt.Export.PanelData;
 
 /// <summary>
-/// Книга Excel из готовых таблиц листов <c>panel_data.xlsx</c> — для окна, которое таблицы уже построило. Раскладка
-/// листов та же, что у <see cref="PanelDataExporter"/>.
+/// Запись листов <c>panel_data.xlsx</c> из готовых таблиц (<see cref="ReportSheet"/>): книга окна целиком
+/// (<see cref="Export"/>) и листы книги консоли (<see cref="PanelDataExporter"/>).
 /// </summary>
 public static class ReportSheetsExporter
 {
@@ -30,7 +30,7 @@ public static class ReportSheetsExporter
     }
 
     /// <summary>Добавить в книгу один лист по его раскладке (<see cref="ReportSheet"/>).</summary>
-    private static void Write(XLWorkbook workbook, ReportSheet sheet)
+    internal static void Write(XLWorkbook workbook, ReportSheet sheet)
     {
         if (sheet.IsSummary)
         {

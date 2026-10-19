@@ -92,6 +92,20 @@
     font-size: 12px;
 }
 
+/* Строка состояния в одну строку: короткие части не сжимаются */
+.statusbar > span {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Путь и текст ошибки в строке состояния сжимаются с многоточием; полный текст — в подсказке */
+.statusbar > .status-long {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .status-error {
     color: #ffb4ab;
 }
@@ -108,4 +122,16 @@
     font-size: 12px;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+/* Всплывающие уведомления Radzen: текст по ширине уведомления, длинный путь без пробелов переносится по любому символу,
+   а не вылезает за край (Radzen растягивает колонку текста по содержимому) */
+.rz-notification-message-wrapper,
+.rz-notification-message {
+    min-width: 0;
+}
+
+.rz-notification-message > * {
+    max-width: 100%;
+    overflow-wrap: anywhere;
 }

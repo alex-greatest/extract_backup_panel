@@ -12,9 +12,10 @@ using FlexRt.Parsing.Matching;
 namespace FlexRt.Ui.Panel.Sections;
 
 /// <summary>
-/// Разделы прочитанной панели для окна. Таблицы строит ядро теми же методами, что пишут листы Excel, поэтому окно
-/// показывает то же, что консоль выгрузила бы с теми же данными ПЛК. Разделы строятся независимо: сбой одного не
-/// мешает остальным и экранам (решение пользователя).
+/// Разделы прочитанной панели для окна. Листы, их таблицы и порядок берутся из описания книги ядра
+/// (<see cref="PanelDataBook"/>), по которому пишет и консоль, поэтому окно показывает то же, что консоль выгрузила бы с
+/// теми же данными ПЛК. Разделы строятся независимо: сбой одного не мешает остальным и экранам (решение
+/// пользователя).
 /// </summary>
 public static class PanelViews
 {
@@ -37,12 +38,31 @@ public static class PanelViews
     private static readonly string[] TextColumns = ["idx", "str"];
 
     /// <summary>
-    /// Построить разделы. Данные ПЛК прочитаны и поддерживаются (<paramref name="plc"/> не <c>null</c> и не
+    /// Узлы дерева для листов книги: имя как в TIA, значок и место в папке HMI alarms. Алармы — в порядке дерева, как в
+    /// TIA: другой порядок, чем в книге.
+    /// </summary>
+    private static readonly (string Sheet, string Title, string Icon, bool InAlarms)[] Nodes =
+    [
+        (SummarySheet.Name, "Сводка", "summary", false),
+        (TagsSheet.Name, "HMI tags", "tags", false),
+        (DiscreteAlarmsSheet.Name, "Discrete alarms", "alarm", true),
+        (AnalogAlarmsSheet.Name, "Analog alarms", "alarm", true),
+        (SystemEventsSheet.Name, "System events", "events", true),
+        (AlarmClassesSheet.Name, "Alarm classes", "classes", true),
+        (AlarmGroupsSheet.Name, "Alarm groups", "groups", true),
+        (ScreensSheet.Name, "Screens", "folder", false)
+    ];
+
+    /// <summary>
+    /// Построить разделы. Разделы листов <c>panel_data.xlsx</c> — из описания книги ядра
+    /// (<see cref="PanelDataBook.TryBuild(PanelDataSource)"/>): раздел есть, только если в книге есть его лист, каждый
+    /// строится отдельно. Данные ПЛК прочитаны и поддерживаются (<paramref name="plc"/> не <c>null</c> и не
     /// <see cref="PlcData.IsUnsupported"/>) — теги и дискретные алармы строятся по их сопоставлению, «Сводка» — с проектом
     /// ПЛК и строкой «Данные ПЛК» из <see cref="PlcData.Source"/>, как в консоли. Иначе теги сопоставляются без проекта
     /// ПЛК (<see cref="TagMatcher.Match"/> с <c>null</c>): колонки ПЛК — «неизвестно», данные ПЛК — «не задан». В «Сводке»
     /// модель панели и версия Runtime — «неизвестно» (файлы рядом с <c>pdata.fwc</c> окно не читает). Раздел, таблицу
     /// которого ядро построить не смогло, остаётся в дереве с пустой таблицей и причиной в <see cref="PanelSection.Error"/>.
+    /// Листа «Экраны» нет (экранов нет) — раздел Screens пустой: папка Screens в дереве тогда не показывается.
     /// </summary>
     /// <returns>Разделы для дерева проекта.</returns>
     public static PanelView From(FwxDocument doc, string path, PlcData? plc)
@@ -50,12 +70,16 @@ public static class PanelViews
         var used = plc is { IsUnsupported: false } ? plc : null;
         // сопоставление нужно тегам и дискретным алармам; Lazy считает его один раз и повторяет его ошибку обоим
         var matches = new Lazy<IReadOnlyList<PlcMatch?>>(() => used?.Matches ?? TagMatcher.Match(doc, null));
+        var source = new PanelDataSource(doc, used?.Project, new RunSummary(path, new PanelFiles(null, null), used?.Source ?? NoPlc), matches);
+        List<PanelSection> book = [.. PanelDataBook.TryBuild(source).Select(Section)];
+        var bySheet = book.ToDictionary(s => s.Sheet);
         return new PanelView(
-            Summary(doc, path, used),
-            Tags(doc, matches),
-            Alarms(doc, matches),
-            Section("Screens", "Screens", ScreensSheet.Name, "folder", () => ScreensTable.Build(doc)),
-            Texts(doc));
+            bySheet[SummarySheet.Name],
+            bySheet[TagsSheet.Name],
+            [.. Nodes.Where(n => n.InAlarms).Select(n => bySheet.GetValueOrDefault(n.Sheet)).OfType<PanelSection>()],
+            bySheet.GetValueOrDefault(ScreensSheet.Name) ?? Section(new BuiltSheet(Empty(ScreensSheet.Name), null)),
+            Texts(doc),
+            book);
     }
 
     /// <summary>Сообщения о разделах, которые не построены, для вкладки Info.</summary>
@@ -67,60 +91,32 @@ public static class PanelViews
             .Select(s => $"Раздел «{s.Title}» не построен: {s.Error}")
     ];
 
-    /// <summary>«Сводка» — таблица <see cref="SummaryRows.Table"/> с проектом ПЛК из <paramref name="plc"/>; <c>null</c> — без него.</summary>
-    /// <returns>Раздел «Сводка».</returns>
-    private static PanelSection Summary(FwxDocument doc, string path, PlcData? plc) =>
-        Section("Сводка", "Сводка", SummarySheet.Name, "summary", () =>
-        {
-            return SummaryRows.Table(doc, plc?.Project, new RunSummary(path, new PanelFiles(null, null), plc?.Source ?? NoPlc));
-        }, isSummary: true);
-
-    /// <summary>HMI tags — таблица листа «Теги» и строки статистики над ней.</summary>
-    /// <returns>Раздел HMI tags.</returns>
-    private static PanelSection Tags(FwxDocument doc, Lazy<IReadOnlyList<PlcMatch?>> matches)
+    /// <summary>Раздел листа книги: лист из ядра (не построен — пустой) и причина сбоя (<see cref="ReadFailure.Describe"/>).</summary>
+    /// <returns>Раздел.</returns>
+    private static PanelSection Section(BuiltSheet built)
     {
-        try
-        {
-            return new PanelSection("HMI tags", "HMI tags", TagsSheet.Name, "tags", TagsTable.Build(doc, matches.Value),
-                TagStatistics.Rows(doc, matches.Value));
-        }
-        catch (Exception e)
-        {
-            return Failed("HMI tags", "HMI tags", TagsSheet.Name, "tags", e);
-        }
+        var (title, path, icon) = Node(built.Sheet.Name);
+        return new PanelSection(title, path, icon, built.Sheet, built.Error is { } e ? ReadFailure.Describe(e) : null);
     }
 
     /// <summary>
-    /// Разделы папки HMI alarms в порядке дерева: Discrete alarms, Analog alarms, System events, Alarm classes, Alarm groups.
-    /// Раздел есть, только если в книге есть его лист (те же условия, что у <see cref="PanelDataExporter.Export"/>);
-    /// упало и условие — раздел показывается с ошибкой.
+    /// Узел дерева для листа книги из <see cref="Nodes"/>: имя, путь в заголовке таблицы (у алармов —
+    /// <c>HMI alarms ▸ имя</c>) и значок.
     /// </summary>
-    /// <returns>Разделы алармов; нет ни одного — пусто.</returns>
-    private static List<PanelSection> Alarms(FwxDocument doc, Lazy<IReadOnlyList<PlcMatch?>> matches) =>
-    [
-        .. new[]
-        {
-            Alarm("Discrete alarms", DiscreteAlarmsSheet.Name, "alarm", () => doc.DiscreteAlarms.Count > 0, () => DiscreteAlarmsTable.Build(doc, matches.Value)),
-            Alarm("Analog alarms", AnalogAlarmsSheet.Name, "alarm", () => doc.AnalogAlarms.Count > 0, () => AnalogAlarmsTable.Build(doc)),
-            Alarm("System events", SystemEventsSheet.Name, "events", () => doc.SystemEvents.Count > 0, () => SystemEventsTable.Build(doc)),
-            Alarm("Alarm classes", AlarmClassesSheet.Name, "classes", () => AlarmClassesTable.Classes(doc).Count > 0, () => AlarmClassesTable.Build(doc)),
-            Alarm("Alarm groups", AlarmGroupsSheet.Name, "groups", () => AlarmGroupsTable.Groups(doc).Count > 0, () => AlarmGroupsTable.Build(doc))
-        }.OfType<PanelSection>()
-    ];
-
-    /// <summary>Раздел папки HMI alarms с путём <c>HMI alarms ▸ title</c>, если <paramref name="exists"/>.</summary>
-    /// <returns>Раздел; листа нет — <c>null</c>.</returns>
-    private static PanelSection? Alarm(string title, string sheet, string icon, Func<bool> exists, Func<ReportTable> table)
+    /// <returns>Имя, путь и значок.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Листа нет в <see cref="Nodes"/>: новый лист ядра не попал в дерево — разделы не строятся, окно называет шаг.
+    /// </exception>
+    private static (string Title, string Path, string Icon) Node(string sheet)
     {
-        var path = $"{AlarmsFolder}{Separator}{title}";
-        try
+        foreach (var node in Nodes)
         {
-            return exists() ? new PanelSection(title, path, sheet, icon, table(), []) : null;
+            if (node.Sheet == sheet)
+            {
+                return (node.Title, node.InAlarms ? $"{AlarmsFolder}{Separator}{node.Title}" : node.Title, node.Icon);
+            }
         }
-        catch (Exception e)
-        {
-            return Failed(title, path, sheet, icon, e);
-        }
+        throw new InvalidOperationException($"у листа «{sheet}» нет узла в дереве окна");
     }
 
     /// <summary>
@@ -137,34 +133,18 @@ public static class PanelViews
                 .. doc.Strings.GroupBy(s => s.Lcid).Select(lang => new PanelSection(
                     LanguageText.Format(lang.Key),
                     $"{TextsFolder}{Separator}{LanguageText.Format(lang.Key)}",
-                    $"0x{lang.Key:x}",
                     "text",
-                    new ReportTable(TextColumns, [.. lang.Select(s => new ReportCell[] { s.Idx, s.Str })]),
-                    []))
+                    new ReportSheet($"0x{lang.Key:x}", new ReportTable(TextColumns, [.. lang.Select(s => new ReportCell[] { s.Idx, s.Str })]),
+                        [], false)))
             ];
         }
         catch (Exception e)
         {
-            return [Failed(TextsFolder, TextsFolder, "PDATA.xlsx", "text", e)];
+            return [new PanelSection(TextsFolder, TextsFolder, "text", Empty("PDATA.xlsx"), ReadFailure.Describe(e))];
         }
     }
 
-    /// <summary>Раздел без статистики; таблица не построилась — раздел с ошибкой.</summary>
-    /// <returns>Раздел.</returns>
-    private static PanelSection Section(string title, string path, string sheet, string icon, Func<ReportTable> table, bool isSummary = false)
-    {
-        try
-        {
-            return new PanelSection(title, path, sheet, icon, table(), [], isSummary);
-        }
-        catch (Exception e)
-        {
-            return Failed(title, path, sheet, icon, e) with { IsSummary = isSummary };
-        }
-    }
-
-    /// <summary>Раздел, таблицу которого построить не удалось: пустая таблица и причина (<see cref="ReadFailure.Describe"/>).</summary>
-    /// <returns>Раздел с ошибкой.</returns>
-    private static PanelSection Failed(string title, string path, string sheet, string icon, Exception e) =>
-        new(title, path, sheet, icon, new ReportTable([], []), [], Error: ReadFailure.Describe(e));
+    /// <summary>Пустой лист-таблица: раздел без строк или раздел, который не построен.</summary>
+    /// <returns>Лист без колонок и строк.</returns>
+    private static ReportSheet Empty(string name) => new(name, new ReportTable([], []), [], false);
 }
