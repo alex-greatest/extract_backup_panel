@@ -17,7 +17,7 @@
                     <Template>
                         @{
                             var cell = CellOf(context, column);
-                            var text = GridData.Text(cell);
+                            var text = cell.Display;
                         }
                         @if (cell.FillRgb is { } rgb)
                         {
@@ -128,7 +128,7 @@
         }
         try
         {
-            Clipboard.SetText(string.Join('\t', Table.Rows[row].Select(GridData.Text)));
+            Clipboard.SetText(string.Join('\t', Table.Rows[row].Select(c => c.Display)));
         }
         catch (ExternalException ex)
         {

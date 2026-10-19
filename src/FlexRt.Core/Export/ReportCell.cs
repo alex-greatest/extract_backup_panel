@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace FlexRt.Export;
 
 /// <summary>
@@ -11,6 +13,12 @@ public readonly record struct ReportCell
 
     /// <summary>Число ячейки; <c>null</c>, если ячейка — текст.</summary>
     public long? Number { get; }
+
+    /// <summary>
+    /// Ячейка строкой — для показа в окне, копирования и «Сводки», где значения строки: число — в инвариантной культуре,
+    /// текст — как есть, пустая ячейка — пустая строка.
+    /// </summary>
+    public string Display => Number?.ToString(CultureInfo.InvariantCulture) ?? Text ?? "";
 
     /// <summary>Цвет заливки ячейки <c>0xRRGGBB</c>; <c>null</c> — без заливки.</summary>
     public int? FillRgb { get; init; }

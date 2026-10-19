@@ -150,7 +150,7 @@ else
         {
             return Item is null || Hint is not null ? "Свойства" : $"{Item.Name} [{Item.Kind}]";
         }
-        var first = GridData.Text(Row.Section.Table.Rows[Row.Index][0]);
+        var first = Row.Section.Table.Rows[Row.Index][0].Display;
         return $"{(first == "" ? $"Строка {Row.Index + 1}" : first)} [{Row.Section.Title}]";
     }
 

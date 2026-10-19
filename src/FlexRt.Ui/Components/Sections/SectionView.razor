@@ -18,15 +18,15 @@ else if (Section.IsSummary)
         <table class="summary-list">
             @foreach (var cells in Section.Table.Rows)
             {
-                @if (cells.All(c => GridData.Text(c) == ""))
+                @if (cells.All(c => c.Display == ""))
                 {
                     <tr class="summary-gap"><td colspan="2"></td></tr>
                 }
                 else
                 {
                     <tr>
-                        <td>@GridData.Text(cells[0])</td>
-                        <td>@GridData.Text(cells[1])</td>
+                        <td>@cells[0].Display</td>
+                        <td>@cells[1].Display</td>
                     </tr>
                 }
             }

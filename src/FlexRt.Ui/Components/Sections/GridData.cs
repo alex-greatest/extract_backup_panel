@@ -1,4 +1,3 @@
-using System.Globalization;
 using FlexRt.Export;
 
 namespace FlexRt.Ui.Components.Sections;
@@ -32,15 +31,11 @@ public static class GridData
             foreach (var column in columns)
             {
                 // пустая ячейка числовой колонки — null: так её понимают сортировка и фильтр Radzen
-                row[column.Key] = (column.IsNumber ? cells[column.Index].Number : Text(cells[column.Index]))!;
+                row[column.Key] = (column.IsNumber ? cells[column.Index].Number : cells[column.Index].Display)!;
             }
             return row;
         })
     ];
-
-    /// <summary>Текст ячейки: число — в инвариантной культуре, текст — как есть.</summary>
-    /// <returns>Текст для показа и копирования.</returns>
-    public static string Text(ReportCell cell) => cell.Number?.ToString(CultureInfo.InvariantCulture) ?? cell.Text ?? "";
 
     /// <summary>Колонка числовая: есть хотя бы одно число, а в остальных ячейках пустой текст.</summary>
     /// <returns><c>true</c> для числовой колонки.</returns>
