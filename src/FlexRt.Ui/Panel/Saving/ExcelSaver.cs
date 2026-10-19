@@ -15,12 +15,6 @@ namespace FlexRt.Ui.Panel.Saving;
 /// </summary>
 public sealed class ExcelSaver
 {
-    /// <summary>Имя книги данных панели по умолчанию — как у консоли.</summary>
-    private const string PanelDataName = "panel_data.xlsx";
-
-    /// <summary>Имя книги текстов по умолчанию — как у консоли.</summary>
-    private const string StringsName = "PDATA.xlsx";
-
     /// <summary>Папка последнего сохранения; <c>null</c> — ещё не сохраняли.</summary>
     private string? _folder;
 
@@ -34,9 +28,9 @@ public sealed class ExcelSaver
         var (sheets, skipped) = PanelDataSheets.Book(view);
         if (sheets.Count == 0)
         {
-            return new SaveOutcome(NotificationSeverity.Warning, $"{PanelDataName} не записан", "ни один раздел не построен");
+            return new SaveOutcome(NotificationSeverity.Warning, $"{PanelDataExporter.FileName} не записан", "ни один раздел не построен");
         }
-        var outcome = await SaveAsync(PanelDataName, panelPath, path => ReportSheetsExporter.Export(sheets, path));
+        var outcome = await SaveAsync(PanelDataExporter.FileName, panelPath, path => ReportSheetsExporter.Export(sheets, path));
         return outcome is { Severity: NotificationSeverity.Success } && skipped.Count > 0
             ? new SaveOutcome(NotificationSeverity.Warning, "Сохранено не всё",
                 $"{outcome.Detail}; не записаны листы (раздел не построен): {string.Join(", ", skipped)}")
@@ -60,9 +54,9 @@ public sealed class ExcelSaver
     {
         if (strings.Count == 0)
         {
-            return new SaveOutcome(NotificationSeverity.Warning, $"{StringsName} не записан", "в STRINGSTORE нет строк");
+            return new SaveOutcome(NotificationSeverity.Warning, $"{XlsxExporter.FileName} не записан", "в STRINGSTORE нет строк");
         }
-        return await SaveAsync(StringsName, panelPath, path => XlsxExporter.Export(strings, path));
+        return await SaveAsync(XlsxExporter.FileName, panelPath, path => XlsxExporter.Export(strings, path));
     }
 
     /// <summary>

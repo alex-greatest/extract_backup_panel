@@ -6,6 +6,9 @@ namespace FlexRt.Export.Strings;
 /// <summary>Языковые строки в Excel: лист на каждый LCID.</summary>
 public static class XlsxExporter
 {
+    /// <summary>Имя файла книги строк языков — у консоли в каталоге результата и по умолчанию в окне.</summary>
+    public const string FileName = "PDATA.xlsx";
+
     /// <summary>
     /// Записать книгу: лист <c>0x&lt;lcid&gt;</c> с колонками idx и str. Текст пишется как есть
     /// (<c>=...</c> не становится формулой), строка длиннее предела ячейки обрезается.

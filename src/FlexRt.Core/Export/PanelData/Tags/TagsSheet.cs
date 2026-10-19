@@ -20,15 +20,16 @@ public static class TagsSheet
     /// пишутся, <c>=...</c> не становится формулой).
     /// </summary>
     public static void Write(XLWorkbook workbook, FwxDocument doc, IReadOnlyList<PlcMatch?> matches) =>
-        Write(workbook, TagStatistics.Rows(doc, matches), TagsTable.Build(doc, matches));
+        Write(workbook, Name, TagStatistics.Rows(doc, matches), TagsTable.Build(doc, matches));
 
     /// <summary>
     /// Добавить лист «Теги» из готовых строк статистики (<see cref="TagStatistics.Rows"/>) и таблицы
-    /// (<see cref="TagsTable.Build"/>): статистика с первой строки, таблица — с <see cref="HeaderRow"/>.
+    /// (<see cref="TagsTable.Build"/>) на лист <paramref name="name"/>: статистика с первой строки, таблица — с
+    /// <see cref="HeaderRow"/>.
     /// </summary>
-    public static void Write(XLWorkbook workbook, IReadOnlyList<(string Label, int Count)> statistics, ReportTable table)
+    public static void Write(XLWorkbook workbook, string name, IReadOnlyList<(string Label, int Count)> statistics, ReportTable table)
     {
-        var sheet = workbook.Worksheets.Add(Name);
+        var sheet = workbook.Worksheets.Add(name);
         for (var r = 0; r < statistics.Count; r++)
         {
             sheet.Cell(r + 1, 1).Value = statistics[r].Label;

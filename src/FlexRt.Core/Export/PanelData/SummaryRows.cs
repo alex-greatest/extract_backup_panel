@@ -9,6 +9,9 @@ namespace FlexRt.Export.PanelData;
 /// <summary>Строки листа «Сводка»: основные сведения о панели, соединениях и ПЛК — подпись и значение.</summary>
 public static class SummaryRows
 {
+    /// <summary>Колонки таблицы «Сводки»: на листе и в окне не показываются — у листа заголовков нет.</summary>
+    private static readonly string[] Columns = ["Параметр", "Значение"];
+
     /// <summary>Текст, если значения нет в прочитанных файлах.</summary>
     private const string Unknown = "неизвестно";
 
@@ -21,6 +24,11 @@ public static class SummaryRows
     /// <returns>Подписи и значения по порядку строк; пустая строка — пустые подпись и значение.</returns>
     public static IReadOnlyList<(string Label, string Value)> Build(FwxDocument doc, PlcProject? project, RunSummary summary) =>
         [.. PanelRows(doc, summary), ("", ""), .. ConnectionRows(doc), ("", ""), .. PlcRows(project, summary)];
+
+    /// <summary>Строки <see cref="Build"/> таблицей из двух текстовых колонок — подпись и значение; её пишет лист и показывает окно.</summary>
+    /// <returns>Таблица «Сводки».</returns>
+    public static ReportTable Table(FwxDocument doc, PlcProject? project, RunSummary summary) =>
+        new(Columns, [.. Build(doc, project, summary).Select(r => new ReportCell[] { r.Label, r.Value })]);
 
     /// <summary>Строки панели.</summary>
     /// <returns>Подписи и значения.</returns>

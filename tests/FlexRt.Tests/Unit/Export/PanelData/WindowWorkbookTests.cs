@@ -72,8 +72,7 @@ public sealed class WindowWorkbookTests
     {
         List<ReportSheet> sheets =
         [
-            new(SummarySheet.Name, new ReportTable(["Параметр", "Значение"],
-                [.. SummaryRows.Build(doc, null, summary).Select(r => new ReportCell[] { r.Label, r.Value })]), [], true),
+            new(SummarySheet.Name, SummaryRows.Table(doc, null, summary), [], true),
             new(TagsSheet.Name, TagsTable.Build(doc, matches), TagStatistics.Rows(doc, matches), false)
         ];
         AddTable(sheets, SystemEventsSheet.Name, doc.SystemEvents.Count > 0, () => SystemEventsTable.Build(doc));

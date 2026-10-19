@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text;
 using FlexRt;
+using FlexRt.Export.PanelData;
+using FlexRt.Export.Strings;
 using FlexRt.Extraction;
 using Serilog;
 
@@ -30,10 +32,10 @@ var plcPath = string.IsNullOrWhiteSpace(plcOverride) ? defaultPlcPath : plcOverr
 // каталог результата: из переменной окружения FLEXRT_OUT, если она задана и не пуста, иначе data\out;
 // внутри неё — фиксированные имена, не зависящие от констант выше
 var outOverride = Environment.GetEnvironmentVariable("FLEXRT_OUT");
-var stringsWorkbookPath = OutPath(xlsxPath, "PDATA.xlsx");
+var stringsWorkbookPath = OutPath(xlsxPath, XlsxExporter.FileName);
 var hexDir = OutPath(explodeDir, "pdata");
 var picturesDir = OutPath(imagesDir, "images");
-var panelWorkbookPath = OutPath(panelDataPath, "panel_data.xlsx");
+var panelWorkbookPath = OutPath(panelDataPath, PanelDataExporter.FileName);
 var logFilePath = OutPath(logPath, Path.Combine("logs", "flexrt-.log"));
 
 Log.Logger = new LoggerConfiguration()

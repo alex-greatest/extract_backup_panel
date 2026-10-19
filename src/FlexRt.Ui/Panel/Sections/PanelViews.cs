@@ -33,9 +33,6 @@ public static class PanelViews
     /// <summary>Папка текстов в дереве.</summary>
     private const string TextsFolder = "Тексты";
 
-    /// <summary>Колонки таблицы «Сводки»; в окне не показываются — у листа заголовков нет.</summary>
-    private static readonly string[] SummaryColumns = ["Параметр", "Значение"];
-
     /// <summary>Колонки листа языка в <c>PDATA.xlsx</c>.</summary>
     private static readonly string[] TextColumns = ["idx", "str"];
 
@@ -70,13 +67,12 @@ public static class PanelViews
             .Select(s => $"Раздел «{s.Title}» не построен: {s.Error}")
     ];
 
-    /// <summary>«Сводка» — строки <see cref="SummaryRows.Build"/> с проектом ПЛК из <paramref name="plc"/>; <c>null</c> — без него.</summary>
+    /// <summary>«Сводка» — таблица <see cref="SummaryRows.Table"/> с проектом ПЛК из <paramref name="plc"/>; <c>null</c> — без него.</summary>
     /// <returns>Раздел «Сводка».</returns>
     private static PanelSection Summary(FwxDocument doc, string path, PlcData? plc) =>
         Section("Сводка", "Сводка", SummarySheet.Name, "summary", () =>
         {
-            var rows = SummaryRows.Build(doc, plc?.Project, new RunSummary(path, new PanelFiles(null, null), plc?.Source ?? NoPlc));
-            return new ReportTable(SummaryColumns, [.. rows.Select(r => new ReportCell[] { r.Label, r.Value })]);
+            return SummaryRows.Table(doc, plc?.Project, new RunSummary(path, new PanelFiles(null, null), plc?.Source ?? NoPlc));
         }, isSummary: true);
 
     /// <summary>HMI tags — таблица листа «Теги» и строки статистики над ней.</summary>

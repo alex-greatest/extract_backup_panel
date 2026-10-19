@@ -34,11 +34,11 @@ public static class ReportSheetsExporter
     {
         if (sheet.IsSummary)
         {
-            SummarySheet.Write(workbook, [.. sheet.Table.Rows.Select(r => (r[0].Display, r[1].Display))]);
+            SummarySheet.Write(workbook, sheet.Name, sheet.Table);
         }
         else if (sheet.Statistics.Count > 0)
         {
-            TagsSheet.Write(workbook, sheet.Statistics, sheet.Table);
+            TagsSheet.Write(workbook, sheet.Name, sheet.Statistics, sheet.Table);
         }
         else
         {
