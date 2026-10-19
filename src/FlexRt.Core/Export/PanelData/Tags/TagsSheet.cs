@@ -16,15 +16,21 @@ public static class TagsSheet
     /// <see cref="TagsTable.Build"/> (<see cref="ReportTableWriter.Write"/>: пустые значения не
     /// пишутся, <c>=...</c> не становится формулой).
     /// </summary>
-    public static void Write(XLWorkbook workbook, FwxDocument doc, IReadOnlyList<PlcMatch?> matches)
+    public static void Write(XLWorkbook workbook, FwxDocument doc, IReadOnlyList<PlcMatch?> matches) =>
+        Write(workbook, TagStatistics.Rows(doc, matches), TagsTable.Build(doc, matches));
+
+    /// <summary>
+    /// Добавить лист «Теги» из готовых строк статистики (<see cref="TagStatistics.Rows"/>) и таблицы
+    /// (<see cref="TagsTable.Build"/>): статистика с первой строки, таблица — с <see cref="HeaderRow"/>.
+    /// </summary>
+    public static void Write(XLWorkbook workbook, IReadOnlyList<(string Label, int Count)> statistics, ReportTable table)
     {
         var sheet = workbook.Worksheets.Add("Теги");
-        var statistics = TagStatistics.Rows(doc, matches);
         for (var r = 0; r < statistics.Count; r++)
         {
             sheet.Cell(r + 1, 1).Value = statistics[r].Label;
             sheet.Cell(r + 1, 2).Value = statistics[r].Count;
         }
-        ReportTableWriter.Write(sheet, HeaderRow, TagsTable.Build(doc, matches));
+        ReportTableWriter.Write(sheet, HeaderRow, table);
     }
 }

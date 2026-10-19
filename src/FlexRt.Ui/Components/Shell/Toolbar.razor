@@ -8,6 +8,13 @@
         <RadzenSplitButtonItem Text="Без данных ПЛК" Value="@PlcNone" />
     </RadzenSplitButton>
     <span class="toolbar-note">Данные ПЛК: @(PlcPath ?? "не заданы")</span>
+    <RadzenSplitButton Text="panel_data.xlsx" Icon="save" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Small"
+                       AlwaysOpenPopup="true" Disabled="@(!CanSave || Saving)" Click="@(item => OnSave.InvokeAsync(item.Value))">
+        <RadzenSplitButtonItem Text="Вся книга…" Value="@SaveBook" />
+        <RadzenSplitButtonItem Text="Текущий лист…" Value="@SaveSheet" Disabled="@(!CanSaveSheet)" />
+    </RadzenSplitButton>
+    <RadzenButton Text="PDATA.xlsx…" Icon="save" Variant="Variant.Text" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Small"
+                  Disabled="@(!CanSave || Saving)" Click="@(() => OnSave.InvokeAsync(SaveStrings))" />
 </div>
 
 @code {
@@ -20,6 +27,15 @@
     /// <summary>Пункт меню данных ПЛК: отказаться от данных ПЛК.</summary>
     public const string PlcNone = "none";
 
+    /// <summary>Пункт сохранения: вся книга <c>panel_data.xlsx</c>.</summary>
+    public const string SaveBook = "book";
+
+    /// <summary>Пункт сохранения: лист раздела, выбранного в дереве, отдельной книгой.</summary>
+    public const string SaveSheet = "sheet";
+
+    /// <summary>Сохранение книги текстов <c>PDATA.xlsx</c>.</summary>
+    public const string SaveStrings = "strings";
+
     /// <summary>Идёт чтение файла: кнопки открытия и данных ПЛК заняты.</summary>
     [Parameter]
     public bool Loading { get; set; }
@@ -28,6 +44,18 @@
     [Parameter]
     public string? PlcPath { get; set; }
 
+    /// <summary>Панель открыта и не читается: кнопки сохранения доступны.</summary>
+    [Parameter]
+    public bool CanSave { get; set; }
+
+    /// <summary>В дереве выбран построенный раздел книги данных панели: пункт «Текущий лист…» доступен.</summary>
+    [Parameter]
+    public bool CanSaveSheet { get; set; }
+
+    /// <summary>Идёт сохранение: кнопки сохранения заняты.</summary>
+    [Parameter]
+    public bool Saving { get; set; }
+
     /// <summary>Щелчок по кнопке открытия файла.</summary>
     [Parameter]
     public EventCallback OnOpen { get; set; }
@@ -35,4 +63,8 @@
     /// <summary>Выбран пункт меню данных ПЛК: <see cref="PlcFile"/>, <see cref="PlcCard"/> или <see cref="PlcNone"/>.</summary>
     [Parameter]
     public EventCallback<string?> OnPlc { get; set; }
+
+    /// <summary>Выбрано сохранение: <see cref="SaveBook"/>, <see cref="SaveSheet"/> или <see cref="SaveStrings"/>.</summary>
+    [Parameter]
+    public EventCallback<string?> OnSave { get; set; }
 }

@@ -46,7 +46,7 @@ public static class PanelLoader
             var view = await Task.Run(() => PanelViews.From(doc, path, plc));
             IReadOnlyList<TranscriptLine> lines =
                 [.. transcript.Lines, .. PanelViews.Errors(view).Select(e => new TranscriptLine(TranscriptLevel.Warning, e))];
-            return new LoadedPanel(screens, view, screenCount, lines, null);
+            return new LoadedPanel(screens, view, doc.Strings, screenCount, lines, null);
         }
         catch (Exception e)
         {
@@ -65,9 +65,9 @@ public static class PanelLoader
         if (failedStep is null)
         {
             transcript.PanelReadFailed(path, e);
-            return new LoadedPanel([], null, 0, transcript.Lines, $"Файл не прочитан: {ReadFailure.Describe(e)}");
+            return new LoadedPanel([], null, [], 0, transcript.Lines, $"Файл не прочитан: {ReadFailure.Describe(e)}");
         }
         var error = $"ОШИБКА: {failedStep}: {ReadFailure.Describe(e)}";
-        return new LoadedPanel([], null, 0, [.. transcript.Lines, new TranscriptLine(TranscriptLevel.Error, error)], error);
+        return new LoadedPanel([], null, [], 0, [.. transcript.Lines, new TranscriptLine(TranscriptLevel.Error, error)], error);
     }
 }

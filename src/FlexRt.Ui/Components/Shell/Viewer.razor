@@ -2,7 +2,9 @@
 @inject NotificationService Notifications
 
 <div class="shell">
-    <Toolbar Loading="_loading" PlcPath="@_plcPath" OnOpen="OpenAsync" OnPlc="ChoosePlcAsync" />
+    <Toolbar Loading="_loading" PlcPath="@_plcPath" OnOpen="OpenAsync" OnPlc="ChoosePlcAsync"
+             CanSave="@(_view is not null && !_loading)" CanSaveSheet="@(_view is not null && PanelDataSheets.IsSheet(_view, _selected))"
+             Saving="_saving" OnSave="SaveAsync" />
 
     <RadzenSplitter class="workspace">
         <RadzenSplitterPane Size="300px" Min="150px" Max="700px">
@@ -72,6 +74,15 @@
     /// консоль) и предупреждения о разделах, которые не построены.
     /// </summary>
     private IReadOnlyList<TranscriptLine> _lines = [];
+
+    /// <summary>Строки языков открытой панели — для сохранения <c>PDATA.xlsx</c>.</summary>
+    private IReadOnlyList<LangString> _strings = [];
+
+    /// <summary>Сохранение в Excel; помнит папку последнего сохранения до закрытия окна.</summary>
+    private readonly ExcelSaver _saver = new();
+
+    /// <summary>Идёт сохранение: кнопки сохранения заняты.</summary>
+    private bool _saving;
 
     /// <summary>Выбранные данные ПЛК: файл <c>PEData.plf</c> или папка карты ПЛК; <c>null</c> — не заданы.</summary>
     private string? _plcPath;
@@ -147,6 +158,7 @@
             var panel = await PanelLoader.LoadAsync(path, plcPath);
             _screens = panel.Screens;
             _view = panel.View;
+            _strings = panel.Strings;
             _screenCount = panel.ScreenCount;
             _lines = panel.Lines;
             _error = panel.Error;
@@ -156,6 +168,43 @@
         finally
         {
             _loading = false;
+        }
+    }
+
+    /// <summary>
+    /// Пункт сохранения (<see cref="ExcelSaver"/>): вся книга данных панели, текущий лист или книга текстов. Итог —
+    /// уведомлением (успех — зелёное, не всё или нечего — жёлтое, ошибка — красное); ошибка записи — ещё и в строке состояния. Отмена диалога ничего не меняет.
+    /// </summary>
+    private async Task SaveAsync(string? item)
+    {
+        if (_view is not { } view || _path is not { } path)
+        {
+            return;
+        }
+        _saving = true;
+        try
+        {
+            var outcome = item switch
+            {
+                Toolbar.SaveSheet when _selected is PanelSection section => await _saver.SaveSheetAsync(view, section, path),
+                Toolbar.SaveStrings => await _saver.SaveStringsAsync(_strings, path),
+                _ => await _saver.SavePanelDataAsync(view, path)
+            };
+            if (outcome is not null)
+            {
+                _notice = outcome.Level == TranscriptLevel.Error ? $"{outcome.Summary}: {outcome.Detail}" : null;
+                var severity = outcome.Level switch
+                {
+                    TranscriptLevel.Error => NotificationSeverity.Error,
+                    TranscriptLevel.Warning => NotificationSeverity.Warning,
+                    _ => NotificationSeverity.Success
+                };
+                Notifications.Notify(severity, outcome.Summary, outcome.Detail, NotificationDuration);
+            }
+        }
+        finally
+        {
+            _saving = false;
         }
     }
 
@@ -180,6 +229,7 @@
     {
         _screens = [];
         _view = null;
+        _strings = [];
         _screenCount = 0;
         _lines = [];
         _selected = null;
