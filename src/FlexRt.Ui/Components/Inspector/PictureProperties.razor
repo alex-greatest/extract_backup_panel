@@ -1,0 +1,26 @@
+<div class="props-layout">
+    <div class="props-body picture-props">
+        <RadzenFieldset Text="General" class="prop-group">
+            @foreach (var (name, value) in Picture.Properties)
+            {
+                <div class="prop-row">
+                    <RadzenLabel Text="@($"{name}:")" />
+                    <PropertyValue Value="value" />
+                </div>
+            }
+        </RadzenFieldset>
+        <button type="button" class="picture-preview" title="Открыть на всё окно" @onclick="() => OnOpen.InvokeAsync(Picture)">
+            <img src="@Picture.Source" alt="@Picture.Name" />
+        </button>
+    </div>
+</div>
+
+@code {
+    /// <summary>Картинка: слева её свойства, справа — сама картинка в натуральную величину (крупная — уменьшена до панели); щелчок по ней — на всё окно.</summary>
+    [Parameter, EditorRequired]
+    public PictureItem Picture { get; set; } = null!;
+
+    /// <summary>Щелчок по картинке: открыть её на всё окно.</summary>
+    [Parameter]
+    public EventCallback<PictureItem> OnOpen { get; set; }
+}

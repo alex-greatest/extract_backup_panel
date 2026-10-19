@@ -1,38 +1,44 @@
 @using System.IO
 @inject NotificationService Notifications
+@inject PictureSelection Pictures
 
 <div class="shell">
     <Toolbar Loading="_loading" PlcPath="@_plcPath" OnOpen="OpenAsync" OnPlc="ChoosePlcAsync"
              CanSave="@(_view is not null && !_loading && !_saving)" CanSaveSheet="@(_view is not null && PanelDataSheets.IsSheet(_view, _selected))"
-             OnSave="SaveAsync" />
+             CanSavePictures="@(_view is not null && !_loading && !_saving && Pictures.Pictures.Items.Count > 0)"
+             CanSavePicture="@(Pictures.Selected is not null)" OnSave="SaveAsync" />
 
     <RadzenSplitter class="workspace">
         <RadzenSplitterPane Size="300px" Min="150px" Max="700px">
             <section class="pane">
                 <header class="pane-title">Дерево проекта</header>
                 <div class="tree-scroll">
-                    <ProjectTree Loading="_loading" FileName="@FileName()" View="_view" Screens="_screens" Selected="_selected" OnSelect="Select" />
+                    <ProjectTree Loading="_loading" FileName="@FileName()" View="_view" Screens="_screens" Pictures="Pictures.Pictures" Selected="_selected" OnSelect="Select" />
                 </div>
             </section>
         </RadzenSplitterPane>
         <RadzenSplitterPane>
             <RadzenSplitter Orientation="Orientation.Vertical" class="editor-split">
-                <RadzenSplitterPane Size="calc(100% - 340px)" Min="150px">
+                <RadzenSplitterPane Size="calc(100% - 360px)" Min="150px">
                     <section class="pane">
-                        @if (_selected is PanelSection section)
+                        @switch (_selected)
                         {
-                            <SectionView Title="@Breadcrumb()" Section="section" SelectedRow="_row" OnRowSelect="SelectRow"
-                                         OnCountChanged="count => _rowCount = count" OnCopyFailed="text => _notice = text" />
-                        }
-                        else
-                        {
-                            <ScreenCanvas Title="@Breadcrumb()" Item="@(_selected as ScreenItem)" Empty="@(NoPanelHint() ?? Hints.NoScreen)" />
+                            case PanelSection section:
+                                <SectionView Title="@EditorPath.Of(_selected, _path)" Section="section" SelectedRow="_row" OnRowSelect="SelectRow"
+                                             OnCountChanged="count => _rowCount = count" OnCopyFailed="text => _notice = text" />
+                                break;
+                            case PanelPictures pictures:
+                                <PictureGallery Title="@EditorPath.Of(_selected, _path)" Pictures="pictures" Selected="Pictures.Selected" OnSelect="SelectPicture" OnOpen="Pictures.Open" />
+                                break;
+                            default:
+                                <ScreenCanvas Title="@EditorPath.Of(_selected, _path)" Item="@(_selected as ScreenItem)" Empty="@(NoPanelHint() ?? Hints.NoScreen)" />
+                                break;
                         }
                     </section>
                 </RadzenSplitterPane>
                 <RadzenSplitterPane Min="120px">
                     <section class="pane">
-                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Hint="@InspectorHint()" Lines="_lines" />
+                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Picture="Pictures.Selected" Hint="@InspectorHint()" Lines="_lines" OnOpenPicture="Pictures.Open" />
                     </section>
                 </RadzenSplitterPane>
             </RadzenSplitter>
@@ -41,6 +47,7 @@
 
     <StatusBar Loading="_loading" Path="@_path" Error="@_error" ScreenCount="_screenCount" WarningCount="@_lines.Count(l => l.Level != TranscriptLevel.Info)"
                RowCount="@(ShownTable() is null ? null : _rowCount)" RowTotal="@ShownTable()?.Rows.Count" Notice="@_notice" />
+    <PictureViewer Pictures="Pictures.Pictures" Current="Pictures.Shown" OnShow="SelectPicture" OnClose="Pictures.Close" />
     <RadzenNotification />
 </div>
 
@@ -69,8 +76,8 @@
     /// <summary>Строки языков открытой панели — для сохранения <c>PDATA.xlsx</c>.</summary>
     private IReadOnlyList<LangString> _strings = [];
 
-    /// <summary>Сохранение в Excel; помнит папку последнего сохранения до закрытия окна.</summary>
-    private readonly ExcelSaver _saver = new();
+    /// <summary>Сохранение книг Excel и картинок; помнит папку последнего сохранения до закрытия окна.</summary>
+    private readonly PanelSaver _saver = new();
 
     /// <summary>Идёт сохранение: кнопки сохранения заняты.</summary>
     private bool _saving;
@@ -78,7 +85,10 @@
     /// <summary>Выбранные данные ПЛК: файл <c>PEData.plf</c> или папка карты ПЛК; <c>null</c> — не заданы.</summary>
     private string? _plcPath;
 
-    /// <summary>Выбранный в дереве узел: экран (<see cref="ScreenItem"/>) или раздел (<see cref="PanelSection"/>); <c>null</c> — ничего.</summary>
+    /// <summary>
+    /// Выбранный в дереве узел: экран (<see cref="ScreenItem"/>), раздел (<see cref="PanelSection"/>) или картинки
+    /// (<see cref="PanelPictures"/>); <c>null</c> — ничего.
+    /// </summary>
     private object? _selected;
 
     /// <summary>Выбранная строка таблицы раздела (номер в листе с нуля); <c>null</c> — не выбрана.</summary>
@@ -148,6 +158,7 @@
         {
             var panel = await PanelLoader.LoadAsync(path, plcPath);
             _screens = panel.Screens;
+            Pictures.Load(panel.Pictures);
             _view = panel.View;
             _strings = panel.Strings;
             _screenCount = panel.ScreenCount;
@@ -163,9 +174,9 @@
     }
 
     /// <summary>
-    /// Пункт сохранения (<see cref="ExcelSaver"/>): вся книга данных панели, текущий лист или книга текстов. Итог —
-    /// уведомлением (успех — зелёное, не всё или нечего — жёлтое, ошибка — красное); ошибка записи — ещё и в строке состояния,
-    /// если за время записи не открыли другой файл. Отмена диалога ничего не меняет.
+    /// Пункт сохранения (<see cref="PanelSaver"/>): вся книга данных панели, текущий лист, книга текстов, выбранная картинка или
+    /// все картинки архивом. Итог — уведомлением (успех — зелёное, не всё или нечего — жёлтое, ошибка — красное); ошибка записи —
+    /// ещё и в строке состояния, если за время записи не открыли другой файл. Отмена диалога ничего не меняет.
     /// </summary>
     private async Task SaveAsync(string? item)
     {
@@ -176,14 +187,7 @@
         _saving = true;
         try
         {
-            var outcome = item switch
-            {
-                Toolbar.SaveSheet => _selected is PanelSection section && PanelDataSheets.IsSheet(view, section)
-                    ? await _saver.SaveSheetAsync(section, path)
-                    : null,
-                Toolbar.SaveStrings => await _saver.SaveStringsAsync(_strings, path),
-                _ => await _saver.SavePanelDataAsync(view, path)
-            };
+            var outcome = await _saver.SaveAsync(item, new SaveSources(view, _selected, _strings, Pictures), path);
             if (outcome is not null)
             {
                 if (_path == path)
@@ -215,7 +219,7 @@
             hasErrors ? "Есть ошибки" : "Есть предупреждения", $"{problems} — вкладка «Ошибки»", NotificationDuration);
     }
 
-    /// <summary>Убрать данные открытой панели: экраны, разделы, их числа, строки Info и выбор.</summary>
+    /// <summary>Убрать данные открытой панели: экраны, картинки, разделы, их числа, строки Info и выбор.</summary>
     private void ClearPanel()
     {
         _screens = [];
@@ -225,12 +229,13 @@
         _lines = [];
         _selected = null;
         _row = null;
+        Pictures.Load(PanelPictures.None);
         _notice = null;
     }
 
     /// <summary>
-    /// Выбрать узел дерева: экран или раздел. У раздела с таблицей выбирается первая строка, число строк — все строки
-    /// таблицы, пока таблица не сообщит своё. Повторный выбор показанного узла (дерево сообщает его после щелчка по
+    /// Выбрать узел дерева: экран, раздел или картинки. У раздела с таблицей выбирается первая строка, число строк — все
+    /// строки таблицы, пока таблица не сообщит своё; у картинок — первая картинка. Повторный выбор показанного узла (дерево сообщает его после щелчка по
     /// папке) ничего не меняет: таблица того же раздела не пересоздаётся и хранит свои фильтр, сортировку и выбор.
     /// </summary>
     private void Select(object node)
@@ -244,6 +249,14 @@
         var table = ShownTable();
         _row = table is { Rows.Count: > 0 } ? 0 : null;
         _rowCount = table?.Rows.Count ?? 0;
+        Pictures.SelectNode(node is PanelPictures);
+    }
+
+    /// <summary>Выбрать картинку щелчком в галерее или листанием на всё окно; ошибка действия снимается, как при выборе строки.</summary>
+    private void SelectPicture(PictureItem picture)
+    {
+        Pictures.Select(picture);
+        _notice = null;
     }
 
     /// <summary>Выбрать строку таблицы раздела; <c>null</c> — снять выбор (фильтр скрыл строку).</summary>
@@ -261,14 +274,15 @@
     /// <returns>Строка; не выбрана или открыт не раздел — <c>null</c>.</returns>
     private SectionRow? InspectedRow() => _selected is PanelSection section && _row is { } row ? new SectionRow(section, row) : null;
 
-    /// <summary>Подсказка панели свойств: файл не открыт или читается, раздел без выбранной строки.</summary>
-    /// <returns>Текст подсказки; открыт экран, выбрана строка или ничего не выбрано в открытой панели — <c>null</c>.</returns>
+    /// <summary>Подсказка панели свойств: файл не открыт или читается, раздел без выбранной строки, картинки без выбранной.</summary>
+    /// <returns>Текст подсказки; открыт экран, выбраны строка или картинка, ничего не выбрано в открытой панели — <c>null</c>.</returns>
     private string? InspectorHint() => _selected switch
     {
         _ when NoPanelHint() is { } hint => hint,
         PanelSection { Error: not null } => Hints.Failed,
         PanelSection { IsSummary: true } => Hints.Summary,
         PanelSection when _row is null => Hints.NoRow,
+        PanelPictures when Pictures.Selected is null => Hints.NoPicture,
         _ => null
     };
 
@@ -280,15 +294,4 @@
     /// <returns>Имя файла; файл не открыт или не прочитан — <c>null</c>.</returns>
     private string? FileName() => _path is null || _error is not null || _loading ? null : Path.GetFileName(_path);
 
-    /// <summary>
-    /// Путь в заголовке редактора, как в TIA: <c>pdata.fwc ▸ Screen ▸ Root screen</c> у экрана,
-    /// <c>pdata.fwc ▸ HMI alarms ▸ Discrete alarms</c> у раздела.
-    /// </summary>
-    /// <returns>Текст строки; ничего не выбрано — пусто.</returns>
-    private string Breadcrumb() => (_selected, _path) switch
-    {
-        (ScreenItem item, not null) => $"{Path.GetFileName(_path)}  ▸  {item.Kind}  ▸  {item.Name}",
-        (PanelSection section, not null) => $"{Path.GetFileName(_path)}  ▸  {section.Path}",
-        _ => ""
-    };
 }

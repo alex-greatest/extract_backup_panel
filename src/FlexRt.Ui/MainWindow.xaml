@@ -4,7 +4,8 @@
         xmlns:blazor="clr-namespace:Microsoft.AspNetCore.Components.WebView.Wpf;assembly=Microsoft.AspNetCore.Components.WebView.Wpf"
         xmlns:components="clr-namespace:FlexRt.Ui.Components.Shell"
         Title="FlexRt — просмотр панели" Width="1400" Height="900" WindowState="Maximized">
-    <blazor:BlazorWebView HostPage="wwwroot\index.html" Services="{DynamicResource services}">
+    <blazor:BlazorWebView HostPage="wwwroot\index.html" Services="{DynamicResource services}"
+                          BlazorWebViewInitialized="OnWebViewInitialized">
         <blazor:BlazorWebView.RootComponents>
             <blazor:RootComponent Selector="#app" ComponentType="{x:Type components:Viewer}" />
         </blazor:BlazorWebView.RootComponents>

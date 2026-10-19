@@ -1,0 +1,40 @@
+<div class="editor-title">@Title</div>
+<div class="canvas-scroll gallery-scroll">
+    <div class="gallery">
+        @foreach (var item in Pictures.Items)
+        {
+            <button type="button" class="gallery-tile @(ReferenceEquals(item, Selected) ? "selected" : "")" title="@item.Name"
+                    @onclick="() => OnSelect.InvokeAsync(item)" @ondblclick="() => OnOpen.InvokeAsync(item)">
+                <span class="gallery-thumb"><img src="@item.Source" alt="@item.Name" loading="lazy" /></span>
+                <span class="gallery-name">@item.Name</span>
+            </button>
+        }
+    </div>
+</div>
+<div class="editor-footer">
+    <span class="muted-inline">Картинок: @Pictures.Items.Count</span>
+    <span class="spacer"></span>
+    <span class="muted-inline">Двойной щелчок — на всё окно</span>
+</div>
+
+@code {
+    /// <summary>Строка заголовка редактора: путь к узлу, как у экранов.</summary>
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    /// <summary>Картинки панели: по плитке на каждую, в порядке ядра.</summary>
+    [Parameter, EditorRequired]
+    public PanelPictures Pictures { get; set; } = null!;
+
+    /// <summary>Выбранная картинка: плитка подсвечена; <c>null</c> — не выбрана.</summary>
+    [Parameter]
+    public PictureItem? Selected { get; set; }
+
+    /// <summary>Щелчок по плитке картинки.</summary>
+    [Parameter]
+    public EventCallback<PictureItem> OnSelect { get; set; }
+
+    /// <summary>Двойной щелчок по плитке: открыть картинку на всё окно.</summary>
+    [Parameter]
+    public EventCallback<PictureItem> OnOpen { get; set; }
+}

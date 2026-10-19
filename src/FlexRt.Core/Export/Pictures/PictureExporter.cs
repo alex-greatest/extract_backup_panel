@@ -1,4 +1,5 @@
 using FlexRt.Model.Panel;
+using FlexRt.Model.Panel.Pictures;
 
 namespace FlexRt.Export.Pictures;
 
@@ -24,8 +25,15 @@ public static class PictureExporter
 
         foreach (var picture in doc.Pictures)
         {
-            File.WriteAllBytes(Path.Combine(dir, $"{picture.Table}_{picture.Index + 1}.{picture.Extension}"), picture.Data);
+            File.WriteAllBytes(Path.Combine(dir, FileName(picture)), picture.Data);
         }
         return doc.Pictures.Count;
     }
+
+    /// <summary>
+    /// Имя файла картинки <c>&lt;таблица&gt;_&lt;n&gt;.&lt;png|jpg&gt;</c>, n — номер элемента таблицы с единицы, как в
+    /// hex-выводе (<c>PICTURE_5.png</c>); то же имя показывает окно.
+    /// </summary>
+    /// <returns>Имя файла без каталога.</returns>
+    public static string FileName(PanelPicture picture) => $"{picture.Table}_{picture.Index + 1}.{picture.Extension}";
 }

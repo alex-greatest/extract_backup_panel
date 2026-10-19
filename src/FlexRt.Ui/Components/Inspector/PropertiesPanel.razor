@@ -42,6 +42,10 @@ else if (Row is not null)
 {
     <RowProperties Row="Row" />
 }
+else if (Picture is not null)
+{
+    <PictureProperties Picture="Picture" OnOpen="OnOpenPicture" />
+}
 else if (Hint is not null)
 {
     <div class="muted">@Hint</div>
@@ -94,6 +98,14 @@ else
     [Parameter]
     public SectionRow? Row { get; set; }
 
+    /// <summary>Выбранная картинка: вместо свойств экрана — её свойства и она сама; <c>null</c> — картинка не выбрана.</summary>
+    [Parameter]
+    public PictureItem? Picture { get; set; }
+
+    /// <summary>Щелчок по картинке в свойствах: открыть её на всё окно.</summary>
+    [Parameter]
+    public EventCallback<PictureItem> OnOpenPicture { get; set; }
+
     /// <summary>Подсказка вместо свойств, когда открыт раздел, а строка не выбрана; <c>null</c> — показывается экран.</summary>
     [Parameter]
     public string? Hint { get; set; }
@@ -137,12 +149,16 @@ else
     };
 
     /// <summary>
-    /// Заголовок панели: у строки раздела — первая ячейка и раздел (<c>Screen Number [HMI tags]</c>), у экрана — имя и вид,
-    /// иначе — «Свойства».
+    /// Заголовок панели: у строки раздела — первая ячейка и раздел (<c>Screen Number [HMI tags]</c>), у картинки — имя файла
+    /// (<c>PICTURE_5.png [Картинки]</c>), у экрана — имя и вид, иначе — «Свойства».
     /// </summary>
     /// <returns>Текст заголовка.</returns>
     private string HeadTitle()
     {
+        if (Picture is not null)
+        {
+            return $"{Picture.Name} [{PanelPictures.Title}]";
+        }
         if (Row is null)
         {
             return Item is null || Hint is not null ? "Свойства" : $"{Item.Name} [{Item.Kind}]";

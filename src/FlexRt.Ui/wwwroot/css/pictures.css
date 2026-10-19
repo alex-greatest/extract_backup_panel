@@ -1,0 +1,171 @@
+/* Галерея картинок: плитки с миниатюрой и именем файла на фоне холста (.canvas-scroll) */
+.gallery-scroll {
+    padding: 20px;
+}
+
+/* клетчатый фон — видно прозрачные области PNG */
+.gallery-thumb,
+.picture-preview {
+    background: repeating-conic-gradient(#e3e6ea 0% 25%, #ffffff 0% 50%) 0 0 / 12px 12px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+    gap: 12px;
+}
+
+.gallery-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font: var(--font-size) var(--font);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.gallery-tile:hover {
+    border-color: var(--accent-soft);
+}
+
+.gallery-tile:focus-visible {
+    outline: 2px solid var(--title-text);
+    outline-offset: 1px;
+}
+
+.gallery-tile.selected {
+    border-color: var(--accent);
+}
+
+.gallery-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 96px;
+}
+
+.gallery-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.gallery-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Панель свойств картинки: свойства слева, картинка справа */
+.picture-props {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.picture-props .prop-group {
+    flex: 0 1 360px;
+}
+
+/* превью — кнопка: открывает картинку на всё окно */
+.picture-preview {
+    flex: 0 1 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+    cursor: zoom-in;
+}
+
+.picture-preview img {
+    max-width: 100%;
+    max-height: 260px;
+}
+
+.picture-preview:hover {
+    border-color: var(--accent);
+}
+
+/* Картинка на всё окно: тёмный слой поверх окна, картинка вписана в него и увеличена без размытия */
+.picture-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(12, 17, 24, 0.92);
+    outline: none;
+    cursor: zoom-out;
+}
+
+.viewer-image {
+    position: absolute;
+    inset: 56px 80px 64px;
+    width: calc(100% - 160px);
+    height: calc(100% - 120px);
+    object-fit: contain;
+    image-rendering: pixelated;
+    cursor: default;
+}
+
+.viewer-button {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font: 28px/1 var(--font);
+    cursor: pointer;
+}
+
+.viewer-button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.viewer-button:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+.viewer-button:focus-visible {
+    outline: 2px solid #ffffff;
+}
+
+.viewer-close {
+    top: 4px;
+    right: 16px;
+    font-size: 20px;
+}
+
+.viewer-prev {
+    left: 16px;
+    top: calc(50% - 24px);
+}
+
+.viewer-next {
+    right: 16px;
+    top: calc(50% - 24px);
+}
+
+.viewer-caption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    color: #e8edf3;
+    text-align: center;
+    white-space: pre;
+    cursor: default;
+}

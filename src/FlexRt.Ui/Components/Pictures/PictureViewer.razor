@@ -1,0 +1,105 @@
+@if (Current is not null)
+{
+    <div class="picture-viewer" tabindex="0" role="dialog" aria-label="@Current.Name" @ref="_root"
+         @onkeydown="OnKey" @onkeydown:preventDefault="true" @onclick="Close">
+        <img class="viewer-image" src="@Current.Source" alt="@Current.Name" @onclick:stopPropagation="true" />
+        <button type="button" tabindex="-1" @onmousedown:preventDefault="true" class="viewer-button viewer-close" title="Закрыть (Esc)" @onclick="Close" @onclick:stopPropagation="true">✕</button>
+        <button type="button" tabindex="-1" @onmousedown:preventDefault="true" class="viewer-button viewer-prev" title="Предыдущая (←)" disabled="@(_index == 0)"
+                @onclick="() => Step(-1)" @onclick:stopPropagation="true">‹</button>
+        <button type="button" tabindex="-1" @onmousedown:preventDefault="true" class="viewer-button viewer-next" title="Следующая (→)" disabled="@(_index == Pictures.Items.Count - 1)"
+                @onclick="() => Step(1)" @onclick:stopPropagation="true">›</button>
+        <div class="viewer-caption" @onclick:stopPropagation="true">@Caption()</div>
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// Корень слоя: получает фокус при открытии, чтобы стрелки и Esc работали без щелчка, и держит его. Кнопки слоя
+    /// фокус не забирают (<c>tabindex=-1</c>, без фокуса по нажатию мыши) — иначе кнопка, ставшая недоступной на краю
+    /// списка, роняет фокус и клавиши перестают работать; Tab и другие клавиши внутри слоя ничего не делают, поэтому фокус
+    /// не уходит к кнопкам окна под слоем.
+    /// </summary>
+    private ElementReference _root;
+
+    /// <summary>Слой был открыт при прошлой отрисовке: фокус ставится, только когда слой открылся.</summary>
+    private bool _open;
+
+    /// <summary>Номер показанной картинки в списке с нуля; картинки нет в списке или слой закрыт — −1.</summary>
+    private int _index = -1;
+
+    /// <summary>Картинки панели: по ним листают стрелки.</summary>
+    [Parameter, EditorRequired]
+    public PanelPictures Pictures { get; set; } = PanelPictures.None;
+
+    /// <summary>Картинка на весь слой; <c>null</c> — слой закрыт и ничего не рисуется.</summary>
+    [Parameter]
+    public PictureItem? Current { get; set; }
+
+    /// <summary>Перешли к соседней картинке стрелкой или кнопкой.</summary>
+    [Parameter]
+    public EventCallback<PictureItem> OnShow { get; set; }
+
+    /// <summary>Слой закрыт: Esc, щелчок по фону или ✕.</summary>
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    /// <summary>Найти номер показанной картинки в списке (без копии списка: параметры приходят при каждой отрисовке окна).</summary>
+    protected override void OnParametersSet()
+    {
+        _index = -1;
+        for (var i = 0; Current is not null && _index < 0 && i < Pictures.Items.Count; i++)
+        {
+            _index = ReferenceEquals(Pictures.Items[i], Current) ? i : -1;
+        }
+    }
+
+    /// <summary>Поставить фокус на слой, когда он только что открылся.</summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var opened = Current is not null && !_open;
+        _open = Current is not null;
+        if (opened)
+        {
+            await _root.FocusAsync();
+        }
+    }
+
+    /// <summary>Клавиши слоя: Esc — закрыть, ← и → — соседняя картинка.</summary>
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "Escape":
+                await Close();
+                break;
+            case "ArrowLeft":
+                await Step(-1);
+                break;
+            case "ArrowRight":
+                await Step(1);
+                break;
+        }
+    }
+
+    /// <summary>Показать соседнюю картинку: <paramref name="delta"/> −1 — предыдущую, 1 — следующую; за краем списка ничего не делает.</summary>
+    private async Task Step(int delta)
+    {
+        var next = _index + delta;
+        if (next < 0 || next >= Pictures.Items.Count)
+        {
+            return;
+        }
+        await OnShow.InvokeAsync(Pictures.Items[next]);
+    }
+
+    /// <summary>Закрыть слой.</summary>
+    private Task Close() => OnClose.InvokeAsync();
+
+    /// <summary>Подпись внизу: имя файла, размер из заголовка и место в списке — <c>PICTURE_5.png · 34 × 34 px · 5 из 76</c>.</summary>
+    /// <returns>Текст подписи.</returns>
+    private string Caption()
+    {
+        var size = Current!.Size is { } s ? $"  ·  {s.Width} × {s.Height} px" : "";
+        return $"{Current.Name}{size}  ·  {_index + 1} из {Pictures.Items.Count}";
+    }
+}

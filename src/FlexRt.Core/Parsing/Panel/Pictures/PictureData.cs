@@ -59,17 +59,17 @@ internal static class PictureData
     }
 
     /// <summary>Расширение файла картинки по сигнатуре данных.</summary>
-    /// <returns><c>png</c> или <c>jpg</c>.</returns>
+    /// <returns><see cref="PictureFormat.Png"/> или <see cref="PictureFormat.Jpg"/>.</returns>
     /// <exception cref="FwxFormatException">Сигнатура не PNG и не JPEG.</exception>
     private static string Extension(FwxBinary b, TableItem item, int start, ReadOnlySpan<byte> data)
     {
         if (data.StartsWith(PngSignature))
         {
-            return "png";
+            return PictureFormat.Png;
         }
         if (data.StartsWith(JpegSignature))
         {
-            return "jpg";
+            return PictureFormat.Jpg;
         }
         throw new FwxFormatException(b.Section, item.Offset + start, $"запись {item.Index + 1}: незнакомый формат картинки");
     }

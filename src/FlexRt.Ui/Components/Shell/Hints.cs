@@ -18,6 +18,9 @@ public static class Hints
     /// <summary>Панель свойств: раздел, таблицу которого построить не удалось.</summary>
     public const string Failed = "Таблица раздела не построена — причина на вкладке Info";
 
+    /// <summary>Панель свойств: открыты картинки, а картинка не выбрана.</summary>
+    public const string NoPicture = "Выберите картинку";
+
     /// <summary>Панель свойств: у «Сводки» нет строк со свойствами.</summary>
     public const string Summary = "У «Сводки» нет свойств строк";
 }

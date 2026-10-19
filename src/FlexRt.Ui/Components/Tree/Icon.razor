@@ -33,6 +33,9 @@
     case "text":
         <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1" fill="#ffffff" stroke="#4a6a8c" /><path d="M4 6h8M8 6v5" stroke="#4a6a8c" stroke-width="1.5" /></svg>
         break;
+    case "picture":
+        <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" fill="#ffffff" stroke="#4a6a8c" /><circle cx="5.5" cy="6" r="1.5" fill="#e8b84a" /><path d="M2 13l4-4 3 3 2-2 3 3z" fill="#8fb3d9" /></svg>
+        break;
     default:
         <svg class="icon" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="10" fill="#eceff3" stroke="#7a8794" stroke-dasharray="2 1" /></svg>
         break;
@@ -43,7 +46,7 @@
     /// Значок узла дерева, нарисованный SVG 16×16: <c>file</c> — панель, <c>folder</c> — папка, <c>screen</c> — экран,
     /// <c>popup</c> — pop-up экран, <c>summary</c> — «Сводка», <c>tags</c> — теги, <c>alarm</c> — дискретные и аналоговые
     /// алармы, <c>events</c> — системные события, <c>classes</c> — классы алармов, <c>groups</c> — группы алармов,
-    /// <c>text</c> — тексты языка; другое имя — экран неопознанного вида.
+    /// <c>text</c> — тексты языка, <c>picture</c> — картинки; другое имя — экран неопознанного вида.
     /// </summary>
     [Parameter, EditorRequired]
     public string Name { get; set; } = "";

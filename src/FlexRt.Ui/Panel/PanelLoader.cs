@@ -1,6 +1,7 @@
 using FlexRt.Export.PanelData.Screens;
 using FlexRt.Extraction;
 using FlexRt.Parsing.Panel;
+using FlexRt.Ui.Panel.Pictures;
 using FlexRt.Ui.Panel.Screens;
 using FlexRt.Ui.Panel.Sections;
 
@@ -8,7 +9,7 @@ namespace FlexRt.Ui.Panel;
 
 /// <summary>
 /// Открытие панели для окна по шагам: чтение <c>pdata.fwc</c>, текст запуска (<see cref="RunTranscript"/>), экраны,
-/// данные ПЛК, разделы. Файлов не пишет; состояние окна не трогает — итог в <see cref="LoadedPanel"/>.
+/// картинки, данные ПЛК, разделы. Файлов не пишет; состояние окна не трогает — итог в <see cref="LoadedPanel"/>.
 /// </summary>
 public static class PanelLoader
 {
@@ -40,13 +41,15 @@ public static class PanelLoader
             failedStep = "экраны не разобраны";
             var screens = ScreenItems.From(doc);
             var screenCount = ScreensTable.ScreenCount(doc);
+            failedStep = "картинки не разобраны";
+            var pictures = PanelPictures.From(doc);
             failedStep = "данные ПЛК не обработаны";
             var plc = plcPath is null ? null : await Task.Run(() => PlcDataReader.Read(doc, plcPath, transcript, UnsupportedConsequence));
             failedStep = "разделы не построены";
             var view = await Task.Run(() => PanelViews.From(doc, path, plc));
             IReadOnlyList<TranscriptLine> lines =
                 [.. transcript.Lines, .. PanelViews.Errors(view).Select(e => new TranscriptLine(TranscriptLevel.Warning, e))];
-            return new LoadedPanel(screens, view, doc.Strings, screenCount, lines, null);
+            return new LoadedPanel(screens, pictures, view, doc.Strings, screenCount, lines, null);
         }
         catch (Exception e)
         {
@@ -65,9 +68,9 @@ public static class PanelLoader
         if (failedStep is null)
         {
             transcript.PanelReadFailed(path, e);
-            return new LoadedPanel([], null, [], 0, transcript.Lines, $"Файл не прочитан: {ReadFailure.Describe(e)}");
+            return new LoadedPanel([], PanelPictures.None, null, [], 0, transcript.Lines, $"Файл не прочитан: {ReadFailure.Describe(e)}");
         }
         var error = $"ОШИБКА: {failedStep}: {ReadFailure.Describe(e)}";
-        return new LoadedPanel([], null, [], 0, [.. transcript.Lines, new TranscriptLine(TranscriptLevel.Error, error)], error);
+        return new LoadedPanel([], PanelPictures.None, null, [], 0, [.. transcript.Lines, new TranscriptLine(TranscriptLevel.Error, error)], error);
     }
 }

@@ -46,6 +46,12 @@ else
                 {
                     @Folder("Вид не опознан", Unrecognized)
                 }
+                @if (Pictures.Items.Count > 0)
+                {
+                    <RadzenTreeItem Text="@PanelPictures.Title" Value="Pictures" Selected="@ReferenceEquals(Pictures, Selected)">
+                        <Template><Icon Name="picture" /><span class="tree-text">@context.Text</span><Count Value="Pictures.Items.Count" /></Template>
+                    </RadzenTreeItem>
+                }
                 @if (View.Texts.Count > 0)
                 {
                     @SectionFolder("Тексты", View.Texts)
@@ -75,11 +81,18 @@ else
     [Parameter, EditorRequired]
     public IReadOnlyList<ScreenItem> Screens { get; set; } = [];
 
-    /// <summary>Выбранный узел: экран (<see cref="ScreenItem"/>) или раздел (<see cref="PanelSection"/>); подсвечивается.</summary>
+    /// <summary>Картинки панели для узла «Картинки»; нет — узла нет.</summary>
+    [Parameter, EditorRequired]
+    public PanelPictures Pictures { get; set; } = PanelPictures.None;
+
+    /// <summary>
+    /// Выбранный узел: экран (<see cref="ScreenItem"/>), раздел (<see cref="PanelSection"/>) или картинки
+    /// (<see cref="PanelPictures"/>); подсвечивается.
+    /// </summary>
     [Parameter]
     public object? Selected { get; set; }
 
-    /// <summary>Щелчок по экрану или разделу (в том числе по папке Screens — таблица листа «Экраны»).</summary>
+    /// <summary>Щелчок по экрану, разделу (в том числе по папке Screens — таблица листа «Экраны») или узлу «Картинки».</summary>
     [Parameter]
     public EventCallback<object> OnSelect { get; set; }
 
@@ -160,10 +173,10 @@ else
     /// <returns><c>true</c> для экрана неопознанного вида.</returns>
     private static bool Unrecognized(ScreenItem item) => !ScreenKind.Recognized.Contains(item.Kind);
 
-    /// <summary>Щелчок по узлу дерева: экран или раздел — сообщить о выборе; другая папка или файл — только подсветка.</summary>
+    /// <summary>Щелчок по узлу дерева: экран, раздел или картинки — сообщить о выборе; другая папка или файл — только подсветка.</summary>
     private async Task OnChange(TreeEventArgs args)
     {
-        if (args.Value is ScreenItem or PanelSection)
+        if (args.Value is ScreenItem or PanelSection or PanelPictures)
         {
             await OnSelect.InvokeAsync(args.Value);
         }

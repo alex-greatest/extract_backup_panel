@@ -1,0 +1,30 @@
+using System.IO.Compression;
+using FlexRt.Model.Panel.Pictures;
+
+namespace FlexRt.Export.Pictures;
+
+/// <summary>Выгрузка картинок панели одним архивом zip — для окна: те же файлы, что консоль пишет в папку <c>images</c>.</summary>
+public static class PictureArchiveExporter
+{
+    /// <summary>Имя архива по умолчанию (решение пользователя).</summary>
+    public const string FileName = "images.zip";
+
+    /// <summary>
+    /// Записать архив <paramref name="path"/>: каждая картинка — файл в корне архива под именем
+    /// <see cref="PictureExporter.FileName"/> (<c>PICTURE_5.png</c>), байты как есть, в порядке
+    /// <paramref name="pictures"/>. Файл уже есть — перезаписывается. Записи не сжимаются: PNG и JPEG уже сжаты, Deflate
+    /// только тратит время.
+    /// </summary>
+    /// <exception cref="IOException">Файл не удалось записать.</exception>
+    public static void Export(IReadOnlyList<PanelPicture> pictures, string path)
+    {
+        using var file = File.Create(path);
+        using var archive = new ZipArchive(file, ZipArchiveMode.Create);
+        foreach (var picture in pictures)
+        {
+            var entry = archive.CreateEntry(PictureExporter.FileName(picture), CompressionLevel.NoCompression);
+            using var stream = entry.Open();
+            stream.Write(picture.Data);
+        }
+    }
+}
