@@ -17,13 +17,12 @@ public sealed class SystemEventsRunTests
     [Fact]
     public void SamplePanel_EnglishEvents_MatchExpected()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Системных событий: 585");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Системных событий=585");
-        var rows = SystemEventsSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Системные события");
         var expected = File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/системные-события.txt"));
         Assert.Equal(expected, rows);
         Assert.Contains("200102 | 'Project ID' area pointer: Error in type conversion.", rows);
@@ -36,12 +35,11 @@ public sealed class SystemEventsRunTests
     [Fact]
     public void CardPanel_RussianEvents()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/card/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/card/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Системных событий: 585");
-        var rows = SystemEventsSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Системные события");
         Assert.Equal(586, rows.Count);
         Assert.Equal("ID | 0x419 — русский (Россия)", rows[0]);
         Assert.Contains("10108 | Переменная", rows);

@@ -17,9 +17,8 @@ public sealed class SampleRunTests
     [Fact]
     public void SamplePanel_WithoutPlc_MatchesExpected()
     {
-        using var dir = new TestDirectory();
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
         var plc = dir.MissingFile();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), plc, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Тегов: 16");
@@ -43,8 +42,7 @@ public sealed class SampleRunTests
     [Fact]
     public void BadPanel_FailsWithReadableMessage()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/bad.fwc"), dir.MissingFile(), dir.OutDir);
+        var run = SharedRuns.WithoutPlc("samples/bad.fwc").Run;
 
         RunAssertions.ExitCode(run, 1);
         Assert.Contains("Не удалось прочитать", run.Errors);

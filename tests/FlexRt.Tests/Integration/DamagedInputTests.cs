@@ -51,9 +51,8 @@ public sealed partial class DamagedInputTests
     [Fact]
     public void PlcPanel_WithoutPlcFile_PlcColumnsUnknown()
     {
-        using var dir = new TestDirectory();
+        var (dir, run) = SharedRuns.WithoutPlc("samples/plc/pdata.fwc");
         var plc = dir.MissingFile();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), plc, dir.OutDir);
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Тегов: 69");
@@ -98,11 +97,12 @@ public sealed partial class DamagedInputTests
     }
 
     /// <summary>
-    /// Копия <c>samples/pdata.fwc</c>, в которой у записи VAR из середины таблицы первое
+    /// Копия <c>samples/pdata.fwc</c>, в которой у внутреннего тега из середины таблицы VAR первое
     /// слово 4 вместо 3. Смещение записи — из разбора той же копии через
     /// <see cref="FwxReader"/> (TOC → каталог смещений VAR). Код 1, сводное предупреждение
     /// VAR с номером записи и смещением, тегов на один меньше, остальные строки листа «Теги»
-    /// — как в эталоне.
+    /// — как в эталоне. Строка тега в эталоне ищется по имени, а не по номеру записи, а тег берётся внутренний,
+    /// поэтому «Внутренних тегов» в ожидании честно на 1 меньше.
     /// </summary>
     [Fact]
     public void BrokenVarRecord_SkippedWithWarning()
@@ -110,7 +110,8 @@ public sealed partial class DamagedInputTests
         using var dir = new TestDirectory();
         var input = dir.CopyFromRepo("samples/pdata.fwc", "pdata.fwc");
         var tags = FwxReader.Read(input).Tags;
-        var broken = tags[tags.Count / 2];
+        var internalTags = tags.Where(t => t.LinkTable is null).ToList();
+        var broken = internalTags[internalTags.Count / 2];
         var bytes = File.ReadAllBytes(input);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan((int)broken.Offset), 4);
         File.WriteAllBytes(input, bytes);
@@ -122,8 +123,9 @@ public sealed partial class DamagedInputTests
         RunAssertions.HasLine(run.Errors,
             $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - VAR: пропущено записей с незнакомой раскладкой: 1, первая — VAR @ 0x{broken.Offset:X}: запись {broken.Index}: первое слово 0x4, ожидалось 0x3");
         RunAssertions.NoStackTrace(run);
-        var expected = WithoutRow(File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/теги.txt")), TagSheetDump.HeaderRow + broken.Index);
-        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, expected, $"samples/expected/теги.txt без строки {TagSheetDump.HeaderRow + broken.Index} ({broken.Name}), всего и внутренних на 1 меньше");
+        var lines = File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/теги.txt"));
+        var row = RowOf(Assert.Single(lines, l => l.Split(" | ")[0].EndsWith($"={broken.Name}", StringComparison.Ordinal) && l.StartsWith('A')));
+        RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, WithoutRow(lines, row), $"samples/expected/теги.txt без строки {row} ({broken.Name}), всего и внутренних на 1 меньше");
     }
 
     /// <summary>
@@ -135,13 +137,8 @@ public sealed partial class DamagedInputTests
     public void BrokenSysMsgHandler_WarnsAndNoEventsSheet()
     {
         using var dir = new TestDirectory();
-        var input = dir.CopyFromRepo("samples/pdata.fwc", "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable("SYSMSGHANDLER")!).Single();
-        var bytes = File.ReadAllBytes(input);
-        // +0x2a — число событий, см. SysMsgHandlerParser
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan((int)item.Offset + 0x2a), 0xffff);
-        File.WriteAllBytes(input, bytes);
+        // +0x2a — u16 число событий, см. SysMsgHandlerParser
+        var (input, item) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "SYSMSGHANDLER", 0, 0x2a, 0xffff);
 
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
@@ -150,7 +147,7 @@ public sealed partial class DamagedInputTests
         RunAssertions.HasLine(run.Errors,
             $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SYSMSGHANDLER @ 0x{item.Offset:X}: запись 1: 65535 событий не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
-        SystemEventsSheetDump.Absent(dir.PanelDataWorkbook);
+        SheetDump.Absent(dir.PanelDataWorkbook, "Системные события");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/теги.txt");
     }
 
@@ -180,7 +177,7 @@ public sealed partial class DamagedInputTests
         RunAssertions.HasLine(run.Errors,
             $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SYSMSGHANDLER @ 0x{item.Offset + item.Length - shortLength:X}: запись 1: длина {shortLength} меньше заголовка 0x2c");
         RunAssertions.NoStackTrace(run);
-        SystemEventsSheetDump.Absent(dir.PanelDataWorkbook);
+        SheetDump.Absent(dir.PanelDataWorkbook, "Системные события");
     }
 
     /// <summary>

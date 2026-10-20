@@ -30,15 +30,14 @@ public sealed class AlarmGroupsRunTests
     [Fact]
     public void Project1Groups_ColumnAndSheet()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(GroupsPanel), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc(GroupsPanel);
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Групп алармов: 4");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Групп алармов=4");
         Assert.Equal(["ID | Discrete alarms | Analog alarms", "1 | 1 | 0", "2 | 2 | 0", "17 | 1 | 0", "31 | 0 | 6"],
-            AlarmGroupsSheetDump.Read(dir.PanelDataWorkbook));
-        var discrete = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook);
+            SheetDump.Read(dir.PanelDataWorkbook, "Группы алармов"));
+        var discrete = SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы");
         Assert.Contains(" | Alarm class | Alarm group | Trigger tag | ", discrete[0]);
         Assert.Equal("1 | vvvvrrre | Acknowledgement | 17 | UInt_IW14 | 5 | неизвестно | <No tag> | 0 |  | <No tag> | 0 | Off", discrete[1]);
         Assert.Equal("2 |  | Errors | 1 | Tag_Int | 0 | 0 | <No tag> | 0 |  | <No tag> | 0 | On", discrete[2]);
@@ -63,19 +62,18 @@ public sealed class AlarmGroupsRunTests
             "5 |  | Errors | 31 | DInt_ID6 | 1000 | Higher | Off",
             "6 |  | Errors | 31 | LReal | 1.5 | Higher | Off",
             "7 |  | Errors | 31 | HMI_Tag_1 | 10 | Higher | Off"
-        ], AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook));
+        ], SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы"));
     }
 
     /// <summary><c>samples/pdata.fwc</c> без алармов: «Групп алармов: 0» в тексте запуска и на «Сводке», листа групп нет.</summary>
     [Fact]
     public void SamplePanel_NoGroups_NoSheet()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Групп алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Групп алармов=0");
-        AlarmGroupsSheetDump.Absent(dir.PanelDataWorkbook);
+        SheetDump.Absent(dir.PanelDataWorkbook, "Группы алармов");
     }
 }

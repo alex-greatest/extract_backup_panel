@@ -1,6 +1,3 @@
-using System.Buffers.Binary;
-using FlexRt.Model.Panel;
-using FlexRt.Parsing.Panel;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
@@ -52,13 +49,12 @@ public sealed class AlarmClassesRunTests
     [Fact]
     public void ClassesPanel_MatchesExpected()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(ClassesPanel), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc(ClassesPanel);
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Классов алармов: 6");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Классов алармов=6");
-        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), AlarmClassesSheetDump.Read(dir.PanelDataWorkbook));
+        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName));
     }
 
     /// <summary>
@@ -69,8 +65,7 @@ public sealed class AlarmClassesRunTests
     [Fact]
     public void ClassesPanel_BackgroundFills()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(ClassesPanel), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc(ClassesPanel);
 
         RunAssertions.ExitCode(run, 0);
         string[] expected =
@@ -92,16 +87,14 @@ public sealed class AlarmClassesRunTests
     [Fact]
     public void TwoLogsPanel_LogAndEmailPerClass()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(TwoLogsPanel), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc(TwoLogsPanel);
 
         RunAssertions.ExitCode(run, 0);
         Assert.DoesNotContain("ПРЕДУПРЕЖДЕНИЕ", run.Errors + run.Output);
-        var rows = AlarmClassesSheetDump.Read(dir.PanelDataWorkbook);
         string[] logs = ["<No log>", "<No log>", "<No log>", "<No log>", "<No log>", "Alarm_log_1", "Alarm_log_2"];
         string[] emails = ["", "", "", "", "", "a@test.com", "b@test.com"];
-        Assert.Equal(logs, AlarmClassesSheetDump.Column(rows, LogColumn));
-        Assert.Equal(emails, AlarmClassesSheetDump.Column(rows, EmailColumn));
+        Assert.Equal(logs, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, LogColumn));
+        Assert.Equal(emails, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, EmailColumn));
     }
 
     /// <summary>
@@ -111,8 +104,7 @@ public sealed class AlarmClassesRunTests
     [Fact]
     public void SamplePanel_ClassColorsOff()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Классов алармов: 2");
@@ -126,7 +118,7 @@ public sealed class AlarmClassesRunTests
             $"1 | ! | Errors | Alarm with single-mode acknowledgment | <No log> |  | {colors} | I | O | A",
             $"2 |  | Warnings | Alarm without acknowledgment | <No log> |  | {colors} | I | O | A"
         ];
-        Assert.Equal(expected, AlarmClassesSheetDump.Read(dir.PanelDataWorkbook));
+        Assert.Equal(expected, SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName));
         Assert.Equal(["1 | нет | нет | нет | нет", "2 | нет | нет | нет | нет"], AlarmClassesSheetDump.Fills(dir.PanelDataWorkbook));
     }
 
@@ -139,14 +131,14 @@ public sealed class AlarmClassesRunTests
     {
         using var dir = new TestDirectory();
         // число классов K — u16 за u32 1, u32 числом ссылок 1, ссылкой 8 байт и u16 2
-        var item = Corrupt(dir, "RECMSG", 0, 0x12, 99, 2);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U16(dir, ClassesPanel, "RECMSG", 0, 0x12, 99);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         AssertWarned(run, $"RECMSG @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
-        var rows = AlarmClassesSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
         Assert.Equal(7, rows.Count);
-        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(rows, LogColumn));
-        Assert.Equal(Emails, AlarmClassesSheetDump.Column(rows, EmailColumn));
+        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, LogColumn));
+        Assert.Equal(Emails, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, EmailColumn));
     }
 
     /// <summary>
@@ -158,14 +150,14 @@ public sealed class AlarmClassesRunTests
     public void BrokenArchives_LogUnknown()
     {
         using var dir = new TestDirectory();
-        var item = Corrupt(dir, "ARCHIVES", 2, 0, 4, 2);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U16(dir, ClassesPanel, "ARCHIVES", 2, 0, 4);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         AssertWarned(run, $"ARCHIVES @ 0x{item.Offset:X}: запись 3: первое слово не 3");
-        var rows = AlarmClassesSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
         Assert.Equal(7, rows.Count);
-        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(rows, LogColumn));
-        Assert.Equal(Emails, AlarmClassesSheetDump.Column(rows, EmailColumn));
+        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, LogColumn));
+        Assert.Equal(Emails, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, EmailColumn));
     }
 
     /// <summary>
@@ -178,14 +170,14 @@ public sealed class AlarmClassesRunTests
     {
         using var dir = new TestDirectory();
         // число записей K — u16 за u32 1, u32 числом ссылок 1, ссылкой 8 байт и u16 1
-        var item = Corrupt(dir, "MSG_LOGGER", 0, 0x12, 99, 2);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U16(dir, ClassesPanel, "MSG_LOGGER", 0, 0x12, 99);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         AssertWarned(run, $"MSG_LOGGER @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 записями");
-        var rows = AlarmClassesSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
         Assert.Equal(7, rows.Count);
-        Assert.Equal(Logs, AlarmClassesSheetDump.Column(rows, LogColumn));
-        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(rows, EmailColumn));
+        Assert.Equal(Logs, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, LogColumn));
+        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, EmailColumn));
     }
 
     /// <summary>
@@ -197,14 +189,14 @@ public sealed class AlarmClassesRunTests
     {
         using var dir = new TestDirectory();
         // +0x50 — u32 длина адреса в байтах, см. FuncSendEmailParser
-        var item = Corrupt(dir, "FUNC_SEND_EMAIL", 0, 0x50, 3);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U32(dir, ClassesPanel, "FUNC_SEND_EMAIL", 0, 0x50, 3);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         AssertWarned(run, $"FUNC_SEND_EMAIL @ 0x{item.Offset:X}: запись 1: адрес из 3 байт не помещается в {item.Length} байт");
-        var rows = AlarmClassesSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
         Assert.Equal(7, rows.Count);
-        Assert.Equal(Logs, AlarmClassesSheetDump.Column(rows, LogColumn));
-        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(rows, EmailColumn));
+        Assert.Equal(Logs, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, LogColumn));
+        Assert.Equal(AllUnknown, AlarmClassesSheetDump.Column(dir.PanelDataWorkbook, EmailColumn));
     }
 
     /// <summary>
@@ -219,30 +211,5 @@ public sealed class AlarmClassesRunTests
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - {message}");
         RunAssertions.HasLine(run.Output, "Классов алармов: 6");
         RunAssertions.NoStackTrace(run);
-    }
-
-    /// <summary>
-    /// Скопировать <see cref="ClassesPanel"/> в каталог теста как <c>pdata.fwc</c> и записать число
-    /// <paramref name="value"/> (<paramref name="size"/> байт, little endian) в элемент
-    /// <paramref name="index"/> таблицы <paramref name="table"/> со смещением <paramref name="offset"/>.
-    /// </summary>
-    /// <returns>Изменённый элемент: смещение и длина до правки.</returns>
-    private static TableItem Corrupt(TestDirectory dir, string table, int index, int offset, uint value, int size = 4)
-    {
-        var input = dir.CopyFromRepo(ClassesPanel, "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable(table)!).ElementAt(index);
-        var bytes = File.ReadAllBytes(input);
-        var span = bytes.AsSpan((int)item.Offset + offset);
-        if (size == 2)
-        {
-            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort)value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteUInt32LittleEndian(span, value);
-        }
-        File.WriteAllBytes(input, bytes);
-        return item;
     }
 }

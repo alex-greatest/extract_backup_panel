@@ -66,6 +66,25 @@ public sealed class ExtractionRunTests
     }
 
     /// <summary>
+    /// <c>samples/card/pdata.fwc</c> с копией карты ПЛК <c>CCB-A03</c>: данные ПЛК читаются как карта («PlcRead card») до
+    /// сопоставления, проблем проекта ПЛК нет, все экспорты успешны.
+    /// </summary>
+    [Fact]
+    public void CardPanel_WithCard_ReadsCardBeforeMatching()
+    {
+        using var dir = new TestDirectory();
+        var reporter = new RecordingReporter();
+        var card = dir.ExtractFromRepo("samples/card/CCB-A03.zip", "CCB-A03");
+
+        var result = ExtractionRun.Execute(Paths(dir, "samples/card/pdata.fwc", card), reporter);
+
+        Assert.Equal(["PanelRead", "PlcRead card", "Matched", Ok(Strings), Ok(Panel), Ok(Hex), Ok(Pictures)], reporter.Events);
+        Assert.Equal(0, result.ExitCode);
+        Assert.Equal(591, result.PlcProject?.Tags.Count);
+        Assert.Equal($"карта ПЛК: {card}", result.Summary?.PlcSource);
+    }
+
+    /// <summary>
     /// <c>samples/bad.fwc</c>: только событие «панель не прочитана», код 1, панели в результате
     /// нет, экспортов нет, каталог результата не создан.
     /// </summary>

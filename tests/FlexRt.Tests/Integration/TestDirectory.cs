@@ -10,8 +10,15 @@ public sealed class TestDirectory : IDisposable
 {
     /// <summary>Создаёт пустой каталог <c>flexrt-tests-&lt;GUID&gt;</c> во временной папке.</summary>
     public TestDirectory()
+        : this("flexrt-tests-")
     {
-        Root = Path.Combine(Path.GetTempPath(), $"flexrt-tests-{Guid.NewGuid():N}");
+    }
+
+    /// <summary>Создаёт пустой каталог <c>&lt;prefix&gt;&lt;GUID&gt;</c> во временной папке.</summary>
+    /// <param name="prefix">Начало имени каталога.</param>
+    public TestDirectory(string prefix)
+    {
+        Root = Path.Combine(Path.GetTempPath(), $"{prefix}{Guid.NewGuid():N}");
         Directory.CreateDirectory(Root);
     }
 

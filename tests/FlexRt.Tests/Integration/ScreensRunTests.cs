@@ -1,6 +1,3 @@
-using System.Buffers.Binary;
-using FlexRt.Model.Panel;
-using FlexRt.Parsing.Panel;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
@@ -22,8 +19,7 @@ public sealed class ScreensRunTests
     [Fact]
     public void SamplePanel_ScreensSheetAndStartScreen()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Экранов: 1");
@@ -38,7 +34,7 @@ public sealed class ScreensRunTests
             "Slide-in screen bottom |  |  | 800 | 160 | Slide-in screen",
             "Slide-in screen right |  |  | 267 | 480 | Slide-in screen",
             "Slide-in screen top |  |  | 800 | 160 | Slide-in screen"
-        ], ScreensSheetDump.Read(dir.PanelDataWorkbook));
+        ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
     /// <summary>
@@ -49,8 +45,7 @@ public sealed class ScreensRunTests
     [Fact]
     public void PopupPanel_NumbersStartScreenAndPopup()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/screens/05_popup.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/screens/05_popup.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Экранов: 3");
@@ -67,7 +62,7 @@ public sealed class ScreensRunTests
             "Slide-in screen left |  |  | 267 | 480 | Slide-in screen",
             "Slide-in screen bottom |  |  | 800 | 160 | Slide-in screen",
             "Slide-in screen right |  |  | 267 | 480 | Slide-in screen"
-        ], ScreensSheetDump.Read(dir.PanelDataWorkbook));
+        ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
     /// <summary>
@@ -77,13 +72,12 @@ public sealed class ScreensRunTests
     [Fact]
     public void A603_StartScreenByNumber()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/a603/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Экранов: 49");
         RunAssertions.HasLine(run.Output, "Стартовый экран: 998_LOGIN (998)");
-        var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Equal(1 + 1 + 49 + 1 + 4, rows.Count);
         Assert.Equal("Permanent area |  |  | 1366 | 768 | Permanent area", rows[1]);
         Assert.Equal("001_AUTO_SCREEN | 1 |  | 1366 | 768 | Screen", rows[2]);
@@ -99,13 +93,12 @@ public sealed class ScreensRunTests
     [Fact]
     public void Card_SevenPopups()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/card/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/card/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Экранов: 10");
         RunAssertions.HasLine(run.Output, "Стартовый экран: 001_MainScreen (1)");
-        var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Equal("001_MainScreen | 1 | Yes | 1280 | 800 | Screen", rows[2]);
         Assert.Equal(["UZ70", "UZ60", "UZ40", "HPU", "UZ10", "UZ72", "UZ90"],
             rows.Where(r => r.EndsWith(" | 636 | 322 | Pop-up screen")).Select(r => r.Split(" | ")[0]));
@@ -119,8 +112,8 @@ public sealed class ScreensRunTests
     public void BrokenScreenRecord_WarnsAndKeepsScreensBefore()
     {
         using var dir = new TestDirectory();
-        var item = Corrupt(dir, "SCREEN", 2, 0, 7);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "SCREEN", 2, 0, 7);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN @ 0x{item.Offset:X}: запись 3: первое слово 7, ожидалось 3 или 1");
@@ -131,7 +124,7 @@ public sealed class ScreensRunTests
             Header,
             "Permanent area |  |  | 800 | 480 | Permanent area",
             "Root screen | 1 | Yes | 800 | 420 | Screen"
-        ], ScreensSheetDump.Read(dir.PanelDataWorkbook));
+        ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
     /// <summary>
@@ -143,15 +136,15 @@ public sealed class ScreensRunTests
     {
         using var dir = new TestDirectory();
         // одна ссылка (на GUI): ссылки кончаются на +0x10, за ними u16 и u16 число пар
-        var item = Corrupt(dir, "ADAPTVALUECHANG", 0, 0x12, 0xffff);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "ADAPTVALUECHANG", 0, 0x12, 0xffff);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - ADAPTVALUECHANG @ 0x{item.Offset:X}: запись 1: 65535 пар не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
         RunAssertions.HasLine(run.Output, "Экранов: 0");
         RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно (1)");
-        var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Contains("Root screen | ? |  | 800 | 420 | ?", rows);
         Assert.Contains("Slide-in screen top | ? |  | 800 | 160 | Slide-in screen", rows);
     }
@@ -165,33 +158,16 @@ public sealed class ScreensRunTests
     {
         using var dir = new TestDirectory();
         // +0x04 — u32 число ссылок, см. ReferenceHeader
-        var item = Corrupt(dir, "GUI", 0, 0x04, 0x30);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U32(dir, "samples/pdata.fwc", "GUI", 0, 0x04, 0x30);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - GUI @ 0x{item.Offset:X}: запись 1: 48 ссылок не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
         RunAssertions.HasLine(run.Output, "Экранов: 1");
         RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно");
-        var rows = ScreensSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Contains("Root screen | 1 |  | 800 | 420 | Screen", rows);
         Assert.DoesNotContain(rows, r => r.Contains(" | Yes | "));
-    }
-
-    /// <summary>
-    /// Скопировать <c>samples/pdata.fwc</c> в каталог теста как <c>pdata.fwc</c> и записать u16
-    /// <paramref name="value"/> (little endian) в элемент <paramref name="index"/> таблицы
-    /// <paramref name="table"/> со смещением <paramref name="offset"/>.
-    /// </summary>
-    /// <returns>Изменённый элемент: смещение и длина до правки.</returns>
-    private static TableItem Corrupt(TestDirectory dir, string table, int index, int offset, ushort value)
-    {
-        var input = dir.CopyFromRepo("samples/pdata.fwc", "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable(table)!).ElementAt(index);
-        var bytes = File.ReadAllBytes(input);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan((int)item.Offset + offset), value);
-        File.WriteAllBytes(input, bytes);
-        return item;
     }
 }

@@ -1,6 +1,3 @@
-using System.Buffers.Binary;
-using FlexRt.Model.Panel;
-using FlexRt.Parsing.Panel;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
@@ -27,26 +24,24 @@ public sealed class AnalogAlarmsRunTests
     [Fact]
     public void AnalogPanel_MatchesExpected()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(AnalogPanel), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc(AnalogPanel);
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Аналоговых алармов: 4");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Аналоговых алармов=4");
-        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook));
+        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы"));
     }
 
     /// <summary><c>samples/pdata.fwc</c> без аналоговых алармов: «Аналоговых алармов: 0», листа нет.</summary>
     [Fact]
     public void SamplePanel_NoAlarms_NoSheet()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Аналоговых алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Аналоговых алармов=0");
-        AnalogAlarmsSheetDump.Absent(dir.PanelDataWorkbook);
+        SheetDump.Absent(dir.PanelDataWorkbook, "Аналоговые алармы");
     }
 
     /// <summary>
@@ -58,12 +53,12 @@ public sealed class AnalogAlarmsRunTests
     public void BrokenLimitRecord_WarnsAndKeepsEarlierLimits()
     {
         using var dir = new TestDirectory();
-        var item = Corrupt(dir, "MSG_ANALOG_OBSE", 1, 4, 5);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U32(dir, AnalogPanel, "MSG_ANALOG_OBSE", 1, 4, 5);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOG_OBSE @ 0x{item.Offset:X}: запись 2: длина {item.Length} не сходится с 5 ссылками");
-        var rows = AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы");
         Assert.Equal(5, rows.Count);
         Assert.EndsWith("| Warnings | <No alarm group> | DB_ST7_A603_SQL_COMM_TRACE_O_FB_Active_State | DB_ST7_Cylinders_BLOCKADES_Y5_BLOCK_NR | Higher | On", rows[4]);
         Assert.All(rows.Skip(1).Take(3), r => Assert.EndsWith("| Errors | <No alarm group> | ? | ? | ? | On", r));
@@ -79,13 +74,13 @@ public sealed class AnalogAlarmsRunTests
     public void BrokenAlarmRecord_WarnsAndKeepsEarlierAlarms()
     {
         using var dir = new TestDirectory();
-        var item = Corrupt(dir, "MSG_ANALOGCREAT", 2, 4, 1);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U32(dir, AnalogPanel, "MSG_ANALOGCREAT", 2, 4, 1);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGCREAT @ 0x{item.Offset:X}: запись 3: длина {item.Length} не сходится с 1 ссылками");
         RunAssertions.HasLine(run.Output, "Аналоговых алармов: 2");
-        Assert.Equal(3, AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook).Count);
+        Assert.Equal(3, SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы").Count);
         RunAssertions.NoStackTrace(run);
     }
 
@@ -98,38 +93,13 @@ public sealed class AnalogAlarmsRunTests
     {
         using var dir = new TestDirectory();
         // число классов — u16 за числом алармов (+0x2c) и двумя массивами u16[4]
-        var item = Corrupt(dir, "MSG_ANALOGHANDL", 0, 0x2e + 4 * 4, 99, 2);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U16(dir, AnalogPanel, "MSG_ANALOGHANDL", 0, 0x2e + 4 * 4, 99);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGHANDL @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
-        var rows = AnalogAlarmsSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы");
         Assert.Equal(5, rows.Count);
         Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | <No alarm group> | DB_ST7_", r));
-    }
-
-    /// <summary>
-    /// Скопировать <see cref="AnalogPanel"/> в каталог теста как <c>pdata.fwc</c> и записать число
-    /// <paramref name="value"/> (<paramref name="size"/> байт, little endian) в элемент
-    /// <paramref name="index"/> таблицы <paramref name="table"/> со смещением <paramref name="offset"/>.
-    /// </summary>
-    /// <returns>Изменённый элемент: смещение и длина до правки.</returns>
-    private static TableItem Corrupt(TestDirectory dir, string table, int index, int offset, uint value, int size = 4)
-    {
-        var input = dir.CopyFromRepo(AnalogPanel, "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable(table)!).ElementAt(index);
-        var bytes = File.ReadAllBytes(input);
-        var span = bytes.AsSpan((int)item.Offset + offset);
-        if (size == 2)
-        {
-            BinaryPrimitives.WriteUInt16LittleEndian(span, (ushort)value);
-        }
-        else
-        {
-            BinaryPrimitives.WriteUInt32LittleEndian(span, value);
-        }
-        File.WriteAllBytes(input, bytes);
-        return item;
     }
 }

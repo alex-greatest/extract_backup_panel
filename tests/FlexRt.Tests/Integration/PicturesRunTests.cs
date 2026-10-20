@@ -1,6 +1,3 @@
-using System.Buffers.Binary;
-using FlexRt.Model.Panel;
-using FlexRt.Parsing.Panel;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
@@ -27,8 +24,7 @@ public sealed class PicturesRunTests
     [Fact]
     public void SamplePanel_WritesPictureFiles()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Картинок: 12");
@@ -55,8 +51,7 @@ public sealed class PicturesRunTests
     [Fact]
     public void A603_PngAndJpeg()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/a603/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Картинок: 76");
@@ -75,8 +70,8 @@ public sealed class PicturesRunTests
     {
         using var dir = new TestDirectory();
         // +0x0c — u32 длина картинки, см. PictureParser
-        var item = Corrupt(dir, "PICTURE", 2, 0x0c, 0xffff);
-        var run = FlexRtProcess.Run(Path.Combine(dir.Root, "pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (input, item) = CorruptedCopy.U32(dir, "samples/pdata.fwc", "PICTURE", 2, 0x0c, 0xffff);
+        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - PICTURE @ 0x{item.Offset:X}: запись 3: картинка 65535 байт не помещается в {item.Length} байт");
@@ -93,21 +88,4 @@ public sealed class PicturesRunTests
     /// <returns>Имена без пути.</returns>
     private static List<string> FileNames(string dir) =>
         [.. Directory.GetFiles(dir).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal)];
-
-    /// <summary>
-    /// Скопировать <c>samples/pdata.fwc</c> в каталог теста как <c>pdata.fwc</c> и записать u16
-    /// <paramref name="value"/> (little endian) в элемент <paramref name="index"/> таблицы
-    /// <paramref name="table"/> со смещением <paramref name="offset"/>.
-    /// </summary>
-    /// <returns>Изменённый элемент: смещение и длина до правки.</returns>
-    private static TableItem Corrupt(TestDirectory dir, string table, int index, int offset, ushort value)
-    {
-        var input = dir.CopyFromRepo("samples/pdata.fwc", "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable(table)!).ElementAt(index);
-        var bytes = File.ReadAllBytes(input);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan((int)item.Offset + offset), value);
-        File.WriteAllBytes(input, bytes);
-        return item;
-    }
 }

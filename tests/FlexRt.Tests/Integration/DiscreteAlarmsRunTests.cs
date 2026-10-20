@@ -1,5 +1,3 @@
-using System.Buffers.Binary;
-using FlexRt.Parsing.Panel;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
@@ -33,7 +31,7 @@ public sealed class DiscreteAlarmsRunTests
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 2000");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Дискретных алармов=2000");
-        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook));
+        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы"));
     }
 
     /// <summary>
@@ -47,12 +45,11 @@ public sealed class DiscreteAlarmsRunTests
     [Fact]
     public void A603Panel_VerifiedRows()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/a603/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 355");
-        var rows = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы");
         Assert.Equal(356, rows.Count);
         foreach (var expected in File.ReadAllLines(RepositoryPaths.InRepo("samples/expected/a603/дискретные-алармы-сверено.txt")))
         {
@@ -70,18 +67,13 @@ public sealed class DiscreteAlarmsRunTests
     public void SkippedAreaPtrElement_TagsUnknownNotMissing()
     {
         using var dir = new TestDirectory();
-        var input = dir.CopyFromRepo(CardPanel, "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable("AREAPTR")!).ElementAt(1);
-        var bytes = File.ReadAllBytes(input);
         // имя «2» — один символ: заголовок 4 байта и имя с выравниванием 4 байта, затем u32 вид
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan((int)item.Offset + 8), 7);
-        File.WriteAllBytes(input, bytes);
+        var (input, item) = CorruptedCopy.U32(dir, CardPanel, "AREAPTR", 1, 8, 7);
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - AREAPTR: пропущено элементов с незнакомой раскладкой: 1, первый — элемент 2 на 0x{item.Offset:x}: вид 7");
-        var first = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook)[1];
+        var first = SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы")[1];
         Assert.StartsWith("1 | ", first);
         Assert.EndsWith("| Errors | <No alarm group> | Alarms_Events | 0 | %DB1000.DBX1.0 | ? | ? | неизвестно | Alarms_Events | 2000 | Off", first);
     }
@@ -94,18 +86,13 @@ public sealed class DiscreteAlarmsRunTests
     public void BrokenClassTable_ClassUnknown()
     {
         using var dir = new TestDirectory();
-        var input = dir.CopyFromRepo(CardPanel, "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable("MSG_NUMHANDLER")!).Single();
-        var bytes = File.ReadAllBytes(input);
         // число классов — u16 за числом алармов (+0x2c) и двумя массивами u16[2000]
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan((int)item.Offset + 0x2e + 4 * 2000), 99);
-        File.WriteAllBytes(input, bytes);
+        var (input, item) = CorruptedCopy.U16(dir, CardPanel, "MSG_NUMHANDLER", 0, 0x2e + 4 * 2000, 99);
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMHANDLER @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
-        var rows = DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы");
         Assert.Equal(2001, rows.Count);
         Assert.All(rows.Skip(1), r => Assert.Contains(" | ? | <No alarm group> | Alarms_Events | ", r));
     }
@@ -117,24 +104,22 @@ public sealed class DiscreteAlarmsRunTests
     [Fact]
     public void CardPanel_WithoutPlc_SameSheet()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(CardPanel), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc(CardPanel);
 
         RunAssertions.ExitCode(run, 0);
-        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook));
+        Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы"));
     }
 
     /// <summary><c>samples/pdata.fwc</c> без дискретных алармов: «Дискретных алармов: 0», листа нет.</summary>
     [Fact]
     public void SamplePanel_NoAlarms_NoSheet()
     {
-        using var dir = new TestDirectory();
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), dir.MissingFile(), dir.OutDir);
+        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
 
         RunAssertions.ExitCode(run, 0);
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Дискретных алармов=0");
-        DiscreteAlarmsSheetDump.Absent(dir.PanelDataWorkbook);
+        SheetDump.Absent(dir.PanelDataWorkbook, "Дискретные алармы");
     }
 
     /// <summary>
@@ -146,18 +131,13 @@ public sealed class DiscreteAlarmsRunTests
     public void BrokenEventRecord_WarnsAndKeepsEarlierAlarms()
     {
         using var dir = new TestDirectory();
-        var input = dir.CopyFromRepo(CardPanel, "pdata.fwc");
-        var doc = FwxReader.Read(input);
-        var item = FwxReader.Items(doc.Binary, doc.FindTable("MSG_NUMEVENT")!).ElementAt(4);
-        var bytes = File.ReadAllBytes(input);
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan((int)item.Offset + 4), 3);
-        File.WriteAllBytes(input, bytes);
+        var (input, item) = CorruptedCopy.U32(dir, CardPanel, "MSG_NUMEVENT", 4, 4, 3);
         var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
 
         RunAssertions.ExitCode(run, 1);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMEVENT @ 0x{item.Offset:X}: запись 5: длина {item.Length} не сходится с 3 ссылками");
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 4");
-        Assert.Equal(5, DiscreteAlarmsSheetDump.Read(dir.PanelDataWorkbook).Count);
+        Assert.Equal(5, SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы").Count);
         RunAssertions.NoStackTrace(run);
     }
 }
