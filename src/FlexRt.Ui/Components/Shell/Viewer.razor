@@ -25,7 +25,7 @@
                         {
                             case PanelSection section:
                                 <SectionView Title="@EditorPath.Of(_selected, _path)" Section="section" SelectedRow="_row" OnRowSelect="SelectRow"
-                                             OnCountChanged="count => _rowCount = count" OnCopyFailed="text => _notice = text" />
+                                             OnCountChanged="count => _rowCount = count" OnCopyFailed="text => _notice = text" Languages="@(_view?.Languages ?? [])" @bind-Language="_language" />
                                 break;
                             case PanelPictures pictures:
                                 <PictureGallery Title="@EditorPath.Of(_selected, _path)" Pictures="pictures" Selected="Pictures.Selected" OnSelect="SelectPicture" OnOpen="Pictures.Open" />
@@ -94,6 +94,9 @@
     /// <summary>Выбранная строка таблицы раздела (номер в листе с нуля); <c>null</c> — не выбрана.</summary>
     private int? _row;
 
+    /// <summary>Язык текстов в таблицах разделов (LCID; после открытия — первый язык панели); <c>null</c> — все языки; сбой чтения его не меняет.</summary>
+    private int? _language;
+
     /// <summary>Строк таблицы раздела после фильтра.</summary>
     private int _rowCount;
 
@@ -120,7 +123,7 @@
 
     /// <summary>
     /// Пункт меню данных ПЛК: файл <c>PEData.plf</c> или папка карты — диалогом, «Без данных ПЛК» — сброс. Открытая панель
-    /// перечитывается с новым выбором. Отмена диалога ничего не меняет.
+    /// перечитывается с новым выбором, выбранный язык таблиц остаётся (решение пользователя). Отмена диалога ничего не меняет.
     /// </summary>
     private async Task ChoosePlcAsync(string? item)
     {
@@ -137,17 +140,17 @@
         _plcPath = chosen;
         if (_path is not null)
         {
-            await LoadAsync();
+            await LoadAsync(keepLanguage: true);
         }
     }
 
     /// <summary>
     /// Прочитать файл <see cref="_path"/> с данными ПЛК <see cref="_plcPath"/>, если они выбраны (<see cref="PanelLoader.LoadAsync"/>:
-    /// тяжёлые шаги — вне потока окна). Успех — экраны, разделы и строки Info, выбран стартовый экран, а если его нет —
-    /// первый. Прежняя панель убирается сразу, до чтения, чтобы во время чтения не показывать смесь старого и нового
-    /// файла. Сбой — панель не показывается, ошибка в строке состояния и на Info.
+    /// тяжёлые шаги — вне потока окна). Успех — экраны, разделы и строки Info, выбран стартовый экран (нет — первый), язык таблиц —
+    /// первый язык панели, с <paramref name="keepLanguage"/> — прежний, если он есть. Прежняя панель убирается сразу, до чтения,
+    /// чтобы не показывать смесь старого и нового файла. Сбой — панель не показывается, ошибка в строке состояния и на Info.
     /// </summary>
-    private async Task LoadAsync()
+    private async Task LoadAsync(bool keepLanguage = false)
     {
         var path = _path!;
         var plcPath = _plcPath;
@@ -160,6 +163,7 @@
             _screens = panel.Screens;
             Pictures.Load(panel.Pictures);
             _view = panel.View;
+            _language = _view is null ? _language : keepLanguage ? LanguageChoice.Kept(_view.Languages, _language) : LanguageChoice.First(_view.Languages);
             _strings = panel.Strings;
             _screenCount = panel.ScreenCount;
             _lines = panel.Lines;
@@ -293,5 +297,4 @@
     /// <summary>Имя открытого файла для корня дерева.</summary>
     /// <returns>Имя файла; файл не открыт или не прочитан — <c>null</c>.</returns>
     private string? FileName() => _path is null || _error is not null || _loading ? null : Path.GetFileName(_path);
-
 }

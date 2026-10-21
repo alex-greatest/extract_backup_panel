@@ -32,8 +32,11 @@
     --rz-grid-header-color: var(--text-secondary);
     --rz-grid-header-font-weight: 600;
     --rz-grid-header-text-transform: none;
-    --rz-grid-header-font-size: 12.5px;
-    --rz-grid-cell-font-size: 12.5px;
+    --rz-grid-header-font-size: var(--table-font-size);
+    --rz-grid-cell-font-size: var(--table-font-size);
+    /* высота строки текста — от шрифта таблицы: по умолчанию у Radzen 1rem, хвосты букв обрезаются */
+    --rz-grid-cell-line-height: 1.3;
+    --rz-grid-header-line-height: 1.3;
     --rz-grid-cell-color: var(--text);
     --rz-grid-hover-background-color: var(--hover);
     --rz-grid-selected-background-color: var(--accent-soft);
@@ -116,4 +119,24 @@
     border-radius: 4px;
     background: #fdecea;
     color: var(--error);
+}
+
+/* список языков в заголовке таблицы с текстами на языках панели */
+.editor-title-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* шрифт — как у таблицы; размеры — переменными Radzen: в строке заголовка высотой 32px поле с отступами не помещалось */
+.language.rz-dropdown {
+    --rz-input-height: 24px;
+    --rz-input-padding-block: 0;
+    --rz-input-font-size: var(--table-font-size);
+    --rz-input-line-height: 22px;
+    width: 290px;
+    flex-shrink: 0;
+    font-weight: 400;
 }

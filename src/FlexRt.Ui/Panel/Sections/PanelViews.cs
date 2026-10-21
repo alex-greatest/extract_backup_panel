@@ -62,7 +62,8 @@ public static class PanelViews
             [.. Nodes.Where(n => n.InAlarms).Select(n => bySheet.GetValueOrDefault(n.Sheet)).OfType<PanelSection>()],
             bySheet.GetValueOrDefault(ScreensSheet.Name) ?? Section(new BuiltSheet(Empty(ScreensSheet.Name), null)),
             Texts(doc),
-            book);
+            book,
+            LanguageText.Languages(doc));
     }
 
     /// <summary>Сообщения о разделах, которые не построены, для вкладки Info.</summary>

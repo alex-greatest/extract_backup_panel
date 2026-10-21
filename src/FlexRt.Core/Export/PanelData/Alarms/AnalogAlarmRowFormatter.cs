@@ -52,9 +52,9 @@ public sealed class AnalogAlarmRowFormatter
     /// <see cref="Limit"/>; Limit mode — <c>Higher</c>, <c>Lower</c>, незнакомый байт — <c>?</c>.
     /// </summary>
     /// <returns>6 значений: текст или число.</returns>
-    public ReportCell[] Format(AnalogAlarm alarm, Func<long, string> firstLanguageText)
+    public ReportCell[] Format(AnalogAlarm alarm, Func<long, ReportCell> classDisplayName)
     {
-        var className = AlarmClassName.Format(_classes, alarm.ClassIndex, firstLanguageText);
+        var className = AlarmClassName.Format(_classes, alarm.ClassIndex, classDisplayName);
         var group = AlarmGroupText.Format(alarm.Group);
         var report = alarm.Report ? "On" : "Off";
         if (!_limits.TryGetValue(alarm.Id, out var limit))

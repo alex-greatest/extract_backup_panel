@@ -23,6 +23,20 @@ public readonly record struct ReportCell
     /// <summary>Цвет заливки ячейки <c>0xRRGGBB</c>; <c>null</c> — без заливки.</summary>
     public int? FillRgb { get; init; }
 
+    /// <summary>
+    /// Текст ячейки на каждом языке панели (LCID — текст) для окна: оно показывает текст выбранного языка. <c>null</c> —
+    /// текст один. В Excel не пишется: там <see cref="Text"/> — текст первого языка.
+    /// </summary>
+    public IReadOnlyDictionary<int, string>? LanguageTexts { get; init; }
+
+    /// <summary>
+    /// Ячейка строкой на языке <paramref name="language"/>: его текст из <see cref="LanguageTexts"/>; такого текста нет или
+    /// язык не выбран (<c>null</c> — все языки) — <see cref="Display"/>.
+    /// </summary>
+    /// <returns>Текст ячейки для окна.</returns>
+    public string DisplayIn(int? language) =>
+        language is { } lcid && LanguageTexts?.GetValueOrDefault(lcid) is { } text ? text : Display;
+
     /// <summary>Создаёт ячейку; ровно одно из значений не <c>null</c>.</summary>
     private ReportCell(string? text, long? number)
     {

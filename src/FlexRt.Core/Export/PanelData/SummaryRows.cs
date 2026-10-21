@@ -34,7 +34,7 @@ public static class SummaryRows
     /// <returns>Подписи и значения.</returns>
     private static IEnumerable<(string, string)> PanelRows(FwxDocument doc, RunSummary summary)
     {
-        var languages = doc.Strings.Select(s => s.Lcid).Distinct().Select(LanguageText.Format).ToList();
+        var languages = LanguageText.Languages(doc).Select(LanguageText.Format).ToList();
         yield return ("Файл панели", summary.PanelPath);
         yield return ("IP панели", doc.Devices.Count == 0 ? Unknown : string.Join(", ", doc.Devices.Select(d => $"{IpAddressText.Format(d.Ip)} / {IpAddressText.Format(d.Mask)}")));
         yield return ("Языки панели", languages.Count == 0 ? Unknown : string.Join(", ", languages));

@@ -22,16 +22,16 @@ public static class AnalogAlarmsTable
     {
         var texts = new AlarmLanguageTexts(doc);
         var formatter = new AnalogAlarmRowFormatter(doc);
-        List<string> columns = ["ID", .. texts.Columns, .. TailColumns];
+        List<ReportColumn> columns = [new("ID"), .. texts.Columns(), .. TailColumns.Select(c => new ReportColumn(c))];
         var rows = doc.AnalogAlarms.OrderBy(a => a.Id).Select(Row).ToList();
-        return new ReportTable(columns, rows);
+        return ReportTable.WithLanguages(columns, rows);
 
         // строка одного аларма: ID, тексты на языках, колонки после текстов
         ReportCell[] Row(AnalogAlarm alarm) =>
         [
             alarm.Id,
             .. texts.Cells(alarm.TextIdx, alarm.Fields),
-            .. formatter.Format(alarm, texts.FirstLanguageText)
+            .. formatter.Format(alarm, texts.LanguageCell)
         ];
     }
 }

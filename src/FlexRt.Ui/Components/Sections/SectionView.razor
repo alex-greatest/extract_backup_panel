@@ -1,4 +1,14 @@
-<div class="editor-title">@Title</div>
+<div class="editor-title">
+    <span class="editor-title-text">@Title</span>
+    @if (HasLanguageChoice())
+    {
+        <RadzenDropDown TValue="int" Data="_languageItems" Value="@(Language ?? AllLanguages)" Change="ChangeLanguage"
+                        class="language" title="Язык текстов">
+            <Template Context="lcid">@LanguageLabel(lcid)</Template>
+            <ValueTemplate Context="lcid">@LanguageLabel(lcid)</ValueTemplate>
+        </RadzenDropDown>
+    }
+</div>
 @if (Section.Statistics.Count > 0)
 {
     <div class="section-stats">
@@ -36,10 +46,19 @@ else if (Section.IsSummary)
 else
 {
     @* ключ — раздел: у каждой таблицы свой экземпляр, иначе Radzen переносит фильтр колонки c0 на колонку другого типа *@
-    <ReportGrid @key="Section" Table="Section.Table" SelectedRow="SelectedRow" OnRowSelect="OnRowSelect" OnCountChanged="OnCountChanged" OnCopyFailed="OnCopyFailed" />
+    <ReportGrid @key="Section" Table="Section.Table" Language="Language" SelectedRow="SelectedRow" OnRowSelect="OnRowSelect" OnCountChanged="OnCountChanged" OnCopyFailed="OnCopyFailed" />
 }
 
 @code {
+    /// <summary>Пункт «Все языки» в списке языков: LCID такого не бывает.</summary>
+    private const int AllLanguages = -1;
+
+    /// <summary>Пункты списка языков: «Все языки» и <see cref="Languages"/>; строятся заново, только когда меняется список языков.</summary>
+    private IReadOnlyList<int> _languageItems = [AllLanguages];
+
+    /// <summary>Список языков, из которого построены <see cref="_languageItems"/>.</summary>
+    private IReadOnlyList<int>? _itemsLanguages;
+
     /// <summary>Строка заголовка: путь раздела, как у экрана.</summary>
     [Parameter]
     public string Title { get; set; } = "";
@@ -47,6 +66,18 @@ else
     /// <summary>Показываемый раздел.</summary>
     [Parameter, EditorRequired]
     public PanelSection Section { get; set; } = null!;
+
+    /// <summary>Языки панели (LCID) в порядке STRINGSTORE — пункты списка языков после «Все языки».</summary>
+    [Parameter]
+    public IReadOnlyList<int> Languages { get; set; } = [];
+
+    /// <summary>Выбранный язык (LCID): видны колонки только этого языка; <c>null</c> — все языки.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
+    /// <summary>Выбран другой язык в списке: LCID; <c>null</c> — «Все языки».</summary>
+    [Parameter]
+    public EventCallback<int?> LanguageChanged { get; set; }
 
     /// <summary>Номер выбранной строки листа с нуля; <c>null</c> — не выбрана.</summary>
     [Parameter]
@@ -63,4 +94,31 @@ else
     /// <summary>Строку не удалось скопировать в буфер обмена: текст ошибки.</summary>
     [Parameter]
     public EventCallback<string> OnCopyFailed { get; set; }
+
+    /// <summary>Новый список языков — заново построить пункты списка (<see cref="_languageItems"/>).</summary>
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(_itemsLanguages, Languages))
+        {
+            return;
+        }
+        _itemsLanguages = Languages;
+        _languageItems = [AllLanguages, .. Languages];
+    }
+
+    /// <summary>
+    /// Список языков показывается: у панели больше одного языка, раздел построен, не «Сводка» и в таблице есть языковые
+    /// колонки.
+    /// </summary>
+    /// <returns><c>true</c>, если список нужен.</returns>
+    private bool HasLanguageChoice() =>
+        Languages.Count > 1 && Section is { Error: null, IsSummary: false } && Section.Table.ColumnLanguages.Any(l => l is not null);
+
+    /// <summary>Текст пункта списка языков: «Все языки» или код и название языка (<see cref="LanguageText.Format"/>).</summary>
+    /// <returns>Текст пункта.</returns>
+    private static string LanguageLabel(int lcid) => lcid == AllLanguages ? "Все языки" : LanguageText.Format(lcid);
+
+    /// <summary>Выбран пункт списка языков: сообщить LCID, у «Все языки» — <c>null</c>.</summary>
+    private Task ChangeLanguage(object value) =>
+        LanguageChanged.InvokeAsync(value is int lcid && lcid != AllLanguages ? lcid : null);
 }

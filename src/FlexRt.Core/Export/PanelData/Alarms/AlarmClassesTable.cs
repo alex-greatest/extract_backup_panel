@@ -33,18 +33,17 @@ public static class AlarmClassesTable
     {
         var texts = new AlarmLanguageTexts(doc);
         var formatter = new AlarmClassRowFormatter(doc);
-        var languages = texts.Columns.ToList();
-        List<string> columns =
+        List<ReportColumn> columns =
         [
-            "ID",
-            .. languages.Select(l => $"Display name {l}"),
-            .. MiddleColumns,
-            .. languages.Select(l => $"Incoming {l}"),
-            .. languages.Select(l => $"Outgoing {l}"),
-            .. languages.Select(l => $"Acknowledged {l}")
+            new("ID"),
+            .. texts.Columns("Display name"),
+            .. MiddleColumns.Select(c => new ReportColumn(c)),
+            .. texts.Columns("Incoming"),
+            .. texts.Columns("Outgoing"),
+            .. texts.Columns("Acknowledged")
         ];
         var rows = Classes(doc).OrderBy(c => c.Id).Select(Row).ToList();
-        return new ReportTable(columns, rows);
+        return ReportTable.WithLanguages(columns, rows);
 
         // строка одного класса: ID, Display name, колонки TIA, тексты состояний
         ReportCell[] Row(AlarmClass alarmClass) =>

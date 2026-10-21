@@ -9,15 +9,15 @@
         <Columns>
             @foreach (var column in _columns)
             {
-                <RadzenDataGridColumn @key="column.Key" TItem="IDictionary<string, object>" Title="@column.Title"
-                                      Type="@column.ValueType"
+                <RadzenDataGridColumn @key="column.Key" @ref="_gridColumns[column.Key]" TItem="IDictionary<string, object>" Title="@column.Title"
+                                      Type="@column.ValueType" Visible="@Shown(column)"
                                       Property="@PropertyAccess.GetDynamicPropertyExpression(column.Key, column.ValueType)"
                                       FilterOperator="@(column.IsNumber ? FilterOperator.Equals : FilterOperator.Contains)"
                                       TextAlign="@(column.IsNumber ? TextAlign.Right : TextAlign.Left)">
                     <Template>
                         @{
                             var cell = CellOf(context, column);
-                            var text = cell.Display;
+                            var text = cell.DisplayIn(Language);
                         }
                         @if (cell.FillRgb is { } rgb)
                         {
@@ -38,6 +38,12 @@
     /// <summary>Колонки показываемой таблицы.</summary>
     private IReadOnlyList<GridColumn> _columns = [];
 
+    /// <summary>Колонки таблицы Radzen по ключу <see cref="GridColumn.Key"/>: у них сбрасывается фильтр.</summary>
+    private readonly Dictionary<string, RadzenDataGridColumn<IDictionary<string, object>>> _gridColumns = [];
+
+    /// <summary>Язык, колонки которого показаны сейчас (<see cref="Language"/> прошлой отрисовки).</summary>
+    private int? _shownLanguage;
+
     /// <summary>Строки показываемой таблицы в порядке листа.</summary>
     private List<IDictionary<string, object>> _rows = [];
 
@@ -55,6 +61,10 @@
     [Parameter]
     public int? SelectedRow { get; set; }
 
+    /// <summary>Язык (LCID), колонки которого видны; колонки других языков скрыты. <c>null</c> — видны все языки.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
     /// <summary>Выбор строки: номер строки листа с нуля по щелчку; <c>null</c> — фильтр скрыл выбранную строку, выбор снят.</summary>
     [Parameter]
     public EventCallback<int?> OnRowSelect { get; set; }
@@ -71,12 +81,56 @@
     protected override void OnInitialized()
     {
         _columns = GridData.Columns(Table);
-        _rows = GridData.Rows(Table, _columns);
+        _rows = GridData.Rows(Table, _columns, Language);
+        _shownLanguage = Language;
     }
 
-    /// <summary>Выделение — по <see cref="SelectedRow"/>.</summary>
-    protected override void OnParametersSet() =>
+    /// <summary>
+    /// Выделение — по <see cref="SelectedRow"/>. Сменился язык — ячейки с текстами на языках переводятся на него, у колонок,
+    /// которые скрылись, сбрасываются фильтр и сортировка (<see cref="ApplyLanguageAsync"/>).
+    /// </summary>
+    protected override async Task OnParametersSetAsync()
+    {
         _selection = SelectedRow is { } row && row < _rows.Count ? [_rows[row]] : [];
+        if (Language == _shownLanguage)
+        {
+            return;
+        }
+        _shownLanguage = Language;
+        await ApplyLanguageAsync();
+    }
+
+    /// <summary>
+    /// Перевести ячейки с текстами на языках на <see cref="Language"/> (<see cref="GridData.SetLanguage"/>), у скрытых колонок
+    /// сбросить фильтр — любой, и без значения («Is empty» и т. п.), — и сортировку (решение пользователя: невидимые
+    /// фильтр и сортировка не должны менять таблицу), затем один раз пересчитать строки.
+    /// </summary>
+    private async Task ApplyLanguageAsync()
+    {
+        GridData.SetLanguage(_rows, Table, _columns, Language);
+        if (_grid is null)
+        {
+            return;
+        }
+        List<RadzenDataGridColumn<IDictionary<string, object>>> hidden =
+            [.. _columns.Where(c => !Shown(c)).Select(c => _gridColumns.GetValueOrDefault(c.Key)).OfType<RadzenDataGridColumn<IDictionary<string, object>>>()];
+        foreach (var column in hidden)
+        {
+            column.ClearFilters();
+        }
+        if (hidden.Any(c => c.GetSortOrder() is not null))
+        {
+            // сортировка по одной колонке (AllowMultiColumnSorting выключен) и она скрыта: очистка Sorts снимает её у всех
+            // колонок и сама пересчитывает строки (Radzen ставит Reload в очередь)
+            _grid.Sorts.Clear();
+            return;
+        }
+        await _grid.Reload();
+    }
+
+    /// <summary>Колонка видна: не языковая, её язык выбран или выбраны все языки (<see cref="Language"/>).</summary>
+    /// <returns><c>true</c> для видимой колонки.</returns>
+    private bool Shown(GridColumn column) => column.Language is null || Language is null || column.Language == Language;
 
     /// <summary>Ячейка таблицы листа для строки Radzen и колонки: из неё берутся текст и заливка.</summary>
     /// <returns>Ячейка листа.</returns>

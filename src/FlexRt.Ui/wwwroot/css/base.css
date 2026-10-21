@@ -11,6 +11,8 @@
 :root {
     --font: "Inter", "Segoe UI Variable Text", "Segoe UI", sans-serif;
     --font-size: 13px;
+    /* шрифт таблиц разделов: заголовки, ячейки и список языков над таблицей */
+    --table-font-size: 15px;
 
     --bg: #c9d0d9;
     --surface: #ffffff;

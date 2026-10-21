@@ -10,10 +10,12 @@ namespace FlexRt.Ui.Panel.Sections;
 /// Разделы листов <c>panel_data.xlsx</c> в порядке книги — те же объекты, что в дереве: листы, которые есть в книге, и
 /// те, что не построены.
 /// </param>
+/// <param name="Languages">Языки панели (LCID) в порядке STRINGSTORE: первый — язык таблиц по умолчанию.</param>
 public sealed record PanelView(
     PanelSection Summary,
     PanelSection Tags,
     IReadOnlyList<PanelSection> Alarms,
     PanelSection Screens,
     IReadOnlyList<PanelSection> Texts,
-    IReadOnlyList<PanelSection> Book);
+    IReadOnlyList<PanelSection> Book,
+    IReadOnlyList<int> Languages);

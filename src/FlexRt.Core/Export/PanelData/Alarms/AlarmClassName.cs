@@ -21,18 +21,18 @@ public static class AlarmClassName
 
     /// <summary>
     /// Класс с номером <paramref name="index"/> в списке <paramref name="classes"/>: стандартный —
-    /// по ID словом, свой — его Display name на первом языке панели (имени своего класса в панели
-    /// нет), номер вне списка — <c>?</c>.
+    /// по ID словом, свой — ячейка его Display name по номеру строки (<paramref name="displayName"/>: в Excel — первый
+    /// язык, в окне — выбранный; имени своего класса в панели нет), номер вне списка — <c>?</c>.
     /// </summary>
     /// <returns>Имя стандартного класса, Display name своего или <c>?</c>.</returns>
-    public static string Format(IReadOnlyList<AlarmClass> classes, int index, Func<long, string> firstLanguageText)
+    public static ReportCell Format(IReadOnlyList<AlarmClass> classes, int index, Func<long, ReportCell> displayName)
     {
         if (index >= classes.Count)
         {
             return "?";
         }
         var alarmClass = classes[index];
-        return StandardName(alarmClass.Id) ?? firstLanguageText(alarmClass.DisplayNameIdx);
+        return StandardName(alarmClass.Id) is { } name ? name : displayName(alarmClass.DisplayNameIdx);
     }
 
     /// <summary>Имя стандартного класса по ID (<c>Errors</c>, <c>Acknowledgement</c>, …).</summary>

@@ -25,14 +25,14 @@ public static class AlarmRowFormatter
     /// <see cref="AlarmBitAddress.Format"/>.
     /// </summary>
     /// <returns>11 значений: текст или число.</returns>
-    public static ReportCell[] Format(FwxDocument doc, IReadOnlyList<PlcMatch?> matches, AlarmTagIndex tagIndex, Func<long, string> firstLanguageText, DiscreteAlarm alarm)
+    public static ReportCell[] Format(FwxDocument doc, IReadOnlyList<PlcMatch?> matches, AlarmTagIndex tagIndex, Func<long, ReportCell> classDisplayName, DiscreteAlarm alarm)
     {
         var trigger = TagColumns(doc, matches, tagIndex.Find(alarm.Id, AlarmBitRole.Trigger));
         var hmi = TagColumns(doc, matches, tagIndex.Find(alarm.Id, AlarmBitRole.HmiAcknowledgment));
         var plc = TagColumns(doc, matches, tagIndex.Find(alarm.Id, AlarmBitRole.PlcAcknowledgment));
         return
         [
-            AlarmClassName.Format(doc.AlarmClasses, alarm.ClassIndex, firstLanguageText),
+            AlarmClassName.Format(doc.AlarmClasses, alarm.ClassIndex, classDisplayName),
             AlarmGroupText.Format(alarm.Group),
             trigger.Tag, trigger.Bit, trigger.Address,
             hmi.Tag, hmi.Bit, hmi.Address,

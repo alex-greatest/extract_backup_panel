@@ -27,16 +27,16 @@ public static class DiscreteAlarmsTable
     {
         var texts = new AlarmLanguageTexts(doc);
         var tagIndex = new AlarmTagIndex(doc);
-        List<string> columns = ["ID", .. texts.Columns, .. TailColumns];
+        List<ReportColumn> columns = [new("ID"), .. texts.Columns(), .. TailColumns.Select(c => new ReportColumn(c))];
         var rows = doc.DiscreteAlarms.OrderBy(a => a.Id).Select(Row).ToList();
-        return new ReportTable(columns, rows);
+        return ReportTable.WithLanguages(columns, rows);
 
         // строка одного аларма: ID, тексты на языках, колонки после текстов
         ReportCell[] Row(DiscreteAlarm alarm) =>
         [
             alarm.Id,
             .. texts.Cells(alarm.TextIdx, alarm.Fields),
-            .. AlarmRowFormatter.Format(doc, matches, tagIndex, texts.FirstLanguageText, alarm)
+            .. AlarmRowFormatter.Format(doc, matches, tagIndex, texts.LanguageCell, alarm)
         ];
     }
 }
