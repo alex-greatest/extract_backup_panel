@@ -11,7 +11,7 @@ public static class SummarySheetDump
 
     /// <summary>
     /// Прочитать лист «Сводка»: по строке на непустую строку листа, <c>A=B</c>
-    /// (<c>Модель панели=TP1500 Comfort V2</c>). Проверяет, что лист в книге первый.
+    /// (<c>IP панели=192.168.1.3 / 255.255.255.0</c>). Проверяет, что лист в книге первый.
     /// </summary>
     /// <param name="workbookPath">Путь к <c>panel_data.xlsx</c>.</param>
     /// <returns>Строки сводки по порядку.</returns>

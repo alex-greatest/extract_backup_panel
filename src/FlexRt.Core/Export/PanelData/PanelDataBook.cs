@@ -6,11 +6,13 @@ using FlexRt.Model.Panel;
 namespace FlexRt.Export.PanelData;
 
 /// <summary>
-/// Описание листов <c>panel_data.xlsx</c> — одно на консоль и окно: какие листы есть, из каких таблиц и в каком порядке.
-/// Лист «Ошибки» сюда не входит: он только у консоли (<see cref="PanelDataExporter"/>).
+/// Описание листов <c>panel_data.xlsx</c> окна: какие листы есть, из каких таблиц и в каком порядке.
 /// </summary>
 public static class PanelDataBook
 {
+    /// <summary>Имя файла книги данных панели по умолчанию в окне.</summary>
+    public const string FileName = "panel_data.xlsx";
+
     /// <summary>
     /// Листы в порядке книги: «Сводка» и «Теги» — всегда (и без тегов); «Системные события», «Дискретные алармы»,
     /// «Аналоговые алармы», «Классы алармов», «Группы алармов», «Экраны» — если в их таблице есть строки.
@@ -28,14 +30,6 @@ public static class PanelDataBook
         // строки листа — экраны без служебных записей (ScreensTable.Screens)
         Table(ScreensSheet.Name, static doc => doc.Screens.Any(s => !s.IsService), static s => ScreensTable.Build(s.Doc))
     ];
-
-    /// <summary>
-    /// Листы, которые есть в книге, по порядку <see cref="Sheets"/>; каждый строится, когда до него доходит перебор.
-    /// Сбой любого листа прерывает перебор.
-    /// </summary>
-    /// <returns>Построенные листы.</returns>
-    public static IEnumerable<ReportSheet> Build(PanelDataSource source) =>
-        Sheets.Where(s => s.Exists(source.Doc)).Select(s => Build(s, source));
 
     /// <summary>
     /// Листы по порядку <see cref="Sheets"/>, каждый отдельно: сбой условия наличия или построителя одного листа даёт

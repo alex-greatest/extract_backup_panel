@@ -1,24 +1,21 @@
+using FlexRt.Export.PanelData;
+using FlexRt.Export.Pictures;
+using FlexRt.Export.Strings;
+
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
 /// Временный каталог одного интеграционного теста в <see cref="Path.GetTempPath"/> с
 /// уникальным именем: в нём лежат испорченные копии входных файлов и каталог результата
-/// программы (значение <c>FLEXRT_OUT</c>). Удаляется целиком в <see cref="Dispose"/>, поэтому
+/// запуска (<see cref="PanelRunner.Run"/>). Удаляется целиком в <see cref="Dispose"/>, поэтому
 /// тесты не пишут в <c>data\out</c> репозитория и не мешают друг другу.
 /// </summary>
 public sealed class TestDirectory : IDisposable
 {
     /// <summary>Создаёт пустой каталог <c>flexrt-tests-&lt;GUID&gt;</c> во временной папке.</summary>
     public TestDirectory()
-        : this("flexrt-tests-")
     {
-    }
-
-    /// <summary>Создаёт пустой каталог <c>&lt;prefix&gt;&lt;GUID&gt;</c> во временной папке.</summary>
-    /// <param name="prefix">Начало имени каталога.</param>
-    public TestDirectory(string prefix)
-    {
-        Root = Path.Combine(Path.GetTempPath(), $"{prefix}{Guid.NewGuid():N}");
+        Root = Path.Combine(Path.GetTempPath(), $"flexrt-tests-{Guid.NewGuid():N}");
         Directory.CreateDirectory(Root);
     }
 
@@ -26,22 +23,18 @@ public sealed class TestDirectory : IDisposable
     public string Root { get; }
 
     /// <summary>
-    /// Каталог результата программы — значение <c>FLEXRT_OUT</c>. Заранее не создаётся:
-    /// программа создаёт его сама.
+    /// Каталог результата запуска. Заранее не создаётся: запуск создаёт его сам.
     /// </summary>
     public string OutDir => Path.Combine(Root, "out");
 
-    /// <summary>Каталог hex-файлов таблиц <c>&lt;out&gt;\pdata</c>.</summary>
-    public string HexDir => Path.Combine(OutDir, "pdata");
+    /// <summary>Архив картинок панели <c>&lt;out&gt;\images.zip</c> (<see cref="PanelRunner.SavePictures"/>).</summary>
+    public string PicturesArchive => Path.Combine(OutDir, PictureArchiveExporter.FileName);
 
-    /// <summary>Каталог картинок панели <c>&lt;out&gt;\images</c>.</summary>
-    public string PicturesDir => Path.Combine(OutDir, "images");
+    /// <summary>Книга со строками языков <c>&lt;out&gt;\PDATA.xlsx</c> (<see cref="PanelRunner.SaveStrings"/>).</summary>
+    public string StringsWorkbook => Path.Combine(OutDir, XlsxExporter.FileName);
 
-    /// <summary>Книга со строками языков <c>&lt;out&gt;\PDATA.xlsx</c>.</summary>
-    public string StringsWorkbook => Path.Combine(OutDir, "PDATA.xlsx");
-
-    /// <summary>Книга с листами «Теги» и «Ошибки» <c>&lt;out&gt;\panel_data.xlsx</c>.</summary>
-    public string PanelDataWorkbook => Path.Combine(OutDir, "panel_data.xlsx");
+    /// <summary>Книга данных панели <c>&lt;out&gt;\panel_data.xlsx</c>.</summary>
+    public string PanelDataWorkbook => Path.Combine(OutDir, PanelDataBook.FileName);
 
     /// <summary>
     /// Копирует файл из репозитория во временный каталог.

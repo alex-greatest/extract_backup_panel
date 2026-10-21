@@ -16,13 +16,13 @@ public static class SummaryRows
     private const string Unknown = "неизвестно";
 
     /// <summary>
-    /// Построить строки: панель (файл, модель, версия Runtime, IP и маска, языки, число строк,
+    /// Построить строки: панель (файл, IP и маска, языки, число строк,
     /// тегов, системных событий, дискретных и аналоговых алармов, классов и групп алармов, обычных экранов, стартовый экран, картинок), пустая строка, по строке на
     /// соединение (имя и IP ПЛК), пустая строка, данные ПЛК (источник; если прочитаны — по каждому ПЛК имя,
     /// модель CPU, IP из данных ПЛК; число тегов ПЛК и DB). Чего нет в файлах — «неизвестно».
     /// </summary>
     /// <returns>Подписи и значения по порядку строк; пустая строка — пустые подпись и значение.</returns>
-    public static IReadOnlyList<(string Label, string Value)> Build(FwxDocument doc, PlcProject? project, RunSummary summary) =>
+    private static IReadOnlyList<(string Label, string Value)> Build(FwxDocument doc, PlcProject? project, RunSummary summary) =>
         [.. PanelRows(doc, summary), ("", ""), .. ConnectionRows(doc), ("", ""), .. PlcRows(project, summary)];
 
     /// <summary>Строки <see cref="Build"/> таблицей из двух текстовых колонок — подпись и значение; её пишет лист и показывает окно.</summary>
@@ -36,8 +36,6 @@ public static class SummaryRows
     {
         var languages = doc.Strings.Select(s => s.Lcid).Distinct().Select(LanguageText.Format).ToList();
         yield return ("Файл панели", summary.PanelPath);
-        yield return ("Модель панели", summary.PanelFiles.Model ?? Unknown);
-        yield return ("Версия Runtime", summary.PanelFiles.RuntimeVersion ?? Unknown);
         yield return ("IP панели", doc.Devices.Count == 0 ? Unknown : string.Join(", ", doc.Devices.Select(d => $"{IpAddressText.Format(d.Ip)} / {IpAddressText.Format(d.Mask)}")));
         yield return ("Языки панели", languages.Count == 0 ? Unknown : string.Join(", ", languages));
         yield return ("Строк языков", doc.Strings.Count.ToString());

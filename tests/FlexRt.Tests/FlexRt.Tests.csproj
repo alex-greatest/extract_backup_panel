@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FlexRt.Core\FlexRt.Core.csproj" />
-    <ProjectReference Include="..\..\src\FlexRt\FlexRt.csproj" />
   </ItemGroup>
 
   <ItemGroup>

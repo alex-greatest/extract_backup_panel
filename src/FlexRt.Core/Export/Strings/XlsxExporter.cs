@@ -6,19 +6,17 @@ namespace FlexRt.Export.Strings;
 /// <summary>Языковые строки в Excel: лист на каждый LCID.</summary>
 public static class XlsxExporter
 {
-    /// <summary>Имя файла книги строк языков — у консоли в каталоге результата и по умолчанию в окне.</summary>
+    /// <summary>Имя файла книги строк языков по умолчанию в окне.</summary>
     public const string FileName = "PDATA.xlsx";
 
     /// <summary>
     /// Записать книгу: лист <c>0x&lt;lcid&gt;</c> с колонками idx и str. Текст пишется как есть
     /// (<c>=...</c> не становится формулой), строка длиннее предела ячейки обрезается.
     /// </summary>
-    /// <returns>Число языков.</returns>
-    public static int Export(IReadOnlyList<LangString> strings, string xlsxPath)
+    public static void Export(IReadOnlyList<LangString> strings, string xlsxPath)
     {
         using var workbook = new XLWorkbook();
-        var langs = strings.GroupBy(s => s.Lcid).ToList();
-        foreach (var lang in langs)
+        foreach (var lang in strings.GroupBy(s => s.Lcid))
         {
             var sheet = workbook.Worksheets.Add($"0x{lang.Key:x}");
             sheet.Cell(1, 1).Value = "idx";
@@ -32,6 +30,5 @@ public static class XlsxExporter
             }
         }
         workbook.SaveAs(xlsxPath);
-        return langs.Count;
     }
 }

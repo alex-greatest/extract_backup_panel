@@ -14,12 +14,6 @@ namespace FlexRt.Ui.Panel;
 public static class PanelLoader
 {
     /// <summary>
-    /// Чем кончается сообщение «не поддерживается» в окне: окно файлов не пишет, а панель показывает без данных ПЛК
-    /// (решение пользователя; в консоли — «файлы не созданы»).
-    /// </summary>
-    private const string UnsupportedConsequence = "панель показана без данных ПЛК";
-
-    /// <summary>
     /// Прочитать панель <paramref name="path"/> с данными ПЛК <paramref name="plcPath"/>, если они выбраны. Чтение файла,
     /// данных ПЛК и построение разделов идут вне вызывающего потока, остальные шаги — в нём, по очереди: текст запуска
     /// одновременно из двух потоков не пишется. Не прочитан сам файл — «Файл не прочитан» и «Не удалось прочитать…» на
@@ -44,7 +38,7 @@ public static class PanelLoader
             failedStep = "картинки не разобраны";
             var pictures = PanelPictures.From(doc);
             failedStep = "данные ПЛК не обработаны";
-            var plc = plcPath is null ? null : await Task.Run(() => PlcDataReader.Read(doc, plcPath, transcript, UnsupportedConsequence));
+            var plc = plcPath is null ? null : await Task.Run(() => PlcDataReader.Read(doc, plcPath, transcript));
             failedStep = "разделы не построены";
             var view = await Task.Run(() => PanelViews.From(doc, path, plc));
             IReadOnlyList<TranscriptLine> lines =

@@ -14,14 +14,15 @@ public sealed class ScreensRunTests
 
     /// <summary>
     /// <c>samples/pdata.fwc</c>: Permanent area (запись <c>Overview</c>), <c>Root screen</c> — номер 1 и стартовый,
-    /// четыре slide-in TP700 Comfort. «Экранов: 1», «Стартовый экран: Root screen (1)» в тексте запуска и на «Сводке», код 0.
+    /// четыре slide-in TP700 Comfort. «Экранов: 1», «Стартовый экран: Root screen (1)» в тексте запуска и на «Сводке», без предупреждений.
     /// </summary>
     [Fact]
     public void SamplePanel_ScreensSheetAndStartScreen()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Экранов: 1");
         RunAssertions.HasLine(run.Output, "Стартовый экран: Root screen (1)");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Экранов=1", "Стартовый экран=Root screen (1)");
@@ -45,9 +46,10 @@ public sealed class ScreensRunTests
     [Fact]
     public void PopupPanel_NumbersStartScreenAndPopup()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/screens/05_popup.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/screens/05_popup.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Экранов: 3");
         RunAssertions.HasLine(run.Output, "Стартовый экран: Screen_2 (5)");
         Assert.Equal(
@@ -72,9 +74,10 @@ public sealed class ScreensRunTests
     [Fact]
     public void A603_StartScreenByNumber()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/a603/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Экранов: 49");
         RunAssertions.HasLine(run.Output, "Стартовый экран: 998_LOGIN (998)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
@@ -93,9 +96,10 @@ public sealed class ScreensRunTests
     [Fact]
     public void Card_SevenPopups()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/card/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/card/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Экранов: 10");
         RunAssertions.HasLine(run.Output, "Стартовый экран: 001_MainScreen (1)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
@@ -105,7 +109,7 @@ public sealed class ScreensRunTests
     }
 
     /// <summary>
-    /// Первое слово третьей записи SCREEN — 7: код 1, предупреждение с таблицей и смещением, две записи до сбоя
+    /// Первое слово третьей записи SCREEN — 7: предупреждение с таблицей и смещением, две записи до сбоя
     /// (Permanent area и <c>Root screen</c>) остаются на листе.
     /// </summary>
     [Fact]
@@ -113,9 +117,9 @@ public sealed class ScreensRunTests
     {
         using var dir = new TestDirectory();
         var (input, item) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "SCREEN", 2, 0, 7);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN @ 0x{item.Offset:X}: запись 3: первое слово 7, ожидалось 3 или 1");
         RunAssertions.NoStackTrace(run);
         RunAssertions.HasLine(run.Output, "Стартовый экран: Root screen (1)");
@@ -128,7 +132,7 @@ public sealed class ScreensRunTests
     }
 
     /// <summary>
-    /// Число пар элемента ADAPTVALUECHANG со ссылкой на GUI — 0xffff: код 1, предупреждение; номера не известны —
+    /// Число пар элемента ADAPTVALUECHANG со ссылкой на GUI — 0xffff: предупреждение; номера не известны —
     /// Number и вид <c>Root screen</c> <c>?</c>, «Экранов: 0», стартовый экран <c>неизвестно (1)</c>.
     /// </summary>
     [Fact]
@@ -137,9 +141,9 @@ public sealed class ScreensRunTests
         using var dir = new TestDirectory();
         // одна ссылка (на GUI): ссылки кончаются на +0x10, за ними u16 и u16 число пар
         var (input, item) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "ADAPTVALUECHANG", 0, 0x12, 0xffff);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - ADAPTVALUECHANG @ 0x{item.Offset:X}: запись 1: 65535 пар не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
         RunAssertions.HasLine(run.Output, "Экранов: 0");
@@ -150,7 +154,7 @@ public sealed class ScreensRunTests
     }
 
     /// <summary>
-    /// Число ссылок элемента GUI — 0x30: код 1, предупреждение; «Стартовый экран: неизвестно», в колонке
+    /// Число ссылок элемента GUI — 0x30: предупреждение; «Стартовый экран: неизвестно», в колонке
     /// Start screen нет <c>Yes</c>, номера экранов остаются.
     /// </summary>
     [Fact]
@@ -159,9 +163,9 @@ public sealed class ScreensRunTests
         using var dir = new TestDirectory();
         // +0x04 — u32 число ссылок, см. ReferenceHeader
         var (input, item) = CorruptedCopy.U32(dir, "samples/pdata.fwc", "GUI", 0, 0x04, 0x30);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - GUI @ 0x{item.Offset:X}: запись 1: 48 ссылок не помещаются в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
         RunAssertions.HasLine(run.Output, "Экранов: 1");

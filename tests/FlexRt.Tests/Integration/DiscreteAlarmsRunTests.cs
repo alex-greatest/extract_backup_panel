@@ -17,7 +17,7 @@ public sealed class DiscreteAlarmsRunTests
     private const string Expected = "samples/expected/card/дискретные-алармы.txt";
 
     /// <summary>
-    /// CCB-A13 с картой ПЛК CCB-A03: код 0, 2000 алармов в тексте запуска и на «Сводке», лист совпадает
+    /// CCB-A13 с картой ПЛК CCB-A03: без предупреждений, 2000 алармов в тексте запуска и на «Сводке», лист совпадает
     /// с эталоном. Эталон — слепок вывода программы, сверенный с TIA только по правилам листа на
     /// A603A0097 (адреса массивов Word, классы, квитирование): тест ловит регрессии.
     /// </summary>
@@ -26,16 +26,16 @@ public sealed class DiscreteAlarmsRunTests
     {
         using var dir = new TestDirectory();
         var card = dir.ExtractFromRepo("samples/card/CCB-A03.zip", "CCB-A03");
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(CardPanel), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(CardPanel), card, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 2000");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Дискретных алармов=2000");
         Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы"));
     }
 
     /// <summary>
-    /// A603A0097 (<c>samples/a603/pdata.fwc</c>, TIA V21, три языка) без данных ПЛК: код 0, 355
+    /// A603A0097 (<c>samples/a603/pdata.fwc</c>, TIA V21, три языка) без данных ПЛК: без предупреждений, 355
     /// алармов; строки эталона <c>samples/expected/a603/дискретные-алармы-сверено.txt</c> — алармы,
     /// сверенные со списком Discrete alarms в TIA после шаговых правок: Report On, классы
     /// Acknowledgement, Warnings и свой (<c>DISP</c>), квитирование HMI и PLC, абсолютный массив
@@ -45,9 +45,10 @@ public sealed class DiscreteAlarmsRunTests
     [Fact]
     public void A603Panel_VerifiedRows()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/a603/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 355");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы");
         Assert.Equal(356, rows.Count);
@@ -59,7 +60,7 @@ public sealed class DiscreteAlarmsRunTests
 
     /// <summary>
     /// Копия CCB-A13 с незнакомым видом (7) у второго элемента AREAPTR (тег квитирования HMI):
-    /// элемент пропущен — код 1, предупреждение с номером и смещением элемента; таблица прочитана
+    /// элемент пропущен — предупреждение с номером и смещением элемента; таблица прочитана
     /// не целиком, поэтому у алармов без найденного тега квитирования — <c>? | ? | неизвестно</c>,
     /// а не <c>&lt;No tag&gt;</c>; тег срабатывания из первого элемента на месте.
     /// </summary>
@@ -69,9 +70,9 @@ public sealed class DiscreteAlarmsRunTests
         using var dir = new TestDirectory();
         // имя «2» — один символ: заголовок 4 байта и имя с выравниванием 4 байта, затем u32 вид
         var (input, item) = CorruptedCopy.U32(dir, CardPanel, "AREAPTR", 1, 8, 7);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - AREAPTR: пропущено элементов с незнакомой раскладкой: 1, первый — элемент 2 на 0x{item.Offset:x}: вид 7");
         var first = SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы")[1];
         Assert.StartsWith("1 | ", first);
@@ -79,7 +80,7 @@ public sealed class DiscreteAlarmsRunTests
     }
 
     /// <summary>
-    /// Копия CCB-A13 с неверным числом классов в MSG_NUMHANDLER: длина не сходится — код 1,
+    /// Копия CCB-A13 с неверным числом классов в MSG_NUMHANDLER: длина не сходится —
     /// предупреждение с таблицей и смещением, классов нет, у всех алармов класс <c>?</c>.
     /// </summary>
     [Fact]
@@ -88,9 +89,9 @@ public sealed class DiscreteAlarmsRunTests
         using var dir = new TestDirectory();
         // число классов — u16 за числом алармов (+0x2c) и двумя массивами u16[2000]
         var (input, item) = CorruptedCopy.U16(dir, CardPanel, "MSG_NUMHANDLER", 0, 0x2e + 4 * 2000, 99);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMHANDLER @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы");
         Assert.Equal(2001, rows.Count);
@@ -104,9 +105,10 @@ public sealed class DiscreteAlarmsRunTests
     [Fact]
     public void CardPanel_WithoutPlc_SameSheet()
     {
-        var (dir, run) = SharedRuns.WithoutPlc(CardPanel);
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(CardPanel), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы"));
     }
 
@@ -114,9 +116,10 @@ public sealed class DiscreteAlarmsRunTests
     [Fact]
     public void SamplePanel_NoAlarms_NoSheet()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Дискретных алармов=0");
         SheetDump.Absent(dir.PanelDataWorkbook, "Дискретные алармы");
@@ -124,7 +127,7 @@ public sealed class DiscreteAlarmsRunTests
 
     /// <summary>
     /// Копия CCB-A13 с нечётным числом ссылок (3) у пятого элемента MSG_NUMEVENT: раскладка не
-    /// сходится — код 1, предупреждение с таблицей и смещением, на листе 4 аларма, прочитанные до
+    /// сходится — предупреждение с таблицей и смещением, на листе 4 аларма, прочитанные до
     /// сбоя.
     /// </summary>
     [Fact]
@@ -132,9 +135,9 @@ public sealed class DiscreteAlarmsRunTests
     {
         using var dir = new TestDirectory();
         var (input, item) = CorruptedCopy.U32(dir, CardPanel, "MSG_NUMEVENT", 4, 4, 3);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_NUMEVENT @ 0x{item.Offset:X}: запись 5: длина {item.Length} не сходится с 3 ссылками");
         RunAssertions.HasLine(run.Output, "Дискретных алармов: 4");
         Assert.Equal(5, SheetDump.Read(dir.PanelDataWorkbook, "Дискретные алармы").Count);

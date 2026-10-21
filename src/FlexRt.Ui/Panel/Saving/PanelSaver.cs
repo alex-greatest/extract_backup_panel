@@ -54,9 +54,9 @@ public sealed class PanelSaver
         var (sheets, skipped) = PanelDataSheets.Book(view);
         if (sheets.Count == 0)
         {
-            return new SaveOutcome(NotificationSeverity.Warning, $"{PanelDataExporter.FileName} не записан", "ни один раздел не построен");
+            return new SaveOutcome(NotificationSeverity.Warning, $"{PanelDataBook.FileName} не записан", "ни один раздел не построен");
         }
-        var outcome = await SaveExcelAsync(PanelDataExporter.FileName, panelPath, path => ReportSheetsExporter.Export(sheets, path));
+        var outcome = await SaveExcelAsync(PanelDataBook.FileName, panelPath, path => ReportSheetsExporter.Export(sheets, path));
         return outcome is { Severity: NotificationSeverity.Success } && skipped.Count > 0
             ? new SaveOutcome(NotificationSeverity.Warning, "Сохранено не всё",
                 $"{outcome.Detail}; не записаны листы (раздел не построен): {string.Join(", ", skipped)}")
@@ -72,7 +72,7 @@ public sealed class PanelSaver
     }
 
     /// <summary>
-    /// Сохранить книгу текстов тем же экспортёром, что у консоли (<see cref="XlsxExporter.Export"/>). Строк нет — диалог не
+    /// Сохранить книгу текстов экспортёром ядра (<see cref="XlsxExporter.Export"/>). Строк нет — диалог не
     /// показывается: книгу без листов Excel не сохраняет.
     /// </summary>
     /// <returns>Итог; сохранение отменено — <c>null</c>.</returns>
@@ -86,7 +86,7 @@ public sealed class PanelSaver
     }
 
     /// <summary>
-    /// Сохранить одну картинку: байты файла как есть, имя по умолчанию — как у файла консоли (<c>PICTURE_5.png</c>), фильтр
+    /// Сохранить одну картинку: байты файла как есть, имя по умолчанию — как в архиве картинок (<c>PICTURE_5.png</c>), фильтр
     /// диалога — её формат.
     /// </summary>
     /// <returns>Итог; сохранение отменено — <c>null</c>.</returns>
@@ -104,7 +104,7 @@ public sealed class PanelSaver
 
     /// <summary>
     /// Сохранить все картинки панели архивом (<see cref="PictureArchiveExporter.Export"/>): файлы в корне архива под
-    /// именами консоли. Вызывать, только если картинки есть: меню «Картинки» без них недоступно.
+    /// именами <see cref="PictureArchiveExporter.EntryName"/>. Вызывать, только если картинки есть: меню «Картинки» без них недоступно.
     /// </summary>
     /// <returns>Итог; сохранение отменено — <c>null</c>.</returns>
     private Task<SaveOutcome?> SavePicturesAsync(PanelPictures pictures, string panelPath)

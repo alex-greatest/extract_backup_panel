@@ -17,16 +17,17 @@ public sealed class AnalogAlarmsRunTests
     private const string Expected = "samples/expected/a603-analog/аналоговые-алармы.txt";
 
     /// <summary>
-    /// A603A0097 без данных ПЛК: код 0, 4 аларма в тексте запуска и на «Сводке», лист совпадает с
+    /// A603A0097 без данных ПЛК: без предупреждений, 4 аларма в тексте запуска и на «Сводке», лист совпадает с
     /// эталоном: ID, текст с полем тега, классы Errors и Warnings, теги срабатывания, пределы
     /// <c>50</c>, <c>13</c>, <c>555</c> и тег предела, Limit mode, Report.
     /// </summary>
     [Fact]
     public void AnalogPanel_MatchesExpected()
     {
-        var (dir, run) = SharedRuns.WithoutPlc(AnalogPanel);
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(AnalogPanel), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Аналоговых алармов: 4");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Аналоговых алармов=4");
         Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы"));
@@ -36,16 +37,17 @@ public sealed class AnalogAlarmsRunTests
     [Fact]
     public void SamplePanel_NoAlarms_NoSheet()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Аналоговых алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Аналоговых алармов=0");
         SheetDump.Absent(dir.PanelDataWorkbook, "Аналоговые алармы");
     }
 
     /// <summary>
-    /// Копия с числом ссылок 5 у второго элемента MSG_ANALOG_OBSE: длина не сходится — код 1,
+    /// Копия с числом ссылок 5 у второго элемента MSG_ANALOG_OBSE: длина не сходится —
     /// предупреждение с таблицей и смещением; предел аларма 7 прочитан до сбоя и выведен, у
     /// остальных Trigger tag, Limit и Limit mode — <c>?</c>.
     /// </summary>
@@ -54,9 +56,9 @@ public sealed class AnalogAlarmsRunTests
     {
         using var dir = new TestDirectory();
         var (input, item) = CorruptedCopy.U32(dir, AnalogPanel, "MSG_ANALOG_OBSE", 1, 4, 5);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOG_OBSE @ 0x{item.Offset:X}: запись 2: длина {item.Length} не сходится с 5 ссылками");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы");
         Assert.Equal(5, rows.Count);
@@ -67,7 +69,7 @@ public sealed class AnalogAlarmsRunTests
 
     /// <summary>
     /// Копия с числом ссылок 1 (нечётно) у третьего элемента MSG_ANALOGCREAT: раскладка не
-    /// сходится — код 1, предупреждение с таблицей и смещением, на листе 2 аларма, прочитанные до
+    /// сходится — предупреждение с таблицей и смещением, на листе 2 аларма, прочитанные до
     /// сбоя.
     /// </summary>
     [Fact]
@@ -75,9 +77,9 @@ public sealed class AnalogAlarmsRunTests
     {
         using var dir = new TestDirectory();
         var (input, item) = CorruptedCopy.U32(dir, AnalogPanel, "MSG_ANALOGCREAT", 2, 4, 1);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGCREAT @ 0x{item.Offset:X}: запись 3: длина {item.Length} не сходится с 1 ссылками");
         RunAssertions.HasLine(run.Output, "Аналоговых алармов: 2");
         Assert.Equal(3, SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы").Count);
@@ -85,7 +87,7 @@ public sealed class AnalogAlarmsRunTests
     }
 
     /// <summary>
-    /// Копия с неверным числом классов в MSG_ANALOGHANDL: длина не сходится — код 1,
+    /// Копия с неверным числом классов в MSG_ANALOGHANDL: длина не сходится —
     /// предупреждение с таблицей и смещением, классов нет, у всех алармов класс <c>?</c>.
     /// </summary>
     [Fact]
@@ -94,9 +96,9 @@ public sealed class AnalogAlarmsRunTests
         using var dir = new TestDirectory();
         // число классов — u16 за числом алармов (+0x2c) и двумя массивами u16[4]
         var (input, item) = CorruptedCopy.U16(dir, AnalogPanel, "MSG_ANALOGHANDL", 0, 0x2e + 4 * 4, 99);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - MSG_ANALOGHANDL @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Аналоговые алармы");
         Assert.Equal(5, rows.Count);

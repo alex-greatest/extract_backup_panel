@@ -1,35 +1,33 @@
 using System.Text.RegularExpressions;
 using ClosedXML.Excel;
+using FlexRt.Extraction;
+using FlexRt.Parsing.Panel;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Проверки результата запуска FlexRt, общие для интеграционных тестов: код возврата,
-/// строки текста запуска целиком, лист «Теги», лист «Ошибки», книга строк языков и hex-файлы.
+/// Проверки результата запуска <see cref="PanelRunner.Run"/>, общие для интеграционных тестов: есть ли предупреждения и
+/// ошибки, строки текста запуска целиком, лист «Теги» и книга строк языков.
 /// Сообщение о провале всегда показывает, что ожидалось и что получено.
 /// </summary>
 public static partial class RunAssertions
 {
     /// <summary>
-    /// Запуск сознательно не поддерживается (у панели несколько соединений, данные ПЛК заданы):
-    /// код 1, строка «ОШИБКА: не поддерживается…» среди ошибок запуска, без трассы стека, файлы результата
-    /// (<c>panel_data.xlsx</c>, <c>PDATA.xlsx</c>, папки <c>pdata</c> и <c>images</c>) не созданы.
+    /// Данные ПЛК сознательно не поддерживаются (у панели несколько соединений, данные ПЛК заданы): есть ошибка
+    /// «ОШИБКА: не поддерживается…», без трассы стека; панель показана без данных ПЛК — на «Сводке» «Данные ПЛК=не задан».
     /// </summary>
     /// <param name="run">Результат запуска.</param>
     /// <param name="connections">Число соединений панели.</param>
-    /// <param name="plc">Путь данных ПЛК, как передан программе.</param>
+    /// <param name="plc">Путь данных ПЛК, как передан запуску.</param>
     /// <param name="dir">Временный каталог теста с каталогом результата.</param>
-    public static void Unsupported(ProgramRun run, int connections, string plc, TestDirectory dir)
+    public static void Unsupported(PanelRun run, int connections, string plc, TestDirectory dir)
     {
-        ExitCode(run, 1);
+        HasProblems(run);
         HasLine(run.Errors, $"ОШИБКА: не поддерживается: соединений панели с ПЛК - {connections}, а данные ПЛК заданы ({plc}) - "
-            + "сопоставление сделано только для панели с одним соединением; файлы не созданы");
+            + $"сопоставление сделано только для панели с одним соединением; {PlcDataReader.UnsupportedConsequence}");
         NoStackTrace(run);
-        Assert.False(File.Exists(dir.PanelDataWorkbook), "panel_data.xlsx создан");
-        Assert.False(File.Exists(dir.StringsWorkbook), "PDATA.xlsx создан");
-        Assert.False(Directory.Exists(dir.HexDir), "папка pdata создана");
-        Assert.False(Directory.Exists(dir.PicturesDir), "папка images создана");
+        SummarySheetDump.Contains(dir.PanelDataWorkbook, $"Данные ПЛК={PanelSources.NoPlc}");
     }
 
     /// <summary>Строка трассы стека .NET в английской или русской локали.</summary>
@@ -37,28 +35,34 @@ public static partial class RunAssertions
     [GeneratedRegex(@"^\s+(at|в) \S", RegexOptions.Multiline)]
     private static partial Regex StackTraceLine();
 
-    /// <summary>Проверяет код возврата; при отличии показывает весь вывод запуска.</summary>
+    /// <summary>Проверяет, что в тексте запуска нет предупреждений и ошибок; иначе показывает весь текст.</summary>
     /// <param name="run">Результат запуска.</param>
-    /// <param name="expected">Ожидаемый код возврата.</param>
-    public static void ExitCode(ProgramRun run, int expected)
+    public static void Clean(PanelRun run)
     {
-        Assert.True(run.ExitCode == expected, $"ожидался код возврата {expected}\n{Describe(run)}");
+        Assert.False(run.HasProblems, $"ожидался запуск без предупреждений и ошибок\n{Describe(run)}");
+    }
+
+    /// <summary>Проверяет, что в тексте запуска есть предупреждения или ошибки; иначе показывает весь текст.</summary>
+    /// <param name="run">Результат запуска.</param>
+    public static void HasProblems(PanelRun run)
+    {
+        Assert.True(run.HasProblems, $"ожидались предупреждения или ошибки\n{Describe(run)}");
     }
 
     /// <summary>
     /// Проверяет, что в выводе есть строка, равная <paramref name="line"/> целиком
     /// (<c>Тегов: 16</c> не совпадёт с <c>Тегов: 160</c>).
     /// </summary>
-    /// <param name="output">Строки Info или предупреждения и ошибки запуска (<see cref="ProgramRun"/>).</param>
+    /// <param name="output">Строки Info или предупреждения и ошибки запуска (<see cref="PanelRun"/>).</param>
     /// <param name="line">Ожидаемая строка без перевода строки.</param>
     public static void HasLine(string output, string line)
     {
         Assert.True(Lines(output).Contains(line), $"в выводе нет строки «{line}»:\n{output}");
     }
 
-    /// <summary>Проверяет, что в тексте запуска нет трассы стека (пустые stdout и stderr процесса проверяет <see cref="FlexRtProcess.Run"/>).</summary>
+    /// <summary>Проверяет, что в тексте запуска нет трассы стека .</summary>
     /// <param name="run">Результат запуска.</param>
-    public static void NoStackTrace(ProgramRun run)
+    public static void NoStackTrace(PanelRun run)
     {
         Assert.False(StackTraceLine().IsMatch(run.Errors), $"в предупреждениях и ошибках трасса стека:\n{run.Errors}");
         Assert.False(StackTraceLine().IsMatch(run.Output), $"в тексте запуска трасса стека:\n{run.Output}");
@@ -108,36 +112,20 @@ public static partial class RunAssertions
         Assert.Equal(strings + 1, sheet.LastRowUsed()?.RowNumber());
     }
 
-    /// <summary>Проверяет, что hex-файлы каталога совпадают со списком SHA-256.</summary>
-    /// <param name="hexDir">Каталог hex-файлов.</param>
-    /// <param name="manifestPath">Список хэшей относительно корня репозитория.</param>
-    public static void HexMatches(string hexDir, string manifestPath)
+    /// <summary>Проверяет, что разбиение всех таблиц панели на элементы совпадает с эталоном (<see cref="TableManifest"/>).</summary>
+    /// <param name="panel">Образец <c>pdata.fwc</c> относительно корня репозитория.</param>
+    /// <param name="manifestPath">Эталон относительно корня репозитория.</param>
+    public static void TablesMatch(string panel, string manifestPath)
     {
-        var differences = HexManifest.Compare(hexDir, RepositoryPaths.InRepo(manifestPath));
-        Assert.True(differences.Length == 0, $"hex-вывод отличается от {manifestPath}:\n{differences}");
+        var differences = TableManifest.Compare(FwxReader.Read(RepositoryPaths.InRepo(panel)), RepositoryPaths.InRepo(manifestPath));
+        Assert.True(differences.Length == 0, $"разбиение таблиц отличается от {manifestPath}:\n{differences}");
     }
 
-    /// <summary>
-    /// Проверяет лист «Ошибки»: заголовок «Сообщение» в A1 и среди сообщений есть
-    /// содержащее <paramref name="fragment"/>.
-    /// </summary>
-    /// <param name="workbookPath">Путь к <c>panel_data.xlsx</c>.</param>
-    /// <param name="fragment">Ожидаемая часть сообщения.</param>
-    public static void ErrorsSheetContains(string workbookPath, string fragment)
-    {
-        using var workbook = new XLWorkbook(workbookPath);
-        Assert.True(workbook.TryGetWorksheet("Ошибки", out var sheet), "в panel_data.xlsx нет листа «Ошибки»");
-        Assert.Equal("Сообщение", sheet.Cell(1, 1).GetString());
-        var messages = sheet.Column(1).CellsUsed().Skip(1).Select(c => c.GetString()).ToList();
-        Assert.True(messages.Any(m => m.Contains(fragment, StringComparison.Ordinal)),
-            $"на листе «Ошибки» нет сообщения с «{fragment}»; есть:\n{string.Join("\n", messages)}");
-    }
-
-    /// <summary>Текст запуска для сообщения о провале: код возврата, строки Info, предупреждения и ошибки.</summary>
+    /// <summary>Текст запуска для сообщения о провале: строки Info, предупреждения и ошибки.</summary>
     /// <param name="run">Результат запуска.</param>
     /// <returns>Многострочное описание запуска.</returns>
-    private static string Describe(ProgramRun run) =>
-        $"код возврата {run.ExitCode}\nтекст запуска:\n{run.Output}\nпредупреждения и ошибки:\n{run.Errors}";
+    private static string Describe(PanelRun run) =>
+        $"текст запуска:\n{run.Output}\nпредупреждения и ошибки:\n{run.Errors}";
 
     /// <summary>Разбивает вывод на строки без <c>\r</c>.</summary>
     /// <param name="output">Текст запуска.</param>

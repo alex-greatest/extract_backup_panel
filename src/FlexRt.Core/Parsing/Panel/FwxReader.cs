@@ -15,11 +15,11 @@ public static class FwxReader
     /// <summary>
     /// Прочитать файл целиком. Ошибка в заголовке или TOC прерывает чтение;
     /// ошибка в отдельной таблице попадает в <see cref="FwxDocument.Warnings"/>,
-    /// чтобы остальные экспорты (xlsx, explode) могли отработать.
+    /// чтобы остальные таблицы разбирались и панель показывалась.
     /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK, CONNECTION_OMSP, DEVICE_OMSP,
     /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT,
     /// MSG_ANALOG_OBSE, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL, SCREEN, ADAPTVALUECHANG, GUI,
-    /// PICTURE и TILED_PICTURE.
+    /// PICTURE и TILED_PICTURE; последней — раскладка всех таблиц TOC (<see cref="TableLayoutCheck"/>).
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
     /// <exception cref="IOException">Файл не удалось прочитать.</exception>
@@ -51,6 +51,7 @@ public static class FwxReader
         TryParse(doc, GuiParser.Parse);
         TryParse(doc, PictureParser.Parse);
         TryParse(doc, TiledPictureParser.Parse);
+        TableLayoutCheck.Run(doc);
         return doc;
     }
 

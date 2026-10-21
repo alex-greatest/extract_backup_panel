@@ -24,15 +24,16 @@ public sealed class AlarmGroupsRunTests
     /// Project1 без данных ПЛК: «Групп алармов: 4» в тексте запуска и на «Сводке», лист групп — ID по
     /// возрастанию и число алармов каждого вида, в колонке Alarm group — ID группы или
     /// <c>&lt;No alarm group&gt;</c>, как в TIA. Внутренний тег срабатывания — внутренний тег на
-    /// листе «Теги», без предупреждения, код 0; адрес бита у внутреннего тега — номер бита, у
+    /// листе «Теги», без предупреждения; адрес бита у внутреннего тега — номер бита, у
     /// абсолютного <c>%MW10</c> — <c>%M10.1</c>, как в TIA; запись тега с Display name читается.
     /// </summary>
     [Fact]
     public void Project1Groups_ColumnAndSheet()
     {
-        var (dir, run) = SharedRuns.WithoutPlc(GroupsPanel);
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(GroupsPanel), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Групп алармов: 4");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Групп алармов=4");
         Assert.Equal(["ID | Discrete alarms | Analog alarms", "1 | 1 | 0", "2 | 2 | 0", "17 | 1 | 0", "31 | 0 | 6"],
@@ -69,9 +70,10 @@ public sealed class AlarmGroupsRunTests
     [Fact]
     public void SamplePanel_NoGroups_NoSheet()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Групп алармов: 0");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Групп алармов=0");
         SheetDump.Absent(dir.PanelDataWorkbook, "Группы алармов");

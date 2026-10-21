@@ -4,13 +4,13 @@ using Xunit;
 namespace FlexRt.Tests.Unit.Binary;
 
 /// <summary>
-/// Примитивы чтения <see cref="FwxBinary"/>: little endian, строки, hex и проверка границ.
+/// Примитивы чтения <see cref="FwxBinary"/>: little endian, строки и проверка границ.
 /// Ожидания — XML-документация методов и <c>.claude/rules/формат-панели.md</c> («Выход за границы файла даёт
 /// FwxFormatException с секцией и смещением»).
 /// </summary>
 public sealed class FwxBinaryTests
 {
-    /// <summary>Байты <c>ef be 0c 00</c> — пример из XML-документации <see cref="FwxBinary.ToHex"/>.</summary>
+    /// <summary>Байты <c>ef be 0c 00</c>.</summary>
     private static readonly byte[] Sample = [0xef, 0xbe, 0x0c, 0x00];
 
     /// <summary>D1 — байт без знака, D2 и D4 — little endian без знака.</summary>
@@ -123,17 +123,6 @@ public sealed class FwxBinaryTests
 
         Assert.Equal(new byte[] { 0xbe, 0x0c }, b.Span(1, 2).ToArray());
         Assert.Throws<FwxFormatException>(() => b.Span(3, 2).ToArray());
-    }
-
-    /// <summary>ToHex: двузначный hex в нижнем регистре через пробел (XML-документация).</summary>
-    [Fact]
-    public void ToHex_LowercasePairsSeparatedBySpace()
-    {
-        var b = new FwxBinary(Sample);
-
-        Assert.Equal("ef be 0c 00", b.ToHex(0, 4));
-        Assert.Equal("", b.ToHex(2, 0));
-        Assert.Throws<FwxFormatException>(() => b.ToHex(2, 3));
     }
 
     /// <summary>Прочитать примитив размера 1, 2 или 4 байта.</summary>

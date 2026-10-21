@@ -4,27 +4,17 @@ using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
 using FlexRt.Extraction;
-using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
-using FlexRt.Model.Summary;
-using FlexRt.Parsing.Matching;
 
 namespace FlexRt.Ui.Panel.Sections;
 
 /// <summary>
 /// Разделы прочитанной панели для окна. Листы, их таблицы и порядок берутся из описания книги ядра
-/// (<see cref="PanelDataBook"/>), по которому пишет и консоль, поэтому окно показывает то же, что консоль выгрузила бы с
-/// теми же данными ПЛК. Разделы строятся независимо: сбой одного не мешает остальным и экранам (решение
+/// (<see cref="PanelDataBook"/>). Разделы строятся независимо: сбой одного не мешает остальным и экранам (решение
 /// пользователя).
 /// </summary>
 public static class PanelViews
 {
-    /// <summary>
-    /// Значение строки «Данные ПЛК» в «Сводке», когда данные ПЛК в окне не выбраны или не поддерживаются для панели с
-    /// несколькими соединениями (решения пользователя).
-    /// </summary>
-    private const string NoPlc = "не задан";
-
     /// <summary>Разделитель частей пути в заголовке таблицы, как у экранов.</summary>
     private const string Separator = "  ▸  ";
 
@@ -56,21 +46,14 @@ public static class PanelViews
     /// <summary>
     /// Построить разделы. Разделы листов <c>panel_data.xlsx</c> — из описания книги ядра
     /// (<see cref="PanelDataBook.TryBuild(PanelDataSource)"/>): раздел есть, только если в книге есть его лист, каждый
-    /// строится отдельно. Данные ПЛК прочитаны и поддерживаются (<paramref name="plc"/> не <c>null</c> и не
-    /// <see cref="PlcData.IsUnsupported"/>) — теги и дискретные алармы строятся по их сопоставлению, «Сводка» — с проектом
-    /// ПЛК и строкой «Данные ПЛК» из <see cref="PlcData.Source"/>, как в консоли. Иначе теги сопоставляются без проекта
-    /// ПЛК (<see cref="TagMatcher.Match"/> с <c>null</c>): колонки ПЛК — «неизвестно», данные ПЛК — «не задан». В «Сводке»
-    /// модель панели и версия Runtime — «неизвестно» (файлы рядом с <c>pdata.fwc</c> окно не читает). Раздел, таблицу
+    /// строится отдельно; данные листов с данными ПЛК и без них — <see cref="PanelSources.From"/>. Раздел, таблицу
     /// которого ядро построить не смогло, остаётся в дереве с пустой таблицей и причиной в <see cref="PanelSection.Error"/>.
     /// Листа «Экраны» нет (экранов нет) — раздел Screens пустой: папка Screens в дереве тогда не показывается.
     /// </summary>
     /// <returns>Разделы для дерева проекта.</returns>
     public static PanelView From(FwxDocument doc, string path, PlcData? plc)
     {
-        var used = plc is { IsUnsupported: false } ? plc : null;
-        // сопоставление нужно тегам и дискретным алармам; Lazy считает его один раз и повторяет его ошибку обоим
-        var matches = new Lazy<IReadOnlyList<PlcMatch?>>(() => used?.Matches ?? TagMatcher.Match(doc, null));
-        var source = new PanelDataSource(doc, used?.Project, new RunSummary(path, new PanelFiles(null, null), used?.Source ?? NoPlc), matches);
+        var source = PanelSources.From(doc, path, plc);
         List<PanelSection> book = [.. PanelDataBook.TryBuild(source).Select(Section)];
         var bySheet = book.ToDictionary(s => s.Sheet);
         return new PanelView(

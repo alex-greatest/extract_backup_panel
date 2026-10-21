@@ -1,9 +1,10 @@
+using System.IO.Compression;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
 
 /// <summary>
-/// Картинки панели (PICTURE, TILED_PICTURE): файлы в папке <c>images</c>, строка «Картинок» в тексте запуска и на
+/// Картинки панели (PICTURE, TILED_PICTURE): записи архива <c>images.zip</c>, строка «Картинок» в тексте запуска и на
 /// «Сводке». Испорченный вход — копия <c>samples/pdata.fwc</c>, изменённая в рантайме во временном каталоге теста.
 /// </summary>
 public sealed class PicturesRunTests
@@ -19,51 +20,53 @@ public sealed class PicturesRunTests
 
     /// <summary>
     /// <c>samples/pdata.fwc</c>: 8 картинок PICTURE и 4 TILED_PICTURE, все PNG; «Картинок: 12» в тексте запуска и на
-    /// «Сводке», строка экспорта с путём папки <c>images</c>, код 0. Каждый файл — PNG, кончается чанком IEND.
+    /// «Сводке», без предупреждений. Каждая запись архива — PNG, кончается чанком IEND.
     /// </summary>
     [Fact]
     public void SamplePanel_WritesPictureFiles()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Картинок: 12");
-        RunAssertions.HasLine(run.Output, $"[Картинки -> файлы] 12 картинок -> {dir.PicturesDir}");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Картинок=12");
+        var archive = PanelRunner.SavePictures(run, dir);
         Assert.Equal(
         [
             "PICTURE_1.png", "PICTURE_2.png", "PICTURE_3.png", "PICTURE_4.png",
             "PICTURE_5.png", "PICTURE_6.png", "PICTURE_7.png", "PICTURE_8.png",
             "TILED_PICTURE_1.png", "TILED_PICTURE_2.png", "TILED_PICTURE_3.png", "TILED_PICTURE_4.png"
-        ], FileNames(dir.PicturesDir));
-        Assert.All(Directory.GetFiles(dir.PicturesDir), path =>
+        ], FileNames(archive));
+        Assert.All(Files(archive), file =>
         {
-            var bytes = File.ReadAllBytes(path);
-            Assert.True(bytes.AsSpan().StartsWith(PngSignature), $"{path}: не PNG");
-            Assert.True(bytes.AsSpan().EndsWith(IendChunkTail), $"{path}: нет IEND в конце");
+            Assert.True(file.Bytes.AsSpan().StartsWith(PngSignature), $"{file.Name}: не PNG");
+            Assert.True(file.Bytes.AsSpan().EndsWith(IendChunkTail), $"{file.Name}: нет IEND в конце");
         });
     }
 
     /// <summary>
     /// A603A0097 (TIA V21, TP1900 Comfort): 48 PICTURE и 28 TILED_PICTURE, из них 4 JPEG (PICTURE 16, 17, 18, 26);
-    /// «Картинок: 76», код 0.
+    /// «Картинок: 76», без предупреждений.
     /// </summary>
     [Fact]
     public void A603_PngAndJpeg()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/a603/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/a603/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Картинок: 76");
-        var names = FileNames(dir.PicturesDir);
+        var archive = PanelRunner.SavePictures(run, dir);
+        var names = FileNames(archive);
         Assert.Equal(76, names.Count);
         Assert.Equal(["PICTURE_16.jpg", "PICTURE_17.jpg", "PICTURE_18.jpg", "PICTURE_26.jpg"], names.Where(n => n.EndsWith(".jpg")));
-        Assert.True(File.ReadAllBytes(Path.Combine(dir.PicturesDir, "PICTURE_16.jpg")).AsSpan().StartsWith(JpegSignature), "PICTURE_16.jpg: не JPEG");
+        Assert.True(Files(archive).Single(f => f.Name == "PICTURE_16.jpg").Bytes.AsSpan().StartsWith(JpegSignature), "PICTURE_16.jpg: не JPEG");
     }
 
     /// <summary>
-    /// Длина картинки третьего элемента PICTURE — 0xffff: код 1, предупреждение с таблицей и смещением; две
-    /// картинки PICTURE до сбоя и все четыре TILED_PICTURE записаны, «Картинок: 6».
+    /// Длина картинки третьего элемента PICTURE — 0xffff: предупреждение с таблицей и смещением; две
+    /// картинки PICTURE до сбоя и все четыре TILED_PICTURE в архиве, «Картинок: 6».
     /// </summary>
     [Fact]
     public void BrokenPictureLength_WarnsAndKeepsPicturesBefore()
@@ -71,9 +74,9 @@ public sealed class PicturesRunTests
         using var dir = new TestDirectory();
         // +0x0c — u32 длина картинки, см. PictureParser
         var (input, item) = CorruptedCopy.U32(dir, "samples/pdata.fwc", "PICTURE", 2, 0x0c, 0xffff);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - PICTURE @ 0x{item.Offset:X}: запись 3: картинка 65535 байт не помещается в {item.Length} байт");
         RunAssertions.NoStackTrace(run);
         RunAssertions.HasLine(run.Output, "Картинок: 6");
@@ -81,11 +84,32 @@ public sealed class PicturesRunTests
         [
             "PICTURE_1.png", "PICTURE_2.png",
             "TILED_PICTURE_1.png", "TILED_PICTURE_2.png", "TILED_PICTURE_3.png", "TILED_PICTURE_4.png"
-        ], FileNames(dir.PicturesDir));
+        ], FileNames(PanelRunner.SavePictures(run, dir)));
     }
 
-    /// <summary>Имена файлов каталога в порядке ordinal.</summary>
-    /// <returns>Имена без пути.</returns>
-    private static List<string> FileNames(string dir) =>
-        [.. Directory.GetFiles(dir).Select(Path.GetFileName).OfType<string>().Order(StringComparer.Ordinal)];
+    /// <summary>Имена записей архива в порядке ordinal.</summary>
+    /// <returns>Имена записей.</returns>
+    private static List<string> FileNames(string archive)
+    {
+        using var zip = ZipFile.OpenRead(archive);
+        return [.. zip.Entries.Select(e => e.FullName).Order(StringComparer.Ordinal)];
+    }
+
+    /// <summary>Записи архива по порядку: имя и байты.</summary>
+    /// <returns>Записи архива.</returns>
+    private static List<(string Name, byte[] Bytes)> Files(string archive)
+    {
+        using var zip = ZipFile.OpenRead(archive);
+        return [.. zip.Entries.Select(e => (e.FullName, Read(e)))];
+    }
+
+    /// <summary>Байты записи архива.</summary>
+    /// <returns>Содержимое записи.</returns>
+    private static byte[] Read(ZipArchiveEntry entry)
+    {
+        using var stream = entry.Open();
+        using var bytes = new MemoryStream();
+        stream.CopyTo(bytes);
+        return bytes.ToArray();
+    }
 }

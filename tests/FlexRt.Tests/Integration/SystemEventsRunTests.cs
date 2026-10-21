@@ -17,9 +17,10 @@ public sealed class SystemEventsRunTests
     [Fact]
     public void SamplePanel_EnglishEvents_MatchExpected()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Системных событий: 585");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Системных событий=585");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Системные события");
@@ -35,9 +36,10 @@ public sealed class SystemEventsRunTests
     [Fact]
     public void CardPanel_RussianEvents()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/card/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/card/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Системных событий: 585");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Системные события");
         Assert.Equal(586, rows.Count);

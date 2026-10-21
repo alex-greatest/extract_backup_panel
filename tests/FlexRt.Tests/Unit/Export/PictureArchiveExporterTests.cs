@@ -7,34 +7,33 @@ using Xunit;
 namespace FlexRt.Tests.Unit.Export;
 
 /// <summary>
-/// Архив картинок окна (<see cref="PictureArchiveExporter"/>) на <c>samples/a603/pdata.fwc</c> (72 PNG и 4 JPEG): в архиве те
-/// же файлы, что консоль пишет в папку <c>images</c> (<see cref="PictureExporter"/>), в порядке ядра, в корне, без сжатия.
+/// Архив картинок окна (<see cref="PictureArchiveExporter"/>) на <c>samples/a603/pdata.fwc</c> (72 PNG и 4 JPEG): в архиве
+/// картинки панели под именами <see cref="PictureArchiveExporter.EntryName"/> в порядке ядра, в корне, без сжатия.
 /// </summary>
 public sealed class PictureArchiveExporterTests
 {
     /// <summary>Образец с PNG и JPEG.</summary>
     private const string A603Panel = "samples/a603/pdata.fwc";
 
-    /// <summary>Записи архива — файлы папки <c>images</c> консоли: те же имена в порядке ядра и те же байты, без сжатия.</summary>
+    /// <summary>Записи архива — картинки панели: имена в порядке ядра и байты картинок как есть, без сжатия.</summary>
     [Fact]
-    public void Archive_SameFilesAsConsoleImages()
+    public void Archive_HoldsPanelPictures()
     {
         var doc = FwxReader.Read(RepositoryPaths.InRepo(A603Panel));
         using var dir = new TestDirectory();
         var zip = Path.Combine(dir.Root, PictureArchiveExporter.FileName);
-        PictureExporter.Export(doc, dir.PicturesDir);
-
         PictureArchiveExporter.Export(doc.Pictures, zip);
 
         using var archive = ZipFile.OpenRead(zip);
-        Assert.Equal(doc.Pictures.Select(PictureExporter.FileName), archive.Entries.Select(e => e.FullName));
-        Assert.All(archive.Entries, entry =>
+        Assert.Equal(doc.Pictures.Select(PictureArchiveExporter.EntryName), archive.Entries.Select(e => e.FullName));
+        Assert.All(archive.Entries.Zip(doc.Pictures), pair =>
         {
+            var (entry, picture) = pair;
             Assert.Equal(entry.Length, entry.CompressedLength);
             using var stream = entry.Open();
             using var bytes = new MemoryStream();
             stream.CopyTo(bytes);
-            Assert.Equal(File.ReadAllBytes(Path.Combine(dir.PicturesDir, entry.FullName)), bytes.ToArray());
+            Assert.Equal(picture.Data, bytes.ToArray());
         });
     }
 

@@ -18,8 +18,8 @@ public sealed record PanelPictures(IReadOnlyList<PictureItem> Items)
     private static int _loads;
 
     /// <summary>
-    /// Картинки <see cref="FwxDocument.Pictures"/> — те же, что консоль пишет в папку <c>images</c>, под теми же именами
-    /// (<see cref="PictureExporter.FileName"/>), с размером из заголовка файла и адресом с новым номером открытия.
+    /// Картинки <see cref="FwxDocument.Pictures"/> — под именами записей архива
+    /// (<see cref="PictureArchiveExporter.EntryName"/>), с размером из заголовка файла и адресом с новым номером открытия.
     /// </summary>
     /// <returns>Узел «Картинки»; картинок нет — пустой.</returns>
     public static PanelPictures From(FwxDocument doc)

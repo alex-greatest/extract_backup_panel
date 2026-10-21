@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;
@@ -10,45 +9,44 @@ namespace FlexRt.Extraction;
 
 /// <summary>
 /// Данные ПЛК для прочитанной панели: проверка «не поддерживается», чтение проекта ПЛК, сопоставление тегов и
-/// сообщения о проблемах проекта ПЛК. Общий шаг запуска (<see cref="ExtractionRun"/>) и окна просмотра; сам ничего
-/// не печатает — события уходят в <see cref="IExtractionReporter"/>.
+/// сообщения о проблемах проекта ПЛК. Шаг открытия панели в окне; сам ничего
+/// не печатает — строки уходят в текст запуска <see cref="RunTranscript"/>.
 /// </summary>
 public sealed class PlcDataReader
 {
+    /// <summary>
+    /// Конец сообщения «не поддерживается»: что стало с результатом — окно показывает панель без данных ПЛК (решение
+    /// пользователя).
+    /// </summary>
+    public const string UnsupportedConsequence = "панель показана без данных ПЛК";
+
     /// <summary>Проект ПЛК: файл <c>PEData.plf</c> или папка карты ПЛК; может не существовать.</summary>
     private readonly string _plcPath;
 
-    /// <summary>Получатель событий.</summary>
-    private readonly IExtractionReporter _reporter;
+    /// <summary>Текст запуска.</summary>
+    private readonly RunTranscript _transcript;
 
-    /// <summary>Конец сообщения «не поддерживается»: что стало с результатом (консоль — «файлы не созданы»).</summary>
-    private readonly string _unsupportedConsequence;
-
-    /// <summary>Сообщения о проблемах проекта ПЛК (лист «Ошибки»).</summary>
+    /// <summary>Сообщения о проблемах проекта ПЛК (вкладка «Ошибки» окна).</summary>
     private readonly List<string> _errors = [];
 
     /// <summary>Создаёт чтение; выполняет его <see cref="Read"/>.</summary>
-    private PlcDataReader(string plcPath, IExtractionReporter reporter, string unsupportedConsequence)
+    private PlcDataReader(string plcPath, RunTranscript transcript)
     {
         _plcPath = plcPath;
-        _reporter = reporter;
-        _unsupportedConsequence = unsupportedConsequence;
+        _transcript = transcript;
     }
 
     /// <summary>
     /// Прочитать данные ПЛК для панели. Порядок событий: при нескольких соединениях панели и заданных данных ПЛК —
-    /// <see cref="IExtractionReporter.Unsupported"/> и конец; проект ПЛК (не найден, прочитан или не прочитан);
-    /// сопоставление (<see cref="IExtractionReporter.MatchFailed"/> при сбое, затем
-    /// <see cref="IExtractionReporter.Matched"/>); по <see cref="IExtractionReporter.PlcError"/> на проблему проекта ПЛК.
+    /// <see cref="RunTranscript.Unsupported"/> (с концом <see cref="UnsupportedConsequence"/>) и конец; проект ПЛК
+    /// (не найден, прочитан или не прочитан); по <see cref="RunTranscript.PlcError"/> на проблему проекта ПЛК.
     /// </summary>
     /// <param name="doc">Прочитанная панель.</param>
     /// <param name="plcPath">Файл <c>PEData.plf</c> или папка карты ПЛК; может не существовать.</param>
-    /// <param name="reporter">Получатель событий.</param>
-    /// <param name="unsupportedConsequence">Конец сообщения «не поддерживается» — что стало с результатом: у консоли
-    /// «файлы не созданы», у окна — «панель показана без данных ПЛК».</param>
+    /// <param name="transcript">Текст запуска: строки данных ПЛК.</param>
     /// <returns>Проект ПЛК, откуда данные ПЛК, сопоставление и ошибки ПЛК; при «не поддерживается» — только признак.</returns>
-    public static PlcData Read(FwxDocument doc, string plcPath, IExtractionReporter reporter, string unsupportedConsequence) =>
-        new PlcDataReader(plcPath, reporter, unsupportedConsequence).Run(doc);
+    public static PlcData Read(FwxDocument doc, string plcPath, RunTranscript transcript) =>
+        new PlcDataReader(plcPath, transcript).Run(doc);
 
     /// <summary>Всё чтение; см. <see cref="Read"/>.</summary>
     /// <returns>Итог чтения.</returns>
@@ -62,7 +60,7 @@ public sealed class PlcDataReader
         var matches = MatchTags(doc, project);
         foreach (var error in _errors)
         {
-            _reporter.PlcError(error);
+            _transcript.PlcError(error);
         }
         return new PlcData(false, project, source, matches, _errors);
     }
@@ -71,7 +69,7 @@ public sealed class PlcDataReader
     /// Сознательно не поддерживается (решение пользователя): у панели больше одного соединения с
     /// ПЛК и данные ПЛК заданы — есть файл <c>PEData.plf</c> или папка карты ПЛК. ПЛК для
     /// соединения тогда нужно выбирать по IP, а это проверено не на всех источниках. Сообщает
-    /// <see cref="IExtractionReporter.Unsupported"/>; без данных ПЛК такая панель читается.
+    /// <see cref="RunTranscript.Unsupported"/>; без данных ПЛК такая панель читается.
     /// </summary>
     /// <returns><c>true</c>, если данные ПЛК не читаются.</returns>
     private bool IsUnsupported(FwxDocument doc)
@@ -80,8 +78,8 @@ public sealed class PlcDataReader
         {
             return false;
         }
-        _reporter.Unsupported($"не поддерживается: соединений панели с ПЛК - {doc.Connections.Count}, а данные ПЛК заданы ({_plcPath}) - "
-            + $"сопоставление сделано только для панели с одним соединением; {_unsupportedConsequence}");
+        _transcript.Unsupported($"не поддерживается: соединений панели с ПЛК - {doc.Connections.Count}, а данные ПЛК заданы ({_plcPath}) - "
+            + $"сопоставление сделано только для панели с одним соединением; {UnsupportedConsequence}");
         return true;
     }
 
@@ -98,20 +96,19 @@ public sealed class PlcDataReader
         var isCard = Directory.Exists(_plcPath);
         if (!isCard && !File.Exists(_plcPath))
         {
-            _reporter.PlcNotFound(_plcPath);
+            _transcript.PlcNotFound(_plcPath);
             return (null, $"не найден: {_plcPath}");
         }
-        var timer = Stopwatch.StartNew();
         try
         {
             var project = isCard ? CardReader.Read(_plcPath) : PlfReader.Read(_plcPath);
-            _reporter.PlcRead(_plcPath, isCard, project, timer.ElapsedMilliseconds);
+            _transcript.PlcRead(_plcPath, isCard, project);
             _errors.AddRange(project.Problems);
             return (project, $"{(isCard ? "карта ПЛК" : "PEData.plf")}: {_plcPath}");
         }
         catch (Exception e)
         {
-            _reporter.PlcReadFailed(_plcPath, e);
+            _transcript.PlcReadFailed(_plcPath, e);
             _errors.Add($"{_plcPath}: {ReadFailure.Describe(e)}");
             return (null, $"не прочитан: {_plcPath}");
         }
@@ -131,11 +128,9 @@ public sealed class PlcDataReader
         }
         catch (Exception e)
         {
-            _reporter.MatchFailed(e);
             _errors.Add($"сопоставление с ПЛК: {ReadFailure.Describe(e)}");
             matches = TagMatcher.Match(doc, null);
         }
-        _reporter.Matched(matches);
         return matches;
     }
 }

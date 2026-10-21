@@ -2,6 +2,7 @@ using ClosedXML.Excel;
 using FlexRt.Export.PanelData;
 using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Export.PanelData.Tags;
+using FlexRt.Extraction;
 using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Summary;
@@ -14,31 +15,32 @@ namespace FlexRt.Tests.Unit.Export.PanelData;
 
 /// <summary>
 /// Книга окна — листы <see cref="PanelDataBook.TryBuild(PanelDataSource)"/>, записанные <see cref="ReportSheetsExporter"/>,
-/// как их собирает окно, — совпадает с книгой консоли (<see cref="PanelDataExporter"/>) ячейка в ячейку; консоль пишет
-/// листы описания книги (<see cref="PanelDataBook.Sheets"/>) по порядку и «Ошибки» последним; сбой одного листа у окна не
-/// мешает остальным (<c>.claude/rules/окно.md</c>, сохранение в Excel). Без данных ПЛК.
+/// как их собирает окно, — листы описания книги (<see cref="PanelDataBook.Sheets"/>) по порядку; сбой одного листа у окна
+/// не мешает остальным (<c>.claude/rules/окно.md</c>, сохранение в Excel). Без данных ПЛК.
 /// </summary>
 public sealed class WindowWorkbookTests
 {
     /// <summary>Образцы: системные события, классы и экраны; дискретные и аналоговые алармы с группами.</summary>
     public static TheoryData<string> Panels => ["samples/pdata.fwc", "samples/project1-groups/pdata.fwc"];
 
-    /// <summary>Каждая ячейка книги окна равна ячейке книги консоли: значение, тип и заливка; листы и их порядок те же.</summary>
+    /// <summary>
+    /// Книга окна — листы, которые есть по описанию книги (<see cref="PanelDataSheet.Exists"/>), в его порядке; все
+    /// построены, листа «Ошибки» нет.
+    /// </summary>
     [Theory]
     [MemberData(nameof(Panels))]
-    public void WindowBook_EqualsConsoleBook(string panel)
+    public void WindowBook_FollowsBookDescription(string panel)
     {
         using var dir = new TestDirectory();
         var (doc, matches, summary) = Read(panel);
-        var console = Path.Combine(dir.Root, "console.xlsx");
         var window = Path.Combine(dir.Root, "window.xlsx");
 
-        PanelDataExporter.Export(doc, null, summary, matches, [], console);
         var built = PanelDataBook.TryBuild(new PanelDataSource(doc, null, summary, new Lazy<IReadOnlyList<PlcMatch?>>(() => matches)));
         Assert.All(built, b => Assert.Null(b.Error));
         ReportSheetsExporter.Export([.. built.Select(b => b.Sheet)], window);
 
-        Assert.Equal(Cells(console), Cells(window));
+        using var workbook = new XLWorkbook(window);
+        Assert.Equal(Present(doc), workbook.Worksheets.Select(s => s.Name));
     }
 
     /// <summary>
@@ -51,22 +53,6 @@ public sealed class WindowWorkbookTests
         Assert.Equal(
             ["Сводка", "Теги", "Системные события", "Дискретные алармы", "Аналоговые алармы", "Классы алармов", "Группы алармов", "Экраны"],
             PanelDataBook.Sheets.Select(s => s.Name));
-    }
-
-    /// <summary>Консоль пишет листы, которые есть по описанию книги, в его порядке, и «Ошибки» последним.</summary>
-    [Theory]
-    [MemberData(nameof(Panels))]
-    public void ConsoleBook_FollowsBookDescription(string panel)
-    {
-        using var dir = new TestDirectory();
-        var (doc, matches, summary) = Read(panel);
-        var console = Path.Combine(dir.Root, "console.xlsx");
-
-        PanelDataExporter.Export(doc, null, summary, matches, ["ошибка"], console);
-
-        using var workbook = new XLWorkbook(console);
-        string[] expected = [.. Present(doc), "Ошибки"];
-        Assert.Equal(expected, workbook.Worksheets.Select(s => s.Name));
     }
 
     /// <summary>
@@ -93,22 +79,10 @@ public sealed class WindowWorkbookTests
     {
         var path = RepositoryPaths.InRepo(panel);
         var doc = FwxReader.Read(path);
-        return (doc, TagMatcher.Match(doc, null), new RunSummary(path, new PanelFiles(null, null), "не задан"));
+        return (doc, TagMatcher.Match(doc, null), new RunSummary(path, PanelSources.NoPlc));
     }
 
     /// <summary>Имена листов, которые есть в книге по описанию (<see cref="PanelDataSheet.Exists"/>), по порядку.</summary>
     /// <returns>Имена листов.</returns>
     private static IEnumerable<string> Present(FwxDocument doc) => PanelDataBook.Sheets.Where(s => s.Exists(doc)).Select(s => s.Name);
-
-    /// <summary>Все непустые ячейки книги: лист, адрес, тип, значение и заливка.</summary>
-    /// <returns>Строки по порядку листов и ячеек.</returns>
-    private static List<string> Cells(string path)
-    {
-        using var workbook = new XLWorkbook(path);
-        return
-        [
-            .. workbook.Worksheets.SelectMany(sheet => sheet.CellsUsed().Select(c =>
-                $"{sheet.Name}!{c.Address} {c.DataType} {c.Value} {c.Style.Fill.BackgroundColor} {c.Style.Font.FontColor}"))
-        ];
-    }
 }

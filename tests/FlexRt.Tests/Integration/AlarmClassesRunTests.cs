@@ -41,7 +41,7 @@ public sealed class AlarmClassesRunTests
     private static readonly string[] AllUnknown = ["?", "?", "?", "?", "?", "?"];
 
     /// <summary>
-    /// A603A0097 без данных ПЛК: код 0, 6 классов в тексте запуска и на «Сводке», лист совпадает с
+    /// A603A0097 без данных ПЛК: без предупреждений, 6 классов в тексте запуска и на «Сводке», лист совпадает с
     /// эталоном: Display name и тексты состояний на трёх языках, имена стандартных классов, State
     /// machine, журнал <c>OP70_AlarmsHistory</c> у классов 1 и 2, адрес <c>test@test.com</c> у 64,
     /// цвета фона.
@@ -49,9 +49,10 @@ public sealed class AlarmClassesRunTests
     [Fact]
     public void ClassesPanel_MatchesExpected()
     {
-        var (dir, run) = SharedRuns.WithoutPlc(ClassesPanel);
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(ClassesPanel), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Классов алармов: 6");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Классов алармов=6");
         Assert.Equal(File.ReadAllLines(RepositoryPaths.InRepo(Expected)), SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName));
@@ -65,9 +66,10 @@ public sealed class AlarmClassesRunTests
     [Fact]
     public void ClassesPanel_BackgroundFills()
     {
-        var (dir, run) = SharedRuns.WithoutPlc(ClassesPanel);
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(ClassesPanel), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         string[] expected =
         [
             "1 | FF0000 | FFCC00 | FFFFFF | FFFFFF",
@@ -81,15 +83,16 @@ public sealed class AlarmClassesRunTests
     }
 
     /// <summary>
-    /// <see cref="TwoLogsPanel"/>: код 0, без предупреждений, у каждого класса свой журнал и свой
+    /// <see cref="TwoLogsPanel"/>: без предупреждений, без предупреждений, у каждого класса свой журнал и свой
     /// адрес — записи MSG_LOGGER по 6 байт, номер элемента FUNC_SEND_EMAIL 0 и 1.
     /// </summary>
     [Fact]
     public void TwoLogsPanel_LogAndEmailPerClass()
     {
-        var (dir, run) = SharedRuns.WithoutPlc(TwoLogsPanel);
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(TwoLogsPanel), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         Assert.DoesNotContain("ПРЕДУПРЕЖДЕНИЕ", run.Errors + run.Output);
         string[] logs = ["<No log>", "<No log>", "<No log>", "<No log>", "<No log>", "Alarm_log_1", "Alarm_log_2"];
         string[] emails = ["", "", "", "", "", "a@test.com", "b@test.com"];
@@ -104,9 +107,10 @@ public sealed class AlarmClassesRunTests
     [Fact]
     public void SamplePanel_ClassColorsOff()
     {
-        var (dir, run) = SharedRuns.WithoutPlc("samples/pdata.fwc");
+        using var dir = new TestDirectory();
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/pdata.fwc"), null, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Классов алармов: 2");
         SummarySheetDump.Contains(dir.PanelDataWorkbook, "Классов алармов=2");
         var colors = string.Join(" | ", Enumerable.Repeat(ColorsOff, 4));
@@ -123,7 +127,7 @@ public sealed class AlarmClassesRunTests
     }
 
     /// <summary>
-    /// Копия с числом классов 99 в элементе RECMSG: длина не сходится — код 1, предупреждение с
+    /// Копия с числом классов 99 в элементе RECMSG: длина не сходится — предупреждение с
     /// таблицей и смещением; лист записан, Log у всех классов <c>?</c>, адрес письма не затронут.
     /// </summary>
     [Fact]
@@ -132,7 +136,7 @@ public sealed class AlarmClassesRunTests
         using var dir = new TestDirectory();
         // число классов K — u16 за u32 1, u32 числом ссылок 1, ссылкой 8 байт и u16 2
         var (input, item) = CorruptedCopy.U16(dir, ClassesPanel, "RECMSG", 0, 0x12, 99);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
         AssertWarned(run, $"RECMSG @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 классами");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
@@ -143,7 +147,7 @@ public sealed class AlarmClassesRunTests
 
     /// <summary>
     /// Копия с первым словом 4 у третьего элемента ARCHIVES (журнал алармов
-    /// <c>OP70_AlarmsHistory</c>): код 1, предупреждение с таблицей и смещением; лист записан, Log
+    /// <c>OP70_AlarmsHistory</c>): предупреждение с таблицей и смещением; лист записан, Log
     /// у всех классов <c>?</c>, адрес письма не затронут.
     /// </summary>
     [Fact]
@@ -151,7 +155,7 @@ public sealed class AlarmClassesRunTests
     {
         using var dir = new TestDirectory();
         var (input, item) = CorruptedCopy.U16(dir, ClassesPanel, "ARCHIVES", 2, 0, 4);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
         AssertWarned(run, $"ARCHIVES @ 0x{item.Offset:X}: запись 3: первое слово не 3");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
@@ -161,7 +165,7 @@ public sealed class AlarmClassesRunTests
     }
 
     /// <summary>
-    /// Копия с числом записей 99 в элементе MSG_LOGGER: длина не сходится — код 1, предупреждение с
+    /// Копия с числом записей 99 в элементе MSG_LOGGER: длина не сходится — предупреждение с
     /// таблицей и смещением; лист записан, E-mail address у всех классов <c>?</c>, журнал не
     /// затронут.
     /// </summary>
@@ -171,7 +175,7 @@ public sealed class AlarmClassesRunTests
         using var dir = new TestDirectory();
         // число записей K — u16 за u32 1, u32 числом ссылок 1, ссылкой 8 байт и u16 1
         var (input, item) = CorruptedCopy.U16(dir, ClassesPanel, "MSG_LOGGER", 0, 0x12, 99);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
         AssertWarned(run, $"MSG_LOGGER @ 0x{item.Offset:X}: запись 1: длина {item.Length} не сходится с 99 записями");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
@@ -181,7 +185,7 @@ public sealed class AlarmClassesRunTests
     }
 
     /// <summary>
-    /// Копия с нечётной длиной адреса (3 байта) в элементе FUNC_SEND_EMAIL: код 1, предупреждение с
+    /// Копия с нечётной длиной адреса (3 байта) в элементе FUNC_SEND_EMAIL: предупреждение с
     /// таблицей и смещением; лист записан, E-mail address у всех классов <c>?</c>, журнал не затронут.
     /// </summary>
     [Fact]
@@ -190,7 +194,7 @@ public sealed class AlarmClassesRunTests
         using var dir = new TestDirectory();
         // +0x50 — u32 длина адреса в байтах, см. FuncSendEmailParser
         var (input, item) = CorruptedCopy.U32(dir, ClassesPanel, "FUNC_SEND_EMAIL", 0, 0x50, 3);
-        var run = FlexRtProcess.Run(input, dir.MissingFile(), dir.OutDir);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
 
         AssertWarned(run, $"FUNC_SEND_EMAIL @ 0x{item.Offset:X}: запись 1: адрес из 3 байт не помещается в {item.Length} байт");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, AlarmClassesSheetDump.SheetName);
@@ -200,14 +204,14 @@ public sealed class AlarmClassesRunTests
     }
 
     /// <summary>
-    /// Запуск на испорченной копии: код 1, среди предупреждений запуска — предупреждение «не разобрано» с
+    /// Запуск на испорченной копии: среди предупреждений запуска — предупреждение «не разобрано» с
     /// <paramref name="message"/>, без трассы стека, классов по-прежнему 6.
     /// </summary>
     /// <param name="run">Результат запуска.</param>
     /// <param name="message">Таблица, смещение и текст ошибки формата.</param>
-    private static void AssertWarned(ProgramRun run, string message)
+    private static void AssertWarned(PanelRun run, string message)
     {
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - {message}");
         RunAssertions.HasLine(run.Output, "Классов алармов: 6");
         RunAssertions.NoStackTrace(run);

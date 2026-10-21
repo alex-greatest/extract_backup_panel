@@ -83,20 +83,4 @@ public sealed class FwxBinary(byte[] data)
 
     /// <summary>Строка UTF-16LE, длина (в символах) лежит в первом 16-битном слове.</summary>
     public string GetName(long pos) => GetNameLen(pos + 2, D2(pos));
-
-    /// <summary>Байты как двузначные hex через пробел: <c>ef be 0c 00</c>.</summary>
-    public string ToHex(long pos, long length)
-    {
-        Check(pos, length);
-        var sb = new StringBuilder((int)Math.Min(length * 3, int.MaxValue / 2));
-        for (long i = 0; i < length; i++)
-        {
-            if (i > 0)
-            {
-                sb.Append(' ');
-            }
-            sb.Append(data[pos + i].ToString("x2"));
-        }
-        return sb.ToString();
-    }
 }

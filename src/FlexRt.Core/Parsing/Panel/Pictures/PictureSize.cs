@@ -5,7 +5,7 @@ namespace FlexRt.Parsing.Panel.Pictures;
 
 /// <summary>
 /// Ширина и высота картинки из заголовка её файла PNG или JPEG (<see cref="PanelPicture.Data"/>) —
-/// для свойств картинки в окне; консоль размер не выводит.
+/// для свойств картинки в окне.
 /// </summary>
 public static class PictureSize
 {

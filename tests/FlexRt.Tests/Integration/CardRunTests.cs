@@ -29,8 +29,7 @@ public sealed class CardRunTests
     private static readonly byte[] InterfaceStreamStart = [0x78, 0x7d, 0x66, 0x05, 0x2b, 0x13];
 
     /// <summary>
-    /// Панель с картой: код 0, сводка «карта ПЛК; ПЛК: 1, тегов ПЛК: 591», лист «Сводка» первый —
-    /// модель панели и версия Runtime из файлов рядом с <c>pdata.fwc</c> (копии из бэкапа CCB-A13),
+    /// Панель с картой: без предупреждений, сводка «карта ПЛК; ПЛК: 1, тегов ПЛК: 591», лист «Сводка» первый —
     /// IP панели, соединение, модель CPU с карты; лист «Теги» совпадает с эталоном (481 тег найден, 18 — «отсутствует в файле ПЛК»: программу ПЛК меняли после
     /// сборки панели). Эталон — слепок вывода программы, сверенный только по именам HMI-тегов
     /// (проекта TIA карты нет): тест ловит регрессии, а не подтверждает типы и комментарии.
@@ -40,15 +39,13 @@ public sealed class CardRunTests
     {
         using var dir = new TestDirectory();
         var card = dir.ExtractFromRepo(CardArchive, CardFolder);
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, "Тегов: 517");
         RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 591)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/card/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook,
-            "Модель панели=TP1500 Comfort V2",
-            "Версия Runtime=17.00.00.07",
             "IP панели=192.168.1.3 / 255.255.255.0",
             "Языки панели=0x419 — русский (Россия)",
             "Строк языков=19674",
@@ -63,16 +60,16 @@ public sealed class CardRunTests
     }
 
     /// <summary>
-    /// Путь карты с завершающим разделителем: та же карта, тот же лист «Теги», код 0.
+    /// Путь карты с завершающим разделителем: та же карта, тот же лист «Теги», без предупреждений.
     /// </summary>
     [Fact]
     public void CardPathWithTrailingSeparator_SameResult()
     {
         using var dir = new TestDirectory();
         var card = dir.ExtractFromRepo(CardArchive, CardFolder) + Path.DirectorySeparatorChar;
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/card/теги.txt");
     }
 
@@ -88,9 +85,9 @@ public sealed class CardRunTests
     {
         using var dir = new TestDirectory();
         var card = dir.ExtractFromRepo("samples/plc/PLC_1-card.zip", "PLC_1-card");
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata-one-connection.fwc"), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/plc/pdata-one-connection.fwc"), card, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 48)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc/теги.txt");
         SummarySheetDump.Contains(dir.PanelDataWorkbook,
@@ -110,30 +107,30 @@ public sealed class CardRunTests
     {
         using var dir = new TestDirectory();
         var card = dir.ExtractFromRepo("samples/plc-udt/PLC_1-card.zip", "PLC_1-udt-card");
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc-udt/pdata.fwc"), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/plc-udt/pdata.fwc"), card, dir.OutDir);
 
-        RunAssertions.ExitCode(run, 0);
+        RunAssertions.Clean(run);
         RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} (карта ПЛК; ПЛК: 1, тегов ПЛК: 49)");
         RunAssertions.TagSheetEquals(dir.PanelDataWorkbook, "samples/expected/plc-udt/теги.txt");
     }
 
     /// <summary>
     /// Карта с панелью <c>samples/plc/pdata.fwc</c> (два соединения с ПЛК): сознательно не
-    /// поддерживается — код 1, сообщение среди ошибок запуска, файлы результата не созданы.
+    /// поддерживается — сообщение среди ошибок запуска, панель показана без данных ПЛК.
     /// </summary>
     [Fact]
     public void CardWithTwoConnectionPanel_Unsupported()
     {
         using var dir = new TestDirectory();
         var card = dir.ExtractFromRepo(CardArchive, CardFolder);
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo("samples/plc/pdata.fwc"), card, dir.OutDir);
 
         RunAssertions.Unsupported(run, 2, card, dir);
     }
 
     /// <summary>
-    /// Папка без <c>SIMATIC.S7S\OMSSTORE</c>: карта не прочитана — код 1, предупреждение среди предупреждений запуска
-    /// и на листе «Ошибки», строка «не прочитан» в тексте запуска, без трассы стека.
+    /// Папка без <c>SIMATIC.S7S\OMSSTORE</c>: карта не прочитана — предупреждение среди предупреждений запуска,
+    /// строка «не прочитан» в тексте запуска, без трассы стека.
     /// </summary>
     [Fact]
     public void FolderWithoutStore_WarnsAndCardNotRead()
@@ -141,20 +138,19 @@ public sealed class CardRunTests
         using var dir = new TestDirectory();
         var card = Path.Combine(dir.Root, "пустая-карта");
         Directory.CreateDirectory(card);
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
 
         var message = $"{card}: в папке нет {Path.Combine("SIMATIC.S7S", "OMSSTORE")}";
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}");
         RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} не прочитан - данные ПЛК: неизвестно");
-        RunAssertions.ErrorsSheetContains(dir.PanelDataWorkbook, message);
         RunAssertions.NoStackTrace(run);
     }
 
     /// <summary>
     /// Копия карты с инвертированным байтом внутри первого сжатого интерфейса блока: поток не
-    /// распаковывается, карта не прочитана целиком — код 1, сообщение с файлом и смещением потока
-    /// среди предупреждений запуска и на листе «Ошибки», колонки ПЛК «неизвестно».
+    /// распаковывается, карта не прочитана целиком — сообщение с файлом и смещением потока
+    /// среди предупреждений запуска, колонки ПЛК «неизвестно».
     /// </summary>
     [Fact]
     public void BrokenInterfaceStream_CardNotRead()
@@ -162,13 +158,12 @@ public sealed class CardRunTests
         using var dir = new TestDirectory();
         var card = dir.ExtractFromRepo(CardArchive, CardFolder);
         var (file, offset) = CorruptFirstInterfaceStream(card);
-        var run = FlexRtProcess.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
+        var run = PanelRunner.Run(RepositoryPaths.InRepo(Panel), card, dir.OutDir);
 
         var message = $"{card}: {file} @ 0x{offset:X}: поток zlib";
-        RunAssertions.ExitCode(run, 1);
+        RunAssertions.HasProblems(run);
         Assert.Contains(run.Errors.Split('\n'), line => line.StartsWith($"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}", StringComparison.Ordinal));
         RunAssertions.HasLine(run.Output, $"Файл ПЛК: {card} не прочитан - данные ПЛК: неизвестно");
-        RunAssertions.ErrorsSheetContains(dir.PanelDataWorkbook, message);
         Assert.Contains(TagSheetDump.Read(dir.PanelDataWorkbook), row => row.StartsWith("A13=GlobalDB_bResetAlarmCmd | B13=Bool | C13=HMI1 | D13=неизвестно | E13=неизвестно |", StringComparison.Ordinal));
         RunAssertions.NoStackTrace(run);
     }

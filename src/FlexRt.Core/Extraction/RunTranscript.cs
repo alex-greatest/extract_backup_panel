@@ -1,18 +1,15 @@
 using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Export.PanelData.Screens;
-using FlexRt.Model.Matching;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Plc;
 
 namespace FlexRt.Extraction;
 
 /// <summary>
-/// Текст запуска для пользователя: сводка панели, строка «Файл ПЛК:», предупреждения, ошибки и итоги экспортов —
-/// по строке с уровнем (<see cref="TranscriptLine"/>) в порядке событий. Этот текст раньше печатала консоль: строки
-/// <see cref="TranscriptLevel.Info"/> — в stdout, остальные — в stderr. Подробности для лога (время, стек, итог
-/// сопоставления) сюда не попадают.
+/// Текст чтения панели для вкладки Info окна: сводка панели, строка «Файл ПЛК:», предупреждения и ошибки — по строке с
+/// уровнем (<see cref="TranscriptLine"/>) в порядке событий. Стек ошибки сюда не попадает.
 /// </summary>
-public sealed class RunTranscript : IExtractionReporter
+public sealed class RunTranscript
 {
     /// <summary>Строки в порядке событий.</summary>
     private readonly List<TranscriptLine> _lines = [];
@@ -60,38 +57,14 @@ public sealed class RunTranscript : IExtractionReporter
     public void PlcNotFound(string path) => Info($"Файл ПЛК: {path} не найден - данные ПЛК: неизвестно");
 
     /// <summary>Строка «Файл ПЛК: путь (карта ПЛК; ПЛК: N, тегов ПЛК: M)»; «карта ПЛК; » — только у карты.</summary>
-    public void PlcRead(string path, bool isCard, PlcProject project, long elapsedMs) =>
+    public void PlcRead(string path, bool isCard, PlcProject project) =>
         Info($"Файл ПЛК: {path} ({(isCard ? "карта ПЛК; " : "")}ПЛК: {project.Devices.Count}, тегов ПЛК: {project.Tags.Count})");
 
     /// <summary>Строка «Файл ПЛК: путь не прочитан - данные ПЛК: неизвестно»; причина придёт в <see cref="PlcError"/>.</summary>
     public void PlcReadFailed(string path, Exception error) => Info($"Файл ПЛК: {path} не прочитан - данные ПЛК: неизвестно");
 
-    /// <summary>Строки нет: причина придёт в <see cref="PlcError"/>, стек — только в лог.</summary>
-    public void MatchFailed(Exception error)
-    {
-    }
-
-    /// <summary>Строки нет: итог сопоставления — только в лог.</summary>
-    public void Matched(IReadOnlyList<PlcMatch?> matches)
-    {
-    }
-
     /// <summary>Предупреждение «ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - сообщение».</summary>
     public void PlcError(string message) => Warning($"ПРЕДУПРЕЖДЕНИЕ: файл ПЛК - {message}");
-
-    /// <summary>Предупреждение «ПРЕДУПРЕЖДЕНИЕ: таблица сохранена целиком (raw.hex.txt) - сообщение».</summary>
-    public void RawTableSaved(string warning) => Warning($"ПРЕДУПРЕЖДЕНИЕ: таблица сохранена целиком (raw.hex.txt) - {warning}");
-
-    /// <summary>Успех — строка «[название] итог», ошибка — «[название] ОШИБКА: сообщение».</summary>
-    public void ExportFinished(ExportOutcome outcome)
-    {
-        if (outcome.Error is not null)
-        {
-            Error($"[{outcome.Title}] ОШИБКА: {outcome.Error.Message}");
-            return;
-        }
-        Info($"[{outcome.Title}] {outcome.Result}");
-    }
 
     /// <summary>Добавить строку уровня <see cref="TranscriptLevel.Info"/>.</summary>
     private void Info(string text) => _lines.Add(new TranscriptLine(TranscriptLevel.Info, text));
