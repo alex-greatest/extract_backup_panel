@@ -36,9 +36,23 @@ public static class ScreenItems
                 row[nameColumn].Text ?? "",
                 s.Kind,
                 s.Number is not null && s.Number == doc.StartScreenNumber,
-                [.. table.Columns.Zip(row)]))
+                Properties(table, row)))
         ];
     }
+
+    /// <summary>
+    /// Свойства экрана — ячейки строки под заголовками колонок; язык и группа колонки — из
+    /// <see cref="ReportTable.ColumnLanguages"/> и <see cref="ReportTable.ColumnGroups"/> (пусто — языковых колонок нет).
+    /// </summary>
+    /// <returns>По свойству на колонку в порядке листа.</returns>
+    private static List<ScreenProperty> Properties(ReportTable table, ReportCell[] row) =>
+    [
+        .. table.Columns.Select((title, i) => new ScreenProperty(
+            title,
+            row[i],
+            table.ColumnLanguages.ElementAtOrDefault(i),
+            table.ColumnGroups.ElementAtOrDefault(i)))
+    ];
 
     /// <summary>Номер колонки таблицы по заголовку.</summary>
     /// <returns>Номер колонки с нуля.</returns>

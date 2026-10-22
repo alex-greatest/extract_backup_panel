@@ -1,5 +1,5 @@
-using FlexRt.Export.PanelData.Screens;
 using FlexRt.Extraction;
+using FlexRt.Model.Panel;
 using FlexRt.Parsing.Panel;
 using FlexRt.Ui.Panel.Pictures;
 using FlexRt.Ui.Panel.Screens;
@@ -15,7 +15,7 @@ public static class PanelLoader
 {
     /// <summary>
     /// Прочитать панель <paramref name="path"/> с данными ПЛК <paramref name="plcPath"/>, если они выбраны. Чтение файла,
-    /// данных ПЛК и построение разделов идут вне вызывающего потока, остальные шаги — в нём, по очереди: текст запуска
+    /// экраны, данные ПЛК и построение разделов идут вне вызывающего потока, остальные шаги — в нём, по очереди: текст запуска
     /// одновременно из двух потоков не пишется. Не прочитан сам файл — «Файл не прочитан» и «Не удалось прочитать…» на
     /// Info; упал следующий шаг — панели нет, а ошибка называет шаг (решение пользователя): «ОШИБКА: данные ПЛК не
     /// обработаны: причина». Исключений не бросает.
@@ -33,8 +33,7 @@ public static class PanelLoader
             failedStep = "сводка панели не построена";
             transcript.PanelRead(path, doc);
             failedStep = "экраны не разобраны";
-            var screens = ScreenItems.From(doc);
-            var screenCount = ScreensTable.ScreenCount(doc);
+            var (screens, screenCount) = await Task.Run(() => ScreensWithCount(doc));
             failedStep = "картинки не разобраны";
             var pictures = PanelPictures.From(doc);
             failedStep = "данные ПЛК не обработаны";
@@ -49,6 +48,18 @@ public static class PanelLoader
         {
             return Failure(path, transcript, failedStep, e);
         }
+    }
+
+    /// <summary>
+    /// Экраны панели для окна и число обычных экранов среди них (вида <see cref="ScreenKind.Screen"/>) — то же, что
+    /// <c>ScreensTable.ScreenCount</c> ядра (строки вида Screen), но без второго обхода записей SCREEN.
+    /// </summary>
+    /// <returns>Экраны в порядке листа «Экраны» и число обычных экранов.</returns>
+    /// <exception cref="InvalidOperationException">Ядро изменило таблицу листа «Экраны» (<see cref="ScreenItems.From"/>).</exception>
+    private static (IReadOnlyList<ScreenItem> Screens, int Count) ScreensWithCount(FwxDocument doc)
+    {
+        var screens = ScreenItems.From(doc);
+        return (screens, screens.Count(s => s.Kind == ScreenKind.Screen));
     }
 
     /// <summary>

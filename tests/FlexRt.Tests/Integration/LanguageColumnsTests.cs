@@ -1,6 +1,7 @@
 using FlexRt.Export;
 using FlexRt.Export.PanelData;
 using FlexRt.Export.PanelData.Alarms;
+using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
 using FlexRt.Extraction;
 using FlexRt.Model.Panel;
@@ -21,7 +22,7 @@ public sealed class LanguageColumnsTests
     /// <summary>
     /// Листы с текстами на языках: язык помечен ровно у колонок, в заголовке которых этот язык
     /// (<see cref="LanguageText.Format"/>), у остальных — <c>null</c>; у «Классов алармов» каждый язык — у четырёх колонок
-    /// (Display name, Incoming, Outgoing, Acknowledged), у остальных листов — у одной. Аналоговых алармов в a603 нет —
+    /// (Display name, Incoming, Outgoing, Acknowledged), у остальных листов (и Tooltip «Экранов») — у одной. Аналоговых алармов в a603 нет —
     /// таблица строится напрямую.
     /// </summary>
     [Fact]
@@ -35,14 +36,15 @@ public sealed class LanguageColumnsTests
         AssertLanguages(sheets[DiscreteAlarmsSheet.Name], 1);
         AssertLanguages(AnalogAlarmsTable.Build(doc), 1);
         AssertLanguages(sheets[AlarmClassesSheet.Name], 4);
+        AssertLanguages(sheets[ScreensSheet.Name], 1);
     }
 
-    /// <summary>У листов без текстов на языках («Сводка», «Теги», «Экраны») языков колонок нет.</summary>
+    /// <summary>У листов без текстов на языках («Сводка», «Теги», «Группы алармов») языков колонок нет.</summary>
     [Fact]
     public void A603_OtherSheets_NoLanguageColumns()
     {
         var sheets = Sheets(FwxReader.Read(RepositoryPaths.InRepo("samples/a603/pdata.fwc")));
-        string[] languageSheets = [SystemEventsSheet.Name, DiscreteAlarmsSheet.Name, AlarmClassesSheet.Name];
+        string[] languageSheets = [SystemEventsSheet.Name, DiscreteAlarmsSheet.Name, AlarmClassesSheet.Name, ScreensSheet.Name];
 
         Assert.Contains(TagsSheet.Name, sheets.Keys);
         Assert.All(sheets.Where(s => !languageSheets.Contains(s.Key)), s => Assert.Empty(s.Value.ColumnLanguages));
@@ -62,11 +64,11 @@ public sealed class LanguageColumnsTests
 
         var custom = cells.Where(c => c.LanguageTexts is not null).ToList();
         Assert.NotEmpty(custom);
-        Assert.All(custom, c =>
+        foreach (var cell in custom)
         {
-            Assert.Equal(A603Languages, c.LanguageTexts!.Keys);
-            Assert.Equal(c.LanguageTexts[0x409], c.Text);
-        });
+            Assert.Equal(A603Languages, cell.LanguageTexts!.Keys);
+            Assert.Equal(cell.LanguageTexts[0x409], cell.Text);
+        }
         Assert.Contains(custom, c => c.LanguageTexts![0x419] != c.Text);
         Assert.All(cells.Where(c => c.Text is "Errors" or "Warnings" or "Acknowledgement" or "No Acknowledgement"),
             c => Assert.Null(c.LanguageTexts));
@@ -91,7 +93,7 @@ public sealed class LanguageColumnsTests
         for (var i = 0; i < table.Columns.Count; i++)
         {
             var title = table.Columns[i];
-            int? expected = A603Languages.Where(l => title.EndsWith(LanguageText.Format(l))).Select(l => (int?)l).FirstOrDefault();
+            var expected = A603Languages.Where(l => title.EndsWith(LanguageText.Format(l))).Select(l => (int?)l).FirstOrDefault();
             Assert.Equal(expected, table.ColumnLanguages[i]);
         }
         Assert.All(A603Languages, l => Assert.Equal(groups, table.ColumnLanguages.Count(c => c == l)));

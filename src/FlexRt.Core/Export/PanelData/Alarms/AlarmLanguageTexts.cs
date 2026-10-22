@@ -9,11 +9,8 @@ namespace FlexRt.Export.PanelData.Alarms;
 /// </summary>
 public sealed class AlarmLanguageTexts
 {
-    /// <summary>Языки панели в порядке STRINGSTORE.</summary>
-    private readonly IReadOnlyList<int> _languages;
-
-    /// <summary>Тексты строк по языку и номеру строки.</summary>
-    private readonly ILookup<(int Lcid, long Idx), string> _texts;
+    /// <summary>Строки языков панели.</summary>
+    private readonly LanguageStrings _strings;
 
     /// <summary>Имена HMI-тегов полей в тексте.</summary>
     private readonly AlarmFieldNames _fieldNames;
@@ -21,8 +18,7 @@ public sealed class AlarmLanguageTexts
     /// <summary>Собрать языки и строки документа и индекс имён тегов полей.</summary>
     public AlarmLanguageTexts(FwxDocument doc)
     {
-        _languages = LanguageText.Languages(doc);
-        _texts = doc.Strings.ToLookup(s => (s.Lcid, (long)s.Idx), s => s.Str);
+        _strings = LanguageStrings.Of(doc);
         _fieldNames = new AlarmFieldNames(doc);
     }
 
@@ -31,7 +27,7 @@ public sealed class AlarmLanguageTexts
     /// если задан (<see cref="LanguageText.Columns"/>).
     /// </summary>
     /// <returns>По колонке на язык.</returns>
-    public IEnumerable<ReportColumn> Columns(string? prefix = null) => LanguageText.Columns(_languages, prefix);
+    public IEnumerable<ReportColumn> Columns(string? prefix = null) => _strings.Columns(prefix);
 
     /// <summary>
     /// Ячейки текста аларма по языкам: строка с номером <paramref name="textIdx"/> с подписями
@@ -41,26 +37,25 @@ public sealed class AlarmLanguageTexts
     public IEnumerable<ReportCell> Cells(long textIdx, IReadOnlyList<AlarmField> fields)
     {
         var labels = AlarmText.FieldLabels(fields, _fieldNames);
-        return _languages.Select(lcid => Text(lcid, textIdx))
+        return _strings.Languages.Select(lcid => _strings.Text(lcid, textIdx))
             .Select(text => (ReportCell)(text.Length > 0 ? AlarmText.Format(text, labels) : ""));
     }
 
     /// <summary>Ячейки строки с номером <paramref name="idx"/> на каждом языке как есть, без полей; нет строки — пустая ячейка.</summary>
     /// <returns>По ячейке на язык.</returns>
-    public IEnumerable<ReportCell> PlainCells(long idx) => _languages.Select(lcid => (ReportCell)Text(lcid, idx));
+    public IEnumerable<ReportCell> PlainCells(long idx) => _strings.Cells(idx);
 
     /// <summary>
     /// Ячейка строки с номером <paramref name="idx"/> (Display name своего класса в колонке Alarm class): текст — на первом
     /// языке панели (его пишет Excel), <see cref="ReportCell.LanguageTexts"/> — на каждом языке (их показывает окно).
     /// </summary>
     /// <returns>Ячейка; языков или строки нет — пустой текст.</returns>
-    public ReportCell LanguageCell(long idx) =>
-        ((ReportCell)(_languages.Count == 0 ? "" : Text(_languages[0], idx))) with
+    public ReportCell LanguageCell(long idx)
+    {
+        var languages = _strings.Languages;
+        return (ReportCell)(languages.Count == 0 ? "" : _strings.Text(languages[0], idx)) with
         {
-            LanguageTexts = _languages.ToDictionary(lcid => lcid, lcid => Text(lcid, idx))
+            LanguageTexts = languages.ToDictionary(lcid => lcid, lcid => _strings.Text(lcid, idx))
         };
-
-    /// <summary>Строка языка <paramref name="lcid"/> с номером <paramref name="idx"/>.</summary>
-    /// <returns>Текст строки; нет такой строки — пусто.</returns>
-    private string Text(int lcid, long idx) => _texts[(lcid, idx)].FirstOrDefault() ?? "";
+    }
 }

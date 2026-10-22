@@ -1,0 +1,18 @@
+<div class="prop-row">
+    <RadzenLabel Text="@($"{Name}:")" title="@Name" />
+    <PropertyValue Value="Value" Checked="Checked" />
+</div>
+
+@code {
+    /// <summary>Имя свойства — заголовок колонки листа: подпись поля и её всплывающая подсказка (длинное имя сжимается).</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = "";
+
+    /// <summary>Значение свойства — ячейка строки листа (показывает <see cref="PropertyValue"/>).</summary>
+    [Parameter, EditorRequired]
+    public ReportCell Value { get; set; }
+
+    /// <summary>Состояние флажка для свойства-флажка (Start screen); <c>null</c> — свойство показывается полем.</summary>
+    [Parameter]
+    public bool? Checked { get; set; }
+}

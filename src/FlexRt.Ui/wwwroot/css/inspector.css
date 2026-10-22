@@ -243,7 +243,8 @@
 }
 
 /* цвета полей и флажка — через переменные Radzen: их правила для наведения сильнее наших селекторов */
-.prop-row {
+.prop-row,
+.screen-tooltip {
     --rz-input-background-color: var(--surface);
     --rz-input-hover-background-color: var(--surface);
     --rz-input-focus-background-color: var(--surface);
@@ -255,6 +256,9 @@
     --rz-checkbox-checked-hover-border: 1px solid var(--accent);
     --rz-checkbox-checked-color: #ffffff;
     --rz-checkbox-checked-icon-background-color: transparent;
+}
+
+.prop-row {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -270,6 +274,7 @@
 
 .prop-input.rz-textbox {
     flex: 1;
+    min-width: 0;
     color: var(--text);
 }
 
@@ -280,4 +285,51 @@
 
 .prop-row .rz-chkbox-box:not(.rz-state-active) {
     background: var(--surface);
+}
+
+/* Многострочное значение (перенос строки в ячейке): поле в несколько строк, подпись — у первой строки */
+.prop-row:has(.prop-multiline) {
+    align-items: flex-start;
+}
+
+.prop-row:has(.prop-multiline) .rz-label {
+    padding-top: 5px;
+}
+
+.prop-multiline.rz-textarea,
+.tooltip-text.rz-textarea {
+    flex: 1;
+    resize: none;
+    color: var(--text);
+}
+
+/* General экрана, как в TIA: слева поля, справа Tooltip; в узкой панели блоки встают друг под друга */
+.screen-general {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.screen-general-main.prop-group.rz-fieldset {
+    flex: 0 1 380px;
+}
+
+.screen-tooltip.prop-group.rz-fieldset {
+    flex: 1 1 260px;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen-tooltip .rz-fieldset-content-wrapper,
+.screen-tooltip .rz-fieldset-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* текст подсказки с переносами строк; длинный прокручивается внутри поля */
+.tooltip-text.rz-textarea {
+    min-height: 120px;
+    margin-top: 8px;
+    overflow: auto;
 }

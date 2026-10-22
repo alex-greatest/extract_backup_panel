@@ -9,9 +9,6 @@ namespace FlexRt.Tests.Integration;
 /// </summary>
 public sealed class RealStepsTests
 {
-    /// <summary>Папка шаговых копий относительно корня репозитория.</summary>
-    private const string StepsDir = "data/real/steps";
-
     /// <summary>
     /// Копии в порядке имён (<c>01_Tag_Int.fwc</c>, <c>02_Bool.fwc</c>, …): ни одного предупреждения разбора, тегов на 1
     /// больше, чем в предыдущей. Папки нет (копии не в git) — провал с понятным сообщением, а не молчаливый успех.
@@ -19,10 +16,8 @@ public sealed class RealStepsTests
     [Fact]
     public void EachStep_AddsOneTagWithoutWarnings()
     {
-        var dir = RepositoryPaths.InRepo(StepsDir);
-        Assert.True(Directory.Exists(dir), $"нет {StepsDir} (шаговые копии вне git): проверка разбора VAR по шагам невозможна");
-        var steps = Directory.GetFiles(dir, "*.fwc").Order(StringComparer.Ordinal).ToList();
-        Assert.True(steps.Count > 1, $"в {StepsDir} меньше двух копий");
+        var steps = Directory.GetFiles(StepCopies.Folder(StepCopies.Tags), "*.fwc").Order(StringComparer.Ordinal).ToList();
+        Assert.True(steps.Count > 1, $"в {StepCopies.Tags} меньше двух копий");
 
         int? previous = null;
         foreach (var step in steps)

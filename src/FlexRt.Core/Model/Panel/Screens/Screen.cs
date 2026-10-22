@@ -10,4 +10,7 @@ namespace FlexRt.Model.Panel.Screens;
 /// <param name="Width">Ширина в пикселях.</param>
 /// <param name="Height">Высота в пикселях.</param>
 /// <param name="Objects">Объекты экрана в порядке файла: <see cref="VarReference.Table"/> — Id таблицы объекта, <see cref="VarReference.Index"/> — номер элемента.</param>
-public sealed record Screen(int Index, bool IsService, string Name, int Width, int Height, IReadOnlyList<VarReference> Objects);
+/// <param name="BackgroundRgb">
+/// Цвет фона (Background color в TIA): <c>R &lt;&lt; 16 | G &lt;&lt; 8 | B</c>; <c>null</c> — не прочитан (после объектов меньше 12 байт).
+/// </param>
+public sealed record Screen(int Index, bool IsService, string Name, int Width, int Height, IReadOnlyList<VarReference> Objects, int? BackgroundRgb);

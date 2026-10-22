@@ -1,4 +1,3 @@
-using FlexRt.Export;
 using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Ui.Panel.Screens;
@@ -8,5 +7,5 @@ namespace FlexRt.Ui.Panel.Screens;
 /// <param name="Name">Имя, как на листе «Экраны» (у Permanent area — <c>Permanent area</c>).</param>
 /// <param name="Kind">Вид экрана, как в колонке Вид листа: обычно одно из значений <see cref="ScreenKind"/>, иначе <c>?</c> или новый вид ядра.</param>
 /// <param name="IsStart">Стартовый экран.</param>
-/// <param name="Properties">Свойства для панели Properties: заголовок колонки листа и значение ячейки.</param>
-public sealed record ScreenItem(Screen Screen, string Name, string Kind, bool IsStart, IReadOnlyList<(string Name, ReportCell Value)> Properties);
+/// <param name="Properties">Свойства для панели Properties: заголовок колонки листа, значение ячейки и язык колонки.</param>
+public sealed record ScreenItem(Screen Screen, string Name, string Kind, bool IsStart, IReadOnlyList<ScreenProperty> Properties);

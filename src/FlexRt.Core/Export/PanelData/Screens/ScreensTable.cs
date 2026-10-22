@@ -1,9 +1,10 @@
+using System.Runtime.CompilerServices;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Export.PanelData.Screens;
 
-/// <summary>Таблица листа «Экраны»: экраны панели с номером, признаком стартового, размером и видом.</summary>
+/// <summary>Таблица листа «Экраны»: экраны панели с номером, признаком стартового, размером, цветом фона, подсказкой и видом.</summary>
 public static class ScreensTable
 {
     /// <summary>Вид обычного экрана: у него есть номер (Screen number в TIA).</summary>
@@ -24,8 +25,14 @@ public static class ScreensTable
     /// <summary>Значение колонки Start screen у стартового экрана.</summary>
     private const string StartScreenMark = "Yes";
 
-    /// <summary>Заголовки колонок.</summary>
-    private static readonly string[] Columns = ["Name", "Number", "Start screen", "Width", "Height", "Вид"];
+    /// <summary>Заголовки колонок перед колонками подсказки.</summary>
+    private static readonly string[] HeadColumns = ["Name", "Number", "Start screen", "Width", "Height", "Background color"];
+
+    /// <summary>Заголовок колонки вида — последней, после колонок подсказки.</summary>
+    private const string KindColumn = "Вид";
+
+    /// <summary>Уже построенные таблицы: окно (экраны) и лист «Экраны» берут одну таблицу документа.</summary>
+    private static readonly ConditionalWeakTable<FwxDocument, ReportTable> Built = [];
 
     /// <summary>Имена slide-in экранов: TIA задаёт их сам, переименовать нельзя; во всех известных файлах английские.</summary>
     private static readonly HashSet<string> SlideInNames = ["Slide-in screen top", "Slide-in screen left", "Slide-in screen bottom", "Slide-in screen right"];
@@ -59,22 +66,36 @@ public static class ScreensTable
     /// <summary>
     /// Построить таблицу: <c>Name</c>, <c>Number</c> (числом; нет номера — пусто, а если ADAPTVALUECHANG прочитана
     /// не целиком — <c>?</c>), <c>Start screen</c> (<c>Yes</c> у экрана с номером из GUI), <c>Width</c>,
-    /// <c>Height</c>, <c>Вид</c>; строка на экран из <see cref="Screens"/>. У Permanent area имя —
-    /// <c>Permanent area</c>, а не имя из файла.
+    /// <c>Height</c>, <c>Background color</c> (<c>182, 182, 182</c> — R, G, B, как в TIA, с заливкой ячейки этим цветом;
+    /// цвет не прочитан — <c>?</c> без заливки), <c>Tooltip &lt;язык&gt;</c>
+    /// на каждый язык панели (<see cref="ScreenTooltips"/>), <c>Вид</c>; строка на экран из <see cref="Screens"/>. У
+    /// Permanent area имя — <c>Permanent area</c>, а не имя из файла.
     /// </summary>
+    /// <returns>Заголовки и строки экранов; колонки подсказки помечены языком и группой <c>Tooltip</c>.</returns>
+    /// <remarks>
+    /// Таблица строится при первом вызове для документа и запоминается: документ после чтения не меняется, а таблицу
+    /// берут и экраны окна, и лист «Экраны».
+    /// </remarks>
+    public static ReportTable Build(FwxDocument doc) => Built.GetValue(doc, BuildTable);
+
+    /// <summary>Построить таблицу листа «Экраны» (<see cref="Build"/>).</summary>
     /// <returns>Заголовки и строки экранов.</returns>
-    public static ReportTable Build(FwxDocument doc)
+    private static ReportTable BuildTable(FwxDocument doc)
     {
-        var rows = Screens(doc).Select(s => new[]
-        {
+        var tooltips = new ScreenTooltips(doc);
+        List<ReportColumn> columns = [.. HeadColumns.Select(c => new ReportColumn(c)), .. tooltips.Columns(), new(KindColumn)];
+        var rows = Screens(doc).Select(s => (ReportCell[])
+        [
             s.Kind == PermanentAreaKind ? PermanentAreaKind : s.Screen.Name,
             NumberCell(doc, s.Number),
             s.Number is not null && s.Number == doc.StartScreenNumber ? StartScreenMark : "",
             s.Screen.Width,
             s.Screen.Height,
+            ColorCell(s.Screen.BackgroundRgb),
+            .. tooltips.Cells(s.Screen.Index),
             s.Kind
-        }).ToList();
-        return new ReportTable(Columns, rows);
+        ]).ToList();
+        return ReportTable.WithLanguages(columns, rows);
     }
 
     /// <summary>Номер экрана записи SCREEN: первая пара из ADAPTVALUECHANG с этой записью.</summary>
@@ -135,4 +156,11 @@ public static class ScreensTable
         }
         return doc.ScreenNumbersComplete ? "" : Unknown;
     }
+
+    /// <summary>
+    /// Ячейка Background color: <c>R, G, B</c> десятичными, как в свойствах экрана в TIA, с заливкой этим цветом
+    /// (<see cref="RgbText.Cell"/>); цвет не прочитан — <c>?</c> без заливки.
+    /// </summary>
+    /// <returns>Ячейка таблицы.</returns>
+    private static ReportCell ColorCell(int? rgb) => rgb is { } color ? RgbText.Cell(color) : Unknown;
 }

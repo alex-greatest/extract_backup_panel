@@ -106,6 +106,13 @@ else
     [Parameter]
     public EventCallback<PictureItem> OnOpenPicture { get; set; }
 
+    /// <summary>
+    /// Язык (LCID), выбранный в списке языков окна: на нём показывается Tooltip экрана; <c>null</c> — «Все языки» или не
+    /// выбран (Tooltip — на первом языке панели).
+    /// </summary>
+    [Parameter]
+    public int? Language { get; set; }
+
     /// <summary>Подсказка вместо свойств, когда открыт раздел, а строка не выбрана; <c>null</c> — показывается экран.</summary>
     [Parameter]
     public string? Hint { get; set; }
@@ -119,8 +126,9 @@ else
 
     /// <summary>
     /// Вкладка свойств: список групп слева (как Property list в TIA) и поля показываемой группы — выбранной, если она
-    /// есть у объекта, иначе первой. Start screen показывается флажком по <see cref="ScreenItem.IsStart"/>.
-    /// Объект не выбран — подсказка.
+    /// есть у объекта, иначе первой. General — как в TIA, двумя блоками (<see cref="ScreenGeneral"/>): слева поля, Start
+    /// screen флажком по <see cref="ScreenItem.IsStart"/>, справа — блоки групп текстов (Tooltip) на языке <see cref="Language"/>. Объект не
+    /// выбран — подсказка.
     /// </summary>
     /// <returns>Разметка вкладки.</returns>
     private RenderFragment PropertiesView() => __builder =>
@@ -135,15 +143,19 @@ else
         <div class="props-layout">
             <RadzenListBox TValue="string" Data="@groups.Select(g => g.Key).ToList()" Value="@current.Key" ValueChanged="@(g => _selectedGroup = g)" class="props-nav" />
             <div class="props-body">
-                <RadzenFieldset Text="@current.Key" class="prop-group">
-                    @foreach (var (name, value) in current)
-                    {
-                        <div class="prop-row">
-                            <RadzenLabel Text="@($"{name}:")" />
-                            <PropertyValue Value="value" Checked="@(name == StartScreenColumn.Name ? Item.IsStart : null)" />
-                        </div>
-                    }
-                </RadzenFieldset>
+                @if (current.Key == GeneralGroup)
+                {
+                    <ScreenGeneral IsStart="Item.IsStart" Properties="@([.. current])" Language="Language" />
+                }
+                else
+                {
+                    <RadzenFieldset Text="@current.Key" class="prop-group">
+                        @foreach (var property in current)
+                        {
+                            <PropertyRow Name="@property.Name" Value="property.Value" />
+                        }
+                    </RadzenFieldset>
+                }
             </div>
         </div>
     };
@@ -199,6 +211,6 @@ else
 
     /// <summary>Свойства объекта по группам в порядке первого свойства группы.</summary>
     /// <returns>Группы свойств.</returns>
-    private static List<IGrouping<string, (string Name, ReportCell Value)>> Groups(ScreenItem item) =>
+    private static List<IGrouping<string, ScreenProperty>> Groups(ScreenItem item) =>
         [.. item.Properties.GroupBy(p => GroupOf.GetValueOrDefault(p.Name, GeneralGroup))];
 }

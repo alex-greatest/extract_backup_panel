@@ -15,16 +15,12 @@ public static class SystemEventsTable
     /// <returns>Заголовки и строки событий.</returns>
     public static ReportTable Build(FwxDocument doc)
     {
-        var languages = LanguageText.Languages(doc);
-        var texts = doc.Strings.ToLookup(s => (s.Lcid, (long)s.Idx), s => s.Str);
-        List<ReportColumn> columns = [new("ID"), .. LanguageText.Columns(languages)];
+        var strings = LanguageStrings.Of(doc);
+        List<ReportColumn> columns = [new("ID"), .. strings.Columns()];
         var rows = doc.SystemEvents.OrderBy(e => e.Id).Select(Row).ToList();
         return ReportTable.WithLanguages(columns, rows);
 
         // строка одного события: ID и текст на каждом языке; нет строки языка — пусто
-        ReportCell[] Row(SystemEvent systemEvent) => languages
-            .Select(lcid => (ReportCell)(texts[(lcid, systemEvent.TextIdx)].FirstOrDefault() ?? ""))
-            .Prepend(systemEvent.Id)
-            .ToArray();
+        ReportCell[] Row(SystemEvent systemEvent) => [systemEvent.Id, .. strings.Cells(systemEvent.TextIdx)];
     }
 }

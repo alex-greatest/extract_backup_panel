@@ -14,10 +14,21 @@ public sealed record ReportTable(IReadOnlyList<string> Columns, IReadOnlyList<Re
     public IReadOnlyList<int?> ColumnLanguages { get; private init; } = [];
 
     /// <summary>
+    /// Группа колонки текста на языках по её номеру (<see cref="ReportColumn.Group"/>: <c>Tooltip</c>); <c>null</c> — не в
+    /// группе; пусто — таблица без <see cref="WithLanguages"/>. В Excel не пишется: по нему окно собирает колонки одного
+    /// текста на разных языках. Задаётся, как <see cref="ColumnLanguages"/>, только через <see cref="WithLanguages"/>.
+    /// </summary>
+    public IReadOnlyList<string?> ColumnGroups { get; private init; } = [];
+
+    /// <summary>
     /// Таблица с колонками текстов на языках: заголовок и язык каждой колонки берутся из одной <see cref="ReportColumn"/>,
     /// поэтому языки не сдвигаются относительно заголовков.
     /// </summary>
-    /// <returns>Таблица с <see cref="Columns"/> и <see cref="ColumnLanguages"/>.</returns>
+    /// <returns>Таблица с <see cref="Columns"/>, <see cref="ColumnLanguages"/> и <see cref="ColumnGroups"/>.</returns>
     public static ReportTable WithLanguages(IReadOnlyList<ReportColumn> columns, IReadOnlyList<ReportCell[]> rows) =>
-        new([.. columns.Select(c => c.Title)], rows) { ColumnLanguages = [.. columns.Select(c => c.Language)] };
+        new([.. columns.Select(c => c.Title)], rows)
+        {
+            ColumnLanguages = [.. columns.Select(c => c.Language)],
+            ColumnGroups = [.. columns.Select(c => c.Group)]
+        };
 }

@@ -38,7 +38,7 @@
                 </RadzenSplitterPane>
                 <RadzenSplitterPane Min="120px">
                     <section class="pane">
-                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Picture="Pictures.Selected" Hint="@InspectorHint()" Lines="_lines" OnOpenPicture="Pictures.Open" />
+                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Picture="Pictures.Selected" Hint="@InspectorHint()" Language="_language" Lines="_lines" OnOpenPicture="Pictures.Open" />
                     </section>
                 </RadzenSplitterPane>
             </RadzenSplitter>
@@ -94,7 +94,7 @@
     /// <summary>Выбранная строка таблицы раздела (номер в листе с нуля); <c>null</c> — не выбрана.</summary>
     private int? _row;
 
-    /// <summary>Язык текстов в таблицах разделов (LCID; после открытия — первый язык панели); <c>null</c> — все языки; сбой чтения его не меняет.</summary>
+    /// <summary>Язык текстов в таблицах разделов и Tooltip экрана в Properties (LCID; после открытия — первый язык панели); <c>null</c> — все языки; сбой чтения его не меняет.</summary>
     private int? _language;
 
     /// <summary>Строк таблицы раздела после фильтра.</summary>

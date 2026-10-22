@@ -89,9 +89,9 @@ public sealed class AlarmClassRowFormatter
         {
             return "?";
         }
+        // в файле байты R, G, B, признак: младший байт — R; RgbText ждёт 0xRRGGBB
         int r = (int)(value & 0xff), g = (int)((value >> 8) & 0xff), b = (int)((value >> 16) & 0xff);
-        ReportCell cell = $"{r}, {g}, {b}";
-        return cell with { FillRgb = r << 16 | g << 8 | b };
+        return RgbText.Cell(r << 16 | g << 8 | b);
     }
 
     /// <summary>

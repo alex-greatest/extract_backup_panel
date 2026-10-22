@@ -23,12 +23,6 @@ public sealed class InfoTextsReadTests
     /// <summary>Id таблицы MSG_NUMEVENT (дискретные алармы).</summary>
     private const int MsgNumEventTable = 0x1c;
 
-    /// <summary>Шаговые копии свойств экранов Project1 относительно корня репозитория.</summary>
-    private const string ScreenPropsDir = "data/real/steps-screen-props";
-
-    /// <summary>Шаговые копии подсказки на трёх языках A603A0097 относительно корня репозитория.</summary>
-    private const string LangsDir = "data/real/steps-tooltip-langs";
-
     /// <summary>Смещение u32 числа текстов: имя <c>InfoTextHandler</c> из 15 символов кончается на +0x24, за ним u32 (0).</summary>
     private const int CountOffset = 0x28;
 
@@ -83,7 +77,7 @@ public sealed class InfoTextsReadTests
     [Fact]
     public void ScreenTooltipStep_OnePair()
     {
-        var doc = ReadStep(ScreenPropsDir, "04_tooltip.fwc");
+        var doc = ReadStep(StepCopies.ScreenProps, "04_tooltip.fwc");
 
         Assert.Empty(doc.Warnings);
         Assert.Equal([new InfoText(new VarReference(ScreenTable, 3), 0x2AA)], doc.InfoTexts);
@@ -94,7 +88,7 @@ public sealed class InfoTextsReadTests
     [Fact]
     public void ObjectTooltipStep_Pairs()
     {
-        var doc = ReadStep(ScreenPropsDir, "11_object_tooltip.fwc");
+        var doc = ReadStep(StepCopies.ScreenProps, "11_object_tooltip.fwc");
 
         Assert.Empty(doc.Warnings);
         Assert.Equal([IoField, ScreenOne], doc.InfoTexts);
@@ -104,7 +98,7 @@ public sealed class InfoTextsReadTests
     [Fact]
     public void TemplateButtonStep_Pairs()
     {
-        var doc = ReadStep(ScreenPropsDir, "12_template_button_tooltip.fwc");
+        var doc = ReadStep(StepCopies.ScreenProps, "12_template_button_tooltip.fwc");
 
         Assert.Empty(doc.Warnings);
         Assert.Equal([IoField, ScreenOne, TemplateButton], doc.InfoTexts);
@@ -117,7 +111,7 @@ public sealed class InfoTextsReadTests
     [Fact]
     public void PlainTextStep_PairsAndText()
     {
-        var doc = ReadStep(ScreenPropsDir, "13_tooltip_ui_plain.fwc");
+        var doc = ReadStep(StepCopies.ScreenProps, "13_tooltip_ui_plain.fwc");
 
         Assert.Empty(doc.Warnings);
         Assert.Equal([IoField, new InfoText(new VarReference(ScreenTable, 1), 0x2B4), ScreenOne, TemplateButton], doc.InfoTexts);
@@ -131,7 +125,7 @@ public sealed class InfoTextsReadTests
     [Fact]
     public void LanguagesStep_OneTextPerLanguage()
     {
-        var doc = ReadStep(LangsDir, "01_tooltip_langs.fwc");
+        var doc = ReadStep(StepCopies.TooltipLangs, "01_tooltip_langs.fwc");
 
         Assert.Empty(doc.Warnings);
         Assert.Equal([new InfoText(new VarReference(ScreenTable, 49), 0x2CDB)], doc.InfoTexts);
@@ -180,12 +174,7 @@ public sealed class InfoTextsReadTests
     /// Прочитать шаговую копию. Файла нет (копии не в git) — провал с понятным сообщением, а не молчаливый успех.
     /// </summary>
     /// <returns>Прочитанная панель.</returns>
-    private static FwxDocument ReadStep(string folder, string step)
-    {
-        var path = RepositoryPaths.InRepo($"{folder}/{step}");
-        Assert.True(File.Exists(path), $"нет {folder}/{step} (шаговые копии вне git): проверка подсказок невозможна");
-        return FwxReader.Read(path);
-    }
+    private static FwxDocument ReadStep(string folder, string step) => FwxReader.Read(StepCopies.Path(folder, step));
 
     /// <summary>Строки всех языков с номером <paramref name="index"/> в порядке STRINGSTORE: код языка и текст.</summary>
     /// <returns>Пары (код языка, текст).</returns>

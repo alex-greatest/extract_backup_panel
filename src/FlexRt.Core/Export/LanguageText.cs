@@ -18,7 +18,7 @@ public static class LanguageText
     /// </summary>
     /// <returns>По колонке на язык.</returns>
     public static IEnumerable<ReportColumn> Columns(IEnumerable<int> languages, string? prefix = null) =>
-        languages.Select(lcid => new ReportColumn(prefix is null ? Format(lcid) : $"{prefix} {Format(lcid)}", lcid));
+        languages.Select(lcid => new ReportColumn(prefix is null ? Format(lcid) : $"{prefix} {Format(lcid)}", lcid, prefix));
 
     /// <summary>
     /// Код и название языка на нём самом: <c>0x419 — русский (Россия)</c>,

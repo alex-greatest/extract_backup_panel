@@ -1,0 +1,49 @@
+<div class="screen-general">
+    <RadzenFieldset Text="@GroupTitle" class="prop-group screen-general-main">
+        @foreach (var property in Properties.Where(p => p.Group is null))
+        {
+            <PropertyRow Name="@property.Name" Value="property.Value" Checked="@(property.Name == StartScreenColumn.Name ? IsStart : null)" />
+        }
+    </RadzenFieldset>
+    @foreach (var (group, text) in LanguageBlocks())
+    {
+        <RadzenFieldset Text="@group" class="prop-group screen-tooltip">
+            <RadzenTextArea Value="@text.Value.Display" ReadOnly="true" class="tooltip-text" />
+        </RadzenFieldset>
+    }
+</div>
+
+@code {
+    /// <summary>Заголовок левого блока — группа General, как в TIA.</summary>
+    private const string GroupTitle = "General";
+
+    /// <summary>Стартовый экран: флажок Start screen.</summary>
+    [Parameter]
+    public bool IsStart { get; set; }
+
+    /// <summary>
+    /// Свойства группы: колонки без группы текстов на языках — полями в левом блоке в порядке листа (Name, Number, Start
+    /// screen, Background color, Вид); колонки группы (<see cref="ScreenProperty.Group"/>, у листа «Экраны» — Tooltip) —
+    /// по блоку справа на группу, в блоке один текст.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ScreenProperty> Properties { get; set; } = [];
+
+    /// <summary>Язык (LCID), выбранный в списке языков окна; <c>null</c> — «Все языки» или не выбран.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
+    /// <summary>
+    /// Правые блоки — по одному на группу колонок текстов на языках в порядке листа, заголовок — имя группы из ядра. В блоке
+    /// колонка группы на выбранном языке; язык не выбран («Все языки») или такой колонки в группе нет — первая колонка
+    /// группы (первый язык панели).
+    /// </summary>
+    /// <returns>Имя группы и показываемое свойство; групп нет — пусто, правых блоков тогда нет.</returns>
+    private List<(string Group, ScreenProperty Text)> LanguageBlocks() =>
+    [
+        .. Properties
+            .Where(p => p.Group is not null)
+            .GroupBy(p => p.Group!)
+            .Select(g => (g.Key, g.FirstOrDefault(p => p.Language == Language) ?? g.First()))
+    ];
+}

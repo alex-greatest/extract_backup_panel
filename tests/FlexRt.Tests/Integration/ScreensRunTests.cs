@@ -1,3 +1,6 @@
+using System.Buffers.Binary;
+using FlexRt.Model.Panel;
+using FlexRt.Parsing.Panel;
 using Xunit;
 
 namespace FlexRt.Tests.Integration;
@@ -9,8 +12,8 @@ namespace FlexRt.Tests.Integration;
 /// </summary>
 public sealed class ScreensRunTests
 {
-    /// <summary>Заголовок листа «Экраны».</summary>
-    private const string Header = "Name | Number | Start screen | Width | Height | Вид";
+    /// <summary>Заголовок листа «Экраны» панели с одним языком 0x409.</summary>
+    internal const string Header = "Name | Number | Start screen | Width | Height | Background color | Tooltip 0x409 — English (United States) | Вид";
 
     /// <summary>
     /// <c>samples/pdata.fwc</c>: Permanent area (запись <c>Overview</c>), <c>Root screen</c> — номер 1 и стартовый,
@@ -29,12 +32,12 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | Permanent area",
-            "Root screen | 1 | Yes | 800 | 420 | Screen",
-            "Slide-in screen left |  |  | 267 | 480 | Slide-in screen",
-            "Slide-in screen bottom |  |  | 800 | 160 | Slide-in screen",
-            "Slide-in screen right |  |  | 267 | 480 | Slide-in screen",
-            "Slide-in screen top |  |  | 800 | 160 | Slide-in screen"
+            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
+            "Slide-in screen left |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
@@ -55,21 +58,22 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | Permanent area",
-            "Root screen | 1 |  | 800 | 420 | Screen",
-            "Screen_1 | 2 |  | 800 | 420 | Screen",
-            "Screen_2 | 5 | Yes | 800 | 420 | Screen",
-            "Pop-up screen_1 |  |  | 400 | 200 | Pop-up screen",
-            "Slide-in screen top |  |  | 800 | 160 | Slide-in screen",
-            "Slide-in screen left |  |  | 267 | 480 | Slide-in screen",
-            "Slide-in screen bottom |  |  | 800 | 160 | Slide-in screen",
-            "Slide-in screen right |  |  | 267 | 480 | Slide-in screen"
+            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Root screen | 1 |  | 800 | 420 | 182, 182, 182 |  | Screen",
+            "Screen_1 | 2 |  | 800 | 420 | 182, 182, 182 |  | Screen",
+            "Screen_2 | 5 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
+            "Pop-up screen_1 |  |  | 400 | 200 | 182, 182, 182 |  | Pop-up screen",
+            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen left |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
     /// <summary>
     /// A603A0097 (TIA V21, TP1900 Comfort): 49 экранов с номерами, стартовый <c>998_LOGIN</c> (998), один pop-up и
-    /// четыре slide-in.
+    /// четыре slide-in; три языка — три колонки подсказки, подсказок нет. Цвет фона <c>998_LOGIN</c> — 182, 182, 182,
+    /// остальных экранов — белый (как BackColor в XML TIA).
     /// </summary>
     [Fact]
     public void A603_StartScreenByNumber()
@@ -82,16 +86,17 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Стартовый экран: 998_LOGIN (998)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Equal(1 + 1 + 49 + 1 + 4, rows.Count);
-        Assert.Equal("Permanent area |  |  | 1366 | 768 | Permanent area", rows[1]);
-        Assert.Equal("001_AUTO_SCREEN | 1 |  | 1366 | 768 | Screen", rows[2]);
-        Assert.Equal("998_LOGIN | 998 | Yes | 1366 | 768 | Screen", rows[49]);
-        Assert.Equal("No_Authorization_Msg_PopUpScreen |  |  | 800 | 60 | Pop-up screen", rows[51]);
+        Assert.Equal("Permanent area |  |  | 1366 | 768 | 182, 182, 182 |  |  |  | Permanent area", rows[1]);
+        Assert.Equal("001_AUTO_SCREEN | 1 |  | 1366 | 768 | 255, 255, 255 |  |  |  | Screen", rows[2]);
+        Assert.Equal("998_LOGIN | 998 | Yes | 1366 | 768 | 182, 182, 182 |  |  |  | Screen", rows[49]);
+        Assert.Equal("No_Authorization_Msg_PopUpScreen |  |  | 800 | 60 | 182, 182, 182 |  |  |  | Pop-up screen", rows[51]);
         Assert.Single(rows, r => r.Contains(" | Yes | "));
     }
 
     /// <summary>
     /// Бэкап CCB-A13 (Runtime V17, TP1500 Comfort): 10 экранов с номерами, стартовый <c>001_MainScreen</c> (1),
-    /// семь pop-up 636×322 (<c>UZ70</c>…<c>UZ90</c>) — на каждый в SCREEN своя служебная запись.
+    /// семь pop-up 636×322 (<c>UZ70</c>…<c>UZ90</c>) — на каждый в SCREEN своя служебная запись; цвет фона pop-up —
+    /// 181, 182, 181.
     /// </summary>
     [Fact]
     public void Card_SevenPopups()
@@ -103,9 +108,9 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Экранов: 10");
         RunAssertions.HasLine(run.Output, "Стартовый экран: 001_MainScreen (1)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
-        Assert.Equal("001_MainScreen | 1 | Yes | 1280 | 800 | Screen", rows[2]);
+        Assert.Equal("001_MainScreen | 1 | Yes | 1280 | 800 | 182, 182, 182 |  | Screen", rows[2]);
         Assert.Equal(["UZ70", "UZ60", "UZ40", "HPU", "UZ10", "UZ72", "UZ90"],
-            rows.Where(r => r.EndsWith(" | 636 | 322 | Pop-up screen")).Select(r => r.Split(" | ")[0]));
+            rows.Where(r => r.EndsWith(" | 636 | 322 | 181, 182, 181 |  | Pop-up screen")).Select(r => r.Split(" | ")[0]));
     }
 
     /// <summary>
@@ -126,8 +131,65 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | Permanent area",
-            "Root screen | 1 | Yes | 800 | 420 | Screen"
+            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen"
+        ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
+    }
+
+    /// <summary>
+    /// Число объектов третьей записи SCREEN (<c>Slide-in screen left</c>, объектов нет, хвост 20 байт) — 3: объекты
+    /// помещаются, но после них 8 байт — цвет фона не читается: одно сводное предупреждение с записью и смещением, все
+    /// записи остаются на листе, у этой Background color — <c>?</c>.
+    /// </summary>
+    [Fact]
+    public void ShortScreenTail_WarnsAndKeepsAllScreens()
+    {
+        using var dir = new TestDirectory();
+        // имя из 20 символов, ссылок нет: число объектов на +0x42
+        var (input, item) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "SCREEN", 2, 0x42, 3);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
+
+        RunAssertions.HasProblems(run);
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN: цвет фона не прочитан у записей: 1 (после объектов меньше 12 байт), первая — запись 3 @ 0x{item.Offset:X}");
+        RunAssertions.NoStackTrace(run);
+        RunAssertions.HasLine(run.Output, "Экранов: 1");
+        Assert.Equal(
+        [
+            Header,
+            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
+            "Slide-in screen left |  |  | 267 | 480 | ? |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
+            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen"
+        ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
+    }
+
+    /// <summary>
+    /// Короткий хвост третьей записи SCREEN и первое слово 7 у пятой: разбор обрывается на пятой, но сводное предупреждение
+    /// о цвете не теряется и идёт перед предупреждением о сбое; четыре записи до сбоя на листе, у третьей цвет <c>?</c>.
+    /// </summary>
+    [Fact]
+    public void ShortTailThenBrokenRecord_KeepsColorWarning()
+    {
+        using var dir = new TestDirectory();
+        var (input, shortTail) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "SCREEN", 2, 0x42, 3);
+        var broken = WriteU16(input, "SCREEN", 4, 0, 7);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
+
+        var color = $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN: цвет фона не прочитан у записей: 1 (после объектов меньше 12 байт), первая — запись 3 @ 0x{shortTail.Offset:X}";
+        var failure = $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN @ 0x{broken.Offset:X}: запись 5: первое слово 7, ожидалось 3 или 1";
+        RunAssertions.HasLine(run.Errors, color);
+        RunAssertions.HasLine(run.Errors, failure);
+        Assert.True(run.Errors.IndexOf(color, StringComparison.Ordinal) < run.Errors.IndexOf(failure, StringComparison.Ordinal), "предупреждение о цвете — после сбоя");
+        RunAssertions.NoStackTrace(run);
+        Assert.Equal(
+        [
+            Header,
+            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
+            "Slide-in screen left |  |  | 267 | 480 | ? |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
@@ -149,8 +211,8 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Экранов: 0");
         RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно (1)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
-        Assert.Contains("Root screen | ? |  | 800 | 420 | ?", rows);
-        Assert.Contains("Slide-in screen top | ? |  | 800 | 160 | Slide-in screen", rows);
+        Assert.Contains("Root screen | ? |  | 800 | 420 | 182, 182, 182 |  | ?", rows);
+        Assert.Contains("Slide-in screen top | ? |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen", rows);
     }
 
     /// <summary>
@@ -171,7 +233,19 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Экранов: 1");
         RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
-        Assert.Contains("Root screen | 1 |  | 800 | 420 | Screen", rows);
+        Assert.Contains("Root screen | 1 |  | 800 | 420 | 182, 182, 182 |  | Screen", rows);
         Assert.DoesNotContain(rows, r => r.Contains(" | Yes | "));
+    }
+
+    /// <summary>Записать u16 в элемент таблицы уже испорченной копии — второе повреждение той же копии.</summary>
+    /// <returns>Испорченный элемент (смещение — для текста предупреждения).</returns>
+    private static TableItem WriteU16(string path, string table, int index, int offset, ushort value)
+    {
+        var doc = FwxReader.Read(path);
+        var item = FwxReader.Items(doc.Binary, doc.FindTable(table)!).ElementAt(index);
+        var bytes = File.ReadAllBytes(path);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan((int)item.Offset + offset), value);
+        File.WriteAllBytes(path, bytes);
+        return item;
     }
 }

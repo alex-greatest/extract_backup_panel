@@ -4,15 +4,40 @@
 }
 else
 {
-    <RadzenTextBox Value="@Value.Display" ReadOnly="true" class="@(Value.Number is null ? "prop-input" : "prop-input number")" />
+    @if (Value.FillRgb is { } rgb)
+    {
+        <span class="swatch" style="background:#@rgb.ToString("x6")"></span>
+    }
+    @if (IsMultiline(Value.Display))
+    {
+        <RadzenTextArea Value="@Value.Display" ReadOnly="true" Rows="@Rows(Value.Display)" class="prop-input prop-multiline" />
+    }
+    else
+    {
+        <RadzenTextBox Value="@Value.Display" ReadOnly="true" class="@(Value.Number is null ? "prop-input" : "prop-input number")" />
+    }
 }
 
 @code {
-    /// <summary>Значение свойства — ячейка строки листа; показывается полем, если <see cref="Checked"/> не задан.</summary>
+    /// <summary>Больше строк многострочное поле не показывает: остальное — прокруткой внутри поля.</summary>
+    private const int MaxRows = 4;
+
+    /// <summary>
+    /// Значение свойства — ячейка строки листа; показывается полем, если <see cref="Checked"/> не задан: с переносом строки —
+    /// многострочным (перенос не теряется), иначе — однострочным; у ячейки с заливкой перед полем — образец цвета.
+    /// </summary>
     [Parameter, EditorRequired]
     public ReportCell Value { get; set; }
 
     /// <summary>Состояние флажка для свойства-флажка (Start screen); <c>null</c> — свойство показывается полем.</summary>
     [Parameter]
     public bool? Checked { get; set; }
+
+    /// <summary>Текст переносится на другую строку (CR или LF).</summary>
+    /// <returns><c>true</c>, если в тексте есть перенос строки.</returns>
+    private static bool IsMultiline(string text) => text.Contains('\n') || text.Contains('\r');
+
+    /// <summary>Высота многострочного поля в строках: по числу строк текста, не больше <see cref="MaxRows"/>.</summary>
+    /// <returns>Число строк поля.</returns>
+    private static int Rows(string text) => Math.Min(text.ReplaceLineEndings("\n").Split('\n').Length, MaxRows);
 }

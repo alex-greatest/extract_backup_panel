@@ -170,7 +170,8 @@
     }
 
     /// <summary>
-    /// Ctrl+C — выбранную строку в буфер обмена: значения ячеек через табуляцию, при вставке в Excel ложатся по ячейкам.
+    /// Ctrl+C — выбранную строку в буфер обмена: значения ячеек через табуляцию, ячейка с табуляцией, переносом строки или
+    /// кавычкой — в кавычках (<see cref="ClipboardRow"/>); при вставке в Excel строка ложится в одну строку по ячейкам.
     /// Клавиша определяется по коду (<c>KeyC</c>), чтобы работало и в русской раскладке. Буфер занят другой программой —
     /// текст ошибки в <see cref="OnCopyFailed"/>.
     /// </summary>
@@ -182,7 +183,7 @@
         }
         try
         {
-            Clipboard.SetText(string.Join('\t', Table.Rows[row].Select(c => c.Display)));
+            Clipboard.SetText(ClipboardRow.Text(Table.Rows[row]));
         }
         catch (ExternalException ex)
         {
