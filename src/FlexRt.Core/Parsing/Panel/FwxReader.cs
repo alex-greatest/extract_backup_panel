@@ -19,7 +19,7 @@ public static class FwxReader
     /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK, CONNECTION_OMSP, DEVICE_OMSP,
     /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT,
     /// MSG_ANALOG_OBSE, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL, SCREEN, ADAPTVALUECHANG, GUI,
-    /// PICTURE и TILED_PICTURE; последней — раскладка всех таблиц TOC (<see cref="TableLayoutCheck"/>).
+    /// INFO_HANDLER, PICTURE и TILED_PICTURE; последней — раскладка всех таблиц TOC (<see cref="TableLayoutCheck"/>).
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
     /// <exception cref="IOException">Файл не удалось прочитать.</exception>
@@ -49,6 +49,7 @@ public static class FwxReader
         TryParse(doc, ScreenParser.Parse);
         TryParse(doc, AdaptValueChangParser.Parse);
         TryParse(doc, GuiParser.Parse);
+        TryParse(doc, InfoHandlerParser.Parse);
         TryParse(doc, PictureParser.Parse);
         TryParse(doc, TiledPictureParser.Parse);
         TableLayoutCheck.Run(doc);
