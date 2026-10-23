@@ -1,22 +1,37 @@
 @using System.Globalization
 
+@{
+    var drawn = Drawn(Item);
+}
 <div class="editor-title">@Title</div>
 <div class="canvas-scroll">
-    @if (Item is null)
+    @if (drawn is not { } d)
     {
-        <div class="canvas-empty">@Empty</div>
+        <div class="canvas-empty">@(Item is null ? Empty : NothingToDraw(Item))</div>
     }
     else
     {
-        <div class="screen-frame" style="width:@Px(Item.Screen.Width); height:@Px(Item.Screen.Height);">
-            <div class="screen" style="width:@(Item.Screen.Width)px; height:@(Item.Screen.Height)px; transform:scale(@Scale());"></div>
+        var (item, height) = d;
+        var total = (item.Strip?.Height ?? 0) + height;
+        <div class="screen-frame" style="width:@Px(item.Screen.Width); height:@Px(total);">
+            <div class="screen-scale" style="width:@(item.Screen.Width)px; height:@(total)px; transform:scale(@Scale());">
+                @if (item.Strip is { } strip)
+                {
+                    <div class="permanent-strip" style="height:@(strip.Height)px; @Background(strip.BackgroundRgb)" title="Permanent area"></div>
+                }
+                <div class="screen" style="height:@(height)px; @Background(item.Screen.BackgroundRgb)"></div>
+            </div>
         </div>
     }
 </div>
 <div class="editor-footer">
-    @if (Item is not null)
+    @if (drawn is { } shown)
     {
-        <span class="muted-inline">@Item.Screen.Width × @Item.Screen.Height px</span>
+        <span class="muted-inline">@shown.Item.Screen.Width × @shown.Height px</span>
+        @if (OverPanel(shown.Item.Strip, shown.Height) is { } over)
+        {
+            <span class="canvas-warning">@over</span>
+        }
     }
     <span class="spacer"></span>
     <RadzenDropDown TValue="int" Data="Zooms" @bind-Value="_zoom" class="zoom" title="Масштаб">
@@ -36,7 +51,10 @@
     [Parameter]
     public string Title { get; set; } = "";
 
-    /// <summary>Экран для показа: прямоугольник его размера; <c>null</c> — подсказка <see cref="Empty"/>.</summary>
+    /// <summary>
+    /// Экран для показа: прямоугольник его размера (<see cref="ScreenItem.Height"/>), у обычного экрана над ним — полоса
+    /// Permanent area (<see cref="ScreenItem.Strip"/>), как в редакторе экранов TIA; <c>null</c> — подсказка <see cref="Empty"/>.
+    /// </summary>
     [Parameter]
     public ScreenItem? Item { get; set; }
 
@@ -47,6 +65,43 @@
     /// <summary>Множитель масштаба для CSS в инвариантной культуре (<c>0.75</c>).</summary>
     /// <returns>Текст множителя.</returns>
     private string Scale() => (_zoom / 100.0).ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>
+    /// Заливка экрана или полосы Permanent area цветом фона из файла
+    /// (<see cref="FlexRt.Model.Panel.Screens.Screen.BackgroundRgb"/>, тот же, что в колонке Background color листа
+    /// «Экраны»); цвет не прочитан — цвет холста из CSS.
+    /// </summary>
+    /// <returns>Текст CSS, например <c>background-color:#b6b6b6;</c>; цвета нет — пусто.</returns>
+    private static string Background(int? rgb) => rgb is { } color ? $"background-color:{CssColor.Hex(color)};" : "";
+
+    /// <summary>
+    /// Экран, который рисуется, и его высота: экран выбран, высота известна и это не Permanent area высотой 0
+    /// (тогда вместо рисунка — <see cref="NothingToDraw"/>). Высота не известна только у Permanent area.
+    /// </summary>
+    /// <returns>Экран и высота; рисовать нечего — <c>null</c>.</returns>
+    private static (ScreenItem Item, int Height)? Drawn(ScreenItem? item) => item switch
+    {
+        { Height: { } height } when height > 0 || item.Kind != ScreenKind.PermanentArea => (item, height),
+        _ => null
+    };
+
+    /// <summary>
+    /// Предупреждение под холстом: полоса Permanent area и экран вместе выше панели (высота записи Permanent area).
+    /// Так бывает, если после смены высоты Permanent area экраны не пересохранены: TIA такой размер экрана не принимает.
+    /// </summary>
+    /// <returns>Текст вида <c>Permanent area 80 + экран 420 &gt; панель 480</c>; помещается или высоты панели нет — <c>null</c>.</returns>
+    private static string? OverPanel(PermanentStrip? strip, int height) =>
+        strip is { PanelHeight: { } panel } && strip.Height + height > panel
+            ? $"Permanent area {strip.Height} + экран {height} > панель {panel}"
+            : null;
+
+    /// <summary>
+    /// Подсказка вместо рисунка: высота Permanent area 0 — <see cref="Hints.NoPermanentArea"/>, высота не прочитана —
+    /// <see cref="Hints.PermanentAreaHeightUnknown"/>.
+    /// </summary>
+    /// <returns>Текст подсказки.</returns>
+    private static string NothingToDraw(ScreenItem item) =>
+        item.Height is null ? Hints.PermanentAreaHeightUnknown : Hints.NoPermanentArea;
 
     /// <summary>Размер рамки экрана в пикселях окна при текущем масштабе: по нему прокручивается холст.</summary>
     /// <returns>Текст CSS, например <c>600px</c>.</returns>

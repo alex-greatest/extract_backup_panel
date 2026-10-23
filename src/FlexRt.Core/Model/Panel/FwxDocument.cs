@@ -72,6 +72,8 @@ public sealed class FwxDocument
     public bool ScreenNumbersComplete { get; set; }
     /// <summary>Номер стартового экрана из GUI; <c>null</c> — таблицы нет или разбор оборвался.</summary>
     public int? StartScreenNumber { get; set; }
+    /// <summary>Высота Permanent area в пикселях из VIEW_DYN (0 — Permanent area нет); <c>null</c> — таблицы нет или разбор оборвался.</summary>
+    public int? PermanentAreaHeight { get; set; }
     /// <summary>Тексты-подсказки элементов других таблиц (экранов, объектов, алармов) из INFO_HANDLER в порядке файла.</summary>
     public List<InfoText> InfoTexts { get; } = [];
     /// <summary>Картинки из PICTURE, затем из TILED_PICTURE, в порядке каталога.</summary>

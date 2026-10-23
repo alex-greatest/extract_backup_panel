@@ -3,7 +3,7 @@ using FlexRt.Model.Panel;
 
 namespace FlexRt.Parsing.Panel.Screens;
 
-/// <summary>Начало элемента GUI и ADAPTVALUECHANG: u32 (наблюдение: всегда 1), u32 R — число ссылок, R ссылок по 8 байт.</summary>
+/// <summary>Начало элемента GUI, ADAPTVALUECHANG и VIEW_DYN: u32 (наблюдение: всегда 1), u32 R — число ссылок, R ссылок по 8 байт.</summary>
 internal static class ReferenceHeader
 {
     /// <summary>Смещение u32 числа ссылок R.</summary>
@@ -15,7 +15,7 @@ internal static class ReferenceHeader
     /// <summary>Размер ссылки: u16 Id таблицы, u16 номер элемента и два слова.</summary>
     private const int ReferenceSize = 8;
 
-    /// <summary>Наибольшее число ссылок, которое принимается без ошибки (наблюдение: GUI — 3, ADAPTVALUECHANG — 0 или 1).</summary>
+    /// <summary>Наибольшее число ссылок, которое принимается без ошибки (наблюдение: GUI — 3, ADAPTVALUECHANG — 0 или 1, VIEW_DYN — 1).</summary>
     private const long MaxReferences = 0x20;
 
     /// <summary>
@@ -42,5 +42,24 @@ internal static class ReferenceHeader
             .Select(i => b.D2(p + ReferencesOffset + i * ReferenceSize))
             .ToList();
         return (end, tables);
+    }
+
+    /// <summary>
+    /// Прочитать u16 на <paramref name="offset"/> от конца ссылок (<see cref="Read"/>): номер стартового экрана GUI,
+    /// высота Permanent area VIEW_DYN.
+    /// </summary>
+    /// <param name="b">Байты файла.</param>
+    /// <param name="item">Элемент таблицы.</param>
+    /// <param name="offset">Смещение поля от конца ссылок.</param>
+    /// <param name="what">Что за поле — для сообщения об ошибке («номер стартового экрана»).</param>
+    /// <returns>Значение u16.</returns>
+    /// <exception cref="FwxFormatException">Начало элемента не сходится или поле не помещается в элемент.</exception>
+    public static int ReadU16After(FwxBinary b, TableItem item, int offset, string what)
+    {
+        var (end, _) = Read(b, item);
+        var field = end + offset;
+        return field + 2 <= item.Length
+            ? b.D2(item.Offset + field)
+            : throw new FwxFormatException(b.Section, item.Offset, $"запись {item.Index + 1}: {what} не помещается в {item.Length} байт");
     }
 }

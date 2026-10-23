@@ -169,9 +169,9 @@ else
     /// <returns>Условие отбора.</returns>
     private static Func<ScreenItem, bool> OfKind(string kind) => s => s.Kind == kind;
 
-    /// <summary>Отбор экранов, вид которых не входит в <see cref="ScreenKind.Recognized"/>: <c>?</c> и любые новые.</summary>
+    /// <summary>Отбор экранов неопознанного вида (<see cref="ScreenKind.IsUnrecognized"/>): <c>?</c> и любые новые.</summary>
     /// <returns><c>true</c> для экрана неопознанного вида.</returns>
-    private static bool Unrecognized(ScreenItem item) => !ScreenKind.Recognized.Contains(item.Kind);
+    private static bool Unrecognized(ScreenItem item) => ScreenKind.IsUnrecognized(item.Kind);
 
     /// <summary>Щелчок по узлу дерева: экран, раздел или картинки — сообщить о выборе; другая папка или файл — только подсветка.</summary>
     private async Task OnChange(TreeEventArgs args)

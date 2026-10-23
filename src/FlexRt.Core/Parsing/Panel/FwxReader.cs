@@ -49,6 +49,8 @@ public static class FwxReader
         TryParse(doc, ScreenParser.Parse);
         TryParse(doc, AdaptValueChangParser.Parse);
         TryParse(doc, GuiParser.Parse);
+        // только после ScreenParser: элемент VIEW_DYN выбирается по ссылке записи Overview из doc.Screens
+        TryParse(doc, ViewDynParser.Parse);
         TryParse(doc, InfoHandlerParser.Parse);
         TryParse(doc, PictureParser.Parse);
         TryParse(doc, TiledPictureParser.Parse);

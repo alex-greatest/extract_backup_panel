@@ -43,8 +43,11 @@ public static class ScreensTable
     /// <c>Permanent area</c>; иначе <c>?</c>. Порядок: Permanent area, обычные экраны по возрастанию номера,
     /// затем остальные в порядке файла (порядок записей в файле компилятор меняет).
     /// </summary>
-    /// <returns>Запись SCREEN, вид и номер экрана (<c>null</c> — номера нет).</returns>
-    public static IReadOnlyList<(Screen Screen, string Kind, int? Number)> Screens(FwxDocument doc)
+    /// <returns>
+    /// Запись SCREEN, вид, номер экрана (<c>null</c> — номера нет) и высота экрана (<see cref="HeightOf"/>; <c>null</c> —
+    /// не известна).
+    /// </returns>
+    public static IReadOnlyList<(Screen Screen, string Kind, int? Number, int? Height)> Screens(FwxDocument doc)
     {
         var popups = PopupIndexes(doc);
         return
@@ -53,6 +56,7 @@ public static class ScreensTable
                 .Where(s => !s.IsService)
                 .Select(s => (Screen: s, Number: NumberOf(doc, s.Index)))
                 .Select(s => (s.Screen, Kind: KindOf(s.Screen, s.Number, popups), s.Number))
+                .Select(s => (s.Screen, s.Kind, s.Number, Height: HeightOf(doc, s.Screen, s.Kind)))
                 .OrderBy(s => KindRank(s.Kind))
                 .ThenBy(s => s.Number)
                 .ThenBy(s => s.Screen.Index)
@@ -66,7 +70,7 @@ public static class ScreensTable
     /// <summary>
     /// Построить таблицу: <c>Name</c>, <c>Number</c> (числом; нет номера — пусто, а если ADAPTVALUECHANG прочитана
     /// не целиком — <c>?</c>), <c>Start screen</c> (<c>Yes</c> у экрана с номером из GUI), <c>Width</c>,
-    /// <c>Height</c>, <c>Background color</c> (<c>182, 182, 182</c> — R, G, B, как в TIA, с заливкой ячейки этим цветом;
+    /// <c>Height</c> (<see cref="HeightOf"/>; не известна — <c>?</c>), <c>Background color</c> (<c>182, 182, 182</c> — R, G, B, как в TIA, с заливкой ячейки этим цветом;
     /// цвет не прочитан — <c>?</c> без заливки), <c>Tooltip &lt;язык&gt;</c>
     /// на каждый язык панели (<see cref="ScreenTooltips"/>), <c>Вид</c>; строка на экран из <see cref="Screens"/>. У
     /// Permanent area имя — <c>Permanent area</c>, а не имя из файла.
@@ -90,7 +94,7 @@ public static class ScreensTable
             NumberCell(doc, s.Number),
             s.Number is not null && s.Number == doc.StartScreenNumber ? StartScreenMark : "",
             s.Screen.Width,
-            s.Screen.Height,
+            s.Height ?? (ReportCell)Unknown,
             ColorCell(s.Screen.BackgroundRgb),
             .. tooltips.Cells(s.Screen.Index),
             s.Kind
@@ -156,6 +160,14 @@ public static class ScreensTable
         }
         return doc.ScreenNumbersComplete ? "" : Unknown;
     }
+
+    /// <summary>
+    /// Высота экрана: у Permanent area — высота из VIEW_DYN (<see cref="FwxDocument.PermanentAreaHeight"/>; запись
+    /// <c>Overview</c> в SCREEN имеет размер всей панели); у остальных — высота записи SCREEN.
+    /// </summary>
+    /// <returns>Высота в пикселях; у Permanent area, высота которой не прочитана, — <c>null</c>.</returns>
+    private static int? HeightOf(FwxDocument doc, Screen screen, string kind) =>
+        kind != PermanentAreaKind ? screen.Height : doc.PermanentAreaHeight;
 
     /// <summary>
     /// Ячейка Background color: <c>R, G, B</c> десятичными, как в свойствах экрана в TIA, с заливкой этим цветом

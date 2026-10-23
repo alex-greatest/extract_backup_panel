@@ -32,7 +32,7 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
             "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
             "Slide-in screen left |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
             "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
@@ -58,7 +58,7 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
             "Root screen | 1 |  | 800 | 420 | 182, 182, 182 |  | Screen",
             "Screen_1 | 2 |  | 800 | 420 | 182, 182, 182 |  | Screen",
             "Screen_2 | 5 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
@@ -86,7 +86,7 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Стартовый экран: 998_LOGIN (998)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Equal(1 + 1 + 49 + 1 + 4, rows.Count);
-        Assert.Equal("Permanent area |  |  | 1366 | 768 | 182, 182, 182 |  |  |  | Permanent area", rows[1]);
+        Assert.Equal("Permanent area |  |  | 1366 | 0 | 182, 182, 182 |  |  |  | Permanent area", rows[1]);
         Assert.Equal("001_AUTO_SCREEN | 1 |  | 1366 | 768 | 255, 255, 255 |  |  |  | Screen", rows[2]);
         Assert.Equal("998_LOGIN | 998 | Yes | 1366 | 768 | 182, 182, 182 |  |  |  | Screen", rows[49]);
         Assert.Equal("No_Authorization_Msg_PopUpScreen |  |  | 800 | 60 | 182, 182, 182 |  |  |  | Pop-up screen", rows[51]);
@@ -108,6 +108,7 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Экранов: 10");
         RunAssertions.HasLine(run.Output, "Стартовый экран: 001_MainScreen (1)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
+        Assert.Equal("Permanent area |  |  | 1280 | 0 | 182, 182, 182 |  | Permanent area", rows[1]);
         Assert.Equal("001_MainScreen | 1 | Yes | 1280 | 800 | 182, 182, 182 |  | Screen", rows[2]);
         Assert.Equal(["UZ70", "UZ60", "UZ40", "HPU", "UZ10", "UZ72", "UZ90"],
             rows.Where(r => r.EndsWith(" | 636 | 322 | 181, 182, 181 |  | Pop-up screen")).Select(r => r.Split(" | ")[0]));
@@ -131,7 +132,7 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
             "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
@@ -156,7 +157,7 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
             "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
             "Slide-in screen left |  |  | 267 | 480 | ? |  | Slide-in screen",
             "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
@@ -186,7 +187,7 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 480 | 182, 182, 182 |  | Permanent area",
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
             "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
             "Slide-in screen left |  |  | 267 | 480 | ? |  | Slide-in screen",
             "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen"
@@ -213,6 +214,84 @@ public sealed class ScreensRunTests
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Contains("Root screen | ? |  | 800 | 420 | 182, 182, 182 |  | ?", rows);
         Assert.Contains("Slide-in screen top | ? |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen", rows);
+    }
+
+    /// <summary>
+    /// Число ссылок элемента VIEW_DYN — 0x30: предупреждение с таблицей и смещением; Height Permanent area — <c>?</c>,
+    /// остальные строки листа «Экраны» не меняются.
+    /// </summary>
+    [Fact]
+    public void BrokenViewDyn_PermanentAreaHeightUnknown()
+    {
+        using var dir = new TestDirectory();
+        // +0x04 — u32 число ссылок, см. ReferenceHeader
+        var (input, item) = CorruptedCopy.U32(dir, "samples/pdata.fwc", "VIEW_DYN", 0, 0x04, 0x30);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
+
+        var rows = PermanentAreaHeightUnknown(run, dir, $"VIEW_DYN @ 0x{item.Offset:X}: запись 1: 48 ссылок не помещаются в {item.Length} байт");
+        Assert.Equal("Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen", rows[2]);
+    }
+
+    /// <summary>
+    /// Число ссылок элемента VIEW_DYN — 3: ссылки помещаются, высота за ними — нет; предупреждение с таблицей и смещением,
+    /// Height Permanent area — <c>?</c>.
+    /// </summary>
+    [Fact]
+    public void ShortViewDyn_HeightDoesNotFit()
+    {
+        using var dir = new TestDirectory();
+        var (input, item) = CorruptedCopy.U32(dir, "samples/pdata.fwc", "VIEW_DYN", 0, 0x04, 3);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
+
+        PermanentAreaHeightUnknown(run, dir, $"VIEW_DYN @ 0x{item.Offset:X}: запись 1: высота Permanent area не помещается в {item.Length} байт");
+    }
+
+    /// <summary>
+    /// Пара VIEW_DYN в объектах записи <c>Overview</c> (SCREEN, запись 1) ведёт на другую таблицу или за последний
+    /// элемент: предупреждение со смещением таблицы VIEW_DYN, Height Permanent area — <c>?</c>.
+    /// </summary>
+    [Theory]
+    // в samples/pdata.fwc третья пара объектов Overview (0, VIEW_DYN) — на +0x44: номер элемента, на +0x46 — Id таблицы
+    [InlineData(0x46, 6, "запись Overview таблицы SCREEN не ссылается на VIEW_DYN, высота Permanent area не известна")]
+    [InlineData(0x44, 1, "запись Overview ссылается на элемент 2, а элементов 1")]
+    public void OverviewWithoutViewDynLink_HeightUnknown(int offset, ushort value, string message)
+    {
+        using var dir = new TestDirectory();
+        var (input, _) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "SCREEN", 0, offset, value);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
+
+        var table = run.Document!.FindTable("VIEW_DYN")!;
+        PermanentAreaHeightUnknown(run, dir, $"VIEW_DYN @ 0x{table.Offset:X}: {message}");
+    }
+
+    /// <summary>
+    /// Первое слово записи <c>Overview</c> (SCREEN, запись 1) — 7: предупреждение только от SCREEN; записи Overview в
+    /// документе нет — VIEW_DYN не читается и своего предупреждения не добавляет, высота не известна.
+    /// </summary>
+    [Fact]
+    public void BrokenOverviewRecord_NoSecondViewDynWarning()
+    {
+        using var dir = new TestDirectory();
+        var (input, item) = CorruptedCopy.U16(dir, "samples/pdata.fwc", "SCREEN", 0, 0, 7);
+        var run = PanelRunner.Run(input, null, dir.OutDir);
+
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - SCREEN @ 0x{item.Offset:X}: запись 1: первое слово 7, ожидалось 3 или 1");
+        Assert.DoesNotContain("VIEW_DYN", run.Errors);
+        Assert.Null(run.Document!.PermanentAreaHeight);
+    }
+
+    /// <summary>
+    /// Общая проверка сбоя высоты Permanent area: предупреждение <c>не разобрано - &lt;сообщение&gt;</c> без stack trace,
+    /// на листе «Экраны» у Permanent area Height — <c>?</c>.
+    /// </summary>
+    /// <returns>Слепок листа «Экраны» для остальных проверок теста.</returns>
+    private static List<string> PermanentAreaHeightUnknown(PanelRun run, TestDirectory dir, string message)
+    {
+        RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - {message}");
+        RunAssertions.NoStackTrace(run);
+        var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
+        Assert.Equal("Permanent area |  |  | 800 | ? | 182, 182, 182 |  | Permanent area", rows[1]);
+        return rows;
     }
 
     /// <summary>

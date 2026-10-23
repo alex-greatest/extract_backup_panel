@@ -21,7 +21,7 @@
                         }
                         @if (cell.FillRgb is { } rgb)
                         {
-                            <span class="swatch" style="background:#@rgb.ToString("x6")"></span>
+                            <span class="swatch" style="background:@CssColor.Hex(rgb)"></span>
                         }
                         <span title="@text">@text</span>
                     </Template>

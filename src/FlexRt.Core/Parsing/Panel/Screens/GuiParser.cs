@@ -14,7 +14,9 @@ public static class GuiParser
 
     /// <summary>
     /// Прочитать первый элемент таблицы GUI (в файлах он один) и записать номер стартового экрана в
-    /// <see cref="FwxDocument.StartScreenNumber"/>. Нет таблицы в TOC — ничего не делает.
+    /// <see cref="FwxDocument.StartScreenNumber"/>: начало со ссылками (<see cref="ReferenceHeader"/>), за ними на
+    /// <see cref="StartScreenOffset"/> — u16 (сверено со Start screen в Runtime settings TIA на шаговых копиях Project1,
+    /// V21). Это номер экрана (Screen number в TIA), а не номер записи SCREEN. Нет таблицы в TOC — ничего не делает.
     /// </summary>
     /// <exception cref="FwxFormatException">Элемент выходит за пределы таблицы или не сходится с раскладкой.</exception>
     public static void Parse(FwxDocument doc)
@@ -27,22 +29,7 @@ public static class GuiParser
 
         foreach (var item in FwxReader.CheckedItems(doc.Binary, table).Take(1))
         {
-            doc.StartScreenNumber = ReadStartScreen(doc.Binary, item);
+            doc.StartScreenNumber = ReferenceHeader.ReadU16After(doc.Binary, item, StartScreenOffset, "номер стартового экрана");
         }
-    }
-
-    /// <summary>
-    /// Номер стартового экрана (сверено со Start screen в Runtime settings TIA на шаговых копиях Project1,
-    /// V21): начало со ссылками (<see cref="ReferenceHeader"/>), за ними на <see cref="StartScreenOffset"/> — u16.
-    /// </summary>
-    /// <returns>Номер стартового экрана (Screen number в TIA).</returns>
-    /// <exception cref="FwxFormatException">Начало элемента не сходится или номер не помещается в элемент.</exception>
-    private static int ReadStartScreen(FwxBinary b, TableItem item)
-    {
-        var (end, _) = ReferenceHeader.Read(b, item);
-        var offset = end + StartScreenOffset;
-        return offset + 2 <= item.Length
-            ? b.D2(item.Offset + offset)
-            : throw new FwxFormatException(b.Section, item.Offset, $"запись {item.Index + 1}: номер стартового экрана не помещается в {item.Length} байт");
     }
 }

@@ -21,4 +21,8 @@ public static class ScreenKind
 
     /// <summary>Виды, у которых в дереве своё место; остальные (<c>?</c> и любые новые) — в папке «Вид не опознан».</summary>
     public static readonly IReadOnlySet<string> Recognized = new HashSet<string> { Screen, PopUp, SlideIn, PermanentArea };
+
+    /// <summary>Вид не опознан: не входит в <see cref="Recognized"/> (<c>?</c> и любые новые) — папка «Вид не опознан».</summary>
+    /// <returns><c>true</c> — вид не опознан.</returns>
+    public static bool IsUnrecognized(string kind) => !Recognized.Contains(kind);
 }

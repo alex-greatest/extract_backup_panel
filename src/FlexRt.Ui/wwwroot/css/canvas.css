@@ -17,14 +17,29 @@
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
 }
 
-.screen {
+.screen-scale {
     position: absolute;
     left: 0;
     top: 0;
     transform-origin: 0 0;
+}
+
+.screen,
+.permanent-strip {
     background-color: var(--screen);
-    background-image: radial-gradient(#a3abb6 1px, transparent 1px);
-    background-size: 10px 10px;
+}
+
+/* Permanent area над экраном затемнена: в редакторе экрана TIA её не правят */
+.permanent-strip {
+    position: relative;
+    z-index: 1; /* тёмная линия тени под пунктиром ложится поверх экрана */
+    box-sizing: border-box;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 0 0 100vmax rgba(0, 0, 0, 0.25), 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.canvas-warning {
+    color: var(--warning);
 }
 
 .editor-footer {

@@ -52,6 +52,22 @@ public sealed class ScreenPropsRunTests
     }
 
     /// <summary>
+    /// Шаги 14 и 15: цвет фона Permanent area в TIA — 52, 86, 120, высота 60, на шаге 15 — 80 (из VIEW_DYN; запись
+    /// <c>Overview</c> в SCREEN — 800×480 на обоих шагах). Высота экранов в TIA после шага 15 осталась 420, как в файле: смена Permanent area экраны не пересчитывает.
+    /// </summary>
+    [Theory]
+    [InlineData("14_overview_color.fwc", 60)]
+    [InlineData("15_overview_height.fwc", 80)]
+    public void PermanentAreaSteps_HeightFromViewDyn(string step, int height)
+    {
+        var rows = ScreensSheet(StepCopies.ScreenProps, step);
+
+        Assert.Equal(Header, rows[0]);
+        Assert.Equal($"Permanent area |  |  | 800 | {height} | 52, 86, 120 |  | Permanent area", rows[1]);
+        Assert.All(rows.Where(r => r.EndsWith(" | Screen")), r => Assert.Contains(" | 800 | 420 | ", r));
+    }
+
+    /// <summary>
     /// A603A0097, три языка Runtime: подсказка <c>998_LOGIN</c> — колонка на каждый язык в порядке STRINGSTORE; других
     /// подсказок нет.
     /// </summary>

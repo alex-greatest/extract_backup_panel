@@ -12,6 +12,12 @@ public static class Hints
     /// <summary>Панель открыта, но ничего не выбрано.</summary>
     public const string NoScreen = "Выберите экран в дереве проекта";
 
+    /// <summary>Холст Permanent area: её высота 0 (VIEW_DYN), полосы на панели нет.</summary>
+    public const string NoPermanentArea = "Permanent area нет: высота 0";
+
+    /// <summary>Холст Permanent area: её высота не прочитана (на листе «Экраны» — <c>?</c>).</summary>
+    public const string PermanentAreaHeightUnknown = "Высота Permanent area не прочитана";
+
     /// <summary>Панель свойств: открыта таблица, а строка не выбрана.</summary>
     public const string NoRow = "Выберите строку таблицы";
 
