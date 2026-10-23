@@ -4,7 +4,7 @@
         @foreach (var item in Pictures.Items)
         {
             <button type="button" class="gallery-tile @(ReferenceEquals(item, Selected) ? "selected" : "")" title="@item.Name"
-                    @onclick="() => OnSelect.InvokeAsync(item)" @ondblclick="() => OnOpen.InvokeAsync(item)">
+                    @onclick="e => Click(e, item)">
                 <span class="gallery-thumb"><img src="@item.Source" alt="@item.Name" loading="lazy" /></span>
                 <span class="gallery-name">@item.Name</span>
             </button>
@@ -37,4 +37,11 @@
     /// <summary>Двойной щелчок по плитке: открыть картинку на всё окно.</summary>
     [Parameter]
     public EventCallback<PictureItem> OnOpen { get; set; }
+
+    /// <summary>
+    /// Щелчок по плитке: первый — выбор, второй подряд (<c>Detail</c> ≥ 2) — открыть на всё окно. Не <c>dblclick</c>:
+    /// WebView2 в WPF пересылает двойной щелчок Windows как два нажатия подряд, и страница получает <c>click</c> с
+    /// <c>detail</c> 3 без <c>dblclick</c> (наблюдение 2026-10-23, Microsoft.Web.WebView2 1.0.3179.45).
+    /// </summary>
+    private Task Click(MouseEventArgs e, PictureItem item) => e.Detail >= 2 ? OnOpen.InvokeAsync(item) : OnSelect.InvokeAsync(item);
 }
