@@ -26,6 +26,13 @@
     background: var(--hover);
 }
 
+/* меню кнопок: Radzen при открытии подсвечивает первый пункт для клавиатуры; мышь над списком — горит только пункт под ней */
+.rz-splitbutton-menu .rz-menu-list:hover .rz-menuitem.rz-state-highlight:not(:hover) {
+    background-color: transparent;
+    color: inherit;
+    box-shadow: none;
+}
+
 /* Рабочая область: разделители Radzen */
 .workspace.rz-splitter, .editor-split.rz-splitter {
     border: none;
