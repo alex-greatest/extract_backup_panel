@@ -21,7 +21,7 @@ else
                 @if (Any(OfKind(ScreenKind.Screen)) || View.Screens.Table.Rows.Count > 0 || View.Screens.Error is not null)
                 {
                     <RadzenTreeItem Text="Screens" Value="View.Screens" Selected="@ReferenceEquals(View.Screens, Selected)" Expanded="true">
-                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span>@Badge(View.Screens)</Template>
+                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span>@ScreensBadge()</Template>
                         <ChildContent>@Items(OfKind(ScreenKind.Screen))</ChildContent>
                     </RadzenTreeItem>
                 }
@@ -119,6 +119,24 @@ else
         else if (!section.IsSummary)
         {
             <Count Value="section.Table.Rows.Count" />
+        }
+    };
+
+    /// <summary>
+    /// Отметка справа от папки Screens: таблица листа «Экраны» не построена — красный значок с причиной; иначе — число
+    /// обычных экранов (<see cref="ScreenKind.Screen"/>), которые лежат в папке, а не строк листа: pop-up, slide-in и
+    /// Permanent area — в Screen management (решение пользователя 2026-10-23).
+    /// </summary>
+    /// <returns>Разметка отметки.</returns>
+    private RenderFragment ScreensBadge() => __builder =>
+    {
+        if (View.Screens.Error is not null)
+        {
+            <span class="tree-error" title="@View.Screens.Error">⚠</span>
+        }
+        else
+        {
+            <Count Value="Screens.Count(OfKind(ScreenKind.Screen))" />
         }
     };
 
