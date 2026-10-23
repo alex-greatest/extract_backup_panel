@@ -21,14 +21,14 @@ else
                 @if (Any(OfKind(ScreenKind.Screen)) || View.Screens.Table.Rows.Count > 0 || View.Screens.Error is not null)
                 {
                     <RadzenTreeItem Text="Screens" Value="View.Screens" Selected="@ReferenceEquals(View.Screens, Selected)" Expanded="true">
-                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span>@ScreensBadge()</Template>
+                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span>@ScreensBadge(View.Screens)</Template>
                         <ChildContent>@Items(OfKind(ScreenKind.Screen))</ChildContent>
                     </RadzenTreeItem>
                 }
                 @if (Any(OfKind(ScreenKind.PopUp)) || Any(OfKind(ScreenKind.SlideIn)) || Any(OfKind(ScreenKind.PermanentArea)))
                 {
                     <RadzenTreeItem Text="Screen management" Value="@("Screen management")" Expanded="true">
-                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span></Template>
+                        <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span><Count Value="Screens.Count(ScreenManagement)" /></Template>
                         <ChildContent>
                             @if (Any(OfKind(ScreenKind.PopUp)))
                             {
@@ -128,11 +128,11 @@ else
     /// Permanent area — в Screen management (решение пользователя 2026-10-23).
     /// </summary>
     /// <returns>Разметка отметки.</returns>
-    private RenderFragment ScreensBadge() => __builder =>
+    private RenderFragment ScreensBadge(PanelSection screens) => __builder =>
     {
-        if (View.Screens.Error is not null)
+        if (screens.Error is not null)
         {
-            <span class="tree-error" title="@View.Screens.Error">⚠</span>
+            <span class="tree-error" title="@screens.Error">⚠</span>
         }
         else
         {
@@ -140,11 +140,11 @@ else
         }
     };
 
-    /// <summary>Папка дерева с узлами разделов <paramref name="sections"/>; раскрыта.</summary>
+    /// <summary>Папка дерева с узлами разделов <paramref name="sections"/>; раскрыта, справа — число разделов в ней.</summary>
     /// <returns>Разметка папки.</returns>
     private RenderFragment SectionFolder(string title, IReadOnlyList<PanelSection> sections) =>
         @<RadzenTreeItem Text="@title" Value="title" Expanded="true">
-            <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span></Template>
+            <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span><Count Value="sections.Count" /></Template>
             <ChildContent>
                 @foreach (var section in sections)
                 {
@@ -153,11 +153,11 @@ else
             </ChildContent>
         </RadzenTreeItem>;
 
-    /// <summary>Папка дерева с экранами, которые отбирает <paramref name="filter"/>; раскрыта.</summary>
+    /// <summary>Папка дерева с экранами, которые отбирает <paramref name="filter"/>; раскрыта, справа — число этих экранов.</summary>
     /// <returns>Разметка папки.</returns>
     private RenderFragment Folder(string title, Func<ScreenItem, bool> filter) =>
         @<RadzenTreeItem Text="@title" Value="title" Expanded="true">
-            <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span></Template>
+            <Template><Icon Name="folder" /><span class="tree-text">@context.Text</span><Count Value="Screens.Count(filter)" /></Template>
             <ChildContent>@Items(filter)</ChildContent>
         </RadzenTreeItem>;
 
@@ -186,6 +186,11 @@ else
     /// <summary>Отбор экранов одного вида.</summary>
     /// <returns>Условие отбора.</returns>
     private static Func<ScreenItem, bool> OfKind(string kind) => s => s.Kind == kind;
+
+    /// <summary>Отбор экранов папки Screen management: pop-up, slide-in и Permanent area, с вложенными папками.</summary>
+    /// <returns><c>true</c> для экрана из Screen management.</returns>
+    private static bool ScreenManagement(ScreenItem item) =>
+        item.Kind is ScreenKind.PopUp or ScreenKind.SlideIn or ScreenKind.PermanentArea;
 
     /// <summary>Отбор экранов неопознанного вида (<see cref="ScreenKind.IsUnrecognized"/>): <c>?</c> и любые новые.</summary>
     /// <returns><c>true</c> для экрана неопознанного вида.</returns>
