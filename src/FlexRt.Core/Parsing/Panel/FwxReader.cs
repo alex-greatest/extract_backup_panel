@@ -18,7 +18,7 @@ public static class FwxReader
     /// чтобы остальные таблицы разбирались и панель показывалась.
     /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK, CONNECTION_OMSP, DEVICE_OMSP,
     /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT,
-    /// MSG_ANALOG_OBSE, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL, SCREEN, ADAPTVALUECHANG, GUI,
+    /// MSG_ANALOG_OBSE, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL, SCREEN, LIMIT, ADAPTVALUECHANG, GUI,
     /// INFO_HANDLER, PICTURE и TILED_PICTURE; последней — раскладка всех таблиц TOC (<see cref="TableLayoutCheck"/>).
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
@@ -47,6 +47,8 @@ public static class FwxReader
         TryParse(doc, MsgLoggerParser.Parse);
         TryParse(doc, FuncSendEmailParser.Parse);
         TryParse(doc, ScreenParser.Parse);
+        // только после ScreenParser: читаются элементы LIMIT, на которые ссылаются записи из doc.Screens
+        TryParse(doc, LimitParser.Parse);
         TryParse(doc, AdaptValueChangParser.Parse);
         TryParse(doc, GuiParser.Parse);
         // только после ScreenParser: элемент VIEW_DYN выбирается по ссылке записи Overview из doc.Screens

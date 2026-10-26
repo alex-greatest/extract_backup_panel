@@ -314,6 +314,11 @@
     flex: 0 1 380px;
 }
 
+/* блок Visible/Invisible анимации Visibility — справа от Process, как в TIA */
+.screen-visibility.prop-group.rz-fieldset {
+    flex: 0 1 200px;
+}
+
 .screen-tooltip.prop-group.rz-fieldset {
     flex: 1 1 260px;
     display: flex;

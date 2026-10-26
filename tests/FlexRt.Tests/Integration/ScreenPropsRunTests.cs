@@ -20,7 +20,7 @@ public sealed class ScreenPropsRunTests
         var rows = ScreensSheet(StepCopies.ScreenProps, "02_bg_color.fwc");
 
         Assert.Equal(Header, rows[0]);
-        Assert.Equal("Screen_1 | 2 |  | 800 | 420 | 18, 52, 86 |  | Screen", rows[3]);
+        Assert.Equal("Screen_1 | 2 |  | 800 | 420 | 18, 52, 86 |  |  |  |  |  | Screen", rows[3]);
         Assert.All(rows.Skip(1).Where(r => !r.StartsWith("Screen_1 ")), r => Assert.Contains(" | 182, 182, 182 | ", r));
     }
 
@@ -46,8 +46,8 @@ public sealed class ScreenPropsRunTests
         var rows = ScreensSheet(StepCopies.ScreenProps, "13_tooltip_ui_plain.fwc");
 
         Assert.Equal(Header, rows[0]);
-        Assert.Equal("Screen_1 | 2 |  | 800 | 420 | 18, 52, 86 | <body><p>TipScreenOne</p></body> | Screen", rows[3]);
-        Assert.Equal(@"Screen_2 | 5 | Yes | 800 | 420 | 182, 182, 182 | Line1 A&B <x>\nLine2 | Screen", rows[4]);
+        Assert.Equal("Screen_1 | 2 |  | 800 | 420 | 18, 52, 86 |  |  |  |  | <body><p>TipScreenOne</p></body> | Screen", rows[3]);
+        Assert.Equal(@"Screen_2 | 5 | Yes | 800 | 420 | 182, 182, 182 |  |  |  |  | Line1 A&B <x>\nLine2 | Screen", rows[4]);
         Assert.All(rows.Skip(1).Where(r => !r.StartsWith("Screen_")), r => Assert.Contains(" | 182, 182, 182 |  | ", r));
     }
 
@@ -63,7 +63,7 @@ public sealed class ScreenPropsRunTests
         var rows = ScreensSheet(StepCopies.ScreenProps, step);
 
         Assert.Equal(Header, rows[0]);
-        Assert.Equal($"Permanent area |  |  | 800 | {height} | 52, 86, 120 |  | Permanent area", rows[1]);
+        Assert.Equal($"Permanent area |  |  | 800 | {height} | 52, 86, 120 |  |  |  |  |  | Permanent area", rows[1]);
         Assert.All(rows.Where(r => r.EndsWith(" | Screen")), r => Assert.Contains(" | 800 | 420 | ", r));
     }
 
@@ -77,10 +77,10 @@ public sealed class ScreenPropsRunTests
         var rows = ScreensSheet(StepCopies.TooltipLangs, "01_tooltip_langs.fwc");
 
         Assert.Equal(
-            "Name | Number | Start screen | Width | Height | Background color | Tooltip 0x409 — English (United States) | "
+            "Name | Number | Start screen | Width | Height | Background color | Visibility tag | Visibility from | Visibility to | Visibility | Tooltip 0x409 — English (United States) | "
             + "Tooltip 0x419 — русский (Россия) | Tooltip 0x415 — polski (Polska) | Вид", rows[0]);
         Assert.Equal(
-            "998_LOGIN | 998 | Yes | 1366 | 768 | 182, 182, 182 | <body><p>TipLoginEN</p></body> | "
+            "998_LOGIN | 998 | Yes | 1366 | 768 | 182, 182, 182 |  |  |  |  | <body><p>TipLoginEN</p></body> | "
             + "<body><p>TipLoginRU Подсказка</p></body> | <body><p>TipLoginPL Podpowiedź</p></body> | Screen",
             Assert.Single(rows, r => r.Contains("Tip")));
     }

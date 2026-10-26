@@ -4,7 +4,7 @@ using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Export.PanelData.Screens;
 
-/// <summary>Таблица листа «Экраны»: экраны панели с номером, признаком стартового, размером, цветом фона, подсказкой и видом.</summary>
+/// <summary>Таблица листа «Экраны»: экраны панели с номером, признаком стартового, размером, цветом фона, Visibility, подсказкой и видом.</summary>
 public static class ScreensTable
 {
     /// <summary>Вид обычного экрана: у него есть номер (Screen number в TIA).</summary>
@@ -19,8 +19,11 @@ public static class ScreensTable
     /// <summary>Вид и имя записи 0 без номера (в файле — <c>Overview</c>): в ней объекты Permanent area (сверено на Project1).</summary>
     private const string PermanentAreaKind = "Permanent area";
 
-    /// <summary>Значение, которое не удалось определить: вид экрана или номер, если ADAPTVALUECHANG прочитана не целиком.</summary>
-    private const string Unknown = "?";
+    /// <summary>
+    /// Значение, которое не удалось определить: вид экрана, номер (ADAPTVALUECHANG прочитана не целиком), высота, цвет
+    /// фона или колонки Visibility (<see cref="ScreenVisibilityCells"/>); его же узнаёт окно.
+    /// </summary>
+    public const string Unknown = "?";
 
     /// <summary>Значение колонки Start screen у стартового экрана.</summary>
     private const string StartScreenMark = "Yes";
@@ -71,7 +74,7 @@ public static class ScreensTable
     /// Построить таблицу: <c>Name</c>, <c>Number</c> (числом; нет номера — пусто, а если ADAPTVALUECHANG прочитана
     /// не целиком — <c>?</c>), <c>Start screen</c> (<c>Yes</c> у экрана с номером из GUI), <c>Width</c>,
     /// <c>Height</c> (<see cref="HeightOf"/>; не известна — <c>?</c>), <c>Background color</c> (<c>182, 182, 182</c> — R, G, B, как в TIA, с заливкой ячейки этим цветом;
-    /// цвет не прочитан — <c>?</c> без заливки), <c>Tooltip &lt;язык&gt;</c>
+    /// цвет не прочитан — <c>?</c> без заливки), колонки Visibility (<see cref="ScreenVisibilityCells"/>), <c>Tooltip &lt;язык&gt;</c>
     /// на каждый язык панели (<see cref="ScreenTooltips"/>), <c>Вид</c>; строка на экран из <see cref="Screens"/>. У
     /// Permanent area имя — <c>Permanent area</c>, а не имя из файла.
     /// </summary>
@@ -87,7 +90,14 @@ public static class ScreensTable
     private static ReportTable BuildTable(FwxDocument doc)
     {
         var tooltips = new ScreenTooltips(doc);
-        List<ReportColumn> columns = [.. HeadColumns.Select(c => new ReportColumn(c)), .. tooltips.Columns(), new(KindColumn)];
+        var visibility = new ScreenVisibilityCells(doc);
+        List<ReportColumn> columns =
+        [
+            .. HeadColumns.Select(c => new ReportColumn(c)),
+            .. ScreenVisibilityCells.Columns.Select(c => new ReportColumn(c)),
+            .. tooltips.Columns(),
+            new(KindColumn)
+        ];
         var rows = Screens(doc).Select(s => (ReportCell[])
         [
             s.Kind == PermanentAreaKind ? PermanentAreaKind : s.Screen.Name,
@@ -96,6 +106,7 @@ public static class ScreensTable
             s.Screen.Width,
             s.Height ?? (ReportCell)Unknown,
             ColorCell(s.Screen.BackgroundRgb),
+            .. visibility.Of(s.Screen),
             .. tooltips.Cells(s.Screen.Index),
             s.Kind
         ]).ToList();

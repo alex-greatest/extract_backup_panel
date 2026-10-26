@@ -66,6 +66,8 @@ public sealed class FwxDocument
     public bool EmailFunctionsComplete { get; set; }
     /// <summary>Записи SCREEN в порядке каталога, вместе со служебными записями pop-up.</summary>
     public List<Screen> Screens { get; } = [];
+    /// <summary>Visibility экранов из элементов LIMIT, на которые ссылаются записи SCREEN, в порядке <see cref="Screens"/>.</summary>
+    public List<ScreenVisibility> ScreenVisibilities { get; } = [];
     /// <summary>Номера экранов из элемента ADAPTVALUECHANG со ссылкой на GUI, в порядке файла.</summary>
     public List<ScreenNumber> ScreenNumbers { get; } = [];
     /// <summary>ADAPTVALUECHANG прочитана целиком (или её нет); <c>false</c> — разбор оборвался, номер экрана без пары не известен.</summary>

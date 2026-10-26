@@ -17,6 +17,9 @@ public static class StepCopies
     /// <summary>Подсказка экрана A603A0097 (TIA V21, TP1900 Comfort) на трёх языках.</summary>
     public const string TooltipLangs = "data/real/steps-tooltip-langs";
 
+    /// <summary>Анимация Visibility экрана <c>Screen_2</c> Project1 (TIA V21, TP700 Comfort): по одной настройке на шаг.</summary>
+    public const string Animations = "data/real/steps-animations";
+
     /// <summary>Папка шаговых копий; её нет — провал теста с сообщением, что копии вне git.</summary>
     /// <param name="folder">Папка копий относительно корня репозитория.</param>
     /// <returns>Абсолютный путь к папке.</returns>

@@ -4,7 +4,7 @@ using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Parsing.Panel.Screens;
 
-/// <summary>Разбор SCREEN: экраны панели — имя, размер, список объектов и цвет фона.</summary>
+/// <summary>Разбор SCREEN: экраны панели — имя, размер, ссылки, список объектов и цвет фона.</summary>
 public static class ScreenParser
 {
     /// <summary>Первое слово записи экрана (как у записи VAR).</summary>
@@ -85,9 +85,10 @@ public static class ScreenParser
     /// <summary>
     /// Запись (наблюдение на Project1, A603A0097 и CCB-A13): u16 вид (3 — экран, 1 — служебная запись pop-up),
     /// u16 длина имени в символах, имя UTF-16LE, нули до кратности 4, u32 R — число ссылок, R ссылок по 8 байт
-    /// (у экрана — на SOFTKEY и, если есть, FUNC_LIST или ADAPTDEMULTIPLE), 8 байт, u16 ширина, u16 высота, 6 байт, u16 N — число
+    /// (u16 Id таблицы, u16 номер элемента, два слова не читаются; у экрана — на SOFTKEY и, если есть, FUNC_LIST,
+    /// ADAPTDEMULTIPLE или LIMIT), 8 байт, u16 ширина, u16 высота, 6 байт, u16 N — число
     /// объектов, N пар (u16 номер элемента, u16 Id таблицы); на длине записи − 12 — цвет фона R, G, B
-    /// (<see cref="Background"/>). Ссылки и остальные байты после объектов не читаются.
+    /// (<see cref="Background"/>). Остальные байты после объектов не читаются.
     /// </summary>
     /// <returns>Запись экрана; после объектов меньше 12 байт — без цвета фона.</returns>
     /// <exception cref="FwxFormatException">
@@ -128,11 +129,15 @@ public static class ScreenParser
             .Select(i => p + first + i * ObjectSize)
             .Select(o => new VarReference(b.D2(o + 2), b.D2(o)))
             .ToList();
+        var links = Enumerable.Range(0, (int)references)
+            .Select(i => p + countOffset + 4 + i * ReferenceSize)
+            .Select(o => new VarReference(b.D2(o), b.D2(o + 2)))
+            .ToList();
         var name = b.GetNameLen(p + 4, chars);
         var width = b.D2(p + body + SizeOffset);
         var height = b.D2(p + body + SizeOffset + 2);
         var background = Background(b, item, first + objects * (long)ObjectSize);
-        return new Screen(item.Index, marker == ServiceMarker, name, width, height, list, background);
+        return new Screen(item.Index, marker == ServiceMarker, name, width, height, list, background, links);
     }
 
     /// <summary>

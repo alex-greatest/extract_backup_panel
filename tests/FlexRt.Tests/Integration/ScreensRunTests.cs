@@ -13,7 +13,7 @@ namespace FlexRt.Tests.Integration;
 public sealed class ScreensRunTests
 {
     /// <summary>Заголовок листа «Экраны» панели с одним языком 0x409.</summary>
-    internal const string Header = "Name | Number | Start screen | Width | Height | Background color | Tooltip 0x409 — English (United States) | Вид";
+    internal const string Header = "Name | Number | Start screen | Width | Height | Background color | Visibility tag | Visibility from | Visibility to | Visibility | Tooltip 0x409 — English (United States) | Вид";
 
     /// <summary>
     /// <c>samples/pdata.fwc</c>: Permanent area (запись <c>Overview</c>), <c>Root screen</c> — номер 1 и стартовый,
@@ -32,12 +32,12 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
-            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
-            "Slide-in screen left |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen"
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  |  |  |  |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen",
+            "Slide-in screen left |  |  | 267 | 480 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
@@ -58,15 +58,15 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
-            "Root screen | 1 |  | 800 | 420 | 182, 182, 182 |  | Screen",
-            "Screen_1 | 2 |  | 800 | 420 | 182, 182, 182 |  | Screen",
-            "Screen_2 | 5 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
-            "Pop-up screen_1 |  |  | 400 | 200 | 182, 182, 182 |  | Pop-up screen",
-            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen left |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen"
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  |  |  |  |  | Permanent area",
+            "Root screen | 1 |  | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen",
+            "Screen_1 | 2 |  | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen",
+            "Screen_2 | 5 | Yes | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen",
+            "Pop-up screen_1 |  |  | 400 | 200 | 182, 182, 182 |  |  |  |  |  | Pop-up screen",
+            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen left |  |  | 267 | 480 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  |  |  |  |  | Slide-in screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
@@ -86,10 +86,10 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Стартовый экран: 998_LOGIN (998)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
         Assert.Equal(1 + 1 + 49 + 1 + 4, rows.Count);
-        Assert.Equal("Permanent area |  |  | 1366 | 0 | 182, 182, 182 |  |  |  | Permanent area", rows[1]);
-        Assert.Equal("001_AUTO_SCREEN | 1 |  | 1366 | 768 | 255, 255, 255 |  |  |  | Screen", rows[2]);
-        Assert.Equal("998_LOGIN | 998 | Yes | 1366 | 768 | 182, 182, 182 |  |  |  | Screen", rows[49]);
-        Assert.Equal("No_Authorization_Msg_PopUpScreen |  |  | 800 | 60 | 182, 182, 182 |  |  |  | Pop-up screen", rows[51]);
+        Assert.Equal("Permanent area |  |  | 1366 | 0 | 182, 182, 182 |  |  |  |  |  |  |  | Permanent area", rows[1]);
+        Assert.Equal("001_AUTO_SCREEN | 1 |  | 1366 | 768 | 255, 255, 255 |  |  |  |  |  |  |  | Screen", rows[2]);
+        Assert.Equal("998_LOGIN | 998 | Yes | 1366 | 768 | 182, 182, 182 |  |  |  |  |  |  |  | Screen", rows[49]);
+        Assert.Equal("No_Authorization_Msg_PopUpScreen |  |  | 800 | 60 | 182, 182, 182 |  |  |  |  |  |  |  | Pop-up screen", rows[51]);
         Assert.Single(rows, r => r.Contains(" | Yes | "));
     }
 
@@ -108,10 +108,10 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Экранов: 10");
         RunAssertions.HasLine(run.Output, "Стартовый экран: 001_MainScreen (1)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
-        Assert.Equal("Permanent area |  |  | 1280 | 0 | 182, 182, 182 |  | Permanent area", rows[1]);
-        Assert.Equal("001_MainScreen | 1 | Yes | 1280 | 800 | 182, 182, 182 |  | Screen", rows[2]);
+        Assert.Equal("Permanent area |  |  | 1280 | 0 | 182, 182, 182 |  |  |  |  |  | Permanent area", rows[1]);
+        Assert.Equal("001_MainScreen | 1 | Yes | 1280 | 800 | 182, 182, 182 |  |  |  |  |  | Screen", rows[2]);
         Assert.Equal(["UZ70", "UZ60", "UZ40", "HPU", "UZ10", "UZ72", "UZ90"],
-            rows.Where(r => r.EndsWith(" | 636 | 322 | 181, 182, 181 |  | Pop-up screen")).Select(r => r.Split(" | ")[0]));
+            rows.Where(r => r.EndsWith(" | 636 | 322 | 181, 182, 181 |  |  |  |  |  | Pop-up screen")).Select(r => r.Split(" | ")[0]));
     }
 
     /// <summary>
@@ -132,8 +132,8 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
-            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen"
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  |  |  |  |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
@@ -157,12 +157,12 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
-            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
-            "Slide-in screen left |  |  | 267 | 480 | ? |  | Slide-in screen",
-            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  | Slide-in screen",
-            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen"
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  |  |  |  |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen",
+            "Slide-in screen left |  |  | 267 | 480 | ? |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen right |  |  | 267 | 480 | 182, 182, 182 |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen top |  |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
@@ -187,10 +187,10 @@ public sealed class ScreensRunTests
         Assert.Equal(
         [
             Header,
-            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  | Permanent area",
-            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen",
-            "Slide-in screen left |  |  | 267 | 480 | ? |  | Slide-in screen",
-            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen"
+            "Permanent area |  |  | 800 | 60 | 182, 182, 182 |  |  |  |  |  | Permanent area",
+            "Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen",
+            "Slide-in screen left |  |  | 267 | 480 | ? |  |  |  |  |  | Slide-in screen",
+            "Slide-in screen bottom |  |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen"
         ], SheetDump.Read(dir.PanelDataWorkbook, "Экраны"));
     }
 
@@ -212,8 +212,8 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Экранов: 0");
         RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно (1)");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
-        Assert.Contains("Root screen | ? |  | 800 | 420 | 182, 182, 182 |  | ?", rows);
-        Assert.Contains("Slide-in screen top | ? |  | 800 | 160 | 182, 182, 182 |  | Slide-in screen", rows);
+        Assert.Contains("Root screen | ? |  | 800 | 420 | 182, 182, 182 |  |  |  |  |  | ?", rows);
+        Assert.Contains("Slide-in screen top | ? |  | 800 | 160 | 182, 182, 182 |  |  |  |  |  | Slide-in screen", rows);
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public sealed class ScreensRunTests
         var run = PanelRunner.Run(input, null, dir.OutDir);
 
         var rows = PermanentAreaHeightUnknown(run, dir, $"VIEW_DYN @ 0x{item.Offset:X}: запись 1: 48 ссылок не помещаются в {item.Length} байт");
-        Assert.Equal("Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  | Screen", rows[2]);
+        Assert.Equal("Root screen | 1 | Yes | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen", rows[2]);
     }
 
     /// <summary>
@@ -290,7 +290,7 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Errors, $"ПРЕДУПРЕЖДЕНИЕ: не разобрано - {message}");
         RunAssertions.NoStackTrace(run);
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
-        Assert.Equal("Permanent area |  |  | 800 | ? | 182, 182, 182 |  | Permanent area", rows[1]);
+        Assert.Equal("Permanent area |  |  | 800 | ? | 182, 182, 182 |  |  |  |  |  | Permanent area", rows[1]);
         return rows;
     }
 
@@ -312,7 +312,7 @@ public sealed class ScreensRunTests
         RunAssertions.HasLine(run.Output, "Экранов: 1");
         RunAssertions.HasLine(run.Output, "Стартовый экран: неизвестно");
         var rows = SheetDump.Read(dir.PanelDataWorkbook, "Экраны");
-        Assert.Contains("Root screen | 1 |  | 800 | 420 | 182, 182, 182 |  | Screen", rows);
+        Assert.Contains("Root screen | 1 |  | 800 | 420 | 182, 182, 182 |  |  |  |  |  | Screen", rows);
         Assert.DoesNotContain(rows, r => r.Contains(" | Yes | "));
     }
 

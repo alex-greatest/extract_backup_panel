@@ -3,7 +3,7 @@ using FlexRt.Model.Panel;
 
 namespace FlexRt.Parsing.Panel.Screens;
 
-/// <summary>Начало элемента GUI, ADAPTVALUECHANG и VIEW_DYN: u32 (наблюдение: всегда 1), u32 R — число ссылок, R ссылок по 8 байт.</summary>
+/// <summary>Начало элемента GUI, ADAPTVALUECHANG, VIEW_DYN и LIMIT: u32 (наблюдение: всегда 1), u32 R — число ссылок, R ссылок по 8 байт.</summary>
 internal static class ReferenceHeader
 {
     /// <summary>Смещение u32 числа ссылок R.</summary>
@@ -15,16 +15,16 @@ internal static class ReferenceHeader
     /// <summary>Размер ссылки: u16 Id таблицы, u16 номер элемента и два слова.</summary>
     private const int ReferenceSize = 8;
 
-    /// <summary>Наибольшее число ссылок, которое принимается без ошибки (наблюдение: GUI — 3, ADAPTVALUECHANG — 0 или 1, VIEW_DYN — 1).</summary>
+    /// <summary>Наибольшее число ссылок, которое принимается без ошибки (наблюдение: GUI — 3, ADAPTVALUECHANG — 0 или 1, VIEW_DYN — 1, LIMIT у Visibility экрана — 1).</summary>
     private const long MaxReferences = 0x20;
 
     /// <summary>
-    /// Прочитать начало элемента: число ссылок и Id таблиц, на которые они ведут. Поле за ссылками
-    /// начинается сразу после них.
+    /// Прочитать начало элемента: число ссылок и ссылки — Id таблицы и номер элемента (два слова ссылки не читаются).
+    /// Поле за ссылками начинается сразу после них.
     /// </summary>
-    /// <returns>Смещение конца ссылок от начала элемента и Id таблиц ссылок в порядке файла.</returns>
+    /// <returns>Смещение конца ссылок от начала элемента и ссылки в порядке файла.</returns>
     /// <exception cref="FwxFormatException">Элемент короче 8 байт, R больше 0x20 или ссылки не помещаются в элемент.</exception>
-    public static (long End, IReadOnlyList<int> Tables) Read(FwxBinary b, TableItem item)
+    public static (long End, IReadOnlyList<VarReference> References) Read(FwxBinary b, TableItem item)
     {
         var p = item.Offset;
         var number = item.Index + 1;
@@ -38,10 +38,11 @@ internal static class ReferenceHeader
         {
             throw new FwxFormatException(b.Section, p, $"запись {number}: {references} ссылок не помещаются в {item.Length} байт");
         }
-        var tables = Enumerable.Range(0, (int)references)
-            .Select(i => b.D2(p + ReferencesOffset + i * ReferenceSize))
+        var links = Enumerable.Range(0, (int)references)
+            .Select(i => p + ReferencesOffset + i * ReferenceSize)
+            .Select(o => new VarReference(b.D2(o), b.D2(o + 2)))
             .ToList();
-        return (end, tables);
+        return (end, links);
     }
 
     /// <summary>

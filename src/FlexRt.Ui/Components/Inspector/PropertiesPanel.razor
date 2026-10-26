@@ -1,3 +1,5 @@
+@using FlexRt.Export.PanelData.Screens
+
 <div class="inspector-head">
     <span class="inspector-title">@HeadTitle()</span>
     <span class="spacer"></span>
@@ -55,7 +57,7 @@ else
     <RadzenTabs class="inspector-tabs" @bind-SelectedIndex="_innerTab">
         <Tabs>
             <RadzenTabsItem Text="Properties">@PropertiesView()</RadzenTabsItem>
-            <RadzenTabsItem Text="Animations">@NotParsed("Animations")</RadzenTabsItem>
+            <RadzenTabsItem Text="Animations">@AnimationsView()</RadzenTabsItem>
             <RadzenTabsItem Text="Events">@NotParsed("Events")</RadzenTabsItem>
         </Tabs>
     </RadzenTabs>
@@ -179,6 +181,15 @@ else
         return $"{(first == "" ? $"Строка {Row.Index + 1}" : first)} [{Row.Section.Title}]";
     }
 
+    /// <summary>
+    /// Вкладка Animations: Visibility экрана (<see cref="ScreenAnimations"/>) из колонок Visibility строки листа; объект не
+    /// выбран — подсказка.
+    /// </summary>
+    /// <returns>Разметка вкладки.</returns>
+    private RenderFragment AnimationsView() => Item is null
+        ? @<div class="muted">@Hints.NoScreen</div>
+        : @<ScreenAnimations Properties="@([.. Item.Properties.Where(p => IsAnimation(p.Name))])" />;
+
     /// <summary>Вкладка, данных для которой в pdata.fwc пока не найдено.</summary>
     /// <returns>Разметка подсказки.</returns>
     private RenderFragment NotParsed(string tab) =>
@@ -209,8 +220,12 @@ else
         _ => ""
     };
 
-    /// <summary>Свойства объекта по группам в порядке первого свойства группы.</summary>
+    /// <summary>Свойства объекта по группам в порядке первого свойства группы; колонки Visibility — на вкладке Animations, не здесь.</summary>
     /// <returns>Группы свойств.</returns>
     private static List<IGrouping<string, ScreenProperty>> Groups(ScreenItem item) =>
-        [.. item.Properties.GroupBy(p => GroupOf.GetValueOrDefault(p.Name, GeneralGroup))];
+        [.. item.Properties.Where(p => !IsAnimation(p.Name)).GroupBy(p => GroupOf.GetValueOrDefault(p.Name, GeneralGroup))];
+
+    /// <summary>Колонка листа «Экраны» — анимация (<see cref="ScreenVisibilityCells.Columns"/>).</summary>
+    /// <returns><c>true</c> — свойство показывается на вкладке Animations.</returns>
+    private static bool IsAnimation(string name) => ScreenVisibilityCells.Columns.Contains(name);
 }

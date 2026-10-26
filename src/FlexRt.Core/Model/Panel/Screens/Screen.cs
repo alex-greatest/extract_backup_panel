@@ -13,4 +13,16 @@ namespace FlexRt.Model.Panel.Screens;
 /// <param name="BackgroundRgb">
 /// Цвет фона (Background color в TIA): <c>R &lt;&lt; 16 | G &lt;&lt; 8 | B</c>; <c>null</c> — не прочитан (после объектов меньше 12 байт).
 /// </param>
-public sealed record Screen(int Index, bool IsService, string Name, int Width, int Height, IReadOnlyList<VarReference> Objects, int? BackgroundRgb);
+/// <param name="References">
+/// Ссылки записи в порядке файла (Id таблицы и номер элемента): у экрана — на SOFTKEY и, если есть, FUNC_LIST,
+/// ADAPTDEMULTIPLE или LIMIT (Visibility экрана, <see cref="ScreenVisibility"/>).
+/// </param>
+public sealed record Screen(
+    int Index,
+    bool IsService,
+    string Name,
+    int Width,
+    int Height,
+    IReadOnlyList<VarReference> Objects,
+    int? BackgroundRgb,
+    IReadOnlyList<VarReference> References);

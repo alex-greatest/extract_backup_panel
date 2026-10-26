@@ -64,6 +64,8 @@ FlexRt читает скомпилированную конфигурацию п
   — адрес письма класса аларма.
 - [формат-fwx/таблица-screen.md](формат-fwx/таблица-screen.md) — экраны:
   имя, размер, объекты, вид (экран, pop-up, slide-in, Permanent area).
+- [формат-fwx/таблица-limit.md](формат-fwx/таблица-limit.md) — Visibility
+  экрана: тег, From, To, Visible/Invisible.
 - [формат-fwx/таблица-adaptvaluechang.md](формат-fwx/таблица-adaptvaluechang.md)
   — номера экранов.
 - [формат-fwx/таблица-gui.md](формат-fwx/таблица-gui.md) — номер стартового

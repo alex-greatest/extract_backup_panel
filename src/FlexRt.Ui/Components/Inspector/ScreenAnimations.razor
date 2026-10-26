@@ -1,0 +1,56 @@
+@using FlexRt.Export.PanelData.Screens
+
+@if (!HasVisibility())
+{
+    <div class="muted">Анимаций нет</div>
+}
+else
+{
+    <div class="props-layout">
+        <RadzenListBox TValue="string" Data="@AnimationItems" Value="@VisibilityItem" class="props-nav" />
+        <div class="props-body">
+            <div class="screen-general">
+                <RadzenFieldset Text="Process" class="prop-group screen-general-main">
+                    <PropertyRow Name="Tag" Value="Cell(ScreenVisibilityCells.TagColumn)" />
+                    <PropertyRow Name="Range from" Value="Cell(ScreenVisibilityCells.FromColumn)" />
+                    <PropertyRow Name="To" Value="Cell(ScreenVisibilityCells.ToColumn)" />
+                </RadzenFieldset>
+                <RadzenFieldset Text="@VisibilityItem" class="prop-group screen-visibility">
+                    <RadzenRadioButtonList TValue="string" Value="@Cell(ScreenVisibilityCells.StateColumn).Display" Orientation="Orientation.Vertical" Disabled="true">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="@ScreenVisibilityCells.VisibleText" Value="@ScreenVisibilityCells.VisibleText" />
+                            <RadzenRadioButtonListItem Text="@ScreenVisibilityCells.InvisibleText" Value="@ScreenVisibilityCells.InvisibleText" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                    @if (Cell(ScreenVisibilityCells.StateColumn).Display == ScreensTable.Unknown)
+                    {
+                        <div class="muted">не прочитано</div>
+                    }
+                </RadzenFieldset>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>Пункт списка анимаций и заголовок блока Visible/Invisible, как в TIA.</summary>
+    private const string VisibilityItem = "Visibility";
+
+    /// <summary>Пункты списка анимаций слева: экрану в TIA доступна только Visibility.</summary>
+    private static readonly List<string> AnimationItems = [VisibilityItem];
+
+    /// <summary>
+    /// Свойства экрана — ячейки строки листа «Экраны»; вкладка берёт колонки Visibility
+    /// (<see cref="ScreenVisibilityCells.Columns"/>).
+    /// </summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ScreenProperty> Properties { get; set; } = [];
+
+    /// <summary>Есть ли у экрана Visibility: колонка тега не пустая (пустая — ссылки на LIMIT нет).</summary>
+    /// <returns><c>true</c>, если анимация есть (в том числе не прочитанная — <c>?</c>).</returns>
+    private bool HasVisibility() => Cell(ScreenVisibilityCells.TagColumn).Display != "";
+
+    /// <summary>Ячейка колонки листа по заголовку.</summary>
+    /// <returns>Значение; колонки нет — пустая ячейка.</returns>
+    private ReportCell Cell(string column) => Properties.FirstOrDefault(p => p.Name == column)?.Value ?? "";
+}

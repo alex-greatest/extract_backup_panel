@@ -52,8 +52,8 @@ public static class AdaptValueChangParser
     private static void ReadRecord(FwxDocument doc, TableItem item, int guiId)
     {
         var b = doc.Binary;
-        var (end, tables) = ReferenceHeader.Read(b, item);
-        if (!tables.Contains(guiId))
+        var (end, links) = ReferenceHeader.Read(b, item);
+        if (links.All(r => r.Table != guiId))
         {
             return;
         }
