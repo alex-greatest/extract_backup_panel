@@ -7,22 +7,37 @@
 else
 {
     <div class="props-layout">
-        <RadzenListBox TValue="string" Data="@AnimationItems" Value="@VisibilityItem" class="props-nav" />
+        <nav class="anim-nav" aria-label="Анимации">
+            <div class="anim-nav-group"><RadzenIcon Icon="tv" /> Display</div>
+            <div class="anim-nav-item selected" aria-current="true"><RadzenIcon Icon="visibility" /> @VisibilityItem</div>
+        </nav>
         <div class="props-body">
-            <div class="screen-general">
-                <RadzenFieldset Text="Process" class="prop-group screen-general-main">
-                    <PropertyRow Name="Tag" Value="Cell(ScreenVisibilityCells.TagColumn)" />
-                    <PropertyRow Name="Range from" Value="Cell(ScreenVisibilityCells.FromColumn)" />
-                    <PropertyRow Name="To" Value="Cell(ScreenVisibilityCells.ToColumn)" />
+            <div class="anim-title">@VisibilityItem</div>
+            <div class="anim-blocks">
+                <RadzenFieldset Text="Process" class="prop-group anim-process">
+                    <div class="anim-tag-label">Tag:</div>
+                    <div class="anim-tag">
+                        <PropertyValue Value="Cell(ScreenVisibilityCells.TagColumn)" />
+                    </div>
+                    <div role="radiogroup" aria-readonly="true" aria-label="Режим">
+                        <div class="anim-mode">
+                            @Radio("Range", true, false)
+                            <div class="anim-range">
+                                <div class="prop-row"><RadzenLabel Text="From:" /><PropertyValue Value="Cell(ScreenVisibilityCells.FromColumn)" /></div>
+                                <div class="prop-row"><RadzenLabel Text="To:" /><PropertyValue Value="Cell(ScreenVisibilityCells.ToColumn)" /></div>
+                            </div>
+                        </div>
+                        <div class="anim-mode" title="@SingleBitHint">
+                            @Radio("Single bit", false, true)
+                        </div>
+                    </div>
                 </RadzenFieldset>
-                <RadzenFieldset Text="@VisibilityItem" class="prop-group screen-visibility">
-                    <RadzenRadioButtonList TValue="string" Value="@Cell(ScreenVisibilityCells.StateColumn).Display" Orientation="Orientation.Vertical" Disabled="true">
-                        <Items>
-                            <RadzenRadioButtonListItem Text="@ScreenVisibilityCells.VisibleText" Value="@ScreenVisibilityCells.VisibleText" />
-                            <RadzenRadioButtonListItem Text="@ScreenVisibilityCells.InvisibleText" Value="@ScreenVisibilityCells.InvisibleText" />
-                        </Items>
-                    </RadzenRadioButtonList>
-                    @if (Cell(ScreenVisibilityCells.StateColumn).Display == ScreensTable.Unknown)
+                <RadzenFieldset Text="@VisibilityItem" class="prop-group anim-state">
+                    <div role="radiogroup" aria-readonly="true" aria-label="@VisibilityItem">
+                        @Radio(ScreenVisibilityCells.VisibleText, State() == ScreenVisibilityCells.VisibleText, false)
+                        @Radio(ScreenVisibilityCells.InvisibleText, State() == ScreenVisibilityCells.InvisibleText, false)
+                    </div>
+                    @if (State() == ScreensTable.Unknown)
                     {
                         <div class="muted">не прочитано</div>
                     }
@@ -33,11 +48,11 @@ else
 }
 
 @code {
-    /// <summary>Пункт списка анимаций и заголовок блока Visible/Invisible, как в TIA.</summary>
+    /// <summary>Пункт дерева анимаций, заголовок вкладки и блока Visible/Invisible, как в TIA.</summary>
     private const string VisibilityItem = "Visibility";
 
-    /// <summary>Пункты списка анимаций слева: экрану в TIA доступна только Visibility.</summary>
-    private static readonly List<string> AnimationItems = [VisibilityItem];
+    /// <summary>Подсказка у неактивного Single bit: у Visibility экрана TIA даёт только режим Range.</summary>
+    private const string SingleBitHint = "У Visibility экрана TIA даёт только режим Range";
 
     /// <summary>
     /// Свойства экрана — ячейки строки листа «Экраны»; вкладка берёт колонки Visibility
@@ -50,7 +65,25 @@ else
     /// <returns><c>true</c>, если анимация есть (в том числе не прочитанная — <c>?</c>).</returns>
     private bool HasVisibility() => Cell(ScreenVisibilityCells.TagColumn).Display != "";
 
+    /// <summary>Значение колонки Visibility: <c>Visible</c>, <c>Invisible</c> или <c>?</c>.</summary>
+    /// <returns>Текст ячейки.</returns>
+    private string State() => Cell(ScreenVisibilityCells.StateColumn).Display;
+
     /// <summary>Ячейка колонки листа по заголовку.</summary>
     /// <returns>Значение; колонки нет — пустая ячейка.</returns>
     private ReportCell Cell(string column) => Properties.FirstOrDefault(p => p.Name == column)?.Value ?? "";
+
+    /// <summary>
+    /// Переключатель только для чтения, как в TIA: кружок и подпись обычного цвета (не бледные, как у отключённого
+    /// переключателя Radzen); <paramref name="disabled"/> — недоступный в TIA вариант (Single bit), бледный.
+    /// </summary>
+    /// <param name="text">Подпись.</param>
+    /// <param name="isChecked">Выбран ли вариант.</param>
+    /// <param name="disabled">Вариант недоступен.</param>
+    /// <returns>Разметка переключателя.</returns>
+    private static RenderFragment Radio(string text, bool isChecked, bool disabled) =>
+        @<div class="anim-radio @(isChecked ? "checked" : "") @(disabled ? "disabled" : "")" role="radio"
+              aria-checked="@(isChecked ? "true" : "false")" aria-disabled="@(disabled ? "true" : "false")">
+            <span class="anim-radio-box"></span>@text
+        </div>;
 }
