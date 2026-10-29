@@ -44,11 +44,11 @@ public static class LimitParser
     /// Прочитать элементы LIMIT, на которые ссылаются записи SCREEN (ссылка записи с Id таблицы LIMIT из TOC; второе
     /// слово ссылки — 0x10, наблюдение), и добавить их в <see cref="FwxDocument.ScreenVisibilities"/>. Нет таблицы в TOC — ничего не делает.
     /// Разбирается после SCREEN. Значение From или To незнакомого типа — <c>null</c> и предупреждение, элемент остаётся.
-    /// Сбой элемента одного экрана (ссылка за последний элемент, элемент за пределами таблицы или не той раскладки) —
-    /// предупреждение с таблицей и смещением, у этого экрана Visibility нет, остальные экраны читаются; элементы, на
-    /// которые экраны не ссылаются, не проверяются (их проверяет <see cref="TableLayoutCheck"/>).
+    /// Сбой элемента одного экрана (ссылка за последний элемент, его запись каталога смещений выходит за файл или даёт
+    /// отрицательную длину, элемент за пределами таблицы или не той раскладки) — предупреждение с таблицей и смещением,
+    /// у этого экрана Visibility нет, остальные экраны читаются; элементы, на которые экраны не ссылаются, и их записи
+    /// каталога не проверяются (их проверяет <see cref="TableLayoutCheck"/>).
     /// </summary>
-    /// <exception cref="FwxFormatException">Каталог смещений таблицы выходит за файл или даёт отрицательную длину элемента.</exception>
     public static void Parse(FwxDocument doc)
     {
         var table = doc.FindTable("LIMIT");
@@ -57,14 +57,13 @@ public static class LimitParser
             return;
         }
 
-        var items = FwxReader.Items(doc.Binary, table).ToList();
         foreach (var screen in doc.Screens.Where(s => !s.IsService))
         {
             foreach (var link in screen.References.Where(r => r.Table == table.Id))
             {
                 try
                 {
-                    doc.ScreenVisibilities.Add(ReadLinked(doc, table, items, screen, link.Index));
+                    doc.ScreenVisibilities.Add(ReadLinked(doc, table, screen, link.Index));
                 }
                 catch (FwxFormatException e)
                 {
@@ -78,22 +77,18 @@ public static class LimitParser
     /// <summary>Элемент LIMIT, на который ссылается экран: проверить номер и границы элемента и прочитать его.</summary>
     /// <param name="doc">Документ панели.</param>
     /// <param name="table">Таблица LIMIT.</param>
-    /// <param name="items">Элементы таблицы в порядке каталога.</param>
     /// <param name="screen">Запись SCREEN, которая ссылается на элемент.</param>
     /// <param name="index">Номер элемента из ссылки, с нуля.</param>
     /// <returns>Visibility экрана.</returns>
     /// <exception cref="FwxFormatException">
-    /// Ссылка ведёт за последний элемент, элемент выходит за пределы таблицы или не сходится с раскладкой.
+    /// Ссылка ведёт за последний элемент, запись каталога смещений элемента выходит за файл или даёт отрицательную длину,
+    /// элемент выходит за пределы таблицы или не сходится с раскладкой.
     /// </exception>
-    private static ScreenVisibility ReadLinked(FwxDocument doc, TocEntry table, List<TableItem> items, Screen screen, int index)
+    private static ScreenVisibility ReadLinked(FwxDocument doc, TocEntry table, Screen screen, int index)
     {
-        if (index >= items.Count)
-        {
-            throw new FwxFormatException(table.Name, table.Offset, $"экран {screen.Name} ссылается на элемент {index + 1}, а элементов {table.Entries}");
-        }
-        var item = items[index];
-        FwxReader.CheckInsideTable(table, item);
-        return ReadRecord(doc, screen.Index, item);
+        return index < table.Entries
+            ? ReadRecord(doc, screen.Index, FwxReader.CheckedItem(doc.Binary, table, index))
+            : throw new FwxFormatException(table.Name, table.Offset, $"экран {screen.Name} ссылается на элемент {index + 1}, а элементов {table.Entries}");
     }
 
     /// <summary>
@@ -142,7 +137,7 @@ public static class LimitParser
         switch (type)
         {
             case DoubleType:
-                return BitConverter.Int64BitsToDouble(b.D4(pos + ValueOffset) | b.D4(pos + ValueOffset + 4) << 32);
+                return b.F64(pos + ValueOffset);
             case Int16Type:
                 return (short)b.D2(pos + ValueOffset);
             default:

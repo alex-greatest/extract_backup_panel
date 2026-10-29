@@ -4,7 +4,7 @@ using FlexRt.Model.Panel.Alarms;
 
 namespace FlexRt.Parsing.Panel.Alarms;
 
-/// <summary>Разбор FUNC_SEND_EMAIL: адреса писем классов алармов (E-mail address класса в TIA).</summary>
+/// <summary>Разбор FUNC_SEND_EMAIL: адреса писем классов алармов (E-mail address класса в TIA), только элементы со ссылкой из MSG_LOGGER.</summary>
 public static class FuncSendEmailParser
 {
     /// <summary>
@@ -15,13 +15,16 @@ public static class FuncSendEmailParser
     private const int AddressLengthOffset = 0x50;
 
     /// <summary>
-    /// Прочитать таблицу FUNC_SEND_EMAIL и добавить адреса в <see cref="FwxDocument.EmailFunctions"/>
-    /// в порядке каталога. Таблица есть только в панелях, где у класса задан E-mail address; нет
-    /// таблицы в TOC — ничего не делает.
-    /// <see cref="FwxDocument.EmailFunctionsComplete"/> становится <c>true</c>, только если таблицы нет или она
-    /// прочитана целиком.
+    /// Прочитать элементы таблицы FUNC_SEND_EMAIL, на которые ссылаются классы алармов
+    /// (<see cref="FwxDocument.AlarmClassFunctions"/> с Id этой таблицы), и добавить их адреса в
+    /// <see cref="FwxDocument.EmailFunctions"/> в порядке каталога. В ту же таблицу TIA пишет и системную
+    /// функцию SendEMail из событий экрана (наблюдение на steps-events, V21); такие элементы не читаются.
+    /// Ссылка на номер, которого в таблице нет, пропускается: у класса адреса нет. Таблица есть только в
+    /// панелях, где у класса задан E-mail address или вызвана SendEMail; нет таблицы в TOC — ничего не делает.
+    /// <see cref="FwxDocument.EmailFunctionsComplete"/> становится <c>true</c>, только если таблицы нет или все
+    /// элементы со ссылками прочитаны.
     /// </summary>
-    /// <exception cref="FwxFormatException">Элемент выходит за пределы таблицы или адрес не помещается в элемент.</exception>
+    /// <exception cref="FwxFormatException">Элемент со ссылкой выходит за пределы таблицы или адрес не помещается в элемент.</exception>
     public static void Parse(FwxDocument doc)
     {
         var table = doc.FindTable("FUNC_SEND_EMAIL");
@@ -31,12 +34,25 @@ public static class FuncSendEmailParser
             return;
         }
 
-        foreach (var item in FwxReader.CheckedItems(doc.Binary, table))
+        foreach (var index in ReferencedIndexes(doc, table))
         {
-            doc.EmailFunctions.Add(ReadRecord(doc.Binary, item));
+            doc.EmailFunctions.Add(ReadRecord(doc.Binary, FwxReader.CheckedItem(doc.Binary, table, index)));
         }
         doc.EmailFunctionsComplete = true;
     }
+
+    /// <summary>
+    /// Номера элементов FUNC_SEND_EMAIL, на которые ссылаются записи MSG_LOGGER (функции классов алармов),
+    /// без повторов и номеров за концом каталога, по возрастанию. MSG_LOGGER разобрана раньше
+    /// (<see cref="FwxReader.Read"/>); если она прочитана не целиком, берутся ссылки до сбоя.
+    /// </summary>
+    /// <returns>Номера элементов с нуля.</returns>
+    private static IEnumerable<int> ReferencedIndexes(FwxDocument doc, TocEntry table) =>
+        doc.AlarmClassFunctions
+            .Where(f => f.Table == table.Id && f.Index < table.Entries)
+            .Select(f => f.Index)
+            .Distinct()
+            .Order();
 
     /// <summary>
     /// Адрес элемента (наблюдение на шаговых копиях A603A0097 и Project1, V21: 4 адреса совпали с

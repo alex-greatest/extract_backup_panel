@@ -86,21 +86,30 @@ public static class FwxReader
     /// <exception cref="FwxFormatException">Смещение вне файла или отрицательная длина элемента.</exception>
     public static IEnumerable<TableItem> Items(FwxBinary b, TocEntry table)
     {
-        var offsets = table.Offset + TableHeaderSize;
-        var dataBlock = offsets + table.Entries * 4L;
-        var tableEnd = table.Offset + table.Size;
-        b.Section = table.Name;
-
         for (var i = 0; i < table.Entries; i++)
         {
-            var start = dataBlock + b.D4(offsets + i * 4L);
-            var end = i < table.Entries - 1 ? dataBlock + b.D4(offsets + (i + 1) * 4L) : tableEnd;
-            if (end < start)
-            {
-                throw new FwxFormatException(table.Name, start, $"отрицательная длина элемента {i + 1}");
-            }
-            yield return new TableItem(i, start, end - start);
+            yield return Item(b, table, i);
         }
+    }
+
+    /// <summary>
+    /// Элемент таблицы по номеру, как в <see cref="Items"/>, но без обхода остальных: смещения читаются
+    /// только у него и у следующего, поэтому испорченная запись каталога у другого элемента не мешает.
+    /// Номер должен быть меньше <see cref="TocEntry.Entries"/>. Выставляет <see cref="FwxBinary.Section"/>
+    /// в имя таблицы.
+    /// </summary>
+    /// <returns>Номер, начало и длина элемента.</returns>
+    /// <exception cref="FwxFormatException">Смещение вне файла или отрицательная длина элемента.</exception>
+    public static TableItem Item(FwxBinary b, TocEntry table, int index)
+    {
+        var offsets = table.Offset + TableHeaderSize;
+        var dataBlock = offsets + table.Entries * 4L;
+        b.Section = table.Name;
+        var start = dataBlock + b.D4(offsets + index * 4L);
+        var end = index < table.Entries - 1 ? dataBlock + b.D4(offsets + (index + 1) * 4L) : table.Offset + table.Size;
+        return end >= start
+            ? new TableItem(index, start, end - start)
+            : throw new FwxFormatException(table.Name, start, $"отрицательная длина элемента {index + 1}");
     }
 
     /// <summary>
@@ -110,11 +119,23 @@ public static class FwxReader
     /// <exception cref="FwxFormatException">Смещение вне файла, отрицательная длина или элемент за пределами таблицы.</exception>
     public static IEnumerable<TableItem> CheckedItems(FwxBinary b, TocEntry table)
     {
-        foreach (var item in Items(b, table))
+        for (var i = 0; i < table.Entries; i++)
         {
-            CheckInsideTable(table, item);
-            yield return item;
+            yield return CheckedItem(b, table, i);
         }
+    }
+
+    /// <summary>
+    /// Как <see cref="Item"/>, но элемент перед выдачей проверяется <see cref="CheckInsideTable"/>.
+    /// Номер должен быть меньше <see cref="TocEntry.Entries"/>.
+    /// </summary>
+    /// <returns>Номер, начало и длина элемента.</returns>
+    /// <exception cref="FwxFormatException">Смещение вне файла, отрицательная длина или элемент за пределами таблицы.</exception>
+    public static TableItem CheckedItem(FwxBinary b, TocEntry table, int index)
+    {
+        var item = Item(b, table, index);
+        CheckInsideTable(table, item);
+        return item;
     }
 
     /// <summary>

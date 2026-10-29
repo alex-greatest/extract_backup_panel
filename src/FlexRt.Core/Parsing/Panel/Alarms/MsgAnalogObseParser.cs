@@ -79,7 +79,7 @@ public static class MsgAnalogObseParser
         {
             throw new FwxFormatException(b.Section, p, $"запись {number}: длина {item.Length} не сходится с {references} ссылками и видом значения {kind}");
         }
-        var value = kind == Float64Kind ? b.D4(body + 4) | (b.D4(body + 8) << 32) : b.D4(body + 4);
+        var value = kind == Float64Kind ? b.D8(body + 4) : b.D4(body + 4);
         var limitTag = FindLimitTag(b, p + ReferencesOffset, (int)references, varTable);
         return new AnalogAlarmLimit(item.Index, b.D2(body), b.D1(body + 2), kind, value, limitTag);
     }

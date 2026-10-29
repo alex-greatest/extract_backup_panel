@@ -44,6 +44,17 @@ public sealed class FwxBinary(byte[] data)
     }
 
     /// <summary>
+    /// 64-битное слово, little endian: два 32-битных слова <see cref="D4"/>, младшее первым.
+    /// Границы проверяются у каждого слова отдельно.
+    /// </summary>
+    /// <exception cref="FwxFormatException">Слово выходит за пределы файла.</exception>
+    public long D8(long pos) => D4(pos) | (D4(pos + 4) << 32);
+
+    /// <summary>Число float64 (IEEE 754 double), little endian: биты 64-битного слова <see cref="D8"/>.</summary>
+    /// <exception cref="FwxFormatException">Число выходит за пределы файла.</exception>
+    public double F64(long pos) => BitConverter.Int64BitsToDouble(D8(pos));
+
+    /// <summary>
     /// 32-битное слово без знака, big endian: первый байт — старший. Так в панели хранятся IP-адрес
     /// и маска (<c>c0 a8 00 01</c> = 192.168.0.1).
     /// </summary>

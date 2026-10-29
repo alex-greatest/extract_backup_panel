@@ -25,10 +25,12 @@ public static class ViewDynParser
     /// <c>data/real/steps-screen-props/15_overview_height.fwc</c>, 60 → 80; у панелей без Permanent area — 0).
     /// Нет таблицы в TOC или записи <c>Overview</c> в <see cref="FwxDocument.Screens"/> (SCREEN нет или её разбор
     /// оборвался раньше — об этом уже предупреждает SCREEN) — ничего не делает, высота не известна. Разбирается после SCREEN.
+    /// Читается только этот элемент: записи каталога смещений и границы других элементов не проверяются (их проверяет
+    /// <see cref="TableLayoutCheck"/>).
     /// </summary>
     /// <exception cref="FwxFormatException">
-    /// Запись <c>Overview</c> не ссылается на VIEW_DYN, ссылка ведёт за последний элемент, элемент выходит за пределы
-    /// таблицы или не сходится с раскладкой.
+    /// Запись <c>Overview</c> не ссылается на VIEW_DYN, ссылка ведёт за последний элемент, запись каталога смещений
+    /// элемента выходит за файл или даёт отрицательную длину, элемент выходит за пределы таблицы или не сходится с раскладкой.
     /// </exception>
     public static void Parse(FwxDocument doc)
     {
@@ -39,7 +41,7 @@ public static class ViewDynParser
             return;
         }
 
-        var item = FwxReader.CheckedItems(doc.Binary, table).ElementAt(OverviewElement(overview, table));
+        var item = FwxReader.CheckedItem(doc.Binary, table, OverviewElement(overview, table));
         doc.PermanentAreaHeight = ReferenceHeader.ReadU16After(doc.Binary, item, PermanentAreaHeightOffset, "высота Permanent area");
     }
 
