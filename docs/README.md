@@ -66,6 +66,12 @@ FlexRt читает скомпилированную конфигурацию п
   имя, размер, объекты, вид (экран, pop-up, slide-in, Permanent area).
 - [формат-fwx/таблица-limit.md](формат-fwx/таблица-limit.md) — Visibility
   экрана: тег, From, To, Visible/Invisible.
+- [формат-fwx/таблица-func-list.md](формат-fwx/таблица-func-list.md) — события
+  экрана Loaded и Cleared: список функций.
+- [формат-fwx/таблица-adaptdemultiple.md](формат-fwx/таблица-adaptdemultiple.md)
+  — условие Loaded и ссылка на функции Cleared.
+- [формат-fwx/функции-func.md](формат-fwx/функции-func.md) — системные функции
+  `FUNC_*`: подкод, параметры, словарь имён.
 - [формат-fwx/таблица-adaptvaluechang.md](формат-fwx/таблица-adaptvaluechang.md)
   — номера экранов.
 - [формат-fwx/таблица-gui.md](формат-fwx/таблица-gui.md) — номер стартового
