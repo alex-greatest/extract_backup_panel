@@ -17,6 +17,10 @@ namespace FlexRt.Ui.Panel.Screens;
 /// Полоса Permanent area над экраном: у обычного экрана и экрана неопознанного вида, при высоте Permanent area больше нуля.
 /// </param>
 /// <param name="Events">События экрана для вкладки Events: Loaded и Cleared (<see cref="ScreenEventTexts.Of"/>).</param>
+/// <param name="Objects">
+/// Объекты экрана с положением для холста (<see cref="FlexRt.Model.Panel.FwxDocument.ScreenObjects"/>), с объектами
+/// шаблона; у Permanent area — объекты записи <c>Overview</c>.
+/// </param>
 public sealed record ScreenItem(
     Screen Screen,
     string Name,
@@ -25,4 +29,5 @@ public sealed record ScreenItem(
     IReadOnlyList<ScreenProperty> Properties,
     int? Height,
     PermanentStrip? Strip,
-    IReadOnlyList<ScreenEventView> Events);
+    IReadOnlyList<ScreenEventView> Events,
+    IReadOnlyList<ScreenObject> Objects);

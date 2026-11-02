@@ -1,4 +1,5 @@
 @using System.Globalization
+@using FlexRt.Model.Panel.Screens
 
 @{
     var drawn = Drawn(Item);
@@ -17,9 +18,13 @@
             <div class="screen-scale" style="width:@(item.Screen.Width)px; height:@(total)px; transform:scale(@Scale());">
                 @if (item.Strip is { } strip)
                 {
-                    <div class="permanent-strip" style="height:@(strip.Height)px; @Background(strip.BackgroundRgb)" title="Permanent area"></div>
+                    <div class="permanent-strip" style="height:@(strip.Height)px; @Background(strip.BackgroundRgb)" title="Permanent area">
+                        @ObjectFrames(strip.Objects)
+                    </div>
                 }
-                <div class="screen" style="height:@(height)px; @Background(item.Screen.BackgroundRgb)"></div>
+                <div class="@ScreenClass(item)" style="height:@(height)px; @Background(item.Screen.BackgroundRgb)">
+                    @ObjectFrames(item.Objects)
+                </div>
             </div>
         </div>
     }
@@ -75,6 +80,13 @@
     private static string Background(int? rgb) => rgb is { } color ? $"background-color:{CssColor.Hex(color)};" : "";
 
     /// <summary>
+    /// Классы прямоугольника экрана: у узла Permanent area объекты за его высотой обрезаются, как в полосе над
+    /// экраном; у остальных экранов объекты за краем видны (решение пользователя 2026-11-02).
+    /// </summary>
+    /// <returns><c>screen clipped</c> у Permanent area, иначе <c>screen</c>.</returns>
+    private static string ScreenClass(ScreenItem item) => item.Kind == ScreenKind.PermanentArea ? "screen clipped" : "screen";
+
+    /// <summary>
     /// Экран, который рисуется, и его высота: экран выбран, высота известна и это не Permanent area высотой 0
     /// (тогда вместо рисунка — <see cref="NothingToDraw"/>). Высота не известна только у Permanent area.
     /// </summary>
@@ -102,6 +114,24 @@
     /// <returns>Текст подсказки.</returns>
     private static string NothingToDraw(ScreenItem item) =>
         item.Height is null ? Hints.PermanentAreaHeightUnknown : Hints.NoPermanentArea;
+
+    /// <summary>
+    /// Рамки объектов экрана с подписью — именем объекта (решение пользователя 2026-11-02): положение и размер как в
+    /// Layout TIA, в пикселях экрана; у линии ширина или высота 0 — рамка в 1 px.
+    /// </summary>
+    /// <returns>Разметка рамок в порядке списка объектов.</returns>
+    private static RenderFragment ObjectFrames(IReadOnlyList<ScreenObject> objects) => __builder =>
+    {
+        foreach (var o in objects)
+        {
+            <div class="screen-object" style="@FrameStyle(o.Bounds)" title="@o.Name"><span>@o.Name</span></div>
+        }
+    };
+
+    /// <summary>Положение рамки объекта в CSS.</summary>
+    /// <returns>Текст CSS, например <c>left:720px; top:360px; width:78px; height:58px;</c>.</returns>
+    private static string FrameStyle(ScreenRect r) =>
+        $"left:{r.Left}px; top:{r.Top}px; width:{Math.Max(r.Width, 0)}px; height:{Math.Max(r.Height, 0)}px;";
 
     /// <summary>Размер рамки экрана в пикселях окна при текущем масштабе: по нему прокручивается холст.</summary>
     /// <returns>Текст CSS, например <c>600px</c>.</returns>

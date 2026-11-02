@@ -17,6 +17,9 @@ public static class ViewDynParser
     /// <summary>Номер записи <c>Overview</c> (объекты Permanent area) в таблице SCREEN, с нуля.</summary>
     private const int OverviewIndex = 0;
 
+    /// <summary>Имя таблицы: рабочая область панели; в записи <c>Overview</c> SCREEN — пара на её элемент, не объект экрана.</summary>
+    public const string TableName = "VIEW_DYN";
+
     /// <summary>
     /// Прочитать элемент VIEW_DYN, на который ссылается объект записи <c>Overview</c> таблицы SCREEN (в файлах
     /// элемент один, ссылка — на него), и записать высоту Permanent area в
@@ -34,7 +37,7 @@ public static class ViewDynParser
     /// </exception>
     public static void Parse(FwxDocument doc)
     {
-        var table = doc.FindTable("VIEW_DYN");
+        var table = doc.FindTable(TableName);
         var overview = doc.Screens.FirstOrDefault(s => s is { Index: OverviewIndex, IsService: false });
         if (table is null || overview is null)
         {

@@ -55,6 +55,8 @@ public static class FwxReader
         TryParse(doc, ViewDynParser.Parse);
         // только после ScreenParser: события читаются по ссылкам записей из doc.Screens
         TryParse(doc, ScreenEventParser.Parse);
+        // только после ScreenParser: объекты читаются по спискам записей из doc.Screens
+        TryParse(doc, ScreenObjectParser.Parse);
         TryParse(doc, InfoHandlerParser.Parse);
         TryParse(doc, PictureParser.Parse);
         TryParse(doc, TiledPictureParser.Parse);

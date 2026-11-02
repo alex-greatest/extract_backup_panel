@@ -19,7 +19,7 @@ public static class ScreenItems
     /// (<see cref="FwxDocument.StartScreenNumber"/>). Служебные записи pop-up не входят. Высота на холсте — высота ядра
     /// (<see cref="ScreensTable.Screens"/>, та же, что в колонке Height); над обычными экранами и экранами
     /// неопознанного вида — полоса Permanent area (<see cref="Strip"/>), как в редакторе экранов TIA. События Loaded и
-    /// Cleared — тексты ядра <see cref="ScreenEventTexts"/>.
+    /// Cleared — тексты ядра <see cref="ScreenEventTexts"/>. Объекты — <see cref="FwxDocument.ScreenObjects"/> записи экрана.
     /// </summary>
     /// <returns>Экраны для дерева, холста и панели свойств; экранов нет — пустой список.</returns>
     /// <exception cref="InvalidOperationException">
@@ -35,7 +35,8 @@ public static class ScreenItems
         }
         var nameColumn = ColumnIndex(table, NameColumn);
         var area = screens.FirstOrDefault(s => s.Kind == ScreenKind.PermanentArea).Screen;
-        var strip = Strip(doc, area);
+        var objects = doc.ScreenObjects.ToLookup(o => o.ScreenIndex);
+        var strip = Strip(doc, area, objects);
         var events = new ScreenEventTexts(doc);
         return
         [
@@ -47,20 +48,22 @@ public static class ScreenItems
                 Properties(table, row),
                 s.Height,
                 strip is not null && UnderPermanentArea(s.Kind, s.Screen, area, strip) ? strip : null,
-                events.Of(s.Screen)))
+                events.Of(s.Screen),
+                [.. objects[s.Screen.Index]]))
         ];
     }
 
     /// <summary>
-    /// Полоса Permanent area над обычными экранами: высота <see cref="FwxDocument.PermanentAreaHeight"/>, цвет фона и
-    /// высота записи Permanent area (запись <c>Overview</c> — вся панель).
+    /// Полоса Permanent area над обычными экранами: высота <see cref="FwxDocument.PermanentAreaHeight"/>, цвет фона,
+    /// высота и объекты записи Permanent area (запись <c>Overview</c> — вся панель).
     /// </summary>
     /// <param name="doc">Документ панели.</param>
     /// <param name="area">Запись Permanent area из строк листа; её нет — полоса без цвета и высоты панели.</param>
+    /// <param name="objects">Объекты экранов по номеру записи SCREEN; у полосы — объекты записи Permanent area.</param>
     /// <returns>Полоса; высота не прочитана или 0 — <c>null</c>.</returns>
-    private static PermanentStrip? Strip(FwxDocument doc, Screen? area) =>
+    private static PermanentStrip? Strip(FwxDocument doc, Screen? area, ILookup<int, ScreenObject> objects) =>
         doc.PermanentAreaHeight is > 0 and var height
-            ? new PermanentStrip(height, area?.BackgroundRgb, area?.Height)
+            ? new PermanentStrip(height, area?.BackgroundRgb, area?.Height, area is null ? [] : [.. objects[area.Index]])
             : null;
 
     /// <summary>

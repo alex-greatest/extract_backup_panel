@@ -27,6 +27,12 @@ public static class StepCopies
     /// </summary>
     public const string Events = "data/real/steps-events";
 
+    /// <summary>
+    /// Положение объектов Project1 (TIA V21, TP700 Comfort): 01–03 — Trend view на Screen_2, Screen_1 и Root screen,
+    /// 04 — f(x) trend view на Root screen; значения Layout — со снимков TIA.
+    /// </summary>
+    public const string Objects = "data/real/steps-objects";
+
     /// <summary>Папка шаговых копий; её нет — провал теста с сообщением, что копии вне git.</summary>
     /// <param name="folder">Папка копий относительно корня репозитория.</param>
     /// <returns>Абсолютный путь к папке.</returns>

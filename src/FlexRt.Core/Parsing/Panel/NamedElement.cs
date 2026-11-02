@@ -46,6 +46,13 @@ internal static class NamedElement
             ? null
             : ReferenceHeader.TryReadAt(b, item, NameOffset + AlignedNameBytes(b.D2(item.Offset + NameLengthOffset)));
 
+    /// <summary>Смещение поля за ссылками элемента (<see cref="TryReferences"/>) от начала элемента.</summary>
+    /// <returns>Смещение конца ссылок; имя, R или ссылки не помещаются в элемент, R больше 0x20 — <c>null</c>.</returns>
+    public static long? TryBodyOffset(FwxBinary b, TableItem item) =>
+        item.Length < NameOffset
+            ? null
+            : ReferenceHeader.TryEndAt(b, item, NameOffset + AlignedNameBytes(b.D2(item.Offset + NameLengthOffset)));
+
     /// <summary>Байты имени с нулями до кратности <see cref="NameAlignment"/>.</summary>
     /// <returns>Длина имени в байтах, округлённая вверх до кратности 4.</returns>
     private static long AlignedNameBytes(int chars) => (chars * 2L + NameAlignment - 1) / NameAlignment * NameAlignment;

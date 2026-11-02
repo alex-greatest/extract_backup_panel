@@ -61,22 +61,33 @@ internal static class ReferenceHeader
     /// <returns>Ссылки в порядке файла; R или ссылки не помещаются в элемент, R больше 0x20 — <c>null</c>.</returns>
     public static IReadOnlyList<VarReference>? TryReadAt(FwxBinary b, TableItem item, long countOffset)
     {
+        if (TryEndAt(b, item, countOffset) is not { } end)
+        {
+            return null;
+        }
+        var first = countOffset + CountSize;
+        return
+        [
+            .. Enumerable.Range(0, (int)((end - first) / ReferenceSize))
+                .Select(i => item.Offset + first + i * ReferenceSize)
+                .Select(o => new VarReference(b.D2(o), b.D2(o + 2)))
+        ];
+    }
+
+    /// <summary>
+    /// Конец ссылок, как в <see cref="TryReadAt"/>: u32 R на <paramref name="countOffset"/> от начала элемента и R ссылок
+    /// за ним; сами ссылки не читаются.
+    /// </summary>
+    /// <returns>Смещение конца ссылок от начала элемента; R или ссылки не помещаются в элемент, R больше 0x20 — <c>null</c>.</returns>
+    public static long? TryEndAt(FwxBinary b, TableItem item, long countOffset)
+    {
         if (countOffset + CountSize > item.Length)
         {
             return null;
         }
         var references = b.D4(item.Offset + countOffset);
-        var first = countOffset + CountSize;
-        if (references > MaxReferences || first + references * ReferenceSize > item.Length)
-        {
-            return null;
-        }
-        return
-        [
-            .. Enumerable.Range(0, (int)references)
-                .Select(i => item.Offset + first + i * ReferenceSize)
-                .Select(o => new VarReference(b.D2(o), b.D2(o + 2)))
-        ];
+        var end = countOffset + CountSize + references * ReferenceSize;
+        return references > MaxReferences || end > item.Length ? null : end;
     }
 
     /// <summary>

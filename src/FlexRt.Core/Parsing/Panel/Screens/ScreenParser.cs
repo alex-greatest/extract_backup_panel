@@ -28,9 +28,6 @@ public static class ScreenParser
     /// <summary>Смещение u16 числа объектов от конца ссылок: за размером 6 байт (наблюдение: всегда нули).</summary>
     private const int ObjectCountOffset = 0x12;
 
-    /// <summary>Размер объекта: u16 номер элемента, u16 Id таблицы.</summary>
-    private const int ObjectSize = 4;
-
     /// <summary>
     /// Смещение цвета фона от конца записи: три байта R, G, B, за ними байт (наблюдение: всегда 0, не читается). Хвост
     /// записи — 20 байт <c>FFFFFFFF | xxxxxxxx | RR GG BB 00 | 00100000 | 00000000</c> (наблюдение на 15 файлах V17 и V21);
@@ -121,14 +118,11 @@ public static class ScreenParser
         }
         var objects = b.D2(p + body + ObjectCountOffset);
         var first = body + ObjectCountOffset + 2;
-        if (first + objects * (long)ObjectSize > item.Length)
+        if (first + objects * (long)ObjectPairs.Size > item.Length)
         {
             throw new FwxFormatException(b.Section, p, $"запись {number}: {objects} объектов не помещаются в {item.Length} байт");
         }
-        var list = Enumerable.Range(0, objects)
-            .Select(i => p + first + i * ObjectSize)
-            .Select(o => new VarReference(b.D2(o + 2), b.D2(o)))
-            .ToList();
+        var list = ObjectPairs.Read(b, p + first, objects);
         var links = Enumerable.Range(0, (int)references)
             .Select(i => p + countOffset + 4 + i * ReferenceSize)
             .Select(o => new VarReference(b.D2(o), b.D2(o + 2)))
@@ -136,7 +130,7 @@ public static class ScreenParser
         var name = b.GetNameLen(p + 4, chars);
         var width = b.D2(p + body + SizeOffset);
         var height = b.D2(p + body + SizeOffset + 2);
-        var background = Background(b, item, first + objects * (long)ObjectSize);
+        var background = Background(b, item, first + objects * (long)ObjectPairs.Size);
         return new Screen(item.Index, marker == ServiceMarker, name, width, height, list, background, links);
     }
 
