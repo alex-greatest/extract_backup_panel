@@ -5,7 +5,8 @@ screens, Permanent area): имя, размер, ссылки и список о�
 таблицу в `Parsing/Panel/Screens/ScreenParser.cs`. Номер экрана — в
 [таблица-adaptvaluechang.md](таблица-adaptvaluechang.md), стартовый экран — в
 [таблица-gui.md](таблица-gui.md), Visibility экрана — в
-[таблица-limit.md](таблица-limit.md).
+[таблица-limit.md](таблица-limit.md), положение объектов из списка — в
+[объекты-экрана.md](объекты-экрана.md).
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md):
 установлено на файлах, наблюдение, гипотеза. Общее устройство таблиц —
