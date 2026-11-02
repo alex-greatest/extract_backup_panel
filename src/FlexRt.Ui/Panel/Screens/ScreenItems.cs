@@ -1,5 +1,6 @@
 using FlexRt.Export;
 using FlexRt.Export.PanelData.Screens;
+using FlexRt.Export.ScreenEvents;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
 
@@ -17,7 +18,8 @@ public static class ScreenItems
     /// сводятся попарно. Имя берётся из колонки Name по её заголовку; стартовый — экран с номером из GUI
     /// (<see cref="FwxDocument.StartScreenNumber"/>). Служебные записи pop-up не входят. Высота на холсте — высота ядра
     /// (<see cref="ScreensTable.Screens"/>, та же, что в колонке Height); над обычными экранами и экранами
-    /// неопознанного вида — полоса Permanent area (<see cref="Strip"/>), как в редакторе экранов TIA.
+    /// неопознанного вида — полоса Permanent area (<see cref="Strip"/>), как в редакторе экранов TIA. События Loaded и
+    /// Cleared — тексты ядра <see cref="ScreenEventTexts"/>.
     /// </summary>
     /// <returns>Экраны для дерева, холста и панели свойств; экранов нет — пустой список.</returns>
     /// <exception cref="InvalidOperationException">
@@ -34,6 +36,7 @@ public static class ScreenItems
         var nameColumn = ColumnIndex(table, NameColumn);
         var area = screens.FirstOrDefault(s => s.Kind == ScreenKind.PermanentArea).Screen;
         var strip = Strip(doc, area);
+        var events = new ScreenEventTexts(doc);
         return
         [
             .. screens.Zip(table.Rows, (s, row) => new ScreenItem(
@@ -43,7 +46,8 @@ public static class ScreenItems
                 s.Number is not null && s.Number == doc.StartScreenNumber,
                 Properties(table, row),
                 s.Height,
-                strip is not null && UnderPermanentArea(s.Kind, s.Screen, area, strip) ? strip : null))
+                strip is not null && UnderPermanentArea(s.Kind, s.Screen, area, strip) ? strip : null,
+                events.Of(s.Screen)))
         ];
     }
 

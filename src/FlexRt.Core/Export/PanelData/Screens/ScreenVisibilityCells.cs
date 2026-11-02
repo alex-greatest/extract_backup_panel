@@ -31,22 +31,18 @@ public sealed class ScreenVisibilityCells
     /// <summary>Id таблицы LIMIT из TOC; таблицы нет — <c>null</c>.</summary>
     private readonly int? _limitTable;
 
-    /// <summary>Id таблицы VAR из TOC; таблицы нет — <c>null</c>.</summary>
-    private readonly int? _varTable;
-
     /// <summary>Visibility по номеру записи SCREEN (с нуля); у записи несколько — первая.</summary>
     private readonly Dictionary<int, ScreenVisibility> _byScreen;
 
-    /// <summary>Имя тега по номеру записи VAR с единицы (<see cref="HmiTag.Index"/>).</summary>
-    private readonly Dictionary<int, string> _tagNames;
+    /// <summary>Имена тегов документа по ссылке на запись VAR.</summary>
+    private readonly TagNames _tagNames;
 
     /// <summary>Собрать Id таблиц LIMIT и VAR, Visibility экранов и имена тегов документа один раз на таблицу листа.</summary>
     public ScreenVisibilityCells(FwxDocument doc)
     {
         _limitTable = doc.FindTable("LIMIT")?.Id;
-        _varTable = doc.FindTable("VAR")?.Id;
         _byScreen = doc.ScreenVisibilities.DistinctBy(v => v.ScreenIndex).ToDictionary(v => v.ScreenIndex);
-        _tagNames = doc.Tags.DistinctBy(t => t.Index).ToDictionary(t => t.Index, t => t.Name);
+        _tagNames = new TagNames(doc);
     }
 
     /// <summary>
@@ -68,17 +64,12 @@ public sealed class ScreenVisibilityCells
         }
         return
         [
-            TagName(visibility.Tag),
+            _tagNames.Of(visibility.Tag) ?? ScreensTable.Unknown,
             ValueCell(visibility.From),
             ValueCell(visibility.To),
             visibility.Visible ? VisibleText : InvisibleText
         ];
     }
-
-    /// <summary>Имя тега по ссылке: Id таблицы VAR из TOC и номер записи с нуля (<see cref="HmiTag.Index"/> — с единицы).</summary>
-    /// <returns>Имя тега; ссылка не на VAR или запись не прочитана — <c>?</c>.</returns>
-    private string TagName(VarReference tag) =>
-        tag.Table == _varTable ? _tagNames.GetValueOrDefault(tag.Index + 1, ScreensTable.Unknown) : ScreensTable.Unknown;
 
     /// <summary>Ячейка From или To: целое — числом, дробное — текстом в инвариантной культуре.</summary>
     /// <returns>Ячейка; значение не прочитано — <c>?</c>.</returns>

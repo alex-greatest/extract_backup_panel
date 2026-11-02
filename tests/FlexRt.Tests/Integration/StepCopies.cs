@@ -20,6 +20,13 @@ public static class StepCopies
     /// <summary>Анимация Visibility экрана <c>Screen_2</c> Project1 (TIA V21, TP700 Comfort): по одной настройке на шаг.</summary>
     public const string Animations = "data/real/steps-animations";
 
+    /// <summary>
+    /// События экранов Loaded и Cleared Project1 (TIA V21, TP700 Comfort): 09–13 — одна правка на шаг, 20–23 — все
+    /// системные функции экрана с картой функций из TIA (<c>*.json</c>: экран, функция, параметры, таблица, байты),
+    /// 24 — SetTag на член DB.
+    /// </summary>
+    public const string Events = "data/real/steps-events";
+
     /// <summary>Папка шаговых копий; её нет — провал теста с сообщением, что копии вне git.</summary>
     /// <param name="folder">Папка копий относительно корня репозитория.</param>
     /// <returns>Абсолютный путь к папке.</returns>

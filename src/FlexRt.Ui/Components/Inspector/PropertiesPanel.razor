@@ -58,7 +58,7 @@ else
         <Tabs>
             <RadzenTabsItem Text="Properties">@PropertiesView()</RadzenTabsItem>
             <RadzenTabsItem Text="Animations">@AnimationsView()</RadzenTabsItem>
-            <RadzenTabsItem Text="Events">@NotParsed("Events")</RadzenTabsItem>
+            <RadzenTabsItem Text="Events">@EventsView()</RadzenTabsItem>
         </Tabs>
     </RadzenTabs>
 }
@@ -190,10 +190,14 @@ else
         ? @<div class="muted">@Hints.NoScreen</div>
         : @<ScreenAnimations Properties="@([.. Item.Properties.Where(p => IsAnimation(p.Name))])" />;
 
-    /// <summary>Вкладка, данных для которой в pdata.fwc пока не найдено.</summary>
-    /// <returns>Разметка подсказки.</returns>
-    private RenderFragment NotParsed(string tab) =>
-        @<div class="muted">@(Item is null ? Hints.NoScreen : $"{tab}: не разобрано — в pdata.fwc пока не найдено.")</div>;
+    /// <summary>
+    /// Вкладка Events: события Loaded и Cleared экрана (<see cref="ScreenEvents"/>) с функциями и параметрами; объект не
+    /// выбран — подсказка.
+    /// </summary>
+    /// <returns>Разметка вкладки.</returns>
+    private RenderFragment EventsView() => Item is null
+        ? @<div class="muted">@Hints.NoScreen</div>
+        : @<ScreenEvents Events="Item.Events" />;
 
     /// <summary>Строки вкладки Info: уровня <see cref="TranscriptLevel.Info"/>.</summary>
     /// <returns>Строки в порядке текста.</returns>

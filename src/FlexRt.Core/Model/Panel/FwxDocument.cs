@@ -68,6 +68,8 @@ public sealed class FwxDocument
     public List<Screen> Screens { get; } = [];
     /// <summary>Visibility экранов из элементов LIMIT, на которые ссылаются записи SCREEN, в порядке <see cref="Screens"/>.</summary>
     public List<ScreenVisibility> ScreenVisibilities { get; } = [];
+    /// <summary>События экранов Loaded и Cleared из FUNC_LIST и ADAPTDEMULTIPLE, в порядке <see cref="Screens"/>, Loaded перед Cleared.</summary>
+    public List<ScreenEvent> ScreenEvents { get; } = [];
     /// <summary>Номера экранов из элемента ADAPTVALUECHANG со ссылкой на GUI, в порядке файла.</summary>
     public List<ScreenNumber> ScreenNumbers { get; } = [];
     /// <summary>ADAPTVALUECHANG прочитана целиком (или её нет); <c>false</c> — разбор оборвался, номер экрана без пары не известен.</summary>
@@ -85,4 +87,7 @@ public sealed class FwxDocument
 
     /// <summary>Таблица по имени из TOC (<c>VAR</c>, <c>STRINGSTORE</c>, …) или <c>null</c>.</summary>
     public TocEntry? FindTable(string name) => Toc.FirstOrDefault(t => t.Name == name);
+
+    /// <summary>Таблица по Id из TOC (Id из ссылки другой таблицы) или <c>null</c>.</summary>
+    public TocEntry? FindTable(int id) => Toc.FirstOrDefault(t => t.Id == id);
 }

@@ -1,3 +1,4 @@
+using FlexRt.Export.ScreenEvents;
 using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Ui.Panel.Screens;
@@ -15,4 +16,13 @@ namespace FlexRt.Ui.Panel.Screens;
 /// <param name="Strip">
 /// Полоса Permanent area над экраном: у обычного экрана и экрана неопознанного вида, при высоте Permanent area больше нуля.
 /// </param>
-public sealed record ScreenItem(Screen Screen, string Name, string Kind, bool IsStart, IReadOnlyList<ScreenProperty> Properties, int? Height, PermanentStrip? Strip);
+/// <param name="Events">События экрана для вкладки Events: Loaded и Cleared (<see cref="ScreenEventTexts.Of"/>).</param>
+public sealed record ScreenItem(
+    Screen Screen,
+    string Name,
+    string Kind,
+    bool IsStart,
+    IReadOnlyList<ScreenProperty> Properties,
+    int? Height,
+    PermanentStrip? Strip,
+    IReadOnlyList<ScreenEventView> Events);

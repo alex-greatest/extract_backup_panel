@@ -1,0 +1,145 @@
+@using FlexRt.Export.ScreenEvents
+
+@{
+    var current = Selected();
+}
+<div class="props-layout events-layout">
+    <nav class="event-nav" aria-label="События">
+        @foreach (var screenEvent in Events)
+        {
+            var selected = screenEvent.Name == current?.Name;
+            <button type="button" class="event-nav-item @(selected ? "selected" : "") @(IsEmpty(screenEvent) ? "empty" : "")"
+                    aria-current="@(selected ? "true" : "false")" @onclick="() => Select(screenEvent.Name)">
+                <span class="event-icon" aria-hidden="true"></span><span class="event-nav-text">@screenEvent.Name</span>
+            </button>
+        }
+    </nav>
+    <div class="event-splitter" aria-hidden="true"></div>
+    <div class="event-pane">
+        <div class="event-toolbar" role="toolbar" aria-label="Список функций" title="Только просмотр: список функций не редактируется">
+            <RadzenIcon Icon="vertical_align_top" class="event-tool" /><RadzenIcon Icon="vertical_align_bottom" class="event-tool" />
+            <span class="event-tool-sep"></span>
+            <RadzenIcon Icon="folder_open" class="event-tool" /><RadzenIcon Icon="format_list_bulleted" class="event-tool" />
+            <span class="event-tool-sep"></span>
+            <RadzenIcon Icon="close" class="event-tool tool-delete" />
+        </div>
+        @if (current is not null)
+        {
+            <div class="event-grid" role="treegrid" aria-label="@current.Name" aria-readonly="true">
+                <div class="event-row event-head" role="row">
+                    <span class="event-gutter"></span>
+                    <span class="event-cell event-name" role="columnheader" aria-label="Функция / параметр"></span>
+                    <span class="event-cell event-value" role="columnheader" aria-label="Значение"></span>
+                </div>
+                @if (!current.IsRead)
+                {
+                    @Note(ScreenEventTexts.NotRead)
+                }
+                else if (current.Functions.Count == 0)
+                {
+                    @Note("Функций нет")
+                }
+                @foreach (var function in current.Functions)
+                {
+                    var expanded = !_collapsed.Contains(function.Number);
+                    var ariaExpanded = function.Parameters.Count == 0 ? null : expanded ? "true" : "false";
+                    <div class="event-row event-function @(function.IsRead ? "" : "not-read")" role="row" title="Функция @function.Number"
+                         aria-expanded="@ariaExpanded">
+                        <span class="event-gutter"></span>
+                        <span class="event-cell event-name">
+                            @if (function.Parameters.Count > 0)
+                            {
+                                <button type="button" class="event-toggle @(expanded ? "" : "collapsed")" aria-label="@(expanded ? "Свернуть" : "Развернуть")"
+                                        @onclick="() => Toggle(function.Number)"></button>
+                            }
+                            else
+                            {
+                                <span class="event-toggle-space"></span>
+                            }
+                            @function.Name
+                        </span>
+                        <span class="event-cell event-value">@(function.IsRead ? "" : function.Element)</span>
+                    </div>
+                    @if (expanded)
+                    {
+                        @foreach (var parameter in function.Parameters)
+                        {
+                            <div class="event-row event-parameter" role="row">
+                                <span class="event-gutter"></span>
+                                <span class="event-cell event-name">@parameter.Name</span>
+                                <span class="event-cell event-value">@parameter.Value</span>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Выбранное событие (<see cref="ScreenEventView.Name"/>); <c>null</c> или другой экран — событие по умолчанию.</summary>
+    private string? _selected;
+
+    /// <summary>События, для которых выбран <see cref="_selected"/>: при смене экрана выбор сбрасывается.</summary>
+    private IReadOnlyList<ScreenEventView>? _selectedFor;
+
+    /// <summary>Номера свёрнутых функций показываемого события (параметры скрыты, как по треугольнику в TIA).</summary>
+    private readonly HashSet<int> _collapsed = [];
+
+    /// <summary>События экрана: Loaded и Cleared (<see cref="ScreenEventTexts.Of"/>).</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ScreenEventView> Events { get; set; } = [];
+
+    /// <summary>Новый экран — выбор события по умолчанию, все функции развёрнуты.</summary>
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(Events, _selectedFor))
+        {
+            return;
+        }
+        _selected = null;
+        _selectedFor = Events;
+        _collapsed.Clear();
+    }
+
+    /// <summary>Показываемое событие: выбранное, иначе первое с функциями или не прочитанное, иначе первое.</summary>
+    /// <returns>Событие; событий нет — <c>null</c>.</returns>
+    private ScreenEventView? Selected() =>
+        Events.FirstOrDefault(e => e.Name == _selected)
+        ?? Events.FirstOrDefault(e => !IsEmpty(e))
+        ?? Events.FirstOrDefault();
+
+    /// <summary>Выбрать событие в списке слева; функции другого события показываются развёрнутыми.</summary>
+    private void Select(string name)
+    {
+        if (name == Selected()?.Name)
+        {
+            return;
+        }
+        _selected = name;
+        _collapsed.Clear();
+    }
+
+    /// <summary>Свернуть или развернуть параметры функции.</summary>
+    private void Toggle(int number)
+    {
+        if (!_collapsed.Remove(number))
+        {
+            _collapsed.Add(number);
+        }
+    }
+
+    /// <summary>Событие без функций (прочитано, список пуст): в списке слева — серым.</summary>
+    /// <returns><c>true</c>, если функций нет.</returns>
+    private static bool IsEmpty(ScreenEventView screenEvent) => screenEvent is { IsRead: true, Functions.Count: 0 };
+
+    /// <summary>Строка сетки с серым текстом вместо функций: событие не прочитано или функций нет.</summary>
+    /// <returns>Разметка строки.</returns>
+    private static RenderFragment Note(string text) =>
+        @<div class="event-row event-note" role="row">
+            <span class="event-gutter"></span>
+            <span class="event-cell event-name">@text</span>
+            <span class="event-cell event-value"></span>
+        </div>;
+}

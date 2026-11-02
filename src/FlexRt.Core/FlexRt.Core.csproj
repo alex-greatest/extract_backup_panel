@@ -19,5 +19,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Parsing\Plc\Card\Dictionaries\*.bin" LogicalName="FlexRt.Card.%(Filename).bin" />
+    <EmbeddedResource Include="Parsing\Panel\Functions\SystemFunctions.json" LogicalName="FlexRt.SystemFunctions.json" />
   </ItemGroup>
 </Project>
