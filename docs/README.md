@@ -87,6 +87,8 @@ FlexRt читает скомпилированную конфигурацию п
   Permanent area.
 - [формат-fwx/таблица-info-handler.md](формат-fwx/таблица-info-handler.md) —
   тексты-подсказки экранов, объектов и алармов: чей элемент и номер строки.
+- [формат-fwx/таблица-security-unit.md](формат-fwx/таблица-security-unit.md) —
+  группы пользователей: номер, Display name, маска прав.
 - [формат-fwx/таблица-picture.md](формат-fwx/таблица-picture.md) — картинки
   PNG и JPEG в таблицах PICTURE и TILED_PICTURE.
 
