@@ -1,0 +1,18 @@
+<section class="@($"object-group {Class}".TrimEnd())" aria-label="@Title">
+    <div class="object-group-title">@Title</div>
+    @ChildContent
+</section>
+
+@code {
+    /// <summary>Заголовок блока внутри серого поля, как у группы в панели свойств TIA.</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "";
+
+    /// <summary>Строки блока (<see cref="ObjectRow"/>) или другое содержимое.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Дополнительный CSS-класс блока (ширина, раскладка содержимого); <c>null</c> — нет.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+}

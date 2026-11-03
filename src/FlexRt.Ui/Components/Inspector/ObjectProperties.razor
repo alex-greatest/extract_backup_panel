@@ -1,0 +1,182 @@
+@using FlexRt.Export.PanelData.Tags
+@using FlexRt.Model.Panel.Screens
+
+<div class="props-layout object-props">
+    <PropertyList Sections="Sections()" Selected="@Current()" SelectedChanged="SectionChanged" />
+    <div class="props-body object-body">
+        <div class="object-title">@Current()</div>
+        @* Поля раздела блоками, как в TIA. General I/O field — Process (тег через неразобранную таблицу — «? (таблица N)»;
+           PLC tag и Address — TagCell, серые, как в TIA), Type и Format (Decimal places, Field length и шаблон —
+           IoFieldTexts; недоступные в TIA — серые); Appearance — Background, Text и Border; Layout — Position & size;
+           Text format — Format и Alignment; остальные разделы — «Не разобрано». У объекта другого типа General — имя и
+           таблица. *@
+        @switch (Current())
+        {
+            case General when Field is { } f:
+                <div class="object-blocks">
+                    <div class="object-column">
+                        <PropertyGroup Title="Process">
+                            <ObjectRow Name="Tag" Value="@(f.Tag ?? (f.TagVia is { } via ? $"? ({via})" : ""))" />
+                            <ObjectRow Name="PLC tag" Value="_plcTag" Disabled="true" />
+                            <ObjectRow Name="Address" Value="_address" Disabled="true" />
+                        </PropertyGroup>
+                        <PropertyGroup Title="Type"><ObjectRow Name="Mode" Value="@IoFieldTexts.Mode(f.Mode)" Control="ObjectRowControl.Combo" /></PropertyGroup>
+                    </div>
+                    <div class="object-column">
+                        <PropertyGroup Title="Format">
+                            <ObjectRow Name="Display format" Value="@IoFieldTexts.Format(f.DisplayFormat)" Control="ObjectRowControl.Combo" />
+                            <ObjectRow Name="Decimal places" Value="@IoFieldTexts.DecimalPlaces(f)" Control="ObjectRowControl.Spin"
+                                       Disabled="!IoFieldTexts.DecimalPlacesEnabled(f)" />
+                            <ObjectRow Name="Field length" Value="@IoFieldTexts.FieldLength(f)" Control="ObjectRowControl.Spin"
+                                       Disabled="!IoFieldTexts.FieldLengthEnabled(f)" />
+                            <ObjectRow Name="Leading zeros" Value="@(f.LeadingZeros ? "Yes" : "No")" Checked="f.LeadingZeros" />
+                            <ObjectRow Name="Format pattern" Value="@IoFieldTexts.Pattern(f)" Control="ObjectRowControl.Combo" />
+                        </PropertyGroup>
+                    </div>
+                </div>
+                break;
+            case General:
+                <PropertyGroup Title="General">
+                    <ObjectRow Name="Name" Value="Object.Name" />
+                    <ObjectRow Name="Таблица" Value="Object.Table" />
+                </PropertyGroup>
+                break;
+            case Appearance when Field is { } f:
+                <div class="object-blocks">
+                    <div class="object-column">
+                        <PropertyGroup Title="Background">
+                            <ObjectRow Name="Color" Value="RgbText.Cell(f.Fill.ColorRgb)" Control="ObjectRowControl.Combo" />
+                            <ObjectRow Name="Corner radius" Value="f.Border.CornerRadius" Control="ObjectRowControl.Spin" />
+                        </PropertyGroup>
+                        <PropertyGroup Title="Text">
+                            <ObjectRow Name="Color" Value="RgbText.Cell(f.Text.ColorRgb)" Control="ObjectRowControl.Combo" />
+                            <ObjectRow Name="Unit" Value="f.Unit" />
+                        </PropertyGroup>
+                    </div>
+                    <div class="object-column">
+                        <PropertyGroup Title="Border">
+                            <ObjectRow Name="Width" Value="f.Border.Width" Control="ObjectRowControl.Spin" />
+                            <ObjectRow Name="Style" Value="@IoFieldTexts.EdgeStyle(f.Border.EdgeStyle)" Control="ObjectRowControl.Combo" />
+                            <ObjectRow Name="Color" Value="RgbText.Cell(f.Border.ColorRgb)" Control="ObjectRowControl.Combo" />
+                            <ObjectRow Name="Background color" Value="RgbText.Cell(f.Border.BackColorRgb)" Control="ObjectRowControl.Combo" />
+                        </PropertyGroup>
+                    </div>
+                </div>
+                break;
+            case Layout:
+                <PropertyGroup Title="Position & size">
+                    <ObjectRow Name="X" Value="Object.Bounds.Left" Control="ObjectRowControl.Spin" />
+                    <ObjectRow Name="Y" Value="Object.Bounds.Top" Control="ObjectRowControl.Spin" />
+                    <ObjectRow Name="Width" Value="Object.Bounds.Width" Control="ObjectRowControl.Spin" />
+                    <ObjectRow Name="Height" Value="Object.Bounds.Height" Control="ObjectRowControl.Spin" />
+                </PropertyGroup>
+                break;
+            case TextFormat when Field is { } f:
+                <div class="object-blocks">
+                    <div class="object-column">
+                        <PropertyGroup Title="Format"><ObjectRow Name="Font" Value="@IoFieldTexts.Font(f.Font)" /></PropertyGroup>
+                    </div>
+                    <div class="object-column">
+                        <PropertyGroup Title="Alignment">
+                            <ObjectRow Name="Horizontal" Value="@IoFieldTexts.Horizontal(f.Text.HorizontalAlignment)" Control="ObjectRowControl.Combo" />
+                            <ObjectRow Name="Vertical" Value="@IoFieldTexts.Vertical(f.Text.VerticalAlignment)" Control="ObjectRowControl.Combo" />
+                        </PropertyGroup>
+                    </div>
+                </div>
+                break;
+            default:
+                <div class="muted">@NotParsed</div>
+                break;
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Раздел General.</summary>
+    private const string General = "General";
+
+    /// <summary>Раздел Appearance.</summary>
+    private const string Appearance = "Appearance";
+
+    /// <summary>Раздел Layout.</summary>
+    private const string Layout = "Layout";
+
+    /// <summary>Раздел Text format.</summary>
+    private const string TextFormat = "Text format";
+
+    /// <summary>Текст раздела, свойства которого программа не читает.</summary>
+    private const string NotParsed = "Не разобрано";
+
+    /// <summary>Разделы I/O field в Property list TIA, в его порядке (решение пользователя 2026-11-02: все разделы).</summary>
+    private static readonly string[] FieldSections =
+        [General, Appearance, "Characteristics", Layout, TextFormat, "Flashing", "Limits", "Styles/Designs", "Miscellaneous", "Security"];
+
+    /// <summary>Разделы объекта другого типа: известны только имя, таблица и положение.</summary>
+    private static readonly string[] ObjectSections = [General, Layout];
+
+    /// <summary>
+    /// Выбранный раздел; <c>null</c> или раздела нет у объекта — первый. Хранит панель свойств: при щелчке по другому
+    /// объекту раздел остаётся, как в TIA (компонент при смене объекта создаётся заново).
+    /// </summary>
+    [Parameter]
+    public string? Section { get; set; }
+
+    /// <summary>Щелчок по разделу в Property list: панель свойств запоминает его.</summary>
+    [Parameter]
+    public EventCallback<string> SectionChanged { get; set; }
+
+    /// <summary>PLC tag тега поля с листа «Теги» (<see cref="TagCell"/>): ищется при смене параметров, а не при каждой отрисовке.</summary>
+    private ReportCell _plcTag = "";
+
+    /// <summary>Address тега поля с листа «Теги» (<see cref="TagCell"/>).</summary>
+    private ReportCell _address = "";
+
+    /// <summary>Объект, выбранный на холсте: имя, таблица, положение.</summary>
+    [Parameter, EditorRequired]
+    public ScreenObject Object { get; set; } = null!;
+
+    /// <summary>I/O field объекта; объект другого типа — <c>null</c>.</summary>
+    [Parameter]
+    public IoField? Field { get; set; }
+
+    /// <summary>
+    /// Таблица листа «Теги» открытой панели (с данными ПЛК, если их выбрали): из неё PLC tag и Address тега поля;
+    /// раздел не построен или панели нет — <c>null</c>.
+    /// </summary>
+    [Parameter]
+    public ReportTable? Tags { get; set; }
+
+    /// <summary>Найти PLC tag и Address тега поля на листе «Теги» один раз на смену объекта или листа.</summary>
+    protected override void OnParametersSet()
+    {
+        var row = TagRow();
+        (_plcTag, _address) = (TagCell(row, TagsTable.PlcTagColumn), TagCell(row, TagsTable.AddressColumn));
+    }
+
+    /// <summary>Строка тега поля на листе «Теги» — по колонке Name.</summary>
+    /// <returns>Ячейки строки; листа, колонки или тега на листе нет — <c>null</c>.</returns>
+    private ReportCell[]? TagRow()
+    {
+        var name = Tags?.Columns.ToList().IndexOf(TagsTable.NameColumn) ?? -1;
+        return name < 0 || Field?.Tag is not { } tag ? null : Tags!.Rows.FirstOrDefault(r => r[name].Display == tag);
+    }
+
+    /// <summary>
+    /// Ячейка строки тега поля на листе «Теги» в колонке <paramref name="column"/> — то же, что на листе (решение
+    /// пользователя 2026-11-03): с данными ПЛК — тег ПЛК и адрес, без них — что известно из панели.
+    /// </summary>
+    /// <returns>Ячейка; тега нет на листе, листа или колонки нет — пустая.</returns>
+    private ReportCell TagCell(ReportCell[]? row, string column)
+    {
+        var index = Tags?.Columns.ToList().IndexOf(column) ?? -1;
+        return row is not null && index >= 0 ? row[index] : "";
+    }
+
+    /// <summary>Разделы слева: у I/O field — все разделы TIA, у другого объекта — General и Layout.</summary>
+    /// <returns>Имена разделов.</returns>
+    private string[] Sections() => Field is null ? ObjectSections : FieldSections;
+
+    /// <summary>Показываемый раздел: выбранный, если он есть у объекта, иначе первый.</summary>
+    /// <returns>Имя раздела.</returns>
+    private string Current() => Sections().Contains(Section) ? Section! : Sections()[0];
+}

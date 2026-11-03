@@ -1,0 +1,60 @@
+<div class="@RowClass()">
+    <span class="object-row-label" title="@Name">@($"{Name}:")</span>
+    @if (Checked is not null)
+    {
+        <PropertyValue Value="Value" Checked="Checked" />
+    }
+    else
+    {
+        <div class="@FieldClass()">
+            <PropertyValue Value="Value" />
+            @switch (Control)
+            {
+                case ObjectRowControl.Combo:
+                    <span class="object-combo-arrow" aria-hidden="true"></span>
+                    break;
+                case ObjectRowControl.Spin:
+                    <span class="object-spin" aria-hidden="true"><span></span><span></span></span>
+                    break;
+                case ObjectRowControl.Text:
+                default:
+                    break;
+            }
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>Имя свойства, как в TIA: подпись справа-выровнена, полное имя — в подсказке.</summary>
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = "";
+
+    /// <summary>Значение свойства (показывает <see cref="PropertyValue"/>).</summary>
+    [Parameter, EditorRequired]
+    public ReportCell Value { get; set; }
+
+    /// <summary>Состояние флажка (Leading zeros); <c>null</c> — свойство показывается полем.</summary>
+    [Parameter]
+    public bool? Checked { get; set; }
+
+    /// <summary>Вид поля: простое, список или число со стрелками.</summary>
+    [Parameter]
+    public ObjectRowControl Control { get; set; }
+
+    /// <summary>Поле в TIA при таких настройках недоступно: подпись и поле серые.</summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>Классы строки: недоступная — серая.</summary>
+    /// <returns>Текст атрибута class.</returns>
+    private string RowClass() => Disabled ? "object-row disabled" : "object-row";
+
+    /// <summary>Классы рамки поля по виду: у числа со стрелками поле узкое.</summary>
+    /// <returns>Текст атрибута class.</returns>
+    private string FieldClass() => Control switch
+    {
+        ObjectRowControl.Combo => "object-field combo",
+        ObjectRowControl.Spin => "object-field spin",
+        _ => "object-field"
+    };
+}

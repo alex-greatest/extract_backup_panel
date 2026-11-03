@@ -1,15 +1,21 @@
-<div class="screen-general">
-    <RadzenFieldset Text="@GroupTitle" class="prop-group screen-general-main">
-        @foreach (var property in Properties.Where(p => p.Group is null))
-        {
-            <PropertyRow Name="@property.Name" Value="property.Value" Checked="@(property.Name == StartScreenColumn.Name ? IsStart : null)" />
-        }
-    </RadzenFieldset>
+<div class="object-blocks">
+    <div class="object-column">
+        <PropertyGroup Title="@GroupTitle">
+            @foreach (var property in Properties.Where(p => p.Group is null))
+            {
+                <ObjectRow Name="@property.Name" Value="property.Value" Checked="@(property.Name == StartScreenColumn.Name ? IsStart : null)" />
+            }
+        </PropertyGroup>
+    </div>
     @foreach (var (group, text) in LanguageBlocks())
     {
-        <RadzenFieldset Text="@group" class="prop-group screen-tooltip">
-            <RadzenTextArea Value="@text.Value.Display" ReadOnly="true" class="tooltip-text" />
-        </RadzenFieldset>
+        <div class="object-column">
+            <PropertyGroup Title="@group">
+                <div class="object-field tooltip-field">
+                    <RadzenTextArea Value="@text.Value.Display" ReadOnly="true" class="tooltip-text" />
+                </div>
+            </PropertyGroup>
+        </div>
     }
 </div>
 

@@ -146,6 +146,6 @@ public static class ScreenParser
             return null;
         }
         var color = item.Offset + item.Length - BackgroundFromEnd;
-        return b.D1(color) << 16 | b.D1(color + 1) << 8 | b.D1(color + 2);
+        return StyleElement.Rgb(b, color);
     }
 }

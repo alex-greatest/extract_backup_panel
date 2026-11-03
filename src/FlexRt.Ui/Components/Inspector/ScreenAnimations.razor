@@ -6,42 +6,46 @@
 }
 else
 {
-    <div class="props-layout">
-        <nav class="anim-nav" aria-label="Анимации">
-            <div class="anim-nav-group"><RadzenIcon Icon="tv" /> Display</div>
-            <div class="anim-nav-item selected" aria-current="true"><RadzenIcon Icon="visibility" /> @VisibilityItem</div>
+    <div class="props-layout object-props">
+        <nav class="object-nav anim-nav" aria-label="Анимации">
+            <div class="anim-nav-group"><RadzenIcon Icon="tv" />Display</div>
+            <div class="anim-nav-item selected" aria-current="true"><span class="object-nav-text"><RadzenIcon Icon="visibility" />@VisibilityItem</span></div>
         </nav>
-        <div class="props-body">
-            <div class="anim-title">@VisibilityItem</div>
-            <div class="anim-blocks">
-                <RadzenFieldset Text="Process" class="prop-group anim-process">
-                    <div class="anim-tag-label">Tag:</div>
-                    <div class="anim-tag">
-                        <PropertyValue Value="Cell(ScreenVisibilityCells.TagColumn)" />
-                    </div>
-                    <div role="radiogroup" aria-readonly="true" aria-label="Режим">
-                        <div class="anim-mode">
-                            @Radio("Range", true, false)
-                            <div class="anim-range">
-                                <div class="prop-row"><RadzenLabel Text="From:" /><PropertyValue Value="Cell(ScreenVisibilityCells.FromColumn)" /></div>
-                                <div class="prop-row"><RadzenLabel Text="To:" /><PropertyValue Value="Cell(ScreenVisibilityCells.ToColumn)" /></div>
+        <div class="props-body object-body">
+            <div class="object-title">@VisibilityItem</div>
+            <div class="object-blocks">
+                <div class="object-column">
+                    <PropertyGroup Title="Process">
+                        <div class="anim-tag-label">Tag:</div>
+                        <div class="object-field anim-tag">
+                            <PropertyValue Value="Cell(ScreenVisibilityCells.TagColumn)" />
+                        </div>
+                        <div role="radiogroup" aria-readonly="true" aria-label="Режим">
+                            <div class="anim-mode">
+                                @Radio("Range", true, false)
+                                <div class="anim-range">
+                                    <ObjectRow Name="From" Value="Cell(ScreenVisibilityCells.FromColumn)" />
+                                    <ObjectRow Name="To" Value="Cell(ScreenVisibilityCells.ToColumn)" />
+                                </div>
+                            </div>
+                            <div class="anim-mode" title="@SingleBitHint">
+                                @Radio("Single bit", false, true)
                             </div>
                         </div>
-                        <div class="anim-mode" title="@SingleBitHint">
-                            @Radio("Single bit", false, true)
+                    </PropertyGroup>
+                </div>
+                <div class="object-column">
+                    <PropertyGroup Title="@VisibilityItem">
+                        <div role="radiogroup" aria-readonly="true" aria-label="@VisibilityItem">
+                            @Radio(ScreenVisibilityCells.VisibleText, State() == ScreenVisibilityCells.VisibleText, false)
+                            @Radio(ScreenVisibilityCells.InvisibleText, State() == ScreenVisibilityCells.InvisibleText, false)
                         </div>
-                    </div>
-                </RadzenFieldset>
-                <RadzenFieldset Text="@VisibilityItem" class="prop-group anim-state">
-                    <div role="radiogroup" aria-readonly="true" aria-label="@VisibilityItem">
-                        @Radio(ScreenVisibilityCells.VisibleText, State() == ScreenVisibilityCells.VisibleText, false)
-                        @Radio(ScreenVisibilityCells.InvisibleText, State() == ScreenVisibilityCells.InvisibleText, false)
-                    </div>
-                    @if (State() == ScreensTable.Unknown)
-                    {
-                        <div class="muted">не прочитано</div>
-                    }
-                </RadzenFieldset>
+                        @if (State() == ScreensTable.Unknown)
+                        {
+                            <div class="muted">не прочитано</div>
+                        }
+                    </PropertyGroup>
+                </div>
             </div>
         </div>
     </div>

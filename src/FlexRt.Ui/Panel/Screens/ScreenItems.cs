@@ -19,7 +19,7 @@ public static class ScreenItems
     /// (<see cref="FwxDocument.StartScreenNumber"/>). Служебные записи pop-up не входят. Высота на холсте — высота ядра
     /// (<see cref="ScreensTable.Screens"/>, та же, что в колонке Height); над обычными экранами и экранами
     /// неопознанного вида — полоса Permanent area (<see cref="Strip"/>), как в редакторе экранов TIA. События Loaded и
-    /// Cleared — тексты ядра <see cref="ScreenEventTexts"/>. Объекты — <see cref="FwxDocument.ScreenObjects"/> записи экрана.
+    /// Cleared — тексты ядра <see cref="ScreenEventTexts"/>. Объекты — <see cref="FwxDocument.ScreenObjects"/> записи экрана, поля — <see cref="FwxDocument.IoFields"/>.
     /// </summary>
     /// <returns>Экраны для дерева, холста и панели свойств; экранов нет — пустой список.</returns>
     /// <exception cref="InvalidOperationException">
@@ -38,6 +38,7 @@ public static class ScreenItems
         var objects = doc.ScreenObjects.ToLookup(o => o.ScreenIndex);
         var strip = Strip(doc, area, objects);
         var events = new ScreenEventTexts(doc);
+        var fields = doc.IoFields.ToDictionary(f => f.Element);
         return
         [
             .. screens.Zip(table.Rows, (s, row) => new ScreenItem(
@@ -49,7 +50,8 @@ public static class ScreenItems
                 s.Height,
                 strip is not null && UnderPermanentArea(s.Kind, s.Screen, area, strip) ? strip : null,
                 events.Of(s.Screen),
-                [.. objects[s.Screen.Index]]))
+                [.. objects[s.Screen.Index]],
+                fields))
         ];
     }
 

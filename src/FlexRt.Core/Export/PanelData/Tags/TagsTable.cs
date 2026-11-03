@@ -6,10 +6,19 @@ namespace FlexRt.Export.PanelData.Tags;
 /// <summary>Таблица тегов листа «Теги»: колонки как в HMI tags в TIA Portal.</summary>
 public static class TagsTable
 {
+    /// <summary>Колонка имени тега: по ней окно находит строку тега I/O field.</summary>
+    public const string NameColumn = "Name";
+
+    /// <summary>Колонка тега ПЛК (PLC tag I/O field в окне).</summary>
+    public const string PlcTagColumn = "PLC tag";
+
+    /// <summary>Колонка адреса (Address I/O field в окне).</summary>
+    public const string AddressColumn = "Address";
+
     /// <summary>Колонки — как в таблице HMI tags в TIA Portal.</summary>
     private static readonly string[] Columns =
     [
-        "Name", "Data type", "Connection", "PLC name", "PLC tag", "Address",
+        NameColumn, "Data type", "Connection", "PLC name", PlcTagColumn, AddressColumn,
         "Access mode", "Acquisition cycle", "Logged", "Source comment"
     ];
 
@@ -19,6 +28,10 @@ public static class TagsTable
     /// </summary>
     /// <returns>Заголовки и строки тегов.</returns>
     public static ReportTable Build(FwxDocument doc, IReadOnlyList<PlcMatch?> matches) => new(Columns,
-        doc.Tags.Select((tag, i) => TagRowFormatter.Format(doc, tag, i < matches.Count ? matches[i] : null)
-            .Select(v => (ReportCell)v).ToArray()).ToList());
+        [.. doc.Tags.Select((tag, i) => Row(doc, tag, i < matches.Count ? matches[i] : null))]);
+
+    /// <summary>Строка тега: значения <see cref="TagRowFormatter.Format"/> ячейками.</summary>
+    /// <returns>Ячейки строки.</returns>
+    private static ReportCell[] Row(FwxDocument doc, HmiTag tag, PlcMatch? match) =>
+        [.. TagRowFormatter.Format(doc, tag, match).Select(v => (ReportCell)v)];
 }

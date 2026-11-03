@@ -38,7 +38,7 @@
                 </RadzenSplitterPane>
                 <RadzenSplitterPane Min="120px">
                     <section class="pane">
-                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Picture="Pictures.Selected" Hint="@InspectorHint()" Language="_language" Lines="_lines" OnOpenPicture="Pictures.Open" />
+                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Picture="Pictures.Selected" Hint="@InspectorHint()" Language="_language" Lines="_lines" OnOpenPicture="Pictures.Open" Tags="@(_view?.Tags.Error is null ? _view?.Tags.Table : null)" />
                     </section>
                 </RadzenSplitterPane>
             </RadzenSplitter>

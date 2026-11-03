@@ -1,0 +1,22 @@
+<div class="object-nav" role="listbox" aria-label="Property list">
+    <div class="object-nav-head"><RadzenIcon Icon="list_alt" />Property list</div>
+    @foreach (var section in Sections)
+    {
+        <button class="@(section == Selected ? "object-nav-item selected" : "object-nav-item")" role="option"
+                aria-selected="@(section == Selected)" @onclick="() => SelectedChanged.InvokeAsync(section)"><span class="object-nav-text">@section</span></button>
+    }
+</div>
+
+@code {
+    /// <summary>Разделы свойств слева, как Property list в TIA, в порядке показа.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<string> Sections { get; set; } = [];
+
+    /// <summary>Показываемый раздел: подсвечен синим под текстом.</summary>
+    [Parameter, EditorRequired]
+    public string Selected { get; set; } = "";
+
+    /// <summary>Щелчок по разделу.</summary>
+    [Parameter]
+    public EventCallback<string> SelectedChanged { get; set; }
+}

@@ -1,14 +1,11 @@
-<div class="props-layout">
-    <div class="props-body picture-props">
-        <RadzenFieldset Text="General" class="prop-group">
+<div class="props-layout object-props">
+    <div class="props-body object-body picture-props">
+        <PropertyGroup Title="General">
             @foreach (var (name, value) in Picture.Properties)
             {
-                <div class="prop-row">
-                    <RadzenLabel Text="@($"{name}:")" />
-                    <PropertyValue Value="value" />
-                </div>
+                <ObjectRow Name="@name" Value="value" />
             }
-        </RadzenFieldset>
+        </PropertyGroup>
         <button type="button" class="picture-preview" title="Открыть на всё окно" @onclick="() => OnOpen.InvokeAsync(Picture)">
             <img src="@Picture.Source" alt="@Picture.Name" />
         </button>

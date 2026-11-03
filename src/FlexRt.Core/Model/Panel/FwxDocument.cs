@@ -71,6 +71,8 @@ public sealed class FwxDocument
 
     /// <summary>Объекты экранов с положением, по экранам в порядке <see cref="Screens"/>, внутри — в порядке списка объектов записи.</summary>
     public List<ScreenObject> ScreenObjects { get; } = [];
+    /// <summary>I/O field объектов экранов (VIEW_IN, VIEW_OUT), по элементу один раз, в порядке <see cref="ScreenObjects"/>.</summary>
+    public List<IoField> IoFields { get; } = [];
     /// <summary>События экранов Loaded и Cleared из FUNC_LIST и ADAPTDEMULTIPLE, в порядке <see cref="Screens"/>, Loaded перед Cleared.</summary>
     public List<ScreenEvent> ScreenEvents { get; } = [];
     /// <summary>Номера экранов из элемента ADAPTVALUECHANG со ссылкой на GUI, в порядке файла.</summary>

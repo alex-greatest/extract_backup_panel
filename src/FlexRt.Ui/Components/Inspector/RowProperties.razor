@@ -1,11 +1,11 @@
-<div class="props-layout">
-    <div class="props-body">
-        <RadzenFieldset Text="@($"Строка {Row.Index + 1} листа «{Row.Section.Sheet}»")" class="prop-group row-group">
+<div class="props-layout object-props">
+    <div class="props-body object-body">
+        <PropertyGroup Title="@($"Строка {Row.Index + 1} листа «{Row.Section.Sheet}»")" Class="row-group">
             @foreach (var (name, value) in Row.Section.Table.Columns.Zip(Row.Section.Table.Rows[Row.Index]))
             {
-                <PropertyRow Name="@name" Value="value" />
+                <ObjectRow Name="@name" Value="value" />
             }
-        </RadzenFieldset>
+        </PropertyGroup>
     </div>
 </div>
 

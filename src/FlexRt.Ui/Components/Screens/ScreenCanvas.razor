@@ -1,5 +1,6 @@
 @using System.Globalization
 @using FlexRt.Model.Panel.Screens
+@inject ObjectSelection Selection
 
 @{
     var drawn = Drawn(Item);
@@ -15,15 +16,17 @@
         var (item, height) = d;
         var total = (item.Strip?.Height ?? 0) + height;
         <div class="screen-frame" style="width:@Px(item.Screen.Width); height:@Px(total);">
-            <div class="screen-scale" style="width:@(item.Screen.Width)px; height:@(total)px; transform:scale(@Scale());">
+            <div class="screen-scale" style="width:@(item.Screen.Width)px; height:@(total)px; transform:scale(@Scale()); --zoom:@Scale();">
                 @if (item.Strip is { } strip)
                 {
-                    <div class="permanent-strip" style="height:@(strip.Height)px; @Background(strip.BackgroundRgb)" title="Permanent area">
-                        @ObjectFrames(strip.Objects)
+                    <div class="permanent-strip" style="height:@(strip.Height)px; @Background(strip.BackgroundRgb)" title="Permanent area"
+                         @onclick="() => Selection.Select(item, null)">
+                        @ObjectFrames(item, strip.Objects)
                     </div>
                 }
-                <div class="@ScreenClass(item)" style="height:@(height)px; @Background(item.Screen.BackgroundRgb)">
-                    @ObjectFrames(item.Objects)
+                <div class="@ScreenClass(item)" style="height:@(height)px; @Background(item.Screen.BackgroundRgb)"
+                     @onclick="() => Selection.Select(item, null)">
+                    @ObjectFrames(item, item.Objects)
                 </div>
             </div>
         </div>
@@ -52,6 +55,9 @@
     /// <summary>Текущий масштаб в процентах.</summary>
     private int _zoom = 100;
 
+    /// <summary>Экран, показанный при прошлой отрисовке: смена экрана снимает выбор объекта.</summary>
+    private ScreenItem? _shown;
+
     /// <summary>Строка заголовка редактора: путь к экрану, как в TIA.</summary>
     [Parameter]
     public string Title { get; set; } = "";
@@ -66,6 +72,17 @@
     /// <summary>Подсказка вместо экрана: файл не открыт, читается или экран не выбран.</summary>
     [Parameter]
     public string Empty { get; set; } = Hints.NoScreen;
+
+    /// <summary>Сменился экран — выбор объекта снимается (<see cref="ObjectSelection"/>).</summary>
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(Item, _shown))
+        {
+            return;
+        }
+        _shown = Item;
+        Selection.Select(Item, null);
+    }
 
     /// <summary>Множитель масштаба для CSS в инвариантной культуре (<c>0.75</c>).</summary>
     /// <returns>Текст множителя.</returns>
@@ -116,15 +133,31 @@
         item.Height is null ? Hints.PermanentAreaHeightUnknown : Hints.NoPermanentArea;
 
     /// <summary>
-    /// Рамки объектов экрана с подписью — именем объекта (решение пользователя 2026-11-02): положение и размер как в
-    /// Layout TIA, в пикселях экрана; у линии ширина или высота 0 — рамка в 1 px.
+    /// Объекты экрана в порядке списка: положение и размер как в Layout TIA, в пикселях экрана. I/O field
+    /// (<see cref="ScreenItem.Fields"/>) — как в редакторе TIA: фон, рамка, шаблон нулями шрифтом и цветом из файла
+    /// (<see cref="IoFieldCss"/>, <see cref="IoFieldTexts.Sample"/>); остальные — рамка с именем объекта (решение
+    /// пользователя 2026-11-02), у линии ширина или высота 0 — рамка в 1 px. Щелчок выбирает объект
+    /// (<see cref="ObjectSelection"/>), у выбранного — маркеры по углам и серединам сторон, как в TIA; имя — в подсказке.
     /// </summary>
-    /// <returns>Разметка рамок в порядке списка объектов.</returns>
-    private static RenderFragment ObjectFrames(IReadOnlyList<ScreenObject> objects) => __builder =>
+    /// <returns>Разметка объектов.</returns>
+    private RenderFragment ObjectFrames(ScreenItem item, IReadOnlyList<ScreenObject> objects) => __builder =>
     {
+        var selected = Selection.Of(item);
         foreach (var o in objects)
         {
-            <div class="screen-object" style="@FrameStyle(o.Bounds)" title="@o.Name"><span>@o.Name</span></div>
+            var field = item.Fields.GetValueOrDefault(o.Element);
+            var css = (Equals(o, selected) ? "screen-object selected" : "screen-object") + (field is null ? "" : " io-field");
+            <div class="@css" style="@FrameStyle(o.Bounds) @(field is null ? "" : IoFieldCss.Box(field))" title="@o.Name"
+                 @onclick="() => Selection.Select(item, o)" @onclick:stopPropagation="true">
+                @if (field is null)
+                {
+                    <span>@o.Name</span>
+                }
+                else
+                {
+                    <span style="@IoFieldCss.Text(field)">@IoFieldTexts.Sample(field)</span>
+                }
+            </div>
         }
     };
 

@@ -1,5 +1,6 @@
 using System.IO;
 using FlexRt.Ui.Panel.Pictures;
+using FlexRt.Ui.Panel.Screens;
 using Microsoft.AspNetCore.Components.WebView;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Web.WebView2.Core;
@@ -15,7 +16,8 @@ public partial class MainWindow
 
     /// <summary>
     /// Создаёт окно: регистрирует службы BlazorWebView и Radzen (без них компоненты не запускаются) и картинки открытой
-    /// панели (<see cref="PictureSelection"/>, одна на окно) в ресурсе <c>services</c>, на который ссылается разметка, и
+    /// панели (<see cref="PictureSelection"/>, одна на окно), выбор объекта на холсте (<see cref="ObjectSelection"/>) в
+    /// ресурсе <c>services</c>, на который ссылается разметка, и
     /// строит окно. В сборке Debug включены инструменты разработчика WebView (F12).
     /// </summary>
     public MainWindow()
@@ -24,6 +26,7 @@ public partial class MainWindow
         services.AddWpfBlazorWebView();
         services.AddRadzenComponents();
         services.AddSingleton<PictureSelection>();
+        services.AddSingleton<ObjectSelection>();
 #if DEBUG
         services.AddBlazorWebViewDeveloperTools();
 #endif

@@ -1,4 +1,5 @@
 using FlexRt.Export.ScreenEvents;
+using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Ui.Panel.Screens;
@@ -21,6 +22,10 @@ namespace FlexRt.Ui.Panel.Screens;
 /// Объекты экрана с положением для холста (<see cref="FlexRt.Model.Panel.FwxDocument.ScreenObjects"/>), с объектами
 /// шаблона; у Permanent area — объекты записи <c>Overview</c>.
 /// </param>
+/// <param name="Fields">
+/// I/O field панели по элементу объекта (<see cref="FlexRt.Model.Panel.FwxDocument.IoFields"/>, один словарь на все
+/// экраны): объект с полем рисуется как поле, остальные — рамкой.
+/// </param>
 public sealed record ScreenItem(
     Screen Screen,
     string Name,
@@ -30,4 +35,5 @@ public sealed record ScreenItem(
     int? Height,
     PermanentStrip? Strip,
     IReadOnlyList<ScreenEventView> Events,
-    IReadOnlyList<ScreenObject> Objects);
+    IReadOnlyList<ScreenObject> Objects,
+    IReadOnlyDictionary<VarReference, IoField> Fields);

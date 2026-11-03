@@ -18,7 +18,7 @@
 }
 
 .toolbar .rz-button {
-    font-weight: 500;
+    font-weight: var(--weight-normal);
 }
 
 /* селектор той же силы, что у Radzen для кнопки-текста, иначе наведение красится цветом Radzen */
@@ -58,7 +58,7 @@
     height: 100%;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -71,11 +71,10 @@
     align-items: center;
     gap: 6px;
     height: 32px;
-    padding: 0 12px;
+    padding: 0 var(--pad);
     background: var(--title);
     color: var(--title-text);
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    font-weight: var(--weight-strong);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -83,7 +82,7 @@
 }
 
 .editor-title {
-    font-weight: 500;
+    font-weight: var(--weight-normal);
     color: var(--title-muted);
 }
 
@@ -93,10 +92,10 @@
     align-items: center;
     gap: 24px;
     height: 28px;
-    padding: 0 12px;
+    padding: 0 var(--pad);
     background: var(--title);
     color: var(--title-muted);
-    font-size: 12px;
+    font-size: var(--font-size-sm);
 }
 
 /* Строка состояния в одну строку: короткие части не сжимаются */
@@ -118,7 +117,7 @@
 }
 
 .status-warning {
-    color: #ffd27a;
+    color: var(--warning-soft);
 }
 
 /* Выбранные данные ПЛК рядом с кнопкой; длинный путь обрезается многоточием */
@@ -126,7 +125,7 @@
     min-width: 0;
     overflow: hidden;
     color: var(--muted);
-    font-size: 12px;
+    font-size: var(--font-size-sm);
     white-space: nowrap;
     text-overflow: ellipsis;
 }

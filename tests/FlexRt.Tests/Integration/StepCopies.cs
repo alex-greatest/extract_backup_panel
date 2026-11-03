@@ -33,6 +33,12 @@ public static class StepCopies
     /// </summary>
     public const string Objects = "data/real/steps-objects";
 
+    /// <summary>
+    /// Свойства I/O field <c>I/O field_1</c> на Screen_2 Project1 (TIA V21, TP700 Comfort): 00–32 и 34–36 — одно свойство
+    /// на шаг через Openness, рядом с копией — XML экрана из TIA (<c>*.xml</c>), значения свойств.
+    /// </summary>
+    public const string IoField = "data/real/steps-iofield";
+
     /// <summary>Папка шаговых копий; её нет — провал теста с сообщением, что копии вне git.</summary>
     /// <param name="folder">Папка копий относительно корня репозитория.</param>
     /// <returns>Абсолютный путь к папке.</returns>

@@ -6,7 +6,7 @@
 /* клетчатый фон — видно прозрачные области PNG */
 .gallery-thumb,
 .picture-preview {
-    background: repeating-conic-gradient(#e3e6ea 0% 25%, #ffffff 0% 50%) 0 0 / 12px 12px;
+    background: repeating-conic-gradient(var(--line-soft) 0% 25%, var(--surface) 0% 50%) 0 0 / 12px 12px;
 }
 
 .gallery {
@@ -21,7 +21,7 @@
     gap: 6px;
     padding: 6px;
     border: 2px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--radius);
     background: var(--surface);
     color: var(--text);
     font: var(--font-size) var(--font);
@@ -68,7 +68,7 @@
     gap: 16px;
 }
 
-.picture-props .prop-group {
+.picture-props .object-group {
     flex: 0 1 360px;
 }
 
@@ -80,8 +80,8 @@
     justify-content: flex-start;
     min-width: 0;
     padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
     font: inherit;
     cursor: zoom-in;
 }
@@ -164,7 +164,7 @@
     left: 0;
     right: 0;
     bottom: 20px;
-    color: #e8edf3;
+    color: var(--canvas-text);
     text-align: center;
     white-space: pre;
     cursor: default;

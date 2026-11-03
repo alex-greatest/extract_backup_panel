@@ -39,4 +39,18 @@ public static class TagTypeNames
         }
         return isArray ? $"Array [0..{tag.Elements - 1}] of {name}" : name;
     }
+
+    /// <summary>
+    /// Бит кода типа у тегов ПЛК (наблюдение: A603A0097 — <c>0x82</c> у Int, <c>0x84</c> у Real); значение бита не
+    /// проверено, в <see cref="Format"/> такой код — <c>?</c>.
+    /// </summary>
+    private const int PlcBit = 0x80;
+
+    /// <summary>
+    /// Тип с дробной частью — Real или LReal, без бита массива и бита <see cref="PlcBit"/>: у I/O field с таким тегом
+    /// знаки после запятой задаёт шаблон, у целого — сдвиг запятой (сверено с TIA на всех полях A603A0097).
+    /// </summary>
+    /// <returns><c>true</c> — Real или LReal.</returns>
+    public static bool IsFloat(int typeCode) =>
+        Names.GetValueOrDefault(typeCode & ~HmiTag.ArrayFlag & ~PlcBit) is "Real" or "LReal";
 }

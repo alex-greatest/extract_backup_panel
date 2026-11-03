@@ -4,16 +4,16 @@
     display: flex;
     flex-wrap: wrap;
     gap: 4px 22px;
-    padding: 7px 12px;
+    padding: 6px var(--pad);
     background: var(--surface-alt);
     border-bottom: 1px solid var(--border);
     color: var(--text-secondary);
-    font-size: 12px;
+    font-size: var(--font-size-sm);
     flex-shrink: 0;
 }
 
 .section-stats b {
-    font-weight: 600;
+    font-weight: var(--weight-strong);
     color: var(--text);
     font-variant-numeric: tabular-nums;
 }
@@ -30,7 +30,7 @@
 .section-grid.rz-data-grid {
     --rz-grid-header-background-color: var(--surface-alt);
     --rz-grid-header-color: var(--text-secondary);
-    --rz-grid-header-font-weight: 600;
+    --rz-grid-header-font-weight: var(--weight-strong);
     --rz-grid-header-text-transform: none;
     --rz-grid-header-font-size: var(--table-font-size);
     --rz-grid-cell-font-size: var(--table-font-size);
@@ -64,7 +64,7 @@
     height: 12px;
     margin-right: 6px;
     border: 1px solid var(--border-strong);
-    border-radius: 2px;
+    border-radius: var(--radius);
     vertical-align: -2px;
     flex-shrink: 0;
 }
@@ -81,8 +81,8 @@
 }
 
 .summary-list td {
-    padding: 7px 14px;
-    border-bottom: 1px solid #edf0f4;
+    padding: 6px var(--pad);
+    border-bottom: 1px solid var(--line-soft);
 }
 
 .summary-list td:first-child {
@@ -97,15 +97,12 @@
 }
 
 /* свойства строки: заголовки колонок листа длиннее имён свойств экрана */
-.row-group.rz-fieldset {
+.row-group.object-group {
     max-width: 760px;
 }
 
-.row-group .prop-row .rz-label {
+.row-group .object-row-label {
     width: 240px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 /* раздел, таблицу которого ядро построить не смогло */
@@ -113,11 +110,11 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 12px;
-    padding: 10px 14px;
-    border: 1px solid #f1b0aa;
-    border-radius: 4px;
-    background: #fdecea;
+    margin: var(--pad);
+    padding: 10px var(--pad);
+    border: 1px solid var(--error-line);
+    border-radius: var(--radius);
+    background: var(--error-soft);
     color: var(--error);
 }
 
@@ -138,5 +135,5 @@
     --rz-input-line-height: 22px;
     width: 290px;
     flex-shrink: 0;
-    font-weight: 400;
+    font-weight: var(--weight-normal);
 }
