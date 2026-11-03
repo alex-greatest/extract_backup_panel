@@ -208,4 +208,17 @@ public static class IoFieldTexts
     /// <summary>Значение кода, которого программа не знает.</summary>
     /// <returns><c>? (код N)</c>.</returns>
     private static string Unknown(int code) => $"? (код {code})";
+
+    /// <summary>
+    /// Раздел Limits поля без цветов в файле: TIA пишет их, только если у тега задан Range (решение пользователя
+    /// 2026-11-03).
+    /// </summary>
+    public const string LimitsAbsent = "Цветов Limits в файле нет: у тега не задан Range";
+
+    /// <summary>Цвет Limits, который не прочитан (элемент с цветами испорчен или ключа нет).</summary>
+    private const string NotRead = "не прочитано";
+
+    /// <summary>Ячейка цвета Limits: цвет с квадратиком, как у Appearance.</summary>
+    /// <returns>Ячейка; цвет не прочитан — «не прочитано».</returns>
+    public static ReportCell LimitColor(int? rgb) => rgb is { } c ? RgbText.Cell(c) : NotRead;
 }

@@ -5,11 +5,13 @@
     --font: "Segoe UI", "Segoe UI Variable Text", Tahoma, sans-serif;
     /* шкала шрифта: подписи объектов на холсте и значки — xs, вторичный текст (строка состояния, числа, статистика,
        панели свойств как в TIA) — sm, основной текст окна — --font-size */
-    --font-size-xs: 11px;
-    --font-size-sm: 12px;
-    --font-size: 13px;
+    --font-size-xs: 12px;
+    --font-size-sm: 13px;
+    --font-size: 14px;
     /* шрифт таблиц разделов: заголовки, ячейки и список языков над таблицей (решение пользователя) */
     --table-font-size: 15px;
+    /* высота строки дерева проекта и Property list вместе с линией под строкой */
+    --nav-row: 22px;
     /* начертания: обычное и полужирное (заголовки, выбранные вкладки) — других нет */
     --weight-normal: 400;
     --weight-strong: 600;
@@ -29,6 +31,8 @@
     /* панели свойств как в TIA: светло-серое поле, серые блоки, недоступные поля */
     --panel-bg: #eaeaea;
     --panel-group-bg: #cccccc;
+    --split-bg: #d9d9d9;
+    --tree-select: #d9dee3;
     --disabled-bg: var(--line-soft);
     --disabled-text: #8a8a8a;
     --select: #3a6ea5;

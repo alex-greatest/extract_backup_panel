@@ -24,11 +24,13 @@ namespace FlexRt.Model.Panel.Screens;
 /// </param>
 /// <param name="Signed">В шаблоне есть знак (<c>s</c> в начале).</param>
 /// <param name="LeadingZeros">Leading zeros.</param>
+/// <param name="HiddenInput">Hidden input (Characteristics); у Output в файле нет — <c>false</c>.</param>
 /// <param name="Unit">Единицы (Appearance → Text → Unit); нет — пустая строка.</param>
 /// <param name="Border">Рамка и углы.</param>
 /// <param name="Text">Цвет и выравнивание текста.</param>
 /// <param name="Fill">Цвет фона.</param>
 /// <param name="Font">Шрифт.</param>
+/// <param name="Limits">Цвета Limits; в файле нет (у тега не задан Range) — <c>null</c>.</param>
 public sealed record IoField(
     VarReference Element,
     IoFieldMode Mode,
@@ -40,8 +42,10 @@ public sealed record IoField(
     int PatternLength,
     bool Signed,
     bool LeadingZeros,
+    bool HiddenInput,
     string Unit,
     BorderStyle Border,
     TextStyle Text,
     FillStyle Fill,
-    PanelFont Font);
+    PanelFont Font,
+    LimitColors? Limits);

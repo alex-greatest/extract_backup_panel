@@ -3,6 +3,7 @@ using FlexRt.Export.PanelData;
 using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
+using FlexRt.Export.PanelData.Users;
 using FlexRt.Extraction;
 using FlexRt.Model.Panel;
 using FlexRt.Parsing.Panel;
@@ -22,7 +23,8 @@ public sealed class LanguageColumnsTests
     /// <summary>
     /// Листы с текстами на языках: язык помечен ровно у колонок, в заголовке которых этот язык
     /// (<see cref="LanguageText.Format"/>), у остальных — <c>null</c>; у «Классов алармов» каждый язык — у четырёх колонок
-    /// (Display name, Incoming, Outgoing, Acknowledged), у остальных листов (и Tooltip «Экранов») — у одной. Аналоговых алармов в a603 нет —
+    /// (Display name, Incoming, Outgoing, Acknowledged), у остальных листов (Tooltip «Экранов», Display name «Групп
+    /// пользователей») — у одной. Аналоговых алармов в a603 нет —
     /// таблица строится напрямую.
     /// </summary>
     [Fact]
@@ -37,6 +39,7 @@ public sealed class LanguageColumnsTests
         AssertLanguages(AnalogAlarmsTable.Build(doc), 1);
         AssertLanguages(sheets[AlarmClassesSheet.Name], 4);
         AssertLanguages(sheets[ScreensSheet.Name], 1);
+        AssertLanguages(sheets[UserGroupsSheet.Name], 1);
     }
 
     /// <summary>У листов без текстов на языках («Сводка», «Теги», «Группы алармов») языков колонок нет.</summary>
@@ -44,7 +47,7 @@ public sealed class LanguageColumnsTests
     public void A603_OtherSheets_NoLanguageColumns()
     {
         var sheets = Sheets(FwxReader.Read(RepositoryPaths.InRepo("samples/a603/pdata.fwc")));
-        string[] languageSheets = [SystemEventsSheet.Name, DiscreteAlarmsSheet.Name, AlarmClassesSheet.Name, ScreensSheet.Name];
+        string[] languageSheets = [SystemEventsSheet.Name, DiscreteAlarmsSheet.Name, AlarmClassesSheet.Name, ScreensSheet.Name, UserGroupsSheet.Name];
 
         Assert.Contains(TagsSheet.Name, sheets.Keys);
         Assert.All(sheets.Where(s => !languageSheets.Contains(s.Key)), s => Assert.Empty(s.Value.ColumnLanguages));

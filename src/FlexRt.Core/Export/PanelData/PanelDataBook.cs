@@ -1,6 +1,7 @@
 using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
+using FlexRt.Export.PanelData.Users;
 using FlexRt.Model.Panel;
 
 namespace FlexRt.Export.PanelData;
@@ -15,7 +16,8 @@ public static class PanelDataBook
 
     /// <summary>
     /// Листы в порядке книги: «Сводка» и «Теги» — всегда (и без тегов); «Системные события», «Дискретные алармы»,
-    /// «Аналоговые алармы», «Классы алармов», «Группы алармов», «Экраны» — если в их таблице есть строки.
+    /// «Аналоговые алармы», «Классы алармов», «Группы алармов», «Экраны», «Группы пользователей» — если в их таблице есть
+    /// строки.
     /// </summary>
     public static IReadOnlyList<PanelDataSheet> Sheets { get; } =
     [
@@ -28,7 +30,8 @@ public static class PanelDataBook
         Table(AlarmClassesSheet.Name, static doc => AlarmClassesTable.Classes(doc).Count > 0, static s => AlarmClassesTable.Build(s.Doc)),
         Table(AlarmGroupsSheet.Name, static doc => AlarmGroupsTable.Groups(doc).Count > 0, static s => AlarmGroupsTable.Build(s.Doc)),
         // строки листа — экраны без служебных записей (ScreensTable.Screens)
-        Table(ScreensSheet.Name, static doc => doc.Screens.Any(s => !s.IsService), static s => ScreensTable.Build(s.Doc))
+        Table(ScreensSheet.Name, static doc => doc.Screens.Any(s => !s.IsService), static s => ScreensTable.Build(s.Doc)),
+        Table(UserGroupsSheet.Name, static doc => doc.UserGroups.Count > 0, static s => UserGroupsTable.Build(s.Doc))
     ];
 
     /// <summary>

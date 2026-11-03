@@ -6,8 +6,8 @@ namespace FlexRt.Parsing.Panel.Screens;
 
 /// <summary>
 /// I/O field: элементы VIEW_IN и VIEW_OUT объектов экранов (<see cref="FwxDocument.ScreenObjects"/>) с кодом I/O field
-/// за ссылками. Сверено с TIA на шаговых копиях <c>data/real/steps-iofield/</c> 00–36 (Project1, V21, TP700 Comfort,
-/// одно свойство на шаг, XML шага от Openness рядом); код типа — ещё на 477 объектах VIEW_IN/VIEW_OUT A603A0097 по
+/// за ссылками. Сверено с TIA на шаговых копиях <c>data/real/steps-iofield/</c> 00–32, 34–56, 58–67 (Project1,
+/// V21, TP700 Comfort, одно свойство на шаг, XML шага от Openness рядом, у 63–65 его нет); код типа — ещё на 477 объектах VIEW_IN/VIEW_OUT A603A0097 по
 /// именам объектов.
 /// </summary>
 public static class IoFieldParser
@@ -72,9 +72,12 @@ public static class IoFieldParser
     private const int LeadingZerosOffset = 8;
 
     /// <summary>
-    /// u16 длина Units в байтах вместе с нулём от начала полей формата у VIEW_IN; перед ним u16 (наблюдение: 0;
-    /// гипотеза — Hidden input).
+    /// У VIEW_IN: u16 Hidden input (<c>0xFFFF</c>) от начала полей формата (сверено с TIA: шаг
+    /// <c>data/real/steps-iofield/47_hidden_input.fwc</c>).
     /// </summary>
+    private const int InHiddenOffset = 0x0a;
+
+    /// <summary>u16 длина Units в байтах вместе с нулём от начала полей формата у VIEW_IN.</summary>
     private const int InUnitOffset = 0x0c;
 
     /// <summary>u16 длина Units в байтах вместе с нулём от начала полей формата у VIEW_OUT.</summary>
@@ -137,7 +140,8 @@ public static class IoFieldParser
             throw new FwxFormatException(table.Name, item.Offset, $"{who}: метка стилей I/O field не на месте");
         }
         var p = item.Offset;
-        var tag = IoFieldTagReader.Read(doc, item);
+        var links = NamedElement.TryReferences(b, item) ?? [];
+        var tag = IoFieldTagReader.Read(doc, links);
         return new IoField(
             o.Element,
             !isIn ? IoFieldMode.Output : b.D2(p + e + InModeOffset) != 0 ? IoFieldMode.InputOutput : IoFieldMode.Input,
@@ -149,11 +153,34 @@ public static class IoFieldParser
             b.D2(p + pattern),
             b.D2(p + pattern + SignedOffset) != 0,
             b.D2(p + pattern + LeadingZerosOffset) != 0,
+            isIn && b.D2(p + pattern + InHiddenOffset) != 0,
             Unit(b, table, item, unit, styles, who),
             Read(doc, table, item, styles, BorderStyleReader.Table, who, BorderStyleReader.Read),
             Read(doc, table, item, styles, TextStyleReader.Table, who, TextStyleReader.Read),
             Read(doc, table, item, styles, FillStyleReader.Table, who, FillStyleReader.Read),
-            Font(doc, table, item, mark, who));
+            Font(doc, table, item, mark, who),
+            Limits(doc, links, who));
+    }
+
+    /// <summary>
+    /// Цвета Limits (<see cref="IoFieldLimitReader"/>). Элемент с цветами не сходится — предупреждение с таблицей и
+    /// смещением, поле остаётся с цветами «не прочитано».
+    /// </summary>
+    /// <returns>
+    /// Цвета; ссылки на ADAPTVALUECHANG нет или список не цвета — <c>null</c>; не прочитаны — оба цвета <c>null</c>.
+    /// </returns>
+    private static LimitColors? Limits(FwxDocument doc, IReadOnlyList<VarReference> links, string who)
+    {
+        try
+        {
+            return IoFieldLimitReader.Read(doc, links, who);
+        }
+        catch (FwxFormatException e)
+        {
+            // элемент с цветами может быть общим у нескольких полей — в сообщении поле
+            doc.Warnings.Add($"{e.Message} ({who}: цвета Limits не прочитаны)");
+            return new LimitColors(null, null);
+        }
     }
 
     /// <summary>Units: u16 длина в байтах вместе с нулём, u16, текст UTF-16LE.</summary>

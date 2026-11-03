@@ -7,9 +7,10 @@
         <div class="object-title">@Current()</div>
         @* Поля раздела блоками, как в TIA. General I/O field — Process (тег через неразобранную таблицу — «? (таблица N)»;
            PLC tag и Address — TagCell, серые, как в TIA), Type и Format (Decimal places, Field length и шаблон —
-           IoFieldTexts; недоступные в TIA — серые); Appearance — Background, Text и Border; Layout — Position & size;
-           Text format — Format и Alignment; остальные разделы — «Не разобрано». У объекта другого типа General — имя и
-           таблица. *@
+           IoFieldTexts; недоступные в TIA — серые); Appearance — Background, Text и Border; Characteristics — Field
+           (Hidden input); Layout — Position & size; Text format — Format и Alignment; Limits — Colors: High limit
+           violated и Low limit violated, как в TIA (в файле нет — IoFieldTexts.LimitsAbsent); остальные разделы —
+           «Не разобрано». У объекта другого типа General — имя и таблица. *@
         @switch (Current())
         {
             case General when Field is { } f:
@@ -63,8 +64,22 @@
                     </div>
                 </div>
                 break;
+            case Characteristics when Field is { } f:
+                <PropertyGroup Title="Field" Class="wide">
+                    <ObjectRow Name="Hidden input" Value="@(f.HiddenInput ? "Yes" : "No")" Checked="f.HiddenInput" />
+                </PropertyGroup>
+                break;
+            case Limits when Field is { Limits: null }:
+                <div class="muted">@IoFieldTexts.LimitsAbsent</div>
+                break;
+            case Limits when Field is { Limits: { } l }:
+                <PropertyGroup Title="Colors" Class="wide">
+                    <ObjectRow Name="High limit violated" Value="@IoFieldTexts.LimitColor(l.AboveUpperRgb)" Control="ObjectRowControl.Combo" />
+                    <ObjectRow Name="Low limit violated" Value="@IoFieldTexts.LimitColor(l.BelowLowerRgb)" Control="ObjectRowControl.Combo" />
+                </PropertyGroup>
+                break;
             case Layout:
-                <PropertyGroup Title="Position & size">
+                <PropertyGroup Title="Position & size" Class="wide">
                     <ObjectRow Name="X" Value="Object.Bounds.Left" Control="ObjectRowControl.Spin" />
                     <ObjectRow Name="Y" Value="Object.Bounds.Top" Control="ObjectRowControl.Spin" />
                     <ObjectRow Name="Width" Value="Object.Bounds.Width" Control="ObjectRowControl.Spin" />
@@ -104,12 +119,18 @@
     /// <summary>Раздел Text format.</summary>
     private const string TextFormat = "Text format";
 
+    /// <summary>Раздел Characteristics.</summary>
+    private const string Characteristics = "Characteristics";
+
+    /// <summary>Раздел Limits.</summary>
+    private const string Limits = "Limits";
+
     /// <summary>Текст раздела, свойства которого программа не читает.</summary>
     private const string NotParsed = "Не разобрано";
 
     /// <summary>Разделы I/O field в Property list TIA, в его порядке (решение пользователя 2026-11-02: все разделы).</summary>
     private static readonly string[] FieldSections =
-        [General, Appearance, "Characteristics", Layout, TextFormat, "Flashing", "Limits", "Styles/Designs", "Miscellaneous", "Security"];
+        [General, Appearance, Characteristics, Layout, TextFormat, "Flashing", Limits, "Styles/Designs", "Miscellaneous", "Security"];
 
     /// <summary>Разделы объекта другого типа: известны только имя, таблица и положение.</summary>
     private static readonly string[] ObjectSections = [General, Layout];

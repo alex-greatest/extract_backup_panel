@@ -3,6 +3,7 @@ using FlexRt.Export.PanelData;
 using FlexRt.Export.PanelData.Alarms;
 using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.PanelData.Tags;
+using FlexRt.Export.PanelData.Users;
 using FlexRt.Extraction;
 using FlexRt.Model.Panel;
 
@@ -40,7 +41,8 @@ public static class PanelViews
         (SystemEventsSheet.Name, "System events", "events", true),
         (AlarmClassesSheet.Name, "Alarm classes", "classes", true),
         (AlarmGroupsSheet.Name, "Alarm groups", "groups", true),
-        (ScreensSheet.Name, "Screens", "folder", false)
+        (ScreensSheet.Name, "Screens", "folder", false),
+        (UserGroupsSheet.Name, "User administration", "users", false)
     ];
 
     /// <summary>
@@ -62,6 +64,7 @@ public static class PanelViews
             [.. Nodes.Where(n => n.InAlarms).Select(n => bySheet.GetValueOrDefault(n.Sheet)).OfType<PanelSection>()],
             bySheet.GetValueOrDefault(ScreensSheet.Name) ?? Section(new BuiltSheet(Empty(ScreensSheet.Name), null)),
             Texts(doc),
+            bySheet.GetValueOrDefault(UserGroupsSheet.Name),
             book,
             LanguageText.Languages(doc));
     }
@@ -70,7 +73,8 @@ public static class PanelViews
     /// <returns>По строке «Раздел «X» не построен: причина» на раздел в порядке дерева; нет таких — пусто.</returns>
     public static IReadOnlyList<string> Errors(PanelView view) =>
     [
-        .. new[] { view.Summary, view.Tags }.Concat(view.Alarms).Append(view.Screens).Concat(view.Texts)
+        .. new[] { view.Summary, view.Tags }.Concat(view.Alarms).Append(view.Screens).Concat(view.Texts).Append(view.Users)
+            .OfType<PanelSection>()
             .Where(s => s.Error is not null)
             .Select(s => $"Раздел «{s.Title}» не построен: {s.Error}")
     ];

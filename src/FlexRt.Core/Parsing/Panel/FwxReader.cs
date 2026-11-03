@@ -20,7 +20,7 @@ public static class FwxReader
     /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT,
     /// MSG_ANALOG_OBSE, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL, SCREEN, LIMIT, ADAPTVALUECHANG, GUI,
     /// VIEW_DYN, события экранов (FUNC_LIST, ADAPTDEMULTIPLE, FUNC_*), объекты экранов (VIEW_*), I/O field со стилями
-    /// (PS_BorderedShap, PS_Text, PS_Fill_Color, FONT), INFO_HANDLER, PICTURE и TILED_PICTURE; последней — раскладка всех таблиц TOC (<see cref="TableLayoutCheck"/>).
+    /// (PS_BorderedShap, PS_Text, PS_Fill_Color, FONT), INFO_HANDLER, SECURITY_UNIT, PICTURE и TILED_PICTURE; последней — раскладка всех таблиц TOC (<see cref="TableLayoutCheck"/>).
     /// </summary>
     /// <exception cref="FwxFormatException">Повреждён заголовок или TOC.</exception>
     /// <exception cref="IOException">Файл не удалось прочитать.</exception>
@@ -61,6 +61,7 @@ public static class FwxReader
         // только после ScreenObjectParser: поля читаются по элементам из doc.ScreenObjects
         TryParse(doc, IoFieldParser.Parse);
         TryParse(doc, InfoHandlerParser.Parse);
+        TryParse(doc, UserGroupParser.Parse);
         TryParse(doc, PictureParser.Parse);
         TryParse(doc, TiledPictureParser.Parse);
         TableLayoutCheck.Run(doc);

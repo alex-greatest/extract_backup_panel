@@ -468,10 +468,9 @@
     width: 170px;
     flex-shrink: 0;
     overflow: auto;
-    border-right: 1px solid var(--border-strong);
     background: var(--surface-alt);
     /* пустые строки списка до низа, как в TIA */
-    background-image: repeating-linear-gradient(to bottom, transparent 0 18px, var(--panel-bg) 18px 19px);
+    background-image: repeating-linear-gradient(to bottom, transparent 0 calc(var(--nav-row) - 1px), var(--panel-bg) calc(var(--nav-row) - 1px) var(--nav-row));
     background-position: 0 28px;
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -484,7 +483,48 @@
     gap: 5px;
     height: 28px;
     padding: 0 8px;
-    background: var(--surface-alt);
+    background: var(--panel-bg);
+}
+
+/* разделитель TIA (по снимку), 8px: линия, 5px серого, белая линия, линия (рамки входят в ширину — box-sizing окна);
+   кнопки 24px посередине высоты */
+.object-nav-split {
+    width: 8px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    background: var(--split-bg);
+    border-left: 1px solid var(--field-border);
+    border-right: 1px solid var(--field-border);
+    box-shadow: inset -1px 0 0 var(--surface);
+}
+
+.object-nav-split-button {
+    position: relative;
+    height: 22px;
+    border-top: 1px solid var(--field-border);
+    border-bottom: 1px solid var(--field-border);
+    background: linear-gradient(to bottom, #a5a5a5, #e7e7e7);
+}
+
+/* чёрный треугольник 3px в середине кнопки: у верхней — влево, у нижней — вправо */
+.object-nav-split-button::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 1px;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+}
+
+.object-nav-split-button.left::after {
+    border-right: 3px solid #000;
+}
+
+.object-nav-split-button.right::after {
+    border-left: 3px solid #000;
 }
 
 .object-nav-head .rzi {
@@ -495,13 +535,13 @@
 .object-nav-item {
     display: block;
     width: 100%;
-    height: 19px;
+    height: var(--nav-row);
     padding: 0 0 0 22px;
     border: none;
     border-bottom: 1px solid var(--panel-bg);
     background: var(--surface-alt);
     font: inherit;
-    line-height: 18px;
+    line-height: calc(var(--nav-row) - 1px);
     color: var(--text);
     text-align: left;
     cursor: pointer;
@@ -568,6 +608,12 @@
     background: var(--panel-group-bg);
     border: 1px solid var(--border-strong);
     max-width: 460px;
+}
+
+/* единственный блок раздела I/O field (Limits → Colors, Characteristics → Field, Layout → Position & size) — во всю
+   ширину, как в TIA */
+.object-group.wide {
+    max-width: none;
 }
 
 .object-group-title {
@@ -747,8 +793,10 @@
 }
 
 /* Animations экрана: слева дерево Display ▸ Visibility строками Property list, справа блоки Process и Visibility */
+/* у дерева Animations разделителя TIA нет (PropertyList не используется) — своя рамка справа */
 .anim-nav.object-nav {
     background-position: 0 0;
+    border-right: 1px solid var(--border-strong);
 }
 
 .anim-nav-group,
@@ -756,9 +804,9 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    height: 19px;
+    height: var(--nav-row);
     border-bottom: 1px solid var(--panel-bg);
-    line-height: 18px;
+    line-height: calc(var(--nav-row) - 1px);
     white-space: nowrap;
 }
 

@@ -6,6 +6,12 @@
                 aria-selected="@(section == Selected)" @onclick="() => SelectedChanged.InvokeAsync(section)"><span class="object-nav-text">@section</span></button>
     }
 </div>
+@* Разделитель между списком и свойствами, как в TIA: серая полоса с двумя кнопками-стрелками посередине; только вид —
+   список не сворачивается. *@
+<div class="object-nav-split" aria-hidden="true">
+    <div class="object-nav-split-button left"></div>
+    <div class="object-nav-split-button right"></div>
+</div>
 
 @code {
     /// <summary>Разделы свойств слева, как Property list в TIA, в порядке показа.</summary>

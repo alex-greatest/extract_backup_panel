@@ -56,6 +56,10 @@ else
                 {
                     @SectionFolder("Тексты", View.Texts)
                 }
+                @if (View.Users is { } users)
+                {
+                    @Section(users)
+                }
             </ChildContent>
         </RadzenTreeItem>
     </RadzenTree>

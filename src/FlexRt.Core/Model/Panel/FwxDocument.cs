@@ -85,6 +85,9 @@ public sealed class FwxDocument
     public int? PermanentAreaHeight { get; set; }
     /// <summary>Тексты-подсказки элементов других таблиц (экранов, объектов, алармов) из INFO_HANDLER в порядке файла.</summary>
     public List<InfoText> InfoTexts { get; } = [];
+
+    /// <summary>Группы пользователей из SECURITY_UNIT в порядке файла.</summary>
+    public List<UserGroup> UserGroups { get; } = [];
     /// <summary>Картинки из PICTURE, затем из TILED_PICTURE, в порядке каталога.</summary>
     public List<PanelPicture> Pictures { get; } = [];
     /// <summary>Таблицы, которые не удалось разобрать (остальное при этом читается).</summary>

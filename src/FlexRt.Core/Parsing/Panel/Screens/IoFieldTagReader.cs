@@ -14,9 +14,6 @@ internal static class IoFieldTagReader
     /// <summary>Таблица тегов.</summary>
     private const string VarTable = "VAR";
 
-    /// <summary>Посредник: u32 1, u32 R, R ссылок — первая на тег.</summary>
-    private const string ValueChangeTable = "ADAPTVALUECHANG";
-
     /// <summary>Таблица с именованными элементами-тегами (начало — как у VAR: u16 3, u16 длина имени, имя).</summary>
     private const string VarListTable = "VARLIST";
 
@@ -25,15 +22,14 @@ internal static class IoFieldTagReader
     /// (<see cref="HmiTag.TypeCode"/>; номер записи у тега — с единицы); у тега из VARLIST типа нет.
     /// </summary>
     /// <param name="doc">Документ панели (теги VAR уже прочитаны).</param>
-    /// <param name="item">Элемент поля.</param>
+    /// <param name="links">Ссылки элемента поля (<see cref="NamedElement.TryReferences"/>; не прочитаны — пусто).</param>
     /// <returns>
     /// Имя и тип тега; тег не найден, а ссылки есть — <c>Via</c>: таблица и номер элемента первой ссылки с единицы
     /// (<c>RECVAR 4</c>; таблицы нет в TOC — <c>?</c> вместо имени); ссылок нет — всё <c>null</c>.
     /// </returns>
     /// <exception cref="FwxFormatException">Элемент посредника или тега не сходится.</exception>
-    public static (string? Name, int? Type, string? Via) Read(FwxDocument doc, TableItem item)
+    public static (string? Name, int? Type, string? Via) Read(FwxDocument doc, IReadOnlyList<VarReference> links)
     {
-        var links = NamedElement.TryReferences(doc.Binary, item) ?? [];
         if (links.Count == 0)
         {
             return (null, null, null);
@@ -56,7 +52,7 @@ internal static class IoFieldTagReader
     /// <exception cref="FwxFormatException">Элемент посредника вне таблицы или не сходится.</exception>
     private static VarReference? Through(FwxDocument doc, VarReference link)
     {
-        if (doc.FindTable(link.Table) is not { Name: ValueChangeTable } table || link.Index >= table.Entries)
+        if (doc.FindTable(link.Table) is not { Name: ValueChangeList.Table } table || link.Index >= table.Entries)
         {
             return null;
         }
