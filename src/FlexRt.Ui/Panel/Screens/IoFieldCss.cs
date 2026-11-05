@@ -26,18 +26,34 @@ public static class IoFieldCss
     {
         var b = field.Border;
         var css = $"background:{CssColor.Hex(field.Fill.ColorRgb)}; border-radius:{b.CornerRadius}px;";
-        if (b.Width <= 0)
+        var border = BorderWidth(field);
+        if (border == 0)
         {
             return css;
         }
         var color = CssColor.Hex(b.ColorRgb);
-        if (b.EdgeStyle != DoubleLine || b.Width == 1)
+        if (border == b.Width)
         {
-            return $"{css} border:{b.Width}px solid {color}; --io-border:{b.Width}px;";
+            return $"{css} border:{border}px solid {color}; --io-border:{border}px;";
         }
         var inner = b.Width - 1;
-        return $"{css} border:1px solid {color}; --io-border:1px; --io-inner:{inner}px;"
+        return $"{css} border:{border}px solid {color}; --io-border:{border}px; --io-inner:{inner}px;"
             + $" box-shadow:inset 0 0 0 {inner - 1}px {CssColor.Hex(b.BackColorRgb)}, inset 0 0 0 {inner}px {color};";
+    }
+
+    /// <summary>
+    /// Ширина рамки CSS поля: нет рамки — 0, Double line шире 1 — 1 (внутренние линии рисуются тенями), иначе ширина из
+    /// файла. На неё сдвинуты координаты щелчка: <c>offsetX</c> браузер считает от внутреннего края рамки.
+    /// </summary>
+    /// <returns>Ширина в пикселях экрана.</returns>
+    public static int BorderWidth(IoField field)
+    {
+        var b = field.Border;
+        if (b.Width <= 0)
+        {
+            return 0;
+        }
+        return b.EdgeStyle == DoubleLine ? 1 : b.Width;
     }
 
     /// <summary>

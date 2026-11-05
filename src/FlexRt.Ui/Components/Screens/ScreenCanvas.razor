@@ -59,11 +59,13 @@
     private ScreenItem? _shown;
 
     /// <summary>
-    /// Объекты под курсором при прошлом щелчке: повторный щелчок в той же стопке перебирает их по кругу
-    /// (<see cref="SelectAt"/>); стопка сменилась — выбор начинается заново с верхнего объекта. <c>null</c> — щелчка ещё
-    /// не было.
+    /// Насколько в пикселях окна щелчок может отойти от прошлого и остаться щелчком в той же точке
+    /// (<see cref="SelectAt"/>): рука сдвигает мышь между щелчками.
     /// </summary>
-    private HashSet<ScreenObject>? _cycle;
+    private const int SamePointTolerance = 3;
+
+    /// <summary>Точка прошлого щелчка по объекту в пикселях окна; щелчка ещё не было — <c>null</c>.</summary>
+    private (double X, double Y)? _lastClick;
 
     /// <summary>Строка заголовка редактора: путь к экрану, как в TIA.</summary>
     [Parameter]
@@ -172,16 +174,18 @@
 
     /// <summary>
     /// Выбрать объект по щелчку, перебирая перекрытые. Точка щелчка в пикселях экрана — левый верхний угол объекта
-    /// <paramref name="clicked"/> плюс смещение внутри него (<see cref="MouseEventArgs.OffsetX"/>; текст не ловит клик,
-    /// CSS <c>pointer-events: none</c>). Стопка — объекты под точкой сверху вниз (<see cref="Under"/>); если щелчок
-    /// пришёлся не в геометрию <paramref name="clicked"/> (линия нулевой площади), он добавляется сверху. Та же стопка и
-    /// выбран её объект — берётся следующий по кругу; иначе — верхний (тот, по которому щёлкнули). Выбор идёт через
-    /// <see cref="ObjectSelection"/>.
+    /// <paramref name="clicked"/> плюс смещение внутри него (<see cref="MouseEventArgs.OffsetX"/> считается от внутреннего
+    /// края рамки, поэтому прибавляется ширина рамки I/O field; текст не ловит клик, CSS <c>pointer-events: none</c>).
+    /// Стопка — объекты под точкой сверху вниз (<see cref="Under"/>); округление вынесло точку за <paramref name="clicked"/>
+    /// — он добавляется сверху, стопка не пуста. Та же точка (<see cref="IsLastClick"/>) и выбран объект стопки — следующий
+    /// по кругу; иначе — верхний по списку, а не <paramref name="clicked"/>: выбранный объект поднят над соседями и
+    /// перехватывает щелчок. Выбор идёт через <see cref="ObjectSelection"/>.
     /// </summary>
     private void SelectAt(ScreenItem item, IReadOnlyList<ScreenObject> objects, ScreenObject clicked, MouseEventArgs e)
     {
-        var x = clicked.Bounds.Left + (int)e.OffsetX;
-        var y = clicked.Bounds.Top + (int)e.OffsetY;
+        var border = item.Fields.TryGetValue(clicked.Element, out var field) ? IoFieldCss.BorderWidth(field) : 0;
+        var x = clicked.Bounds.Left + (int)Math.Floor(e.OffsetX + border);
+        var y = clicked.Bounds.Top + (int)Math.Floor(e.OffsetY + border);
         var under = Under(objects, x, y);
         if (!under.Contains(clicked))
         {
@@ -189,15 +193,24 @@
         }
         var current = Selection.Of(item);
         var index = current is null ? -1 : under.IndexOf(current);
-        var repeat = _cycle is not null && _cycle.SetEquals(under) && index >= 0;
-        var chosen = repeat ? under[(index + 1) % under.Count] : clicked;
-        _cycle = [.. under];
-        Selection.Select(item, chosen);
+        var repeat = index >= 0 && IsLastClick(e);
+        _lastClick = (e.ClientX, e.ClientY);
+        Selection.Select(item, repeat ? under[(index + 1) % under.Count] : under[0]);
     }
 
     /// <summary>
+    /// Щелчок в точке прошлого щелчка: отошёл от неё не дальше <see cref="SamePointTolerance"/> пикселей окна. Сравнение —
+    /// в координатах окна, поэтому допуск не зависит от масштаба; прокрутка холста между щелчками не учитывается.
+    /// </summary>
+    /// <returns><c>true</c> — та же точка; щелчка ещё не было или он дальше — <c>false</c>.</returns>
+    private bool IsLastClick(MouseEventArgs e) =>
+        _lastClick is { } last
+        && Math.Abs(e.ClientX - last.X) <= SamePointTolerance
+        && Math.Abs(e.ClientY - last.Y) <= SamePointTolerance;
+
+    /// <summary>
     /// Объекты, накрывающие точку (<paramref name="x"/>, <paramref name="y"/>) экрана, сверху вниз: позже в списке —
-    /// выше на холсте, поэтому список обходится с конца. Объект нулевой площади (линия) точку не накрывает.
+    /// выше на холсте, поэтому список обходится с конца. Линия с шириной или высотой 0 накрывает 1 px, как нарисована.
     /// </summary>
     /// <returns>Список объектов, верхний первым; под точкой никого — пустой список.</returns>
     private static List<ScreenObject> Under(IReadOnlyList<ScreenObject> objects, int x, int y)
@@ -206,7 +219,7 @@
         for (var i = objects.Count - 1; i >= 0; i--)
         {
             var b = objects[i].Bounds;
-            if (x >= b.Left && x < b.Left + Math.Max(b.Width, 0) && y >= b.Top && y < b.Top + Math.Max(b.Height, 0))
+            if (x >= b.Left && x < b.Left + Math.Max(b.Width, 1) && y >= b.Top && y < b.Top + Math.Max(b.Height, 1))
             {
                 hits.Add(objects[i]);
             }
