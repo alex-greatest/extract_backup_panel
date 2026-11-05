@@ -54,6 +54,7 @@
 
 .screen-object span {
     display: block;
+    pointer-events: none; /* клик всегда попадает в рамку объекта, не в текст: SelectAt считает точку от рамки */
     padding: 1px 3px;
     font-size: var(--font-size-xs);
     line-height: 13px;

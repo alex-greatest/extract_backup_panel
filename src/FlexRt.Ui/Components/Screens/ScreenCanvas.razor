@@ -58,6 +58,13 @@
     /// <summary>Экран, показанный при прошлой отрисовке: смена экрана снимает выбор объекта.</summary>
     private ScreenItem? _shown;
 
+    /// <summary>
+    /// Объекты под курсором при прошлом щелчке: повторный щелчок в той же стопке перебирает их по кругу
+    /// (<see cref="SelectAt"/>); стопка сменилась — выбор начинается заново с верхнего объекта. <c>null</c> — щелчка ещё
+    /// не было.
+    /// </summary>
+    private HashSet<ScreenObject>? _cycle;
+
     /// <summary>Строка заголовка редактора: путь к экрану, как в TIA.</summary>
     [Parameter]
     public string Title { get; set; } = "";
@@ -137,7 +144,9 @@
     /// (<see cref="ScreenItem.Fields"/>) — как в редакторе TIA: фон, рамка, шаблон нулями шрифтом и цветом из файла
     /// (<see cref="IoFieldCss"/>, <see cref="IoFieldTexts.Sample"/>); остальные — рамка с именем объекта (решение
     /// пользователя 2026-11-02), у линии ширина или высота 0 — рамка в 1 px. Щелчок выбирает объект
-    /// (<see cref="ObjectSelection"/>), у выбранного — маркеры по углам и серединам сторон, как в TIA; имя — в подсказке.
+    /// (<see cref="SelectAt"/>, <see cref="ObjectSelection"/>): повторный щелчок в той же точке перебирает по кругу
+    /// объекты под курсором, так добирается и до перекрытого (решение пользователя 2026-11-04); у выбранного — маркеры
+    /// по углам и серединам сторон, как в TIA; имя — в подсказке.
     /// </summary>
     /// <returns>Разметка объектов.</returns>
     private RenderFragment ObjectFrames(ScreenItem item, IReadOnlyList<ScreenObject> objects) => __builder =>
@@ -148,7 +157,7 @@
             var field = item.Fields.GetValueOrDefault(o.Element);
             var css = (Equals(o, selected) ? "screen-object selected" : "screen-object") + (field is null ? "" : " io-field");
             <div class="@css" style="@FrameStyle(o.Bounds) @(field is null ? "" : IoFieldCss.Box(field))" title="@o.Name"
-                 @onclick="() => Selection.Select(item, o)" @onclick:stopPropagation="true">
+                 @onclick="e => SelectAt(item, objects, o, e)" @onclick:stopPropagation="true">
                 @if (field is null)
                 {
                     <span>@o.Name</span>
@@ -160,6 +169,50 @@
             </div>
         }
     };
+
+    /// <summary>
+    /// Выбрать объект по щелчку, перебирая перекрытые. Точка щелчка в пикселях экрана — левый верхний угол объекта
+    /// <paramref name="clicked"/> плюс смещение внутри него (<see cref="MouseEventArgs.OffsetX"/>; текст не ловит клик,
+    /// CSS <c>pointer-events: none</c>). Стопка — объекты под точкой сверху вниз (<see cref="Under"/>); если щелчок
+    /// пришёлся не в геометрию <paramref name="clicked"/> (линия нулевой площади), он добавляется сверху. Та же стопка и
+    /// выбран её объект — берётся следующий по кругу; иначе — верхний (тот, по которому щёлкнули). Выбор идёт через
+    /// <see cref="ObjectSelection"/>.
+    /// </summary>
+    private void SelectAt(ScreenItem item, IReadOnlyList<ScreenObject> objects, ScreenObject clicked, MouseEventArgs e)
+    {
+        var x = clicked.Bounds.Left + (int)e.OffsetX;
+        var y = clicked.Bounds.Top + (int)e.OffsetY;
+        var under = Under(objects, x, y);
+        if (!under.Contains(clicked))
+        {
+            under.Insert(0, clicked);
+        }
+        var current = Selection.Of(item);
+        var index = current is null ? -1 : under.IndexOf(current);
+        var repeat = _cycle is not null && _cycle.SetEquals(under) && index >= 0;
+        var chosen = repeat ? under[(index + 1) % under.Count] : clicked;
+        _cycle = [.. under];
+        Selection.Select(item, chosen);
+    }
+
+    /// <summary>
+    /// Объекты, накрывающие точку (<paramref name="x"/>, <paramref name="y"/>) экрана, сверху вниз: позже в списке —
+    /// выше на холсте, поэтому список обходится с конца. Объект нулевой площади (линия) точку не накрывает.
+    /// </summary>
+    /// <returns>Список объектов, верхний первым; под точкой никого — пустой список.</returns>
+    private static List<ScreenObject> Under(IReadOnlyList<ScreenObject> objects, int x, int y)
+    {
+        var hits = new List<ScreenObject>();
+        for (var i = objects.Count - 1; i >= 0; i--)
+        {
+            var b = objects[i].Bounds;
+            if (x >= b.Left && x < b.Left + Math.Max(b.Width, 0) && y >= b.Top && y < b.Top + Math.Max(b.Height, 0))
+            {
+                hits.Add(objects[i]);
+            }
+        }
+        return hits;
+    }
 
     /// <summary>Положение рамки объекта в CSS.</summary>
     /// <returns>Текст CSS, например <c>left:720px; top:360px; width:78px; height:58px;</c>.</returns>
