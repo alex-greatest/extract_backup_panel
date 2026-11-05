@@ -1,4 +1,4 @@
-/* Инспектор: заголовок с вкладками Properties и Info справа (как в TIA), вкладки Radzen, группы и поля свойств */
+﻿/* Инспектор: заголовок с вкладками Properties и Info справа (как в TIA), вкладки Radzen, группы и поля свойств */
 .inspector-head {
     align-items: stretch;
     gap: 0;
@@ -896,4 +896,11 @@
 .anim-radio.disabled .anim-radio-box {
     border-color: var(--disabled-text);
     background: var(--disabled-bg);
+}
+
+/* Полная подпись Allow operator control рядом с флажком Security. */
+.operator-control .object-row-label {
+    width: auto;
+    white-space: normal;
+    overflow: visible;
 }

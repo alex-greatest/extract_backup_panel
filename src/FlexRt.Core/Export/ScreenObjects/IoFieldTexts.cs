@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using FlexRt.Export.PanelData.Tags;
 using FlexRt.Model.Panel.Screens;
 
@@ -10,6 +10,17 @@ namespace FlexRt.Export.ScreenObjects;
 /// </summary>
 public static class IoFieldTexts
 {
+    /// <summary>Название установленного стандартного права; ссылки нет — пусто, другое право — неизвестно.</summary>
+    /// <returns>Текст Authorization.</returns>
+    public static string Authorization(long? number) => number switch
+    {
+        null => "",
+        0 => "User administration",
+        1 => "Monitor",
+        2 => "Operate",
+        _ => "?"
+    };
+
     /// <summary>Код формата String (<see cref="IoField.DisplayFormat"/>).</summary>
     private const int StringFormat = 0;
 

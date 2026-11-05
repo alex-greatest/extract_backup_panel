@@ -1,4 +1,4 @@
-@using FlexRt.Export.PanelData.Tags
+﻿@using FlexRt.Export.PanelData.Tags
 @using FlexRt.Model.Panel.Screens
 
 <div class="props-layout object-props">
@@ -76,6 +76,14 @@
                 <PropertyGroup Title="Colors" Class="wide">
                     <ObjectRow Name="High limit violated" Value="@IoFieldTexts.LimitColor(l.AboveUpperRgb)" Control="ObjectRowControl.Combo" />
                     <ObjectRow Name="Low limit violated" Value="@IoFieldTexts.LimitColor(l.BelowLowerRgb)" Control="ObjectRowControl.Combo" />
+                </PropertyGroup>
+                break;
+            case "Security" when Field is { } f:
+                <PropertyGroup Title="Runtime security" Class="wide">
+                    <ObjectRow Name="Authorization" Value="@IoFieldTexts.Authorization(f.Authorization)" />
+                </PropertyGroup>
+                <PropertyGroup Title="Operator control" Class="wide operator-control">
+                    <ObjectRow Name="Allow operator control" Value="@(f.AllowOperatorControl ? "Yes" : "No")" Checked="f.AllowOperatorControl" />
                 </PropertyGroup>
                 break;
             case Layout:

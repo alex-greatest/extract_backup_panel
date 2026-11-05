@@ -1,4 +1,4 @@
-namespace FlexRt.Model.Panel.Screens;
+﻿namespace FlexRt.Model.Panel.Screens;
 
 /// <summary>
 /// I/O field: элемент VIEW_IN (Input, Input/output) или VIEW_OUT (Output) со свойствами General, Appearance и Text
@@ -30,6 +30,8 @@ namespace FlexRt.Model.Panel.Screens;
 /// <param name="Text">Цвет и выравнивание текста.</param>
 /// <param name="Fill">Цвет фона.</param>
 /// <param name="Font">Шрифт.</param>
+/// <param name="AllowOperatorControl">Allow operator control; установленный бит отключения стиля означает false.</param>
+/// <param name="Authorization">Номер права с нуля; ссылки SECURITY_MONITO нет — null.</param>
 /// <param name="Limits">Цвета Limits; в файле нет (у тега не задан Range) — <c>null</c>.</param>
 public sealed record IoField(
     VarReference Element,
@@ -48,4 +50,6 @@ public sealed record IoField(
     TextStyle Text,
     FillStyle Fill,
     PanelFont Font,
-    LimitColors? Limits);
+    LimitColors? Limits,
+    bool AllowOperatorControl = true,
+    long? Authorization = null);
