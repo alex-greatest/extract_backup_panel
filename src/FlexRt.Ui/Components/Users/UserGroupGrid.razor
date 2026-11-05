@@ -1,0 +1,44 @@
+<RadzenDataGrid TItem="UserGroup" Data="State.Groups" Value="@(Selected() is { } group ? new[] { group } : [])" RowSelect="Select"
+                AllowSorting="true" AllowColumnResize="true" SelectionMode="DataGridSelectionMode.Single" Density="Density.Compact" EmptyText="Нет групп" class="section-grid">
+    <Columns>
+        @if (Membership)
+        {
+            <RadzenDataGridColumn TItem="UserGroup" Title="Member of" Width="110px" Sortable="false"><Template><input type="radio" disabled checked="@(State.MemberGroup == context)" aria-label="Member of" /></Template></RadzenDataGridColumn>
+        }
+        <RadzenDataGridColumn TItem="UserGroup" Property="Number" Title="Number" Width="110px" />
+        <RadzenDataGridColumn TItem="UserGroup" Title="Display name" Sortable="false"><Template>@State.DisplayName(context, Language)</Template></RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+@if (Membership && State is { SelectedUser: { } user, MemberGroup: null })
+{
+    <div class="users-note">Группа @user.GroupNumber отсутствует в pdata.fwc</div>
+}
+
+@code {
+    /// <summary>Группы панели и выбранный пользователь.</summary>
+    [Parameter, EditorRequired] public UserAdministration State { get; set; } = null!;
+
+    /// <summary>Язык Display name; null — все языки.</summary>
+    [Parameter] public int? Language { get; set; }
+
+    /// <summary>Показать принадлежность выбранного пользователя без возможности редактирования.</summary>
+    [Parameter] public bool Membership { get; set; }
+
+    /// <summary>Обновить Properties после выбора группы.</summary>
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    /// <summary>Подсвеченная группа: группа пользователя либо выбор вкладки групп.</summary>
+    /// <returns>Группа или null.</returns>
+    private UserGroup? Selected() => Membership ? State.MemberGroup : State.SelectedGroup;
+
+    /// <summary>Выбрать группу только на вкладке групп; принадлежность пользователя не меняется.</summary>
+    private async Task Select(UserGroup group)
+    {
+        if (Membership)
+        {
+            return;
+        }
+        State.SelectedGroup = group;
+        await OnChange.InvokeAsync();
+    }
+}

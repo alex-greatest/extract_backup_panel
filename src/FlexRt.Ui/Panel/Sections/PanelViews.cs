@@ -51,9 +51,10 @@ public static class PanelViews
     /// строится отдельно; данные листов с данными ПЛК и без них — <see cref="PanelSources.From"/>. Раздел, таблицу
     /// которого ядро построить не смогло, остаётся в дереве с пустой таблицей и причиной в <see cref="PanelSection.Error"/>.
     /// Листа «Экраны» нет (экранов нет) — раздел Screens пустой: папка Screens в дереве тогда не показывается.
+    /// User administration показывает пользователей и группы; при отсутствии групп узел есть, если файл пользователей прочитан.
     /// </summary>
     /// <returns>Разделы для дерева проекта.</returns>
-    public static PanelView From(FwxDocument doc, string path, PlcData? plc)
+    public static PanelView From(FwxDocument doc, string path, PlcData? plc, PanelUsers users)
     {
         var source = PanelSources.From(doc, path, plc);
         List<PanelSection> book = [.. PanelDataBook.TryBuild(source).Select(Section)];
@@ -64,9 +65,12 @@ public static class PanelViews
             [.. Nodes.Where(n => n.InAlarms).Select(n => bySheet.GetValueOrDefault(n.Sheet)).OfType<PanelSection>()],
             bySheet.GetValueOrDefault(ScreensSheet.Name) ?? Section(new BuiltSheet(Empty(ScreensSheet.Name), null)),
             Texts(doc),
-            bySheet.GetValueOrDefault(UserGroupsSheet.Name),
+            bySheet.GetValueOrDefault(UserGroupsSheet.Name) ?? (users.Source is not null ? Section(new BuiltSheet(Empty(UserGroupsSheet.Name), null)) : null),
             book,
-            LanguageText.Languages(doc));
+            LanguageText.Languages(doc))
+        {
+            Administration = new Users.UserAdministration(users, doc.UserGroups, doc.Strings)
+        };
     }
 
     /// <summary>Сообщения о разделах, которые не построены, для вкладки Info.</summary>

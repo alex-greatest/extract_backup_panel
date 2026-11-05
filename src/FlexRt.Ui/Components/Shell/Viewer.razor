@@ -23,6 +23,9 @@
                     <section class="pane">
                         @switch (_selected)
                         {
+                            case PanelSection when SelectedAdministration is { } administration:
+                                <UserAdministrationView @key="administration" Title="@EditorPath.Of(_selected, _path)" State="administration" Languages="@(_view?.Languages ?? [])" @bind-Language="_language" OnChange="StateHasChanged" />
+                                break;
                             case PanelSection section:
                                 <SectionView Title="@EditorPath.Of(_selected, _path)" Section="section" SelectedRow="_row" OnRowSelect="SelectRow"
                                              OnCountChanged="count => _rowCount = count" OnCopyFailed="text => _notice = text" Languages="@(_view?.Languages ?? [])" @bind-Language="_language" />
@@ -38,7 +41,7 @@
                 </RadzenSplitterPane>
                 <RadzenSplitterPane Min="120px">
                     <section class="pane">
-                        <PropertiesPanel Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Picture="Pictures.Selected" Hint="@InspectorHint()" Language="_language" Lines="_lines" OnOpenPicture="Pictures.Open" Tags="@(_view?.Tags.Error is null ? _view?.Tags.Table : null)" />
+                        <PropertiesPanel Administration="SelectedAdministration" Item="@(_selected as ScreenItem)" Row="@InspectedRow()" Picture="Pictures.Selected" Hint="@InspectorHint()" Language="_language" Lines="_lines" OnOpenPicture="Pictures.Open" Tags="@(_view?.Tags.Error is null ? _view?.Tags.Table : null)" />
                     </section>
                 </RadzenSplitterPane>
             </RadzenSplitter>
@@ -46,7 +49,7 @@
     </RadzenSplitter>
 
     <StatusBar Loading="_loading" Path="@_path" Error="@_error" ScreenCount="_screenCount" WarningCount="@_lines.Count(l => l.Level != TranscriptLevel.Info)"
-               RowCount="@(ShownTable() is null ? null : _rowCount)" RowTotal="@ShownTable()?.Rows.Count" Notice="@_notice" />
+               RowCount="@(AdministrationRowCount ?? (ShownTable() is null ? null : _rowCount))" RowTotal="@(AdministrationRowCount ?? ShownTable()?.Rows.Count)" Notice="@_notice" />
     <PictureViewer Pictures="Pictures.Pictures" Current="Pictures.Shown" OnShow="SelectPicture" OnClose="Pictures.Close" />
     <RadzenNotification />
 </div>
@@ -54,6 +57,15 @@
 @code {
     /// <summary>Сколько миллисекунд висит уведомление об ошибках после открытия.</summary>
     private const double NotificationDuration = 6000;
+
+    /// <summary>Данные выбранного User administration; для других узлов и непостроенного раздела — null.</summary>
+    private UserAdministration? SelectedAdministration => _selected is PanelSection { Error: null }
+        && ReferenceEquals(_selected, _view?.Users) ? _view?.Administration : null;
+
+    /// <summary>Число строк активной вкладки User administration; в других разделах — обычный счётчик таблицы.</summary>
+    private int? AdministrationRowCount => SelectedAdministration is { } users
+        ? users.ShowGroups ? users.Groups.Count : users.Users.Items.Count
+        : null;
 
     /// <summary>Путь открытого или открываемого файла; <c>null</c> — файл ещё не выбирали.</summary>
     private string? _path;

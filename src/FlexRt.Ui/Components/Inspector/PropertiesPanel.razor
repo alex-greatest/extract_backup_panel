@@ -43,6 +43,10 @@
         }
     </div>
 }
+else if (Administration is not null)
+{
+    <UserProperties State="Administration" Language="Language" />
+}
 else if (Row is not null)
 {
     <RowProperties Row="Row" />
@@ -82,6 +86,10 @@ else
 @code {
     /// <summary>Вкладка заголовка со свойствами объекта.</summary>
     private const string PropertiesTab = "Properties";
+
+    /// <summary>Свойства выбранного пользователя или группы вместо строки общего отчёта.</summary>
+    [Parameter]
+    public UserAdministration? Administration { get; set; }
 
     /// <summary>Вкладка заголовка с основным текстом чтения панели и данных ПЛК (строки уровня Info).</summary>
     private const string InfoTab = "Info";
@@ -201,6 +209,10 @@ else
     /// <returns>Текст заголовка.</returns>
     private string HeadTitle()
     {
+        if (Administration is not null)
+        {
+            return Administration.SelectionTitle;
+        }
         if (Picture is not null)
         {
             return $"{Picture.Name} [{PanelPictures.Title}]";

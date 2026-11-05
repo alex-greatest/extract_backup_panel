@@ -20,4 +20,8 @@ public sealed record PanelView(
     IReadOnlyList<PanelSection> Texts,
     PanelSection? Users,
     IReadOnlyList<PanelSection> Book,
-    IReadOnlyList<int> Languages);
+    IReadOnlyList<int> Languages)
+{
+    /// <summary>Пользователи соседнего PWX/PWL, группы панели и выбор специального представления.</summary>
+    public Users.UserAdministration? Administration { get; init; }
+}

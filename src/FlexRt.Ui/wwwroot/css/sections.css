@@ -12,6 +12,15 @@
     flex-shrink: 0;
 }
 
+/* User administration: две таблицы, как Users/Groups и Groups/Authorizations в TIA. */
+.users-tabs { justify-content: flex-end; background: var(--gray-strip); padding: 4px var(--pad) 0; }
+.users-editor { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+.users-part { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.users-part + .users-part { border-top: 5px solid var(--split-bg); }
+.users-heading { background: var(--panel-group-bg); padding: 4px var(--pad); font-weight: var(--weight-strong); }
+.users-note { background: var(--surface-alt); padding: 5px var(--pad); color: var(--text-secondary); }
+.users-editor .rz-data-row .rz-cell-data { cursor: default; }
+
 .section-stats b {
     font-weight: var(--weight-strong);
     color: var(--text);

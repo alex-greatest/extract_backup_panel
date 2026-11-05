@@ -9,7 +9,7 @@ namespace FlexRt.Ui.Panel;
 
 /// <summary>
 /// Открытие панели для окна по шагам: чтение <c>pdata.fwc</c>, текст запуска (<see cref="RunTranscript"/>), экраны,
-/// картинки, данные ПЛК, разделы. Файлов не пишет; состояние окна не трогает — итог в <see cref="LoadedPanel"/>.
+/// картинки, данные ПЛК, соседний файл пользователей, разделы. Файлов не пишет; итог в <see cref="LoadedPanel"/>.
 /// </summary>
 public static class PanelLoader
 {
@@ -38,10 +38,16 @@ public static class PanelLoader
             var pictures = PanelPictures.From(doc);
             failedStep = "данные ПЛК не обработаны";
             var plc = plcPath is null ? null : await Task.Run(() => PlcDataReader.Read(doc, plcPath, transcript));
+            failedStep = "пользователи не прочитаны";
+            var users = await Task.Run(() => PanelUsersReader.Read(path));
             failedStep = "разделы не построены";
-            var view = await Task.Run(() => PanelViews.From(doc, path, plc));
+            var view = await Task.Run(() => PanelViews.From(doc, path, plc, users));
             IReadOnlyList<TranscriptLine> lines =
-                [.. transcript.Lines, .. PanelViews.Errors(view).Select(e => new TranscriptLine(TranscriptLevel.Warning, e))];
+            [
+                .. transcript.Lines,
+                .. users.Error is { } userError ? new[] { new TranscriptLine(TranscriptLevel.Error, userError) } : [],
+                .. PanelViews.Errors(view).Select(e => new TranscriptLine(TranscriptLevel.Warning, e))
+            ];
             return new LoadedPanel(screens, pictures, view, doc.Strings, screenCount, lines, null);
         }
         catch (Exception e)

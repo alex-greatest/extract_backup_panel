@@ -1,0 +1,106 @@
+<div class="editor-title">
+    <span class="editor-title-text">@Title</span>
+    @if (Languages.Count > 1)
+    {
+        <RadzenDropDown TValue="int" Data="LanguageItems()" Value="@(Language ?? AllLanguages)" Change="ChangeLanguage" class="language" title="Язык текстов">
+            <Template Context="code">@LanguageLabel(code)</Template>
+            <ValueTemplate Context="code">@LanguageLabel(code)</ValueTemplate>
+        </RadzenDropDown>
+    }
+</div>
+<div class="users-tabs head-tabs" role="tablist">
+    @if (State.Users.Error is null)
+    {
+        <button type="button" role="tab" class="head-tab @(!State.ShowGroups ? "active" : "")" aria-selected="@(!State.ShowGroups)" @onclick="() => ChangeTab(false)"><RadzenIcon Icon="person" /> Users</button>
+    }
+    <button type="button" role="tab" class="head-tab @(State.ShowGroups ? "active" : "")" aria-selected="@State.ShowGroups" @onclick="() => ChangeTab(true)"><RadzenIcon Icon="groups" /> User groups</button>
+</div>
+<div class="users-editor">
+    @if (!State.ShowGroups)
+    {
+        <section class="users-part">
+            <div class="users-heading">Users</div>
+            <RadzenDataGrid TItem="PanelUser" Data="State.Users.Items" Value="@(State.SelectedUser is { } user ? new[] { user } : [])" RowSelect="SelectUser"
+                            AllowSorting="true" AllowColumnResize="true" SelectionMode="DataGridSelectionMode.Single" Density="Density.Compact" EmptyText="Нет пользователей" class="section-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="PanelUser" Property="Name" Title="Name" />
+                    <RadzenDataGridColumn TItem="PanelUser" Title="Automatic logoff" Sortable="false"><Template><input type="checkbox" checked="@(context.LogoffSeconds != 0)" disabled aria-label="Automatic logoff" /></Template></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="PanelUser" Property="LogoffSeconds" Title="Logoff time (мин)"><Template>@Minutes(context.LogoffSeconds)</Template></RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </section>
+        <section class="users-part">
+            <div class="users-heading">Groups</div>
+            <UserGroupGrid State="State" Language="Language" Membership="true" />
+        </section>
+    }
+    else
+    {
+        <section class="users-part">
+            <div class="users-heading">Groups</div>
+            <UserGroupGrid State="State" Language="Language" OnChange="OnChange" />
+        </section>
+        <section class="users-part">
+            <div class="users-heading">Authorizations</div>
+            <RadzenDataGrid TItem="int" Data="State.Rights()" Density="Density.Compact" EmptyText="Нет прав" class="section-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="int" Title="Active" Width="100px"><Template><input type="checkbox" disabled checked="@(State.SelectedGroup is { } group && UserAdministration.HasRight(group, context))" aria-label="Active" /></Template></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="int" Title="Name"><Template>@UserAdministration.RightName(context)</Template></RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="int" Title="Number" Width="100px"><Template>@context</Template></RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </section>
+    }
+</div>
+
+@code {
+    /// <summary>Значение пункта «Все языки», совпадает с общим выбором таблиц окна.</summary>
+    private const int AllLanguages = -1;
+
+    /// <summary>Путь редактора в заголовке.</summary>
+    [Parameter] public string Title { get; set; } = "";
+
+    /// <summary>Пользователи, группы и выбранные записи.</summary>
+    [Parameter, EditorRequired] public UserAdministration State { get; set; } = null!;
+
+    /// <summary>Языки панели.</summary>
+    [Parameter] public IReadOnlyList<int> Languages { get; set; } = [];
+
+    /// <summary>Общий выбранный язык окна; null — все языки.</summary>
+    [Parameter] public int? Language { get; set; }
+
+    /// <summary>Обновление языка окна.</summary>
+    [Parameter] public EventCallback<int?> LanguageChanged { get; set; }
+
+    /// <summary>Обновление панели свойств после выбора.</summary>
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    /// <summary>Показать выбранную вкладку; записи остаются выбранными.</summary>
+    private async Task ChangeTab(bool groups)
+    {
+        State.ShowGroups = groups;
+        await OnChange.InvokeAsync();
+    }
+
+    /// <summary>Выбрать пользователя; принадлежность группе и Properties обновляются вместе.</summary>
+    private async Task SelectUser(PanelUser user)
+    {
+        State.SelectedUser = user;
+        await OnChange.InvokeAsync();
+    }
+
+    /// <summary>Сменить язык Display name.</summary>
+    private Task ChangeLanguage(object? language) => LanguageChanged.InvokeAsync(language is int code && code != AllLanguages ? code : null);
+
+    /// <summary>Пункты общего выбора языка.</summary>
+    /// <returns>Все языки, затем языки панели.</returns>
+    private IReadOnlyList<int> LanguageItems() => [AllLanguages, .. Languages];
+
+    /// <summary>Название пункта выбора языка.</summary>
+    /// <returns>Общий пункт или код и название языка.</returns>
+    private static string LanguageLabel(int code) => code == AllLanguages ? "Все языки" : LanguageText.Format(code);
+
+    /// <summary>Время в минутах; при выключенном автовыходе сохранённое в редакторе время неизвестно.</summary>
+    /// <returns>Число минут либо пустая строка.</returns>
+    public static string Minutes(long seconds) => seconds == 0 ? "" : (seconds / 60m).ToString("0.##", System.Globalization.CultureInfo.CurrentCulture);
+}

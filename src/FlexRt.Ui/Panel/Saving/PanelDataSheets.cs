@@ -21,7 +21,7 @@ public static class PanelDataSheets
     /// <summary>Можно ли сохранить раздел отдельным листом: это построенный раздел <c>panel_data.xlsx</c>, а не язык текстов.</summary>
     /// <returns><c>true</c> для построенного раздела книги данных панели.</returns>
     public static bool IsSheet(PanelView view, object? selected) =>
-        selected is PanelSection { Error: null } section && !view.Texts.Contains(section);
+        selected is PanelSection { Error: null } section && view.Book.Contains(section);
 
     /// <summary>Лист раздела — тот, что вернуло ядро (<see cref="PanelSection.Report"/>).</summary>
     /// <returns>Лист.</returns>

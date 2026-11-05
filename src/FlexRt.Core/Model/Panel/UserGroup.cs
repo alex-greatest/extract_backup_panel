@@ -2,7 +2,7 @@ namespace FlexRt.Model.Panel;
 
 /// <summary>
 /// Группа пользователей панели (User administration → User groups в TIA) из таблицы SECURITY_UNIT. Name группы в файл не
-/// попадает, только Display name; пользователи и пароли хранятся в другом файле (<c>pdata.pwx</c>) и не читаются.
+/// попадает, только Display name; пользователи читаются отдельно из соседнего PWX/PWL и связываются по Number.
 /// </summary>
 /// <param name="Number">Number группы.</param>
 /// <param name="Rights">

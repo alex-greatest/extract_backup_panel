@@ -1,0 +1,35 @@
+<div class="props-layout object-props">
+    <div class="props-body object-body">
+        <div class="object-title">General</div>
+        @switch (State)
+        {
+            case { ShowGroups: true, SelectedGroup: { } group }:
+            <PropertyGroup Title="Display">
+                <ObjectRow Name="Number" Value="@group.Number" />
+                <ObjectRow Name="Display name" Value="@(State.DisplayName(group, Language))" />
+            </PropertyGroup>
+            break;
+            case { ShowGroups: false, SelectedUser: { } user }:
+            <PropertyGroup Title="Display">
+                <ObjectRow Name="Name" Value="@user.Name" />
+                <ObjectRow Name="Group" Value="@(State.MemberGroup is { } member ? State.DisplayName(member, Language) : $"Группа {user.GroupNumber} отсутствует в pdata.fwc")" />
+            </PropertyGroup>
+            <PropertyGroup Title="Automatic logoff">
+                <ObjectRow Name="Automatic logoff" Value="@((ReportCell)"")" Checked="@(user.LogoffSeconds != 0)" />
+                <ObjectRow Name="Logoff time (мин)" Value="@(UserAdministrationView.Minutes(user.LogoffSeconds))" />
+            </PropertyGroup>
+            break;
+            default:
+            <div class="muted">Строка не выбрана</div>
+            break;
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Выбранный пользователь или группа.</summary>
+    [Parameter, EditorRequired] public UserAdministration State { get; set; } = null!;
+
+    /// <summary>Язык Display name.</summary>
+    [Parameter] public int? Language { get; set; }
+}
