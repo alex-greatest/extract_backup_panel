@@ -21,6 +21,10 @@ public static class IoFieldTexts
         _ => "?"
     };
 
+    /// <summary>Flashing, как в TIA. Advanced на TP700 в файл не попадает (шаг 59 совпал с None).</summary>
+    /// <returns><c>Standard</c> или <c>None</c>.</returns>
+    public static string Flashing(IoField field) => field.Flashing ? "Standard" : "None";
+
     /// <summary>Код формата String (<see cref="IoField.DisplayFormat"/>).</summary>
     private const int StringFormat = 0;
 
@@ -232,4 +236,8 @@ public static class IoFieldTexts
     /// <summary>Ячейка цвета Limits: цвет с квадратиком, как у Appearance.</summary>
     /// <returns>Ячейка; цвет не прочитан — «не прочитано».</returns>
     public static ReportCell LimitColor(int? rgb) => rgb is { } c ? RgbText.Cell(c) : NotRead;
+
+    /// <summary>Поле текста (Layout → Margins) в пикселях.</summary>
+    /// <returns>Число; поля не прочитаны (элемент PS_Text короче) — «не прочитано».</returns>
+    public static ReportCell Margin(int? pixels) => pixels ?? (ReportCell)NotRead;
 }

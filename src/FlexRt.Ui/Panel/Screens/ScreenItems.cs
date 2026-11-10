@@ -1,6 +1,7 @@
 using FlexRt.Export;
 using FlexRt.Export.PanelData.Screens;
 using FlexRt.Export.ScreenEvents;
+using FlexRt.Export.ScreenObjects;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
 
@@ -39,6 +40,7 @@ public static class ScreenItems
         var strip = Strip(doc, area, objects);
         var events = new ScreenEventTexts(doc);
         var fields = doc.IoFields.ToDictionary(f => f.Element);
+        var tooltips = new IoFieldTooltips(doc);
         return
         [
             .. screens.Zip(table.Rows, (s, row) => new ScreenItem(
@@ -51,7 +53,8 @@ public static class ScreenItems
                 strip is not null && UnderPermanentArea(s.Kind, s.Screen, area, strip) ? strip : null,
                 events.Of(s.Screen),
                 [.. objects[s.Screen.Index]],
-                fields))
+                fields,
+                tooltips))
         ];
     }
 

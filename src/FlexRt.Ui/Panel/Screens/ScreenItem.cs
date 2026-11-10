@@ -1,4 +1,5 @@
 using FlexRt.Export.ScreenEvents;
+using FlexRt.Export.ScreenObjects;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
 
@@ -26,6 +27,7 @@ namespace FlexRt.Ui.Panel.Screens;
 /// I/O field панели по элементу объекта (<see cref="FlexRt.Model.Panel.FwxDocument.IoFields"/>, один словарь на все
 /// экраны): объект с полем рисуется как поле, остальные — рамкой.
 /// </param>
+/// <param name="Tooltips">Подсказки I/O field панели (один набор на все экраны).</param>
 public sealed record ScreenItem(
     Screen Screen,
     string Name,
@@ -36,4 +38,5 @@ public sealed record ScreenItem(
     PermanentStrip? Strip,
     IReadOnlyList<ScreenEventView> Events,
     IReadOnlyList<ScreenObject> Objects,
-    IReadOnlyDictionary<VarReference, IoField> Fields);
+    IReadOnlyDictionary<VarReference, IoField> Fields,
+    IoFieldTooltips Tooltips);

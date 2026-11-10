@@ -8,9 +8,10 @@
         @* Поля раздела блоками, как в TIA. General I/O field — Process (тег через неразобранную таблицу — «? (таблица N)»;
            PLC tag и Address — TagCell, серые, как в TIA), Type и Format (Decimal places, Field length и шаблон —
            IoFieldTexts; недоступные в TIA — серые); Appearance — Background, Text и Border; Characteristics — Field
-           (Hidden input); Layout — Position & size; Text format — Format и Alignment; Limits — Colors: High limit
-           violated и Low limit violated, как в TIA (в файле нет — IoFieldTexts.LimitsAbsent); остальные разделы —
-           «Не разобрано». У объекта другого типа General — имя и таблица. *@
+           (Hidden input); Layout — Position & size, у поля ещё Margins; Text format — Format и Alignment; Flashing — None
+           или Standard; Limits — Colors: High limit violated и Low limit violated, как в TIA (в файле нет —
+           IoFieldTexts.LimitsAbsent); Miscellaneous — Tooltip на выбранном языке; Security — Authorization и Allow
+           operator control; Styles/Designs — «Не разобрано». У объекта другого типа General — имя и таблица. *@
         @switch (Current())
         {
             case General when Field is { } f:
@@ -78,7 +79,7 @@
                     <ObjectRow Name="Low limit violated" Value="@IoFieldTexts.LimitColor(l.BelowLowerRgb)" Control="ObjectRowControl.Combo" />
                 </PropertyGroup>
                 break;
-            case "Security" when Field is { } f:
+            case Security when Field is { } f:
                 <PropertyGroup Title="Runtime security" Class="wide">
                     <ObjectRow Name="Authorization" Value="@IoFieldTexts.Authorization(f.Authorization)" />
                 </PropertyGroup>
@@ -86,12 +87,32 @@
                     <ObjectRow Name="Allow operator control" Value="@(f.AllowOperatorControl ? "Yes" : "No")" Checked="f.AllowOperatorControl" />
                 </PropertyGroup>
                 break;
+            case Layout when Field is { } f:
+                <div class="object-blocks">
+                    <div class="object-column">@PositionAndSize(null)</div>
+                    <div class="object-column">
+                        <PropertyGroup Title="Margins">
+                            <ObjectRow Name="Left" Value="@IoFieldTexts.Margin(f.Text.Margins?.Left)" Control="ObjectRowControl.Spin" />
+                            <ObjectRow Name="Right" Value="@IoFieldTexts.Margin(f.Text.Margins?.Right)" Control="ObjectRowControl.Spin" />
+                            <ObjectRow Name="Top" Value="@IoFieldTexts.Margin(f.Text.Margins?.Top)" Control="ObjectRowControl.Spin" />
+                            <ObjectRow Name="Bottom" Value="@IoFieldTexts.Margin(f.Text.Margins?.Bottom)" Control="ObjectRowControl.Spin" />
+                        </PropertyGroup>
+                    </div>
+                </div>
+                break;
             case Layout:
-                <PropertyGroup Title="Position & size" Class="wide">
-                    <ObjectRow Name="X" Value="Object.Bounds.Left" Control="ObjectRowControl.Spin" />
-                    <ObjectRow Name="Y" Value="Object.Bounds.Top" Control="ObjectRowControl.Spin" />
-                    <ObjectRow Name="Width" Value="Object.Bounds.Width" Control="ObjectRowControl.Spin" />
-                    <ObjectRow Name="Height" Value="Object.Bounds.Height" Control="ObjectRowControl.Spin" />
+                @PositionAndSize("wide")
+                break;
+            case Flashing when Field is { } f:
+                <PropertyGroup Title="Flashing" Class="wide">
+                    <ObjectRow Name="Flashing" Value="@IoFieldTexts.Flashing(f)" Control="ObjectRowControl.Combo" />
+                </PropertyGroup>
+                break;
+            case Miscellaneous when Field is not null:
+                <PropertyGroup Title="Tooltip" Class="wide">
+                    <div class="object-field tooltip-field">
+                        <RadzenTextArea Value="@Tooltip" ReadOnly="true" class="tooltip-text" />
+                    </div>
                 </PropertyGroup>
                 break;
             case TextFormat when Field is { } f:
@@ -133,12 +154,21 @@
     /// <summary>Раздел Limits.</summary>
     private const string Limits = "Limits";
 
+    /// <summary>Раздел Flashing.</summary>
+    private const string Flashing = "Flashing";
+
+    /// <summary>Раздел Miscellaneous.</summary>
+    private const string Miscellaneous = "Miscellaneous";
+
+    /// <summary>Раздел Security.</summary>
+    private const string Security = "Security";
+
     /// <summary>Текст раздела, свойства которого программа не читает.</summary>
     private const string NotParsed = "Не разобрано";
 
     /// <summary>Разделы I/O field в Property list TIA, в его порядке (решение пользователя 2026-11-02: все разделы).</summary>
     private static readonly string[] FieldSections =
-        [General, Appearance, Characteristics, Layout, TextFormat, "Flashing", Limits, "Styles/Designs", "Miscellaneous", "Security"];
+        [General, Appearance, Characteristics, Layout, TextFormat, Flashing, Limits, "Styles/Designs", Miscellaneous, Security];
 
     /// <summary>Разделы объекта другого типа: известны только имя, таблица и положение.</summary>
     private static readonly string[] ObjectSections = [General, Layout];
@@ -168,6 +198,10 @@
     [Parameter]
     public IoField? Field { get; set; }
 
+    /// <summary>Tooltip I/O field на выбранном языке; подсказки нет или объект другого типа — пусто.</summary>
+    [Parameter]
+    public string? Tooltip { get; set; }
+
     /// <summary>
     /// Таблица листа «Теги» открытой панели (с данными ПЛК, если их выбрали): из неё PLC tag и Address тега поля;
     /// раздел не построен или панели нет — <c>null</c>.
@@ -181,6 +215,17 @@
         var row = TagRow();
         (_plcTag, _address) = (TagCell(row, TagsTable.PlcTagColumn), TagCell(row, TagsTable.AddressColumn));
     }
+
+    /// <summary>Блок Position &amp; size: один на I/O field и другие объекты.</summary>
+    /// <param name="blockClass">CSS-класс блока (<c>wide</c> — единственный блок раздела) или <c>null</c>.</param>
+    /// <returns>Разметка блока.</returns>
+    private RenderFragment PositionAndSize(string? blockClass) =>
+        @<PropertyGroup Title="Position & size" Class="@blockClass">
+            <ObjectRow Name="X" Value="Object.Bounds.Left" Control="ObjectRowControl.Spin" />
+            <ObjectRow Name="Y" Value="Object.Bounds.Top" Control="ObjectRowControl.Spin" />
+            <ObjectRow Name="Width" Value="Object.Bounds.Width" Control="ObjectRowControl.Spin" />
+            <ObjectRow Name="Height" Value="Object.Bounds.Height" Control="ObjectRowControl.Spin" />
+        </PropertyGroup>;
 
     /// <summary>Строка тега поля на листе «Теги» — по колонке Name.</summary>
     /// <returns>Ячейки строки; листа, колонки или тега на листе нет — <c>null</c>.</returns>

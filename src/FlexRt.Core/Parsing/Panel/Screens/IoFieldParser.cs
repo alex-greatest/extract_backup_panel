@@ -164,7 +164,8 @@ public static class IoFieldParser
             Font(doc, table, item, mark, who),
             Limits(doc, links, who),
             (b.D4(p + e) & DisabledStyle) == 0,
-            IoFieldSecurityReader.Read(doc, links));
+            IoFieldSecurityReader.Read(doc, links),
+            IoFieldFlashingReader.Read(doc, item, e, links));
     }
 
     /// <summary>
