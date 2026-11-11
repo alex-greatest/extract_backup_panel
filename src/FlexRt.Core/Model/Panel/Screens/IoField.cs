@@ -32,7 +32,7 @@
 /// <param name="Font">Шрифт.</param>
 /// <param name="AllowOperatorControl">Allow operator control; установленный бит отключения стиля означает false.</param>
 /// <param name="Authorization">Номер права с нуля; ссылки SECURITY_MONITO нет — null.</param>
-/// <param name="Flashing">Flashing Standard: ссылка на TIMER со словом мигания; нет — None.</param>
+/// <param name="Flashing">Flashing Standard: ссылка на TIMER со словом мигания; нет — Disabled.</param>
 /// <param name="Limits">Цвета Limits; в файле нет (у тега не задан Range) — <c>null</c>.</param>
 public sealed record IoField(
     VarReference Element,

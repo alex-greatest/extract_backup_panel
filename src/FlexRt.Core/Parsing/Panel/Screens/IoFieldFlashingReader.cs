@@ -20,7 +20,7 @@ internal static class IoFieldFlashingReader
 
     /// <summary>
     /// Второе слово ссылки на TIMER при Flashing Standard (шаг 50). Другое значение — не мигание: у служебных объектов
-    /// <c>HmiScreenItemData</c> VIEW_OUT слово 55, а Flashing в TIA у всех полей A603A0097 — None.
+    /// <c>HmiScreenItemData</c> VIEW_OUT слово 55, а Flashing в TIA у всех полей A603A0097 — Disabled.
     /// </summary>
     private const int FlashingWord = 105;
 
@@ -29,7 +29,7 @@ internal static class IoFieldFlashingReader
     /// <param name="item">Элемент поля.</param>
     /// <param name="body">Смещение конца ссылок от начала элемента.</param>
     /// <param name="links">Ссылки элемента в порядке файла.</param>
-    /// <returns><c>true</c> — Flashing Standard, иначе None.</returns>
+    /// <returns><c>true</c> — Flashing Standard, иначе Disabled.</returns>
     public static bool Read(FwxDocument doc, TableItem item, long body, IReadOnlyList<VarReference> links)
     {
         if (doc.FindTable(Table) is not { } timer)

@@ -21,6 +21,10 @@
                     break;
             }
         </div>
+        @if (Second is { } second)
+        {
+            <div class="object-field second"><PropertyValue Value="second" /></div>
+        }
     }
 </div>
 
@@ -36,6 +40,10 @@
     /// <summary>Состояние флажка (Leading zeros); <c>null</c> — свойство показывается полем.</summary>
     [Parameter]
     public bool? Checked { get; set; }
+
+    /// <summary>Второе поле справа в той же строке (тип тега у Address, как в TIA); <c>null</c> — поля нет.</summary>
+    [Parameter]
+    public ReportCell? Second { get; set; }
 
     /// <summary>Вид поля: простое, список или число со стрелками.</summary>
     [Parameter]

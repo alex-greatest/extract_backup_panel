@@ -21,9 +21,9 @@ public static class IoFieldTexts
         _ => "?"
     };
 
-    /// <summary>Flashing, как в TIA. Advanced на TP700 в файл не попадает (шаг 59 совпал с None).</summary>
-    /// <returns><c>Standard</c> или <c>None</c>.</returns>
-    public static string Flashing(IoField field) => field.Flashing ? "Standard" : "None";
+    /// <summary>Flashing → Type, как в списке TIA. Advanced на TP700 в файл не попадает (шаг 59 совпал с Disabled).</summary>
+    /// <returns><c>Standard</c> или <c>Disabled</c>.</returns>
+    public static string Flashing(IoField field) => field.Flashing ? "Standard" : "Disabled";
 
     /// <summary>Код формата String (<see cref="IoField.DisplayFormat"/>).</summary>
     private const int StringFormat = 0;

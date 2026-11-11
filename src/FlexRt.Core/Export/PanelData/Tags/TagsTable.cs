@@ -9,6 +9,9 @@ public static class TagsTable
     /// <summary>Колонка имени тега: по ней окно находит строку тега I/O field.</summary>
     public const string NameColumn = "Name";
 
+    /// <summary>Колонка типа данных тега (второе поле Address I/O field в окне).</summary>
+    public const string DataTypeColumn = "Data type";
+
     /// <summary>Колонка тега ПЛК (PLC tag I/O field в окне).</summary>
     public const string PlcTagColumn = "PLC tag";
 
@@ -18,7 +21,7 @@ public static class TagsTable
     /// <summary>Колонки — как в таблице HMI tags в TIA Portal.</summary>
     private static readonly string[] Columns =
     [
-        NameColumn, "Data type", "Connection", "PLC name", PlcTagColumn, AddressColumn,
+        NameColumn, DataTypeColumn, "Connection", "PLC name", PlcTagColumn, AddressColumn,
         "Access mode", "Acquisition cycle", "Logged", "Source comment"
     ];
 

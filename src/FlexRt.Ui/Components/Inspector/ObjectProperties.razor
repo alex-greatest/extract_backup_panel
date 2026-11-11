@@ -6,12 +6,14 @@
     <div class="props-body object-body">
         <div class="object-title">@Current()</div>
         @* Поля раздела блоками, как в TIA. General I/O field — Process (тег через неразобранную таблицу — «? (таблица N)»;
-           PLC tag и Address — TagCell, серые, как в TIA), Type и Format (Decimal places, Field length и шаблон —
-           IoFieldTexts; недоступные в TIA — серые); Appearance — Background, Text и Border; Characteristics — Field
-           (Hidden input); Layout — Position & size, у поля ещё Margins; Text format — Format и Alignment; Flashing — None
-           или Standard; Limits — Colors: High limit violated и Low limit violated, как в TIA (в файле нет —
-           IoFieldTexts.LimitsAbsent); Miscellaneous — Tooltip на выбранном языке; Security — Authorization и Allow
-           operator control; Styles/Designs — «Не разобрано». У объекта другого типа General — имя и таблица. *@
+           PLC tag, Address и Data type рядом с ним — TagCell, серые, как в TIA), Type и Format (Decimal places, Field
+           length и шаблон — IoFieldTexts; недоступные в TIA — серые); Appearance — Background (Fill pattern — серый Solid),
+           Text и Border; Characteristics — Field (Hidden input); Layout — Position & size, у поля ещё Margins; Text
+           format — Format: (Orientation — серая Horizontal) и Alignment друг под другом; Flashing — Settings: Type
+           Disabled или Standard; Limits — Colors: High limit violated и Low limit violated, как в TIA (в файле нет —
+           IoFieldTexts.LimitsAbsent); Miscellaneous — Object (Name) и Tooltip на выбранном языке; Security —
+           Authorization и Allow operator control; Styles/Designs — «Не разобрано». У объекта другого типа General — имя
+           и таблица. *@
         @switch (Current())
         {
             case General when Field is { } f:
@@ -20,7 +22,7 @@
                         <PropertyGroup Title="Process">
                             <ObjectRow Name="Tag" Value="@(f.Tag ?? (f.TagVia is { } via ? $"? ({via})" : ""))" />
                             <ObjectRow Name="PLC tag" Value="_plcTag" Disabled="true" />
-                            <ObjectRow Name="Address" Value="_address" Disabled="true" />
+                            <ObjectRow Name="Address" Value="_address" Second="_dataType" Disabled="true" />
                         </PropertyGroup>
                         <PropertyGroup Title="Type"><ObjectRow Name="Mode" Value="@IoFieldTexts.Mode(f.Mode)" Control="ObjectRowControl.Combo" /></PropertyGroup>
                     </div>
@@ -48,6 +50,7 @@
                     <div class="object-column">
                         <PropertyGroup Title="Background">
                             <ObjectRow Name="Color" Value="RgbText.Cell(f.Fill.ColorRgb)" Control="ObjectRowControl.Combo" />
+                            <ObjectRow Name="Fill pattern" Value="SolidFill" Disabled="true" />
                             <ObjectRow Name="Corner radius" Value="f.Border.CornerRadius" Control="ObjectRowControl.Spin" />
                         </PropertyGroup>
                         <PropertyGroup Title="Text">
@@ -104,28 +107,34 @@
                 @PositionAndSize("wide")
                 break;
             case Flashing when Field is { } f:
-                <PropertyGroup Title="Flashing" Class="wide">
-                    <ObjectRow Name="Flashing" Value="@IoFieldTexts.Flashing(f)" Control="ObjectRowControl.Combo" />
+                <PropertyGroup Title="Settings" Class="wide">
+                    <ObjectRow Name="Type" Value="@IoFieldTexts.Flashing(f)" Control="ObjectRowControl.Combo" />
                 </PropertyGroup>
                 break;
             case Miscellaneous when Field is not null:
-                <PropertyGroup Title="Tooltip" Class="wide">
-                    <div class="object-field tooltip-field">
-                        <RadzenTextArea Value="@Tooltip" ReadOnly="true" class="tooltip-text" />
-                    </div>
-                </PropertyGroup>
-                break;
-            case TextFormat when Field is { } f:
                 <div class="object-blocks">
                     <div class="object-column">
-                        <PropertyGroup Title="Format"><ObjectRow Name="Font" Value="@IoFieldTexts.Font(f.Font)" /></PropertyGroup>
+                        <PropertyGroup Title="Object"><ObjectRow Name="Name" Value="Object.Name" /></PropertyGroup>
                     </div>
                     <div class="object-column">
-                        <PropertyGroup Title="Alignment">
-                            <ObjectRow Name="Horizontal" Value="@IoFieldTexts.Horizontal(f.Text.HorizontalAlignment)" Control="ObjectRowControl.Combo" />
-                            <ObjectRow Name="Vertical" Value="@IoFieldTexts.Vertical(f.Text.VerticalAlignment)" Control="ObjectRowControl.Combo" />
+                        <PropertyGroup Title="Tooltip">
+                            <div class="object-field tooltip-field">
+                                <RadzenTextArea Value="@Tooltip" ReadOnly="true" class="tooltip-text" />
+                            </div>
                         </PropertyGroup>
                     </div>
+                </div>
+                break;
+            case TextFormat when Field is { } f:
+                <div class="object-stack">
+                    <PropertyGroup Title="Format:" Class="wide">
+                        <ObjectRow Name="Font" Value="@IoFieldTexts.Font(f.Font)" />
+                        <ObjectRow Name="Orientation" Value="HorizontalOrientation" Disabled="true" />
+                    </PropertyGroup>
+                    <PropertyGroup Title="Alignment" Class="wide">
+                        <ObjectRow Name="Horizontal" Value="@IoFieldTexts.Horizontal(f.Text.HorizontalAlignment)" Control="ObjectRowControl.Combo" />
+                        <ObjectRow Name="Vertical" Value="@IoFieldTexts.Vertical(f.Text.VerticalAlignment)" Control="ObjectRowControl.Combo" />
+                    </PropertyGroup>
                 </div>
                 break;
             default:
@@ -163,6 +172,14 @@
     /// <summary>Раздел Security.</summary>
     private const string Security = "Security";
 
+    /// <summary>
+    /// Fill pattern поля: в TIA на Comfort-панелях недоступен и Solid; в файле Transparent и Solid не различаются (шаг 22).
+    /// </summary>
+    private const string SolidFill = "Solid";
+
+    /// <summary>Orientation текста поля: в TIA на Comfort-панелях недоступна и Horizontal (Vertical TIA не принял).</summary>
+    private const string HorizontalOrientation = "Horizontal";
+
     /// <summary>Текст раздела, свойства которого программа не читает.</summary>
     private const string NotParsed = "Не разобрано";
 
@@ -190,6 +207,9 @@
     /// <summary>Address тега поля с листа «Теги» (<see cref="TagCell"/>).</summary>
     private ReportCell _address = "";
 
+    /// <summary>Data type тега поля с листа «Теги» — второе поле Address, как в TIA (<see cref="TagCell"/>).</summary>
+    private ReportCell _dataType = "";
+
     /// <summary>Объект, выбранный на холсте: имя, таблица, положение.</summary>
     [Parameter, EditorRequired]
     public ScreenObject Object { get; set; } = null!;
@@ -203,17 +223,19 @@
     public string? Tooltip { get; set; }
 
     /// <summary>
-    /// Таблица листа «Теги» открытой панели (с данными ПЛК, если их выбрали): из неё PLC tag и Address тега поля;
+    /// Таблица листа «Теги» открытой панели (с данными ПЛК, если их выбрали): из неё PLC tag, Address и Data type тега поля;
     /// раздел не построен или панели нет — <c>null</c>.
     /// </summary>
     [Parameter]
     public ReportTable? Tags { get; set; }
 
-    /// <summary>Найти PLC tag и Address тега поля на листе «Теги» один раз на смену объекта или листа.</summary>
+    /// <summary>Найти PLC tag, Address и Data type тега поля на листе «Теги» один раз на смену объекта или листа.</summary>
     protected override void OnParametersSet()
     {
         var row = TagRow();
-        (_plcTag, _address) = (TagCell(row, TagsTable.PlcTagColumn), TagCell(row, TagsTable.AddressColumn));
+        _plcTag = TagCell(row, TagsTable.PlcTagColumn);
+        _address = TagCell(row, TagsTable.AddressColumn);
+        _dataType = TagCell(row, TagsTable.DataTypeColumn);
     }
 
     /// <summary>Блок Position &amp; size: один на I/O field и другие объекты.</summary>

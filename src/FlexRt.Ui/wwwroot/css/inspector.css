@@ -603,6 +603,13 @@
     max-width: 460px;
 }
 
+/* блоки раздела друг под другом во всю ширину (Text format, как в TIA) */
+.object-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
 .object-group {
     padding: 6px 10px 8px 14px;
     background: var(--panel-group-bg);
@@ -610,8 +617,8 @@
     max-width: 460px;
 }
 
-/* единственный блок раздела I/O field (Limits → Colors, Characteristics → Field, Layout → Position & size) — во всю
-   ширину, как в TIA */
+/* блок раздела I/O field во всю ширину, как в TIA: единственный блок раздела (Limits → Colors, Characteristics → Field,
+   Layout → Position & size) и блоки друг под другом (Text format → Format и Alignment) */
 .object-group.wide {
     max-width: none;
 }
@@ -680,6 +687,11 @@
     margin: 0 0 0 2px;
     border: 1px solid var(--text-secondary);
     border-radius: 0;
+}
+
+/* второе поле строки (Data type справа от Address) */
+.object-field.second {
+    flex: 0 0 100px;
 }
 
 .object-field.spin {
