@@ -167,7 +167,19 @@
                 }
                 else
                 {
-                    <span style="@IoFieldCss.Text(field)">@IoFieldTexts.Sample(field)</span>
+                    <span style="@IoFieldCss.Text(field)">
+                        @if (IoFieldGlyphs.Layout(field) is { } glyphs)
+                        {
+                            foreach (var (glyph, width) in glyphs)
+                            {
+                                <span class="io-glyph" style="width:@(width)px">@glyph</span>
+                            }
+                        }
+                        else
+                        {
+                            @IoFieldTexts.Sample(field)
+                        }
+                    </span>
                 }
             </div>
         }

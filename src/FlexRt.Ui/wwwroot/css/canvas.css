@@ -52,7 +52,7 @@
     cursor: pointer; /* щелчок выбирает объект */
 }
 
-.screen-object span {
+.screen-object > span {
     display: block;
     pointer-events: none; /* клик всегда попадает в рамку объекта, не в текст: SelectAt считает точку от рамки */
     padding: 1px 3px;
@@ -65,13 +65,14 @@
 }
 
 /* I/O field — как в редакторе TIA: фон, рамка и текст задаёт разметка из стилей файла; текст — внутри рамки
-   (у Double line — и внутри линий-теней, --io-inner), 2px от края, не вылезает за поле */
+   (у Double line — и внутри линий-теней, --io-inner), с отступами Margins из файла (IoFieldCss.Text; не прочитаны —
+   2px слева и справа), не вылезает за поле */
 .screen-object.io-field {
     box-shadow: none;
     background-clip: padding-box;
 }
 
-.screen-object.io-field span {
+.screen-object.io-field > span {
     position: absolute;
     inset: var(--io-inner, 0);
     display: flex;
@@ -79,6 +80,12 @@
     line-height: normal;
     text-overflow: clip;
     overflow: hidden;
+}
+
+/* символ текста I/O field в целую ширину, как у TIA (IoFieldGlyphs); пробел не схлопывается */
+.screen-object.io-field .io-glyph {
+    flex: none;
+    white-space: pre;
 }
 
 /* выбранный щелчком объект — как в редакторе TIA: восемь маркеров 6×6 (синяя рамка, голубая середина) внутри объекта

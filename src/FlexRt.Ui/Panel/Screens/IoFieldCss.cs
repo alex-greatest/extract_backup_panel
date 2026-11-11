@@ -57,19 +57,22 @@ public static class IoFieldCss
     }
 
     /// <summary>
-    /// Текст поля: цвет, шрифт (размер TIA — в пикселях экрана; гипотеза по снимку TIA), начертание и выравнивание по
-    /// горизонтали и вертикали.
+    /// Текст поля: цвет, шрифт (размер TIA — в пикселях экрана; гипотеза по снимку TIA), начертание, выравнивание по
+    /// горизонтали и вертикали и Margins — отступы от внутреннего края рамки (сверено со снимком редактора TIA на шаге 80:
+    /// справа 2 px до текста, как Right). Margins не прочитаны — отступы из CSS (2 px слева и справа).
     /// </summary>
     /// <returns>Текст CSS.</returns>
     public static string Text(IoField field)
     {
         var f = field.Font;
         var size = f.Size.ToString(CultureInfo.InvariantCulture);
+        var m = field.Text.Margins;
         return $"color:{CssColor.Hex(field.Text.ColorRgb)}; font-family:'{FontName(f.Name)}'; font-size:{size}px;"
             + $" font-weight:{(f.Bold ? "bold" : "normal")}; font-style:{(f.Italic ? "italic" : "normal")};"
             + $" text-decoration:{(f.Underline ? "underline" : "none")};"
             + $" justify-content:{Flex(field.Text.HorizontalAlignment, "flex-end", "flex-start")};"
-            + $" align-items:{Flex(field.Text.VerticalAlignment, "flex-start", "flex-end")};";
+            + $" align-items:{Flex(field.Text.VerticalAlignment, "flex-start", "flex-end")};"
+            + (m is null ? "" : $" padding:{m.Top}px {m.Right}px {m.Bottom}px {m.Left}px;");
     }
 
     /// <summary>
