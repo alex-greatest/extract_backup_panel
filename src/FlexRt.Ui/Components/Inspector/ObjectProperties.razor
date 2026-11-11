@@ -10,9 +10,10 @@
            length и шаблон — IoFieldTexts; недоступные в TIA — серые); Appearance — Background (Fill pattern — серый Solid),
            Text и Border; Characteristics — Field (Hidden input); Layout — Position & size, у поля ещё Margins; Text
            format — Format: (Orientation — серая Horizontal) и Alignment друг под другом; Flashing — Settings: Type
-           Disabled или Standard; Limits — Colors: High limit violated и Low limit violated, как в TIA (в файле нет —
+           Disabled или Standard (серый при Flash on limit violation, как в TIA) и флажок Flash on limit violation (без
+           Range у тега — текст «нет в файле»); Limits — Colors: High limit violated и Low limit violated, как в TIA (в файле нет —
            IoFieldTexts.LimitsAbsent); Miscellaneous — Object (Name) и Tooltip на выбранном языке; Security —
-           Authorization и Allow operator control; Styles/Designs — «Не разобрано». У объекта другого типа General — имя
+           Authorization и Allow operator control; Styles/Designs — текст, что панель стиль не хранит. У объекта другого типа General — имя
            и таблица. *@
         @switch (Current())
         {
@@ -108,8 +109,14 @@
                 break;
             case Flashing when Field is { } f:
                 <PropertyGroup Title="Settings" Class="wide">
-                    <ObjectRow Name="Type" Value="@IoFieldTexts.Flashing(f)" Control="ObjectRowControl.Combo" />
+                    <ObjectRow Name="Type" Value="@IoFieldTexts.Flashing(f)" Control="ObjectRowControl.Combo"
+                               Disabled="f.FlashOnLimit == LimitFlashing.On" />
+                    <ObjectRow Name="Flash on limit violation" Value="@IoFieldTexts.FlashOnLimit(f.FlashOnLimit)"
+                               Checked="IoFieldTexts.FlashOnLimitChecked(f.FlashOnLimit)" />
                 </PropertyGroup>
+                break;
+            case StylesDesigns when Field is not null:
+                <div class="muted">@IoFieldTexts.StylesAbsent</div>
                 break;
             case Miscellaneous when Field is not null:
                 <div class="object-blocks">
@@ -166,6 +173,9 @@
     /// <summary>Раздел Flashing.</summary>
     private const string Flashing = "Flashing";
 
+    /// <summary>Раздел Styles/Designs.</summary>
+    private const string StylesDesigns = "Styles/Designs";
+
     /// <summary>Раздел Miscellaneous.</summary>
     private const string Miscellaneous = "Miscellaneous";
 
@@ -185,7 +195,7 @@
 
     /// <summary>Разделы I/O field в Property list TIA, в его порядке (решение пользователя 2026-11-02: все разделы).</summary>
     private static readonly string[] FieldSections =
-        [General, Appearance, Characteristics, Layout, TextFormat, Flashing, Limits, "Styles/Designs", Miscellaneous, Security];
+        [General, Appearance, Characteristics, Layout, TextFormat, Flashing, Limits, StylesDesigns, Miscellaneous, Security];
 
     /// <summary>Разделы объекта другого типа: известны только имя, таблица и положение.</summary>
     private static readonly string[] ObjectSections = [General, Layout];

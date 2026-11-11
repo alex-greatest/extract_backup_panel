@@ -25,6 +25,38 @@ public static class IoFieldTexts
     /// <returns><c>Standard</c> или <c>Disabled</c>.</returns>
     public static string Flashing(IoField field) => field.Flashing ? "Standard" : "Disabled";
 
+    /// <summary>
+    /// Flashing → Flash on limit violation: установлен или снят — флажок; без Range у тега — текст, что в файле нет;
+    /// не прочитан — «не прочитано».
+    /// </summary>
+    /// <returns>Текст значения.</returns>
+    public static string FlashOnLimit(LimitFlashing value) => value switch
+    {
+        LimitFlashing.On => "Yes",
+        LimitFlashing.Off => "No",
+        LimitFlashing.NotInFile => FlashOnLimitAbsent,
+        _ => NotRead
+    };
+
+    /// <summary>Флажок Flash on limit violation: установлен или снят; нет в файле или не прочитан — поле с текстом.</summary>
+    /// <returns>Состояние флажка или <c>null</c> — показать текст <see cref="FlashOnLimit"/>.</returns>
+    public static bool? FlashOnLimitChecked(LimitFlashing value) => value switch
+    {
+        LimitFlashing.On => true,
+        LimitFlashing.Off => false,
+        _ => null
+    };
+
+    /// <summary>Flash on limit violation без Range у тега: TIA флажок в файл не пишет (шаги 73–76).</summary>
+    private const string FlashOnLimitAbsent = "Нет в файле: у тега не задан Range";
+
+    /// <summary>
+    /// Раздел Styles/Designs: стиль и Use design color schema панель не хранит — TIA подставляет цвета и шрифт стиля в
+    /// записи оформления (шаги <c>data/real/steps-iofield/</c> 70b–72; решение пользователя 2026-11-11).
+    /// </summary>
+    public const string StylesAbsent =
+        "Панель не хранит стиль и Use design color schema: TIA подставляет цвета и шрифт стиля в Appearance и Text format";
+
     /// <summary>Код формата String (<see cref="IoField.DisplayFormat"/>).</summary>
     private const int StringFormat = 0;
 

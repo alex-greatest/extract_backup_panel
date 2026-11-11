@@ -145,6 +145,7 @@ public static class IoFieldParser
         var p = item.Offset;
         var links = NamedElement.TryReferences(b, item) ?? [];
         var tag = IoFieldTagReader.Read(doc, links);
+        var (limits, flashOnLimit) = Limits(doc, links, who);
         return new IoField(
             o.Element,
             !isIn ? IoFieldMode.Output : b.D2(p + e + InModeOffset) != 0 ? IoFieldMode.InputOutput : IoFieldMode.Input,
@@ -162,30 +163,54 @@ public static class IoFieldParser
             Read(doc, table, item, styles, TextStyleReader.Table, who, TextStyleReader.Read),
             Read(doc, table, item, styles, FillStyleReader.Table, who, FillStyleReader.Read),
             Font(doc, table, item, mark, who),
-            Limits(doc, links, who),
+            limits,
             (b.D4(p + e) & DisabledStyle) == 0,
             IoFieldSecurityReader.Read(doc, links),
-            IoFieldFlashingReader.Read(doc, item, e, links));
+            IoFieldFlashingReader.Read(doc, item, e, links),
+            flashOnLimit);
     }
 
     /// <summary>
-    /// Цвета Limits (<see cref="IoFieldLimitReader"/>). Элемент с цветами не сходится — предупреждение с таблицей и
-    /// смещением, поле остаётся с цветами «не прочитано».
+    /// Цвета Limits и Flash on limit violation: сначала мигание по пределам (<see cref="IoFieldLimitFlashReader"/>, цвета
+    /// из SYMB); его нет — цвета из ADAPTVALUECHANG (<see cref="IoFieldLimitReader"/>): есть ссылка на них — флажок снят
+    /// (в том числе если элемент с цветами не сходится: ссылка есть — Range задан), нет — в файле нет. Мигание не
+    /// прочитано (элемент ADAPTDYNATTRIBU или SYMB не сходится, в том числе у анимации Appearance) — предупреждение,
+    /// флажок «не прочитано», цвета — из ADAPTVALUECHANG, если они там есть, иначе «не прочитано». Элемент с цветами не
+    /// сходится — предупреждение с таблицей и смещением, цвета «не прочитано».
     /// </summary>
     /// <returns>
-    /// Цвета; ссылки на ADAPTVALUECHANG нет или список не цвета — <c>null</c>; не прочитаны — оба цвета <c>null</c>.
+    /// Цвета (нет в файле — <c>null</c>, не прочитаны — оба цвета <c>null</c>) и состояние флажка.
     /// </returns>
-    private static LimitColors? Limits(FwxDocument doc, IReadOnlyList<VarReference> links, string who)
+    private static (LimitColors? Colors, LimitFlashing Flash) Limits(FwxDocument doc, IReadOnlyList<VarReference> links, string who)
     {
+        // элементы мигания и цветов могут быть общими у нескольких полей — в сообщениях поле
+        var flash = LimitFlashing.NotInFile;
         try
         {
-            return IoFieldLimitReader.Read(doc, links, who);
+            if (IoFieldLimitFlashReader.Read(doc, links, who) is { } flashing)
+            {
+                return (flashing, LimitFlashing.On);
+            }
         }
         catch (FwxFormatException e)
         {
-            // элемент с цветами может быть общим у нескольких полей — в сообщении поле
+            doc.Warnings.Add($"{e.Message} ({who}: Flash on limit violation не прочитан)");
+            flash = LimitFlashing.Unread;
+        }
+        try
+        {
+            var colors = IoFieldLimitReader.Read(doc, links, who);
+            if (flash == LimitFlashing.Unread)
+            {
+                // у поля с миганием цветов в ADAPTVALUECHANG нет — тогда они «не прочитано», а не «нет Range»
+                return (colors ?? new LimitColors(null, null), flash);
+            }
+            return (colors, colors is null ? LimitFlashing.NotInFile : LimitFlashing.Off);
+        }
+        catch (FwxFormatException e)
+        {
             doc.Warnings.Add($"{e.Message} ({who}: цвета Limits не прочитаны)");
-            return new LimitColors(null, null);
+            return (new LimitColors(null, null), flash == LimitFlashing.Unread ? flash : LimitFlashing.Off);
         }
     }
 

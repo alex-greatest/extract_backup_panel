@@ -33,7 +33,11 @@
 /// <param name="AllowOperatorControl">Allow operator control; установленный бит отключения стиля означает false.</param>
 /// <param name="Authorization">Номер права с нуля; ссылки SECURITY_MONITO нет — null.</param>
 /// <param name="Flashing">Flashing Standard: ссылка на TIMER со словом мигания; нет — Disabled.</param>
-/// <param name="Limits">Цвета Limits; в файле нет (у тега не задан Range) — <c>null</c>.</param>
+/// <param name="Limits">
+/// Цвета Limits (из ADAPTVALUECHANG или, при Flash on limit violation, из SYMB); в файле нет (у тега не задан Range) —
+/// <c>null</c>.
+/// </param>
+/// <param name="FlashOnLimit">Flash on limit violation (Flashing); без Range у тега в файле нет.</param>
 public sealed record IoField(
     VarReference Element,
     IoFieldMode Mode,
@@ -54,4 +58,5 @@ public sealed record IoField(
     LimitColors? Limits,
     bool AllowOperatorControl = true,
     long? Authorization = null,
-    bool Flashing = false);
+    bool Flashing = false,
+    LimitFlashing FlashOnLimit = LimitFlashing.NotInFile);
