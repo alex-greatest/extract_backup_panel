@@ -64,24 +64,6 @@ public static class ScreenEventParser
             doc.ScreenEvents.Add(new ScreenEvent(screen.Index, kind, null));
             return;
         }
-        doc.ScreenEvents.Add(new ScreenEvent(screen.Index, kind, [.. functions.Select(f => ReadFunction(doc, f))]));
-    }
-
-    /// <summary>Функция списка; сбой — функция «не прочитана» и предупреждение, чтобы остальные функции события остались.</summary>
-    /// <param name="doc">Документ панели.</param>
-    /// <param name="function">Ссылка из списка; таблица есть в TOC (проверил <see cref="FunctionListReader"/>).</param>
-    /// <returns>Вызов функции.</returns>
-    private static FunctionCall ReadFunction(FwxDocument doc, VarReference function)
-    {
-        var table = doc.FindTable(function.Table)!;
-        try
-        {
-            return FunctionReader.Read(doc, table, function.Index);
-        }
-        catch (FwxFormatException e)
-        {
-            doc.Warnings.Add(e.Message);
-            return new FunctionCall(function, table.Name, null, [], [], null);
-        }
+        doc.ScreenEvents.Add(new ScreenEvent(screen.Index, kind, [.. functions.Select(f => FunctionReader.ReadOrUnread(doc, f))]));
     }
 }

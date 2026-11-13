@@ -67,7 +67,7 @@ else if (Selection.Of(Item) is { } selected)
             <RadzenTabsItem Text="Properties"><ObjectProperties Object="selected" Field="@Field(selected)" Tooltip="@Item?.Tooltips.Text(selected.Element, Language)" Tags="Tags" @bind-Section="_objectSection" /></RadzenTabsItem>
             @foreach (var tab in ObjectTabs)
             {
-                <RadzenTabsItem Text="@tab"><div class="muted">Не разобрано</div></RadzenTabsItem>
+                <RadzenTabsItem Text="@tab"><ObjectTab Tab="@tab" Field="@Field(selected)" Events="@Item?.FieldEvents.GetValueOrDefault(selected.Element)" /></RadzenTabsItem>
             }
         </Tabs>
     </RadzenTabs>
@@ -107,7 +107,7 @@ else
         ["Height"] = "Layout"
     };
 
-    /// <summary>Вкладки объекта холста после Properties, как в TIA; их свойства программа не читает.</summary>
+    /// <summary>Вкладки объекта холста после Properties, как в TIA (<see cref="ObjectTab"/>: читается только Events у I/O field).</summary>
     private static readonly string[] ObjectTabs = ["Animations", "Events", "Texts"];
 
     /// <summary>Открытая вкладка объекта холста (Properties, Animations, Events, Texts).</summary>

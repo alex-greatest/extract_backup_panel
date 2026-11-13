@@ -1,6 +1,7 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
+using FlexRt.Parsing.Panel.Functions;
 
 namespace FlexRt.Parsing.Panel.Screens;
 
@@ -18,6 +19,9 @@ internal static class FunctionListReader
 
     /// <summary>Число ссылок элемента ADAPTDEMULTIPLE события Cleared.</summary>
     private const int DemultiplexerReferences = 1;
+
+    /// <summary>Размер u32 значения за ссылкой элемента ADAPTDEMULTIPLE.</summary>
+    private const int ValueSize = 4;
 
     /// <summary>Размер u16 числа функций списка.</summary>
     private const int CountSize = 2;
@@ -54,17 +58,61 @@ internal static class FunctionListReader
     /// </exception>
     public static IReadOnlyList<VarReference> Cleared(FwxDocument doc, TocEntry table, Screen screen, int index)
     {
-        var item = ElementLink.Item(doc, table, index, Owner(screen));
-        var (_, links) = ReferenceHeader.Read(doc.Binary, item, table.Name);
-        if (links.Count != DemultiplexerReferences)
-        {
-            throw new FwxFormatException(table.Name, item.Offset, $"запись {index + 1}: {links.Count} ссылок, ожидалась {DemultiplexerReferences}");
-        }
-        var target = links[0];
+        var (item, _, target) = Demultiplexer(doc, table, index, Owner(screen));
+        return Functions(doc, table, item, target);
+    }
+
+    /// <summary>
+    /// Элемент ADAPTDEMULTIPLE: функции по его единственной ссылке и u32 за ссылками — значение (у Cleared экрана 0, у
+    /// события объекта 1 — Activate, 0 — Deactivate; шаги <c>data/real/steps-iofield/</c> 82, 83, 85).
+    /// </summary>
+    /// <param name="doc">Документ панели.</param>
+    /// <param name="table">Таблица ADAPTDEMULTIPLE.</param>
+    /// <param name="index">Номер элемента из ссылки, с нуля.</param>
+    /// <param name="owner">Чья ссылка — для сообщения о ссылке за последний элемент (<c>экран Screen_2</c>).</param>
+    /// <returns>Ссылки на функции в порядке TIA и значение.</returns>
+    /// <exception cref="FwxFormatException">
+    /// Ссылка за последний элемент, элемент или список не сходится, R не 1, значение не помещается, ссылка ведёт не на
+    /// FUNC_LIST и не на функцию FUNC_*.
+    /// </exception>
+    public static (IReadOnlyList<VarReference> Functions, long Value) Demultiplexed(FwxDocument doc, TocEntry table, int index, string owner)
+    {
+        var (item, end, target) = Demultiplexer(doc, table, index, owner);
+        return end + ValueSize <= item.Length
+            ? (Functions(doc, table, item, target), doc.Binary.D4(item.Offset + end))
+            : throw new FwxFormatException(table.Name, item.Offset, $"запись {index + 1}: значение не помещается в {item.Length} байт");
+    }
+
+    /// <summary>Элемент ADAPTDEMULTIPLE с единственной ссылкой.</summary>
+    /// <returns>Элемент, конец ссылок от его начала и ссылка.</returns>
+    /// <exception cref="FwxFormatException">Ссылка за последний элемент, элемент не сходится, R не 1.</exception>
+    private static (TableItem Item, long End, VarReference Target) Demultiplexer(FwxDocument doc, TocEntry table, int index, string owner)
+    {
+        var item = ElementLink.Item(doc, table, index, owner);
+        var (end, links) = ReferenceHeader.Read(doc.Binary, item, table.Name);
+        return links.Count == DemultiplexerReferences
+            ? (item, end, links[0])
+            : throw new FwxFormatException(table.Name, item.Offset, $"запись {index + 1}: {links.Count} ссылок, ожидалась {DemultiplexerReferences}");
+    }
+
+    /// <summary>
+    /// Функции по ссылке элемента-посредника: на FUNC_LIST — его список, на функцию (таблица FUNC_* или таблица словаря
+    /// функций — WEB_FUNC, COPYARCHIVES) — она одна.
+    /// </summary>
+    /// <param name="doc">Документ панели.</param>
+    /// <param name="table">Таблица элемента со ссылкой — для сообщений.</param>
+    /// <param name="item">Элемент со ссылкой — для сообщений.</param>
+    /// <param name="target">Ссылка на функцию или список.</param>
+    /// <returns>Ссылки на функции в порядке TIA; таблица каждой есть в TOC.</returns>
+    /// <exception cref="FwxFormatException">
+    /// Таблицы ссылки нет в TOC, ссылка ведёт не на FUNC_LIST, не на FUNC_* и не на таблицу словаря, список не сходится.
+    /// </exception>
+    public static IReadOnlyList<VarReference> Functions(FwxDocument doc, TocEntry table, TableItem item, VarReference target)
+    {
         var targetTable = TableOf(doc, table, item, target);
-        if (!targetTable.Name.StartsWith(FunctionPrefix, StringComparison.Ordinal))
+        if (!targetTable.Name.StartsWith(FunctionPrefix, StringComparison.Ordinal) && !SystemFunctionCatalog.HasTable(targetTable.Name))
         {
-            throw new FwxFormatException(table.Name, item.Offset, $"запись {index + 1}: ссылка на {targetTable.Name}, ожидалась FUNC_LIST или функция FUNC_*");
+            throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1}: ссылка на {targetTable.Name}, ожидалась FUNC_LIST или функция FUNC_*");
         }
         return targetTable.Name == ListTable
             ? List(doc, targetTable, ElementLink.Item(doc, targetTable, target.Index))

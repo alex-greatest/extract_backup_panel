@@ -36,6 +36,10 @@ internal static class SystemFunctionCatalog
     /// <returns>Запись словаря; функции нет — <c>null</c>.</returns>
     public static SystemFunction? Find(string table, long subcode) => Functions.GetValueOrDefault((table, subcode));
 
+    /// <summary>Есть ли в словаре функции таблицы (функции не только в FUNC_*: COPYARCHIVES, WEB_FUNC).</summary>
+    /// <returns><c>true</c> — таблица функций.</returns>
+    public static bool HasTable(string table) => Functions.Keys.Any(k => k.Table == table);
+
     /// <summary>Разобрать текст словаря и проверить записи.</summary>
     /// <param name="json">Массив записей <see cref="SystemFunction"/>.</param>
     /// <returns>Записи по таблице и подкоду.</returns>

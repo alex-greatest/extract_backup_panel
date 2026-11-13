@@ -167,7 +167,8 @@ public static class IoFieldParser
             (b.D4(p + e) & DisabledStyle) == 0,
             IoFieldSecurityReader.Read(doc, links),
             IoFieldFlashingReader.Read(doc, item, e, links),
-            flashOnLimit);
+            flashOnLimit,
+            IoFieldEventReader.Read(doc, table, item, e, links, who));
     }
 
     /// <summary>
@@ -200,12 +201,10 @@ public static class IoFieldParser
         try
         {
             var colors = IoFieldLimitReader.Read(doc, links, who);
-            if (flash == LimitFlashing.Unread)
-            {
-                // у поля с миганием цветов в ADAPTVALUECHANG нет — тогда они «не прочитано», а не «нет Range»
-                return (colors ?? new LimitColors(null, null), flash);
-            }
-            return (colors, colors is null ? LimitFlashing.NotInFile : LimitFlashing.Off);
+            // у поля с миганием цветов в ADAPTVALUECHANG нет — тогда они «не прочитано», а не «нет Range»
+            return flash == LimitFlashing.Unread
+                ? (colors ?? new LimitColors(null, null), flash)
+                : (colors, colors is null ? LimitFlashing.NotInFile : LimitFlashing.Off);
         }
         catch (FwxFormatException e)
         {

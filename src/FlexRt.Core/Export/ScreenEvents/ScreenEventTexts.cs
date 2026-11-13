@@ -32,12 +32,19 @@ public sealed class ScreenEventTexts
     /// <summary>Имена тегов документа по ссылке на запись VAR.</summary>
     private readonly TagNames _tagNames;
 
-    /// <summary>Собрать события и имена тегов документа один раз на панель.</summary>
+    /// <summary>Имена экранов по номеру из ADAPTVALUECHANG; при повторе номера берётся первая найденная пара.</summary>
+    private readonly Dictionary<long, string> _screenNames;
+
+    /// <summary>Собрать события, имена тегов и экранов документа один раз на панель.</summary>
     public ScreenEventTexts(FwxDocument doc)
     {
         // повтор (экран, событие) не должен ронять открытие панели: берётся первое
         _events = doc.ScreenEvents.DistinctBy(e => (e.ScreenIndex, e.Kind)).ToDictionary(e => (e.ScreenIndex, e.Kind));
         _tagNames = new TagNames(doc);
+        var screens = doc.Screens.Where(s => s is { IsService: false, Name.Length: > 0 })
+            .DistinctBy(s => s.Index).ToDictionary(s => s.Index, s => s.Name);
+        _screenNames = doc.ScreenNumbers.Where(n => screens.ContainsKey(n.ScreenIndex))
+            .DistinctBy(n => n.Number).ToDictionary(n => (long)n.Number, n => screens[n.ScreenIndex]);
     }
 
     /// <summary>События экрана: всегда Loaded и Cleared (события нет — без функций).</summary>
@@ -46,18 +53,31 @@ public sealed class ScreenEventTexts
     public IReadOnlyList<ScreenEventView> Of(Screen screen) =>
         [.. Enum.GetValues<ScreenEventKind>().Select(kind => View(screen, kind))];
 
+    /// <summary>
+    /// События I/O field: всегда Activate, Deactivate и OnFinishInput (имена Openness; события нет — без функций).
+    /// Click в файл не попадает (шаг <c>data/real/steps-iofield/</c> 81) и не показывается.
+    /// </summary>
+    /// <param name="field">Поле.</param>
+    /// <returns>События в порядке <see cref="ObjectEventKind"/>.</returns>
+    public IReadOnlyList<ScreenEventView> Of(IoField field) =>
+    [
+        .. Enum.GetValues<ObjectEventKind>().Select(kind =>
+            View(kind.ToString(), field.Events?.FirstOrDefault(e => e.Kind == kind) is { } found ? found.Functions : []))
+    ];
+
     /// <summary>Одно событие экрана.</summary>
     /// <returns>Событие для окна.</returns>
-    private ScreenEventView View(Screen screen, ScreenEventKind kind)
-    {
-        if (!_events.TryGetValue((screen.Index, kind), out var screenEvent))
-        {
-            return new ScreenEventView(kind.ToString(), true, []);
-        }
-        return screenEvent.Functions is null
-            ? new ScreenEventView(kind.ToString(), false, [])
-            : new ScreenEventView(kind.ToString(), true, [.. screenEvent.Functions.Select((f, i) => Function(f, i + 1))]);
-    }
+    private ScreenEventView View(Screen screen, ScreenEventKind kind) =>
+        View(kind.ToString(), _events.TryGetValue((screen.Index, kind), out var screenEvent) ? screenEvent.Functions : []);
+
+    /// <summary>Событие для окна по списку функций.</summary>
+    /// <param name="name">Имя события.</param>
+    /// <param name="functions">Функции; <c>null</c> — список не прочитан.</param>
+    /// <returns>Событие для окна.</returns>
+    private ScreenEventView View(string name, IReadOnlyList<FunctionCall>? functions) =>
+        functions is null
+            ? new ScreenEventView(name, false, [])
+            : new ScreenEventView(name, true, [.. functions.Select((f, i) => Function(f, i + 1))]);
 
     /// <summary>Функция: имя и параметры; не прочитана — <see cref="NotRead"/> без параметров.</summary>
     /// <returns>Функция для окна.</returns>
@@ -68,7 +88,7 @@ public sealed class ScreenEventTexts
         {
             return new FunctionView(number, NotRead, false, element, []);
         }
-        var parameters = call.Arguments.Select((a, k) => new ParameterView(ParameterName(call, k), Value(a))).ToList();
+        var parameters = call.Arguments.Select((a, k) => new ParameterView(ParameterName(call, k), Value(call, k, a))).ToList();
         return new FunctionView(number, FunctionName(call), true, element, parameters);
     }
 
@@ -81,6 +101,19 @@ public sealed class ScreenEventTexts
     /// <returns>Имя.</returns>
     private static string ParameterName(FunctionCall call, int index) =>
         call.ParameterNames.ElementAtOrDefault(index) is { Length: > 0 } name ? name : $"Параметр {index + 1}";
+
+    /// <summary>Первый числовой параметр ActivateScreen и активации экранных контролов — имя экрана; остальные параметры форматируются по виду.</summary>
+    /// <returns>Имя найденного экрана; сопоставления нет — исходное значение параметра.</returns>
+    private string Value(FunctionCall call, int index, FunctionArgument argument)
+    {
+        if (index == 0 && call.Names is ["ActivateScreen" or "ActivatePLCCodeView" or "ActivateSystemDiagnosticsView"]
+            && argument.Kind is FunctionArgumentKind.Integer or FunctionArgumentKind.UInt32
+            && _screenNames.TryGetValue(argument.Number, out var name))
+        {
+            return name;
+        }
+        return Value(argument);
+    }
 
     /// <summary>Значение параметра текстом.</summary>
     /// <returns>Текст; не известно — <c>?</c>.</returns>

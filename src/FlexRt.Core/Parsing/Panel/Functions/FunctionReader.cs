@@ -44,7 +44,8 @@ internal static class FunctionReader
 
     /// <summary>
     /// Прочитать функцию: подкод, параметры, имена из словаря (<see cref="SystemFunctionCatalog"/>; несколько имён и
-    /// выбор по объекту — <see cref="Names"/>). Незнакомый тип VARIANT — параметр «не известно» и предупреждение.
+    /// выбор по объекту — <see cref="Names"/>; первый параметр — ссылка, а у записи есть
+    /// <see cref="SystemFunction.FirstReference"/> — имена и параметры из него). Незнакомый тип VARIANT — параметр «не известно» и предупреждение.
     /// </summary>
     /// <param name="doc">Документ панели.</param>
     /// <param name="table">Таблица функции.</param>
@@ -71,15 +72,39 @@ internal static class FunctionReader
         }
         var subcode = b.D4(p + end);
         var parameters = links.Where(l => doc.FindTable(l.Table)?.Name != TimerTable).ToList();
-        var arguments = Arguments(doc, table, item, end + TailSize, b.D4(p + end + KindsOffset), parameters);
+        var kinds = b.D4(p + end + KindsOffset);
+        var arguments = Arguments(doc, table, item, end + TailSize, kinds, parameters);
         var entry = SystemFunctionCatalog.Find(table.Name, subcode);
-        return new FunctionCall(
+        if (entry?.FirstReference is { } variant && ((kinds >> (32 - KindBits)) & KindMask) == ReferenceKind)
+        {
+            return new FunctionCall(new VarReference(table.Id, index), table.Name, subcode, variant.Names, variant.Parameters, arguments);
+        }
+        var call = new FunctionCall(
             new VarReference(table.Id, index),
             table.Name,
             subcode,
             Names(doc, entry, arguments),
             entry?.Parameters ?? [],
             arguments);
+        return ScreenFunctionCalls.Project(doc, call);
+    }
+
+    /// <summary>Функция списка события; сбой — функция «не прочитана» и предупреждение, чтобы остальные функции события остались.</summary>
+    /// <param name="doc">Документ панели.</param>
+    /// <param name="function">Ссылка из списка; таблица есть в TOC (проверяет читатель списка).</param>
+    /// <returns>Вызов функции; не прочитана — <see cref="FunctionCall.Arguments"/> <c>null</c>.</returns>
+    public static FunctionCall ReadOrUnread(FwxDocument doc, VarReference function)
+    {
+        var table = doc.FindTable(function.Table)!;
+        try
+        {
+            return Read(doc, table, function.Index);
+        }
+        catch (FwxFormatException e)
+        {
+            doc.Warnings.Add(e.Message);
+            return new FunctionCall(function, table.Name, null, [], [], null);
+        }
     }
 
     /// <summary>Параметры по видам: ссылки — по порядку из <paramref name="links"/>, VARIANT — блоками подряд с <paramref name="start"/>.</summary>

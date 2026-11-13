@@ -38,6 +38,7 @@
 /// <c>null</c>.
 /// </param>
 /// <param name="FlashOnLimit">Flash on limit violation (Flashing); без Range у тега в файле нет.</param>
+/// <param name="Events">События с функциями (вкладка Events); событий нет — <c>null</c> или пусто.</param>
 public sealed record IoField(
     VarReference Element,
     IoFieldMode Mode,
@@ -59,4 +60,5 @@ public sealed record IoField(
     bool AllowOperatorControl = true,
     long? Authorization = null,
     bool Flashing = false,
-    LimitFlashing FlashOnLimit = LimitFlashing.NotInFile);
+    LimitFlashing FlashOnLimit = LimitFlashing.NotInFile,
+    IReadOnlyList<ObjectEvent>? Events = null);

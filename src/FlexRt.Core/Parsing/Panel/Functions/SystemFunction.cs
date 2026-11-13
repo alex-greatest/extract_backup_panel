@@ -12,9 +12,15 @@ namespace FlexRt.Parsing.Panel.Functions;
 /// Выбор одного из <paramref name="Names"/> по объекту-параметру: ключ — таблица, на которую ссылается элемент
 /// объекта, значение — имя функции (RecipeView — ссылка на RECIPE_FACTORY); <c>null</c> — выбора нет.
 /// </param>
+/// <param name="FirstReference">
+/// Имена и параметры, если первый параметр — ссылка (тег), а не значение: ActivateScreenByNumber на подкоде
+/// ActivateScreen (у ActivateScreen первый параметр — всегда экран, у ActivateScreenByNumber — всегда тег, каталог TIA
+/// <c>Utah-Functions.en.xml</c>; копия <c>data/real/steps-iofield/</c> 87); <c>null</c> — выбора нет.
+/// </param>
 internal sealed record SystemFunction(
     string Table,
     string Subcode,
     IReadOnlyList<string> Names,
     IReadOnlyList<string> Parameters,
-    IReadOnlyDictionary<string, string>? ObjectReferences = null);
+    IReadOnlyDictionary<string, string>? ObjectReferences = null,
+    SystemFunctionVariant? FirstReference = null);

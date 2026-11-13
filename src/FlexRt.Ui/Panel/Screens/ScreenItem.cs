@@ -18,7 +18,7 @@ namespace FlexRt.Ui.Panel.Screens;
 /// <param name="Strip">
 /// Полоса Permanent area над экраном: у обычного экрана и экрана неопознанного вида, при высоте Permanent area больше нуля.
 /// </param>
-/// <param name="Events">События экрана для вкладки Events: Loaded и Cleared (<see cref="ScreenEventTexts.Of"/>).</param>
+/// <param name="Events">События экрана для вкладки Events: Loaded и Cleared (тексты из <see cref="ScreenEventTexts"/>).</param>
 /// <param name="Objects">
 /// Объекты экрана с положением для холста (<see cref="FlexRt.Model.Panel.FwxDocument.ScreenObjects"/>), с объектами
 /// шаблона; у Permanent area — объекты записи <c>Overview</c>.
@@ -28,6 +28,10 @@ namespace FlexRt.Ui.Panel.Screens;
 /// экраны): объект с полем рисуется как поле, остальные — рамкой.
 /// </param>
 /// <param name="Tooltips">Подсказки I/O field панели (один набор на все экраны).</param>
+/// <param name="FieldEvents">
+/// События I/O field для вкладки Events объекта по элементу поля (<see cref="ScreenEventTexts.Of(IoField)"/>, один словарь
+/// на все экраны).
+/// </param>
 public sealed record ScreenItem(
     Screen Screen,
     string Name,
@@ -39,4 +43,5 @@ public sealed record ScreenItem(
     IReadOnlyList<ScreenEventView> Events,
     IReadOnlyList<ScreenObject> Objects,
     IReadOnlyDictionary<VarReference, IoField> Fields,
-    IoFieldTooltips Tooltips);
+    IoFieldTooltips Tooltips,
+    IReadOnlyDictionary<VarReference, IReadOnlyList<ScreenEventView>> FieldEvents);

@@ -1,0 +1,35 @@
+@using FlexRt.Export.ScreenEvents
+@using FlexRt.Model.Panel.Screens
+
+@if (Tab != EventsTab || Field is null || Events is null)
+{
+    <div class="muted">Не разобрано</div>
+}
+else if (Field.Mode == IoFieldMode.Output)
+{
+    <div class="muted">@IoFieldTexts.OutputEventsAbsent</div>
+}
+else
+{
+    <ScreenEvents Events="Events" />
+}
+
+@code {
+    /// <summary>Вкладка Events: у I/O field — события поля.</summary>
+    private const string EventsTab = "Events";
+
+    /// <summary>
+    /// Вкладка объекта холста после Properties (Animations, Events, Texts); читается только Events у I/O field, остальное
+    /// — «Не разобрано».
+    /// </summary>
+    [Parameter]
+    public string Tab { get; set; } = "";
+
+    /// <summary>I/O field выбранного объекта; объект другого типа — <c>null</c>.</summary>
+    [Parameter]
+    public IoField? Field { get; set; }
+
+    /// <summary>События поля (<see cref="ScreenEventTexts.Of(IoField)"/>); нет — <c>null</c>.</summary>
+    [Parameter]
+    public IReadOnlyList<ScreenEventView>? Events { get; set; }
+}

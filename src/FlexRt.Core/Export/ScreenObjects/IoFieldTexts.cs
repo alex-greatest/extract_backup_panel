@@ -262,6 +262,9 @@ public static class IoFieldTexts
     /// </summary>
     public const string LimitsAbsent = "Цветов Limits в файле нет: у тега не задан Range";
 
+    /// <summary>Вкладка Events поля Output: TIA его события в файл не пишет (шаг <c>data/real/steps-iofield/</c> 86).</summary>
+    public const string OutputEventsAbsent = "У поля Output события в файл не попадают";
+
     /// <summary>Цвет Limits, который не прочитан (элемент с цветами испорчен или ключа нет).</summary>
     private const string NotRead = "не прочитано";
 

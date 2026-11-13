@@ -1,16 +1,22 @@
 # FUNC_* — системные функции
 
-Каждая системная функция TIA лежит элементом в одной из таблиц `FUNC_*`
-(`FUNC_BIT`, `FUNC_ASSIGN`, `FUNC_COMMAND`, …); несколько функций делят одну
+Системная функция TIA лежит элементом таблицы (`FUNC_BIT`, `FUNC_ASSIGN`,
+`FUNC_COMMAND`, `WEB_FUNC`, `COPYARCHIVES`, …); несколько функций делят одну
 таблицу и различаются подкодом. Программа читает элемент в
 `Parsing/Panel/Functions/FunctionReader.cs`, имена берёт из словаря
 `Parsing/Panel/Functions/SystemFunctions.json`. На функции ссылаются списки
-событий экрана ([таблица-func-list.md](таблица-func-list.md)).
+событий экрана ([таблица-func-list.md](таблица-func-list.md)) и I/O field
+([поле-ввода-вывода.md](поле-ввода-вывода.md#события)).
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md).
 Проверено на 148 функциях копий `data/real/steps-events/` 20–22 (Project1,
 V21, TP700 Comfort) против карты TIA (`*.json`), на копии 24 (SetTag на член DB)
 и на 13 событиях A603A0097 (SetTag, Logoff; сверены с TIA через Openness).
+События I/O field и их функции дополнительно сверены с XML TIA на шагах
+`data/real/steps-iofield/` 82–88 (Project1, V21, TP700 Comfort). Шаг 88 —
+реальный FWC размером 1007484 байта, 26 полей; рядом `*_readback.xml`
+и `*_map.json`. Компиляция дала 0 ошибок и 16 предупреждений; образец принят
+для исследования, а не как конфигурация без замечаний.
 
 ## Элемент
 
@@ -24,7 +30,8 @@ V21, TP700 Comfort) против карты TIA (`*.json`), на копии 24 (
 | далее | блоки VARIANT по 16 байт подряд, в порядке битов 10 | установлено |
 | в конце | строки блоков типа 8 | установлено |
 
-Параметры идут в порядке битов, он совпал с порядком TIA. Ссылки на
+Параметры идут в порядке битов. Для функций шага 88 порядок и число сырых
+параметров могут отличаться от XML TIA (см. ниже). Ссылки на
 `TIMER` (0x6c) — не параметры (StartProgram, ActivateCleanScreen,
 SimulateTag); остальные ссылки — параметры вида 01 по порядку.
 
@@ -49,8 +56,8 @@ SimulateTag); остальные ссылки — параметры вида 01
 | 5 | | f64 на +8 | установлено (7) |
 | 8 | | строка: на +8 u32 смещение текста от начала блока, перед текстом u32 длина в байтах без нуля, текст UTF-16LE | установлено (19); у StartProgram имя программы TIA сам берёт в кавычки |
 | 0x12 | 3 | объект проекта: u32 номер на +8, u32 вид на +0x0c — 0x44 журнал, 0xe0 отчёт, 0x34 текстовый список | наблюдение; таблицы объектов не разобраны |
-| 0x12 | 0 | у LogTag: номер 2, вид 0 (тот же номер, что у журнала `DataLog_1`) | наблюдение (1 раз) |
-| 0x13 | | u32 на +8 (номер записи рецепта, Slot, Rack) | установлено (13) |
+| 0x12 | 0 | у LogTag: номер 2, вид 0 (тот же номер, что у журнала `DataLog_1`); у FUNC_SHOWPOPUPS — числовые X/Y при виде 0 на +0x0c | LogTag — наблюдение (1 раз); X/Y — установлено на шаге 88 |
+| 0x13 | | u32 на +8 (номер записи рецепта, Slot, Rack, номер экрана); у FUNC_SHOWPOPUPS слово 3 — номер SCREEN_SYS | установлено на копиях 20–22 и 87–88 |
 
 Имя объекта — в его элементе: u16 вид, u16 длина, UTF-16LE (`TV1`, `HB1`,
 `Conn_S7`); установлено на всех 9 объектах функций копий 21–22, раскладка
@@ -59,25 +66,79 @@ SimulateTag); остальные ссылки — параметры вида 01
 
 ## FUNC_COMMAND — функции объектов экрана
 
-Подкод — команда, старший байт — класс: 0x00 RecipeView и
-SystemDiagnosticView, 0x01 TrendView, 0x02 StatusForce, 0x04 AlarmView,
+Подкод — команда, старший байт — группа: 0x00 RecipeView,
+SystemDiagnosticView и PLCCodeView, 0x01 TrendView, 0x02 StatusForce, 0x04 AlarmView,
 0x05 HTMLBrowser, 0x07 PDF, 0x10 ScreenObject, 0x01xxxx SmartClientView.
 Параметр — объект (VARIANT тип 3, слово 2).
 
 Одинаковые байты (установлено, шаги 22, 23): HTMLBrowser и ScreenObject на
 0x1002, 0x1003 (PageUp/Down), 0x50c, 0x50d (ScrollRight/Left и
 CursorRight/Left на HTML-браузере). RecipeView и SystemDiagnosticView на
-0x1–0x4: различаются только объектом — у элемента RecipeView есть ссылка на
-`RECIPE_FACTORY` (наблюдение на 3 объектах копии 22).
+0x1–0x4, а RecipeView и PLCCodeView на 0x1–0x8 различаются объектом.
+Положительный признак RecipeView — ссылка на `RECIPE_FACTORY` (наблюдение
+на 3 объектах копии 22). У PLCCodeView и SystemDiagnosticView шага 88
+элементы VIEW_OCX вида 0x0b без ссылок. Надёжного признака различения этих
+двух классов пока нет; программа показывает возможные имена через « / ».
+По имени объекта (`PCV1`) класс не угадывается.
 
 ## Словарь функций
 
 `SystemFunctions.json` — ресурс сборки ядра: таблица из TOC, подкод
-(`0x…`), имена функции и имена параметров по порядку; у пар с одинаковыми
-байтами — два имени (окно — через « / »), у RecipeView/SystemDiagnosticView —
-выбор по таблице, на которую ссылается объект (`objectReferences`). 134
-записи, 142 функции TIA из 197, которые TIA даёт на событие экрана; 44 не
-поддерживаются панелью TP700 Comfort, 11 добавить не удалось.
+(`0x…`), имена функции и имена параметров. В словаре 146 пар
+«таблица + подкод», а не 146 разных функций. Неоднозначные имена выводятся
+через « / »; `objectReferences` выбирает RecipeView по `RECIPE_FACTORY`.
+`firstReference` отличает ActivateScreenByNumber от ActivateScreen на
+`FUNC_SETSYSVAR 0x2`: первый параметр-ссылка — тег, числовой — экран.
+
+Новые пары шага 88 установлены по FWC и обратному XML-экспорту TIA:
+
+| Таблица, подкод | Функция |
+|---|---|
+| `FUNC_PRODIAG 0` | ActivatePLCCodeView |
+| `FUNC_PLCCODEVIE 1` | PLCCodeViewMoveScrollbar |
+| `FUNC_SYSDIAG 0` / `1` | ShowSystemDiagnosticsWindow / ActivateSystemDiagnosticsView |
+| `FUNC_SHOWPOPUPS 0` | ShowPopupScreen / ShowPopupScreenSizable |
+| `FUNC_SHOWSLIDEI 0` | ShowSlideInScreen |
+
+PLCCodeView в `FUNC_COMMAND`: 1 Symbols, 2 PreviousNetwork, 3 NextNetwork,
+4 ZoomIn, 5 ZoomOut, 6 Details, 7 StepMode, 8 TransitionInterlock.
+Эти подкоды уже заняты функциями RecipeView, а 1–4 — также SysDiag.
+
+## Представление параметров шага 88
+
+`ScreenFunctionCalls` преобразует только подтверждённые раскладки в порядок
+параметров TIA. Другая раскладка остаётся с исходными параметрами.
+
+- ActivatePLCCodeView: два параметра XML и третий внутренний Integer 0;
+  подтверждённый нулевой третий параметр не показывается.
+- ShowSystemDiagnosticsWindow: в FWC два объекта — SCREEN_SYS и VIEW_OCX,
+  в XML один `Object name`. При этой паре классов показывается SCREEN_SYS.
+  Имена обоих объектов шага 88 пусты: вместо `SDW1` окно показывает
+  `SCREEN_SYS 7`. Неизвестный второй параметр не отбрасывается.
+- ShowPopupScreen / Sizable: восемь сырых параметров — SCREEN_SYS, X, Y,
+  Display mode, Animation, Animation speed, Width, Height. Ширина и высота
+  Integer 0/0 — обычный ShowPopupScreen, оба Integer не меньше 100 — Sizable.
+  Минимум 100 взят из установленного каталога TIA V21, размеры 300/200
+  сверены на шаге 88. У Sizable размеры переставляются перед Display mode;
+  у обычного варианта нулевые размеры не показываются. Неизвестные типы
+  или размеры вне этой раскладки сохраняются как есть.
+- Имя pop-up: числовой параметр → SCREEN_SYS → единственный объект SCREEN →
+  служебная запись SCREEN → именованный экран. Другая структура сохраняет
+  исходный номер. X/Y типа 0x12 с видом 0 отображаются числами; проверены
+  только положительные координаты шага 88.
+- ShowSlideInScreen (наблюдение: шаги 88–92, V21, TP700 Comfort): первый
+  параметр UInt32 — направление: 0 left, 1 top, 2 right, 3 bottom.
+  Показывается имя соответствующего `Slide-in screen …` из SCREEN.
+  Неизвестный код, другой тип или отсутствие экрана сохраняют исходное
+  значение. Второй параметр Integer: On = 1, Off = 0; в окне остаётся числом.
+  При переходе right/On → right/Off изменился только байт записи на +0x28:
+  1 → 0. Экран должен быть включён (`Enable`) в TIA, иначе компилятор
+  отвергает ссылку. Mode Off не требует снимать Enable.
+- Первый числовой параметр ActivateScreen, ActivatePLCCodeView и
+  ActivateSystemDiagnosticsView сопоставляется через ADAPTVALUECHANG
+  с именем SCREEN. Пары нет — показывается исходный номер.
+  ActivateScreenByNumber продолжает показывать имя тега, без подстановки
+  конкретного экрана.
 
 ## Как читает программа
 
