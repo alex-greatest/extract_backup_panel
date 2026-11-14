@@ -1,0 +1,31 @@
+@using FlexRt.Model.Panel.Screens
+
+@if (Condition.Active is null)
+{
+    <div class="muted">Условие анимации не прочитано</div>
+}
+else
+{
+    <PropertyGroup Title="Tag">
+        <ObjectRow Name="Tag" Value="@(Condition.Tag ?? "?")" />
+        <ObjectRow Name="Type" Value="@(Condition.Bit is null ? "Range" : "Single bit")" />
+        @if (Condition.Bit is { } bit)
+        {
+            <ObjectRow Name="Bit number" Value="@bit" />
+        }
+        else
+        {
+            <ObjectRow Name="From" Value="@FieldAnimationTexts.Value(Condition.From)" />
+            <ObjectRow Name="To" Value="@FieldAnimationTexts.Value(Condition.To)" />
+        }
+    </PropertyGroup>
+    <PropertyGroup Title="@FieldAnimationTexts.Name(Condition)">
+        <ObjectRow Name="@FieldAnimationTexts.Name(Condition)" Value="@FieldAnimationTexts.State(Condition)" />
+    </PropertyGroup>
+}
+
+@code {
+    /// <summary>Настройки Visibility или Control enable выбранного поля.</summary>
+    [Parameter, EditorRequired]
+    public FieldCondition Condition { get; set; } = null!;
+}

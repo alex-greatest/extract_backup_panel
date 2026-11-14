@@ -1,0 +1,37 @@
+@using FlexRt.Model.Panel.Screens
+
+@if (!Movement.IsRead)
+{
+    <div class="muted">Движение поля не прочитано</div>
+}
+else if (Movement.Direct)
+{
+    <PropertyGroup Title="Tag">
+        <ObjectRow Name="Tag X" Value="@(Movement.TagX ?? "")" />
+        <ObjectRow Name="Tag Y" Value="@(Movement.TagY ?? "")" />
+    </PropertyGroup>
+}
+else
+{
+    <PropertyGroup Title="Tag">
+        <ObjectRow Name="Tag" Value="@(Movement.TagX ?? "?")" />
+        <ObjectRow Name="From" Value="@FieldAnimationTexts.Value(Movement.From)" />
+        <ObjectRow Name="To" Value="@FieldAnimationTexts.Value(Movement.To)" />
+    </PropertyGroup>
+    <PropertyGroup Title="Position">
+        <ObjectRow Name="Start X" Value="@FieldAnimationTexts.Value(Movement.StartX)" />
+        <ObjectRow Name="Start Y" Value="@FieldAnimationTexts.Value(Movement.StartY)" />
+        <ObjectRow Name="End X" Value="@FieldAnimationTexts.Value(Movement.EndX)" />
+        <ObjectRow Name="End Y" Value="@FieldAnimationTexts.Value(Movement.EndY)" />
+    </PropertyGroup>
+    @if (Movement.StartX == Movement.EndX || Movement.StartY == Movement.EndY)
+    {
+        <div class="muted">Исходный вид движения TIA по этим данным FWC не различается.</div>
+    }
+}
+
+@code {
+    /// <summary>Настройки движения выбранного поля; просмотр без воспроизведения анимации.</summary>
+    [Parameter, EditorRequired]
+    public FieldMovement Movement { get; set; } = null!;
+}

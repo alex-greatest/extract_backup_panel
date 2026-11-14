@@ -93,7 +93,8 @@ public static class IoFieldParser
     /// Прочитать I/O field всех объектов экранов в <see cref="FwxDocument.IoFields"/>. Разбирается после
     /// <see cref="ScreenObjectParser"/>; элемент читается один раз (объект шаблона — на многих экранах). Элемент VIEW_IN
     /// или VIEW_OUT с другим кодом типа (Text field и т. п.) пропускается без сообщения. Сбой элемента поля или его
-    /// стиля — предупреждение с таблицей и смещением, поля нет (объект остаётся рамкой).
+    /// стиля — предупреждение с таблицей и смещением, поля нет (объект остаётся рамкой). Ошибка Appearance сохраняет поле
+    /// с непрочитанными настройками анимации и предупреждением.
     /// </summary>
     public static void Parse(FwxDocument doc)
     {
@@ -168,7 +169,8 @@ public static class IoFieldParser
             IoFieldSecurityReader.Read(doc, links),
             IoFieldFlashingReader.Read(doc, item, e, links),
             flashOnLimit,
-            IoFieldEventReader.Read(doc, table, item, e, links, who));
+            IoFieldEventReader.Read(doc, table, item, e, links, who),
+            AppearanceAnimationReader.Read(doc, table, item, e, links));
     }
 
     /// <summary>

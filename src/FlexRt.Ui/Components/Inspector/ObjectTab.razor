@@ -1,7 +1,11 @@
 @using FlexRt.Export.ScreenEvents
 @using FlexRt.Model.Panel.Screens
 
-@if (Tab != EventsTab || Field is null || Events is null)
+@if (Tab == "Animations" && Field is not null)
+{
+    <IoFieldAnimations Field="Field" />
+}
+else if (Tab != EventsTab || Field is null || Events is null)
 {
     <div class="muted">Не разобрано</div>
 }
@@ -19,8 +23,7 @@ else
     private const string EventsTab = "Events";
 
     /// <summary>
-    /// Вкладка объекта холста после Properties (Animations, Events, Texts); читается только Events у I/O field, остальное
-    /// — «Не разобрано».
+    /// Вкладка объекта: Animations и Events I/O field; неподдерживаемые вкладки — «Не разобрано».
     /// </summary>
     [Parameter]
     public string Tab { get; set; } = "";

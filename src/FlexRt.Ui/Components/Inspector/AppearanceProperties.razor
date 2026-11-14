@@ -1,0 +1,39 @@
+@using FlexRt.Model.Panel.Screens
+
+@if (Animation.Ranges is not { } ranges)
+{
+    <div class="muted">Appearance не прочитана</div>
+}
+else
+{
+    <PropertyGroup Title="Tag">
+        <ObjectRow Name="Tag" Value="@(Animation.Tag ?? "?")" />
+        <ObjectRow Name="Type" Value="@(Animation.Bit is null ? "Range" : "Single bit")" />
+        @if (Animation.Bit is { } bit)
+        {
+            <ObjectRow Name="Bit number" Value="@bit" />
+        }
+    </PropertyGroup>
+    <PropertyGroup Title="Appearance">
+        <table class="animation-grid" aria-label="Диапазоны Appearance">
+            <thead><tr><th>From</th><th>To</th><th>Background color</th><th>Foreground color</th><th>Flashing</th></tr></thead>
+            <tbody>
+                @foreach (var range in ranges)
+                {
+                    <tr>
+                        <td>@range.From</td><td>@range.To</td>
+                        <td><PropertyValue Value="@RgbText.Cell(range.BackgroundRgb)" /></td>
+                        <td><PropertyValue Value="@RgbText.Cell(range.ForegroundRgb)" /></td>
+                        <td>@AppearanceAnimationTexts.Flashing(range.Flashing)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </PropertyGroup>
+}
+
+@code {
+    /// <summary>Подтверждённые настройки Appearance выбранного поля; null у Ranges означает сбой чтения.</summary>
+    [Parameter, EditorRequired]
+    public AppearanceAnimation Animation { get; set; } = null!;
+}

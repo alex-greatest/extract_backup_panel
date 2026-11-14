@@ -1,0 +1,90 @@
+@using FlexRt.Model.Panel.Screens
+
+@{
+    var selectedCondition = SelectedCondition();
+    var selectedMovement = SelectedMovement();
+}
+
+<div class="props-layout object-props">
+    <nav class="object-nav anim-nav" aria-label="Анимации поля">
+        <div class="anim-nav-group"><RadzenIcon Icon="link" />Tag connections</div>
+        <button type="button" class="object-nav-item @(_selected == ProcessValue ? "selected" : "")" @onclick="() => _selected = ProcessValue">
+            <span class="object-nav-text">Process value</span>
+        </button>
+        <div class="anim-nav-group"><RadzenIcon Icon="tv" />Display</div>
+        @if (Field.Appearance is not null)
+        {
+            <button type="button" class="object-nav-item @(_selected == Appearance ? "selected" : "")" @onclick="() => _selected = Appearance">
+                <span class="object-nav-text">Appearance</span>
+            </button>
+        }
+        @for (var i = 0; i < (Field.Conditions?.Count ?? 0); i++)
+        {
+            var condition = Field.Conditions![i];
+            var key = $"condition-{i}";
+            <button type="button" class="object-nav-item @(_selected == key ? "selected" : "")" @onclick="() => _selected = key">
+                <span class="object-nav-text">@FieldAnimationTexts.Name(condition)</span>
+            </button>
+        }
+        @if (Field.Movements is { Count: > 0 } movements)
+        {
+            <div class="anim-nav-group"><RadzenIcon Icon="open_with" />Movements</div>
+            @for (var i = 0; i < movements.Count; i++)
+            {
+                var key = $"movement-{i}";
+                <button type="button" class="object-nav-item @(_selected == key ? "selected" : "")" @onclick="() => _selected = key" title="@FieldAnimationTexts.Name(movements[i])">
+                    <span class="object-nav-text">@FieldAnimationTexts.Name(movements[i])</span>
+                </button>
+            }
+        }
+    </nav>
+    <div class="props-body object-body">
+        <div class="object-title">@Title(selectedCondition, selectedMovement)</div>
+        @if (_selected == Appearance && Field.Appearance is { } animation)
+        {
+            <AppearanceProperties Animation="animation" />
+        }
+        else if (selectedCondition is not null)
+        {
+            <FieldConditionProperties Condition="selectedCondition" />
+        }
+        else if (selectedMovement is not null)
+        {
+            <FieldMovementProperties Movement="selectedMovement" />
+        }
+        else
+        {
+            <PropertyGroup Title="Tag">
+                <ObjectRow Name="Tag" Value="@(Field.Tag ?? (Field.TagVia is { } via ? $"? ({via})" : ""))" />
+            </PropertyGroup>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Имя связи тега значения поля в дереве TIA.</summary>
+    private const string ProcessValue = "Process value";
+
+    /// <summary>Имя анимации оформления в дереве TIA.</summary>
+    private const string Appearance = "Appearance";
+
+    /// <summary>Выбранный пункт дерева анимаций.</summary>
+    private string _selected = ProcessValue;
+
+    /// <summary>Выбранное поле; компонент пересоздаётся при смене объекта.</summary>
+    [Parameter, EditorRequired]
+    public IoField Field { get; set; } = null!;
+
+    /// <summary>Условие выбранного пункта дерева.</summary>
+    /// <returns>Условие; выбран другой пункт — null.</returns>
+    private FieldCondition? SelectedCondition() => Field.Conditions?.Where((_, i) => _selected == $"condition-{i}").FirstOrDefault();
+
+    /// <summary>Движение выбранного пункта дерева.</summary>
+    /// <returns>Движение; выбран другой пункт — null.</returns>
+    private FieldMovement? SelectedMovement() => Field.Movements?.Where((_, i) => _selected == $"movement-{i}").FirstOrDefault();
+
+    /// <summary>Заголовок выбранного пункта дерева.</summary>
+    /// <returns>Название настройки TIA.</returns>
+    private string Title(FieldCondition? condition, FieldMovement? movement) => condition is not null ? FieldAnimationTexts.Name(condition)
+        : movement is not null ? FieldAnimationTexts.Name(movement) : _selected;
+}

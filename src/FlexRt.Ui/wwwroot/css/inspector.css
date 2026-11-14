@@ -916,3 +916,39 @@
     white-space: normal;
     overflow: visible;
 }
+
+/* Диапазоны анимации: компактная сетка свойств только для чтения. */
+.animation-grid {
+    border-collapse: collapse;
+    width: 100%;
+    font: inherit;
+}
+
+.animation-grid th,
+.animation-grid td {
+    padding: 3px 6px;
+    border: 1px solid var(--field-border);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.animation-grid th {
+    font-weight: normal;
+    background: var(--surface-alt);
+}
+
+.animation-grid .prop-input {
+    width: 110px;
+}
+
+.anim-nav button.object-nav-item {
+    height: auto;
+    min-height: var(--nav-row);
+}
+
+.anim-nav button .object-nav-text {
+    display: inline-block;
+    max-width: 100%;
+    white-space: normal;
+    line-height: 18px;
+}

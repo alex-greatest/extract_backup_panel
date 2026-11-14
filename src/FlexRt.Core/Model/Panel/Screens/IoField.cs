@@ -39,6 +39,9 @@
 /// </param>
 /// <param name="FlashOnLimit">Flash on limit violation (Flashing); без Range у тега в файле нет.</param>
 /// <param name="Events">События с функциями (вкладка Events); событий нет — <c>null</c> или пусто.</param>
+/// <param name="Appearance">Анимация Appearance; ссылки нет — null, сбой — Ranges null.</param>
+/// <param name="Conditions">Условия Visibility и Control enable обёрток поля.</param>
+/// <param name="Movements">Движения обёрток поля.</param>
 public sealed record IoField(
     VarReference Element,
     IoFieldMode Mode,
@@ -61,4 +64,7 @@ public sealed record IoField(
     long? Authorization = null,
     bool Flashing = false,
     LimitFlashing FlashOnLimit = LimitFlashing.NotInFile,
-    IReadOnlyList<ObjectEvent>? Events = null);
+    IReadOnlyList<ObjectEvent>? Events = null,
+    AppearanceAnimation? Appearance = null,
+    IReadOnlyList<FieldCondition>? Conditions = null,
+    IReadOnlyList<FieldMovement>? Movements = null);
