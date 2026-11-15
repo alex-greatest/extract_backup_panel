@@ -1,4 +1,4 @@
-﻿using FlexRt.Binary;
+using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
 
@@ -26,6 +26,9 @@ public static class IoFieldParser
     /// <c>0x98C000</c>, у Symbolic I/O field <c>0x88C000</c> (наблюдение: 477 объектов A603A0097 и копии Project1).
     /// </summary>
     private const int KindOffset = 0x10;
+
+    /// <summary>i32 порядок обхода VIEW_IN от конца ссылок; перестановка 1/2 в редакторе TP700 V21, 2026-11-15.</summary>
+    private const int TabOrderOffset = 0x0c;
 
     /// <summary>Код I/O field в VIEW_IN.</summary>
     private const long InKind = 0x5DC000;
@@ -163,14 +166,18 @@ public static class IoFieldParser
             Read(doc, table, item, styles, BorderStyleReader.Table, who, BorderStyleReader.Read),
             Read(doc, table, item, styles, TextStyleReader.Table, who, TextStyleReader.Read),
             Read(doc, table, item, styles, FillStyleReader.Table, who, FillStyleReader.Read),
-            Font(doc, table, item, mark, who),
+            Font(doc, table, item, mark, who, out var fonts),
             limits,
             (b.D4(p + e) & DisabledStyle) == 0,
             IoFieldSecurityReader.Read(doc, links),
             IoFieldFlashingReader.Read(doc, item, e, links),
             flashOnLimit,
             IoFieldEventReader.Read(doc, table, item, e, links, who),
-            AppearanceAnimationReader.Read(doc, table, item, e, links));
+            AppearanceAnimationReader.Read(doc, table, item, e, links),
+            TabOrder: isIn ? (int)b.D4(p + e + TabOrderOffset) : null)
+        {
+            Fonts = fonts
+        };
     }
 
     /// <summary>
@@ -261,14 +268,21 @@ public static class IoFieldParser
             .Select(p => new VarReference(doc.Binary.D2(p), doc.Binary.D2(p + 2)));
 
     /// <summary>Шрифт: ссылка за меткой — u16 номер элемента, u16 Id таблицы FONT.</summary>
-    /// <returns>Шрифт.</returns>
+    /// <param name="doc">Документ панели.</param>
+    /// <param name="table">Таблица элемента поля.</param>
+    /// <param name="item">Элемент поля.</param>
+    /// <param name="mark">Смещение метки после ссылок на стили от начала элемента.</param>
+    /// <param name="who">Описание поля для сообщения об ошибке.</param>
+    /// <param name="fonts">Шрифты всех прочитанных языков в порядке FONT.</param>
+    /// <returns>Первый шрифт для прежних вызовов.</returns>
     /// <exception cref="FwxFormatException">Ссылка не на FONT или элемент шрифта не сходится.</exception>
-    private static PanelFont Font(FwxDocument doc, TocEntry table, TableItem item, long mark, string who)
+    private static PanelFont Font(FwxDocument doc, TocEntry table, TableItem item, long mark, string who, out IReadOnlyList<LanguageFont> fonts)
     {
         var p = item.Offset + mark + 4;
         var font = doc.FindTable(doc.Binary.D2(p + 2));
-        return font?.Name == FontReader.Table
+        fonts = font?.Name == FontReader.Table
             ? FontReader.Read(doc, font, doc.Binary.D2(p), who)
             : throw new FwxFormatException(table.Name, item.Offset, $"{who}: ссылка за стилями ведёт не на {FontReader.Table}");
+        return fonts[0].Font;
     }
 }

@@ -78,6 +78,10 @@
     [Parameter]
     public ScreenItem? Item { get; set; }
 
+    /// <summary>Язык шрифтов полей; null — первый язык FONT.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
     /// <summary>Подсказка вместо экрана: файл не открыт, читается или экран не выбран.</summary>
     [Parameter]
     public string Empty { get; set; } = Hints.NoScreen;
@@ -167,8 +171,9 @@
                 }
                 else
                 {
-                    <span style="@IoFieldCss.Text(field)">
-                        @if (IoFieldGlyphs.Layout(field) is { } glyphs)
+                    var font = IoFieldFonts.Of(field, Language);
+                    <span style="@IoFieldCss.Text(field, o.Bounds, font)">
+                        @if (IoFieldGlyphs.Layout(field, font) is { } glyphs)
                         {
                             foreach (var (glyph, width) in glyphs)
                             {

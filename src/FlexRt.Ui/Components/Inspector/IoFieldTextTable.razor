@@ -1,0 +1,35 @@
+<div class="field-texts">
+    <table aria-label="Тексты поля" aria-readonly="true">
+        <thead>
+            <tr>
+                @foreach (var text in Texts)
+                {
+                    <th scope="col">@LanguageText.Format(text.Language)</th>
+                }
+                <th scope="col">Reference</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Texts.Any(text => text.Text.Length > 0))
+            {
+                <tr>
+                    @foreach (var text in Texts)
+                    {
+                        <td>@text.Text</td>
+                    }
+                    <td>@(ObjectName + "\\Tooltip")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    /// <summary>Подсказка поля на всех языках Runtime, в порядке STRINGSTORE и как есть.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<(int Language, string Text)> Texts { get; set; } = [];
+
+    /// <summary>Имя выбранного объекта для Reference: имя объекта и Tooltip через обратную косую черту.</summary>
+    [Parameter, EditorRequired]
+    public string ObjectName { get; set; } = "";
+}

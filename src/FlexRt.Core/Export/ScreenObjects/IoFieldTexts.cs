@@ -210,6 +210,17 @@ public static class IoFieldTexts
         _ => Unknown(code)
     };
 
+    /// <summary>Ориентация из PS_Text: варианты нативного редактора TP700 V21; неизвестный угол остаётся числом.</summary>
+    /// <returns>Horizontal, Vertical, left/right; отсутствующее слово — «не прочитано».</returns>
+    public static string Orientation(int? angle) => angle switch
+    {
+        0 => "Horizontal",
+        270 => "Vertical, left",
+        90 => "Vertical, right",
+        null => NotRead,
+        _ => Unknown(angle.Value)
+    };
+
     /// <summary>Шрифт, как Text format → Font в TIA: <c>Tahoma, 16px, style=Bold</c>.</summary>
     /// <returns>Имя, размер и начертание.</returns>
     public static string Font(PanelFont font)
@@ -226,6 +237,10 @@ public static class IoFieldTexts
         if (font.Underline)
         {
             styles.Add("Underline");
+        }
+        if (font.Strikeout)
+        {
+            styles.Add("Strikeout");
         }
         var text = $"{font.Name}, {font.Size.ToString(CultureInfo.InvariantCulture)}px";
         return styles.Count == 0 ? text : $"{text}, style={string.Join(", ", styles)}";

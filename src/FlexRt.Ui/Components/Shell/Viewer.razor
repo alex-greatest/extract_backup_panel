@@ -34,7 +34,7 @@
                                 <PictureGallery Title="@EditorPath.Of(_selected, _path)" Pictures="pictures" Selected="Pictures.Selected" OnSelect="SelectPicture" OnOpen="Pictures.Open" />
                                 break;
                             default:
-                                <ScreenCanvas Title="@EditorPath.Of(_selected, _path)" Item="@(_selected as ScreenItem)" Empty="@(NoPanelHint() ?? Hints.NoScreen)" />
+                                <ScreenCanvas Language="_language" Title="@EditorPath.Of(_selected, _path)" Item="@(_selected as ScreenItem)" Empty="@(NoPanelHint() ?? Hints.NoScreen)" />
                                 break;
                         }
                     </section>

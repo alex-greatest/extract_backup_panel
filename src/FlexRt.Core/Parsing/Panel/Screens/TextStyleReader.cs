@@ -22,6 +22,9 @@ internal static class TextStyleReader
     /// <summary>Байт выравнивания по вертикали: 0 — Top, 1 — Middle, 2 — Bottom.</summary>
     private const int VerticalOffset = 0x19;
 
+    /// <summary>u16 угол текста: 0, 270 и 90; выбор Horizontal / Vertical left / right в редакторе TP700 V21.</summary>
+    private const int OrientationOffset = 0x1a;
+
     /// <summary>Байты полей текста подряд: Top, Bottom, Left, Right (шаг 48: 6, 8, 5, 7).</summary>
     private const int MarginsOffset = 0x1c;
 
@@ -50,7 +53,8 @@ internal static class TextStyleReader
             StyleElement.Rgb(b, p + ColorOffset),
             b.D1(p + HorizontalOffset),
             b.D1(p + VerticalOffset),
-            Margins(doc, table, item));
+            Margins(doc, table, item),
+            item.Length >= OrientationOffset + 2 ? b.D2(p + OrientationOffset) : null);
     }
 
     /// <summary>Поля текста: четыре байта с <see cref="MarginsOffset"/> — Top, Bottom, Left, Right.</summary>

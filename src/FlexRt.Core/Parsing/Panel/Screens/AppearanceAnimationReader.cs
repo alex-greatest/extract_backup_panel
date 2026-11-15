@@ -106,9 +106,9 @@ internal static class AppearanceAnimationReader
         var bit = mode == 4 ? Bit(table, item, p + RangesOffset, b.D4(p + RangesOffset)) : (int?)null;
         var colors = item.Offset + header + ColorsHeaderSize;
         var tagInfo = doc.Tags.FirstOrDefault(t => t.Index == tag.Index + 1);
-        // У Real в V21 TP700 границы также целые i32; дробный ввод TIA не сохраняет (опыты 2026-11-14).
+        // У Real и LReal границы целые i32: нативный редактор TP1900 V21, опыты 2026-11-15.
         var tagType = tagInfo?.TypeCode & ~HmiTag.ArrayFlag & ~0x80;
-        if (mode == 1 && tagType is not (0x02 or 0x03 or 0x04 or 0x0b or 0x10 or 0x11 or 0x12 or 0x13))
+        if (mode == 1 && tagType is not (0x02 or 0x03 or 0x04 or 0x05 or 0x0b or 0x10 or 0x11 or 0x12 or 0x13))
         {
             throw new FwxFormatException(table.Name, p, "Appearance: границы Range для этого типа тега не разобраны");
         }
@@ -131,10 +131,10 @@ internal static class AppearanceAnimationReader
             b.D1(color + 0x08));
     }
 
-    /// <summary>Целая знаковая граница у Int, DInt, SInt и Real; бит 0x80 ПЛК и бит массива не участвуют в коде типа.</summary>
-    /// <returns>Граница Range; отрицательные Real сверены на TP700 Comfort в TIA V21, 2026-11-14.</returns>
+    /// <summary>Целая знаковая граница у Int, DInt, SInt, Real и LReal; бит 0x80 ПЛК и бит массива не участвуют в коде типа.</summary>
+    /// <returns>Граница Range; Real и LReal сверены с нативным редактором TP1900 V21, 2026-11-15.</returns>
     private static long Bound(FwxBinary b, long offset, HmiTag? tag) =>
-        (tag?.TypeCode & ~HmiTag.ArrayFlag & ~0x80) is 0x02 or 0x03 or 0x04 or 0x10 ? (int)b.D4(offset) : b.D4(offset);
+        (tag?.TypeCode & ~HmiTag.ArrayFlag & ~0x80) is 0x02 or 0x03 or 0x04 or 0x05 or 0x10 ? (int)b.D4(offset) : b.D4(offset);
 
     /// <summary>Единственный нулевой бит инвертированной маски Single bit.</summary>
     /// <returns>Номер бита 0…31.</returns>

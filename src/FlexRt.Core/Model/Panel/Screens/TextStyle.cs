@@ -5,4 +5,5 @@ namespace FlexRt.Model.Panel.Screens;
 /// <param name="HorizontalAlignment">Код выравнивания по горизонтали: 0 — Right, 1 — Center, 2 — Left.</param>
 /// <param name="VerticalAlignment">Код выравнивания по вертикали: 0 — Top, 1 — Middle, 2 — Bottom.</param>
 /// <param name="Margins">Поля текста (Layout → Margins); элемент короче полей — <c>null</c>, не прочитаны.</param>
-public sealed record TextStyle(int ColorRgb, int HorizontalAlignment, int VerticalAlignment, TextMargins? Margins);
+/// <param name="Orientation">Угол текста: 0 — Horizontal, 270 — Vertical, left, 90 — Vertical, right; не помещается — null.</param>
+public sealed record TextStyle(int ColorRgb, int HorizontalAlignment, int VerticalAlignment, TextMargins? Margins, int? Orientation = null);

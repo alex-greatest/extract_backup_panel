@@ -952,3 +952,36 @@
     white-space: normal;
     line-height: 18px;
 }
+
+.field-texts {
+    height: 100%;
+    overflow: auto;
+    background: #eee;
+}
+
+.field-texts table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: left;
+}
+
+.field-texts th,
+.field-texts td {
+    min-width: 220px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    vertical-align: top;
+}
+
+.field-texts th {
+    background: #ddd;
+    font-weight: normal;
+    position: sticky;
+    top: 0;
+}
+
+.field-texts td {
+    background: #fff;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}

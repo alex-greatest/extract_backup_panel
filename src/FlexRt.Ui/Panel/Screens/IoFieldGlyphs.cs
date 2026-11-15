@@ -19,24 +19,33 @@ public static class IoFieldGlyphs
     /// <summary>Шрифты, уже найденные в Windows: ключ — имя, жирность, курсив; не найден — <c>null</c>.</summary>
     private static readonly ConcurrentDictionary<(string Name, bool Bold, bool Italic), GlyphTypeface?> Fonts = new();
 
-    /// <summary>Раскладка, уже посчитанная для поля: холст перерисовывается при каждом выборе объекта.</summary>
-    private static readonly ConditionalWeakTable<IoField, IReadOnlyList<(char Glyph, int Width)>?[]> Layouts = new();
+    /// <summary>Раскладки, уже посчитанные для поля по каждому выбранному шрифту: холст перерисовывается при каждом выборе объекта.</summary>
+    private static readonly ConditionalWeakTable<IoField, Dictionary<PanelFont, IReadOnlyList<(char Glyph, int Width)>?>> Layouts = new();
 
     /// <summary>Символы образца текста поля (<see cref="IoFieldTexts.Sample"/>) с шириной каждого в пикселях экрана.</summary>
-    /// <param name="field">Поле: образец, шрифт и размер.</param>
+    /// <param name="field">Поле с образцом текста.</param>
+    /// <param name="font">Шрифт выбранного языка и его размер.</param>
     /// <returns>
     /// Символы и ширины; шрифта нет в Windows, имя — список шрифтов (<c>,</c> или <c>#</c>: CSS понял бы его иначе) или в
     /// шрифте нет символа — <c>null</c> (текст рисуется целиком).
     /// </returns>
-    public static IReadOnlyList<(char Glyph, int Width)>? Layout(IoField field) =>
-        Layouts.GetValue(field, f => [Measure(f)])[0];
+    public static IReadOnlyList<(char Glyph, int Width)>? Layout(IoField field, PanelFont font)
+    {
+        var layouts = Layouts.GetValue(field, _ => new Dictionary<PanelFont, IReadOnlyList<(char Glyph, int Width)>?>());
+        if (layouts.TryGetValue(font, out var layout))
+        {
+            return layout;
+        }
+        layout = Measure(field, font);
+        layouts.Add(font, layout);
+        return layout;
+    }
 
     /// <summary>Посчитать ширины символов образца поля.</summary>
     /// <returns>Символы и ширины или <c>null</c> (см. <see cref="Layout"/>).</returns>
-    private static IReadOnlyList<(char Glyph, int Width)>? Measure(IoField field)
+    private static List<(char Glyph, int Width)>? Measure(IoField field, PanelFont font)
     {
-        var f = field.Font;
-        if (f.Name.IndexOfAny([',', '#']) >= 0 || Font(f.Name, f.Bold, f.Italic) is not { } glyphs)
+        if (font.Name.IndexOfAny([',', '#']) >= 0 || Font(font.Name, font.Bold, font.Italic) is not { } glyphs)
         {
             return null;
         }
@@ -48,7 +57,7 @@ public static class IoFieldGlyphs
             {
                 return null;
             }
-            result.Add((c, (int)Math.Round(glyphs.AdvanceWidths[index] * f.Size, MidpointRounding.AwayFromZero)));
+            result.Add((c, (int)Math.Round(glyphs.AdvanceWidths[index] * font.Size, MidpointRounding.AwayFromZero)));
         }
         return result;
     }

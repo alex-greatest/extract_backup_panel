@@ -4,7 +4,8 @@ namespace FlexRt.Export.ScreenObjects;
 
 /// <summary>
 /// Подсказки (Tooltip) I/O field на языках панели: пары INFO_HANDLER с элементом поля, текст — строка языков с номером из
-/// пары, как есть. Сверено с TIA на шаге <c>data/real/steps-iofield/53_tooltip.fwc</c> (Project1, V21); у поля Output пары не встречались.
+/// пары, как есть. Сверено с TIA на шаге <c>data/real/steps-iofield/53_tooltip.fwc</c> (Project1, V21) и на
+/// <c>data/real/iofield-texts-connections-20261114/</c>: Input, Input/output и Output; три языка Runtime у Input/output.
 /// </summary>
 public sealed class IoFieldTooltips
 {
@@ -24,6 +25,11 @@ public sealed class IoFieldTooltips
             .ToDictionary(t => t.Owner, t => t.TextIndex);
         _strings = LanguageStrings.Of(doc);
     }
+
+    /// <summary>Подсказка поля на всех языках Runtime в порядке STRINGSTORE, без изменения текста.</summary>
+    /// <returns>Язык и текст; пары INFO_HANDLER нет или строки на языке нет — текст пустой.</returns>
+    public IReadOnlyList<(int Language, string Text)> Texts(VarReference field) =>
+        [.. _strings.Languages.Select(language => (language, Text(field, language)))];
 
     /// <summary>
     /// Текст подсказки поля как есть. Язык не выбран («Все языки») или такого языка в панели нет — первый язык панели, как у

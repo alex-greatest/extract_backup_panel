@@ -64,10 +64,10 @@ else if (Selection.Of(Item) is { } selected)
     @* @key: RadzenTabs запоминает содержимое вкладок — при смене объекта вкладки пересоздаются *@
     <RadzenTabs @key="selected" class="inspector-tabs" @bind-SelectedIndex="_objectTab">
         <Tabs>
-            <RadzenTabsItem Text="Properties"><ObjectProperties Object="selected" Field="@Field(selected)" Tooltip="@Item?.Tooltips.Text(selected.Element, Language)" Tags="Tags" @bind-Section="_objectSection" /></RadzenTabsItem>
+            <RadzenTabsItem Text="Properties"><ObjectProperties Object="selected" Field="@Field(selected)" Language="Language" Tooltip="@Item?.Tooltips.Text(selected.Element, Language)" Tags="Tags" @bind-Section="_objectSection" /></RadzenTabsItem>
             @foreach (var tab in ObjectTabs)
             {
-                <RadzenTabsItem Text="@tab"><ObjectTab Tab="@tab" Field="@Field(selected)" Events="@Item?.FieldEvents.GetValueOrDefault(selected.Element)" /></RadzenTabsItem>
+                <RadzenTabsItem Text="@tab"><ObjectTab Tab="@tab" Field="@Field(selected)" ObjectName="@selected.Name" Tooltips="@Item?.Tooltips" Events="@Item?.FieldEvents.GetValueOrDefault(selected.Element)" /></RadzenTabsItem>
             }
         </Tabs>
     </RadzenTabs>
@@ -107,7 +107,7 @@ else
         ["Height"] = "Layout"
     };
 
-    /// <summary>Вкладки объекта холста после Properties, как в TIA; ObjectTab показывает Animations и Events I/O field.</summary>
+    /// <summary>Вкладки объекта холста после Properties, как в TIA; ObjectTab показывает Animations, Events и Texts I/O field.</summary>
     private static readonly string[] ObjectTabs = ["Animations", "Events", "Texts"];
 
     /// <summary>Открытая вкладка объекта холста (Properties, Animations, Events, Texts).</summary>

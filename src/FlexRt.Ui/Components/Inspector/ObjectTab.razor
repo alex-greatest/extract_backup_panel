@@ -1,21 +1,23 @@
 @using FlexRt.Export.ScreenEvents
 @using FlexRt.Model.Panel.Screens
 
-@if (Tab == "Animations" && Field is not null)
+@switch (Tab)
 {
-    <IoFieldAnimations Field="Field" />
-}
-else if (Tab != EventsTab || Field is null || Events is null)
-{
-    <div class="muted">Не разобрано</div>
-}
-else if (Field.Mode == IoFieldMode.Output)
-{
-    <div class="muted">@IoFieldTexts.OutputEventsAbsent</div>
-}
-else
-{
-    <ScreenEvents Events="Events" />
+    case "Animations" when Field is not null:
+        <IoFieldAnimations Field="Field" />
+        break;
+    case "Texts" when Field is not null && Tooltips is not null:
+        <IoFieldTextTable Texts="@Tooltips.Texts(Field.Element)" ObjectName="@ObjectName" />
+        break;
+    case EventsTab when Field is { Mode: IoFieldMode.Output } && Events is not null:
+        <div class="muted">@IoFieldTexts.OutputEventsAbsent</div>
+        break;
+    case EventsTab when Field is not null && Events is not null:
+        <ScreenEvents Events="Events" />
+        break;
+    default:
+        <div class="muted">Не разобрано</div>
+        break;
 }
 
 @code {
@@ -23,7 +25,7 @@ else
     private const string EventsTab = "Events";
 
     /// <summary>
-    /// Вкладка объекта: Animations и Events I/O field; неподдерживаемые вкладки — «Не разобрано».
+    /// Вкладка объекта: Animations, Events и Texts I/O field; неподдерживаемые вкладки — «Не разобрано».
     /// </summary>
     [Parameter]
     public string Tab { get; set; } = "";
@@ -31,6 +33,14 @@ else
     /// <summary>I/O field выбранного объекта; объект другого типа — <c>null</c>.</summary>
     [Parameter]
     public IoField? Field { get; set; }
+
+    /// <summary>Имя выбранного объекта для Reference вкладки Texts.</summary>
+    [Parameter]
+    public string ObjectName { get; set; } = "";
+
+    /// <summary>Подсказки полей на языках Runtime; объект другого типа — null.</summary>
+    [Parameter]
+    public IoFieldTooltips? Tooltips { get; set; }
 
     /// <summary>События поля (<see cref="ScreenEventTexts.Of(IoField)"/>); нет — <c>null</c>.</summary>
     [Parameter]

@@ -1,4 +1,4 @@
-﻿@using FlexRt.Export.PanelData.Tags
+@using FlexRt.Export.PanelData.Tags
 @using FlexRt.Model.Panel.Screens
 
 <div class="props-layout object-props">
@@ -9,7 +9,7 @@
            PLC tag, Address и Data type рядом с ним — TagCell, серые, как в TIA), Type и Format (Decimal places, Field
            length и шаблон — IoFieldTexts; недоступные в TIA — серые); Appearance — Background (Fill pattern — серый Solid),
            Text и Border; Characteristics — Field (Hidden input); Layout — Position & size, у поля ещё Margins; Text
-           format — Format: (Orientation — серая Horizontal) и Alignment друг под другом; Flashing — Settings: Type
+           format — Format: (Font и Orientation из файла) и Alignment друг под другом; Flashing — Settings: Type
            Disabled или Standard (серый при Flash on limit violation, как в TIA) и флажок Flash on limit violation (без
            Range у тега — текст «нет в файле»); Limits — Colors: High limit violated и Low limit violated, как в TIA (в файле нет —
            IoFieldTexts.LimitsAbsent); Miscellaneous — Object (Name) и Tooltip на выбранном языке; Security —
@@ -118,10 +118,13 @@
             case StylesDesigns when Field is not null:
                 <div class="muted">@IoFieldTexts.StylesAbsent</div>
                 break;
-            case Miscellaneous when Field is not null:
+            case Miscellaneous when Field is { } f:
                 <div class="object-blocks">
                     <div class="object-column">
-                        <PropertyGroup Title="Object"><ObjectRow Name="Name" Value="Object.Name" /></PropertyGroup>
+                        <PropertyGroup Title="Object">
+                            <ObjectRow Name="Name" Value="Object.Name" />
+                            <ObjectRow Name="Tab order" Value="@((ReportCell?)f.TabOrder ?? "нет в файле")" />
+                        </PropertyGroup>
                     </div>
                     <div class="object-column">
                         <PropertyGroup Title="Tooltip">
@@ -135,8 +138,8 @@
             case TextFormat when Field is { } f:
                 <div class="object-stack">
                     <PropertyGroup Title="Format:" Class="wide">
-                        <ObjectRow Name="Font" Value="@IoFieldTexts.Font(f.Font)" />
-                        <ObjectRow Name="Orientation" Value="HorizontalOrientation" Disabled="true" />
+                        <ObjectRow Name="Font" Value="@IoFieldTexts.Font(IoFieldFonts.Of(f, Language))" />
+                        <ObjectRow Name="Orientation" Value="@IoFieldTexts.Orientation(f.Text.Orientation)" />
                     </PropertyGroup>
                     <PropertyGroup Title="Alignment" Class="wide">
                         <ObjectRow Name="Horizontal" Value="@IoFieldTexts.Horizontal(f.Text.HorizontalAlignment)" Control="ObjectRowControl.Combo" />
@@ -187,9 +190,6 @@
     /// </summary>
     private const string SolidFill = "Solid";
 
-    /// <summary>Orientation текста поля: в TIA на Comfort-панелях недоступна и Horizontal (Vertical TIA не принял).</summary>
-    private const string HorizontalOrientation = "Horizontal";
-
     /// <summary>Текст раздела, свойства которого программа не читает.</summary>
     private const string NotParsed = "Не разобрано";
 
@@ -227,6 +227,10 @@
     /// <summary>I/O field объекта; объект другого типа — <c>null</c>.</summary>
     [Parameter]
     public IoField? Field { get; set; }
+
+    /// <summary>Язык шрифта поля; null — первый шрифт, как при выборе всех языков.</summary>
+    [Parameter]
+    public int? Language { get; set; }
 
     /// <summary>Tooltip I/O field на выбранном языке; подсказки нет или объект другого типа — пусто.</summary>
     [Parameter]

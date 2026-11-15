@@ -60,19 +60,65 @@ public static class IoFieldCss
     /// Текст поля: цвет, шрифт (размер TIA — в пикселях экрана; гипотеза по снимку TIA), начертание, выравнивание по
     /// горизонтали и вертикали и Margins — отступы от внутреннего края рамки (сверено со снимком редактора TIA на шаге 80:
     /// справа 2 px до текста, как Right). Margins не прочитаны — отступы из CSS (2 px слева и справа).
+    /// Шрифт передаётся для выбранного языка. Углы 90/270 поворачивают текст и область обрезки внутри рамки; Strikeout добавляет зачёркивание.
     /// </summary>
     /// <returns>Текст CSS.</returns>
-    public static string Text(IoField field)
+    public static string Text(IoField field, ScreenRect bounds, PanelFont font)
     {
-        var f = field.Font;
-        var size = f.Size.ToString(CultureInfo.InvariantCulture);
-        var m = field.Text.Margins;
-        return $"color:{CssColor.Hex(field.Text.ColorRgb)}; font-family:'{FontName(f.Name)}'; font-size:{size}px;"
-            + $" font-weight:{(f.Bold ? "bold" : "normal")}; font-style:{(f.Italic ? "italic" : "normal")};"
-            + $" text-decoration:{(f.Underline ? "underline" : "none")};"
-            + $" justify-content:{Flex(field.Text.HorizontalAlignment, "flex-end", "flex-start")};"
-            + $" align-items:{Flex(field.Text.VerticalAlignment, "flex-start", "flex-end")};"
-            + (m is null ? "" : $" padding:{m.Top}px {m.Right}px {m.Bottom}px {m.Left}px;");
+        var size = font.Size.ToString(CultureInfo.InvariantCulture);
+        return $"color:{CssColor.Hex(field.Text.ColorRgb)}; font-family:'{FontName(font.Name)}'; font-size:{size}px;"
+            + $" font-weight:{(font.Bold ? "bold" : "normal")}; font-style:{(font.Italic ? "italic" : "normal")};"
+            + $" text-decoration:{Decoration(font)};"
+            + Alignment(field.Text)
+            + Padding(field.Text)
+            + Rotation(field, bounds);
+    }
+
+    /// <summary>Сохранить физические направления выравнивания при повороте внутренней области текста.</summary>
+    /// <returns>CSS выравнивания вдоль повёрнутых осей.</returns>
+    private static string Alignment(TextStyle text)
+    {
+        var horizontal = Flex(text.HorizontalAlignment, "flex-end", "flex-start");
+        var vertical = Flex(text.VerticalAlignment, "flex-start", "flex-end");
+        return text.Orientation switch
+        {
+            270 => $" justify-content:{Flex(text.VerticalAlignment, "flex-end", "flex-start")}; align-items:{horizontal};",
+            90 => $" justify-content:{vertical}; align-items:{Flex(text.HorizontalAlignment, "flex-start", "flex-end")};",
+            _ => $" justify-content:{horizontal}; align-items:{vertical};"
+        };
+    }
+
+    /// <summary>Поля от физических краёв объекта переводятся в координаты повёрнутого текста.</summary>
+    /// <returns>CSS отступов; поля не прочитаны — отступы по умолчанию.</returns>
+    private static string Padding(TextStyle text) => text.Margins is not { } m ? "" : text.Orientation switch
+    {
+        270 => $" padding:{m.Left}px {m.Top}px {m.Right}px {m.Bottom}px;",
+        90 => $" padding:{m.Right}px {m.Bottom}px {m.Left}px {m.Top}px;",
+        _ => $" padding:{m.Top}px {m.Right}px {m.Bottom}px {m.Left}px;"
+    };
+
+    /// <summary>Подчёркивание и зачёркивание могут быть включены одновременно.</summary>
+    /// <returns>Значение text-decoration.</returns>
+    private static string Decoration(PanelFont font) => (font.Underline, font.Strikeout) switch
+    {
+        (true, true) => "underline line-through",
+        (true, false) => "underline",
+        (false, true) => "line-through",
+        _ => "none"
+    };
+
+    /// <summary>Повернуть внутреннюю область текста на подтверждённый угол PS_Text, поменяв её ширину и высоту.</summary>
+    /// <returns>CSS поворота; горизонтальный или неизвестный угол — без поворота.</returns>
+    private static string Rotation(IoField field, ScreenRect bounds)
+    {
+        if (field.Text.Orientation is not (90 or 270))
+        {
+            return "";
+        }
+        var width = Math.Max(0, bounds.Height - 2 * field.Border.Width);
+        var height = Math.Max(0, bounds.Width - 2 * field.Border.Width);
+        return $" inset:auto; left:50%; top:50%; width:{width}px; height:{height}px;"
+            + $" transform:translate(-50%,-50%) rotate({field.Text.Orientation}deg);";
     }
 
     /// <summary>

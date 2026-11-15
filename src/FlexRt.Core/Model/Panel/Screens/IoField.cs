@@ -1,4 +1,4 @@
-﻿namespace FlexRt.Model.Panel.Screens;
+namespace FlexRt.Model.Panel.Screens;
 
 /// <summary>
 /// I/O field: элемент VIEW_IN (Input, Input/output) или VIEW_OUT (Output) со свойствами General, Appearance и Text
@@ -42,6 +42,7 @@
 /// <param name="Appearance">Анимация Appearance; ссылки нет — null, сбой — Ranges null.</param>
 /// <param name="Conditions">Условия Visibility и Control enable обёрток поля.</param>
 /// <param name="Movements">Движения обёрток поля.</param>
+/// <param name="TabOrder">Порядок обхода VIEW_IN; у Output значение в FWC отсутствует — null.</param>
 public sealed record IoField(
     VarReference Element,
     IoFieldMode Mode,
@@ -67,4 +68,9 @@ public sealed record IoField(
     IReadOnlyList<ObjectEvent>? Events = null,
     AppearanceAnimation? Appearance = null,
     IReadOnlyList<FieldCondition>? Conditions = null,
-    IReadOnlyList<FieldMovement>? Movements = null);
+    IReadOnlyList<FieldMovement>? Movements = null,
+    int? TabOrder = null)
+{
+    /// <summary>Шрифты по языкам Runtime в порядке FONT; Font сохраняет первый шрифт для прежних вызовов.</summary>
+    public IReadOnlyList<LanguageFont> Fonts { get; init; } = [];
+}
