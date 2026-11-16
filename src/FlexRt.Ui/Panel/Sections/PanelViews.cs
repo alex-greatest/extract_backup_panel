@@ -57,7 +57,7 @@ public static class PanelViews
     public static PanelView From(FwxDocument doc, string path, PlcData? plc, PanelUsers users)
     {
         var source = PanelSources.From(doc, path, plc);
-        List<PanelSection> book = [.. PanelDataBook.TryBuild(source).Select(Section)];
+        List<PanelSection> book = [.. PanelDataBook.TryBuild(source).Select(built => Section(built, doc.Tags))];
         var bySheet = book.ToDictionary(s => s.Sheet);
         return new PanelView(
             bySheet[SummarySheet.Name],
@@ -83,12 +83,15 @@ public static class PanelViews
             .Select(s => $"Раздел «{s.Title}» не построен: {s.Error}")
     ];
 
-    /// <summary>Раздел листа книги: лист из ядра (не построен — пустой) и причина сбоя (<see cref="ReadFailure.Describe"/>).</summary>
+    /// <summary>Раздел листа книги и причина сбоя; у листа тегов — исходные теги для инспектора Range.</summary>
     /// <returns>Раздел.</returns>
-    private static PanelSection Section(BuiltSheet built)
+    private static PanelSection Section(BuiltSheet built, IReadOnlyList<HmiTag>? tags = null)
     {
         var (title, path, icon) = Node(built.Sheet.Name);
-        return new PanelSection(title, path, icon, built.Sheet, built.Error is { } e ? ReadFailure.Describe(e) : null);
+        return new PanelSection(title, path, icon, built.Sheet, built.Error is { } e ? ReadFailure.Describe(e) : null)
+        {
+            HmiTags = built.Sheet.Name == TagsSheet.Name ? tags : null
+        };
     }
 
     /// <summary>

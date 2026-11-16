@@ -1,0 +1,45 @@
+@using FlexRt.Export.PanelData.Tags
+
+<div class="props-layout object-props">
+    <PropertyList Sections="Sections" Selected="_section" SelectedChanged="@(section => _section = section)" />
+    <div class="props-body object-body">
+        <div class="object-title">@_section</div>
+        @if (_section == RangeSection)
+        {
+            <PropertyGroup Title="Settings" Class="wide">
+                <ObjectRow Name="Upper 2" Value="@TagRangeTexts.Value(Tag.Range, Tag.Range?.Upper2)" Second="@TagRangeTexts.Kind(Tag.Range, Tag.Range?.Upper2)" />
+                <ObjectRow Name="Upper 1" Value="@TagRangeTexts.Value(Tag.Range, Tag.Range?.Upper1)" Second="@TagRangeTexts.Kind(Tag.Range, Tag.Range?.Upper1)" />
+                <ObjectRow Name="Lower 1" Value="@TagRangeTexts.Value(Tag.Range, Tag.Range?.Lower1)" Second="@TagRangeTexts.Kind(Tag.Range, Tag.Range?.Lower1)" />
+                <ObjectRow Name="Lower 2" Value="@TagRangeTexts.Value(Tag.Range, Tag.Range?.Lower2)" Second="@TagRangeTexts.Kind(Tag.Range, Tag.Range?.Lower2)" />
+            </PropertyGroup>
+        }
+        else
+        {
+            <PropertyGroup Title="General" Class="wide">
+                @foreach (var (name, value) in Row.Section.Table.Columns.Zip(Row.Section.Table.Rows[Row.Index]))
+                {
+                    <ObjectRow Name="@name" Value="value" />
+                }
+            </PropertyGroup>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Раздел Range, как в свойствах тега TIA.</summary>
+    private const string RangeSection = "Range";
+
+    /// <summary>Разобранные разделы свойств тега; General сохраняет значения прежнего инспектора строки.</summary>
+    private static readonly string[] Sections = ["General", RangeSection];
+
+    /// <summary>Выбранный раздел; сохраняется при выборе другой строки тегов.</summary>
+    private string _section = "General";
+
+    /// <summary>Исходный HMI-тег, соответствующий выбранной строке без учёта сортировки и фильтра.</summary>
+    [Parameter, EditorRequired]
+    public HmiTag Tag { get; set; } = null!;
+
+    /// <summary>Выбранная строка листа «Теги» для прежних свойств General.</summary>
+    [Parameter, EditorRequired]
+    public SectionRow Row { get; set; } = null!;
+}

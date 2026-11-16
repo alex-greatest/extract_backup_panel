@@ -33,6 +33,7 @@ public static class FwxReader
         ReadToc(doc);
         TryParse(doc, StringStoreParser.Parse);
         TryParse(doc, VarParser.Parse);
+        TryParse(doc, TagRangeParser.Parse);
         TryParse(doc, DatalinkReadWrParser.Parse);
         TryParse(doc, DatalinkReadWrParser.ParseAreaPointers);
         TryParse(doc, ConnectionParser.Parse);

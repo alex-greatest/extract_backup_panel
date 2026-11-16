@@ -1,16 +1,23 @@
-<div class="props-layout object-props">
-    <div class="props-body object-body">
-        <PropertyGroup Title="@($"Строка {Row.Index + 1} листа «{Row.Section.Sheet}»")" Class="row-group">
-            @foreach (var (name, value) in Row.Section.Table.Columns.Zip(Row.Section.Table.Rows[Row.Index]))
-            {
-                <ObjectRow Name="@name" Value="value" />
-            }
-        </PropertyGroup>
+@if (Row.Section.HmiTags is { } tags && Row.Index < tags.Count)
+{
+    <TagProperties Row="Row" Tag="tags[Row.Index]" />
+}
+else
+{
+    <div class="props-layout object-props">
+        <div class="props-body object-body">
+            <PropertyGroup Title="@($"Строка {Row.Index + 1} листа «{Row.Section.Sheet}»")" Class="row-group">
+                @foreach (var (name, value) in Row.Section.Table.Columns.Zip(Row.Section.Table.Rows[Row.Index]))
+                {
+                    <ObjectRow Name="@name" Value="value" />
+                }
+            </PropertyGroup>
+        </div>
     </div>
-</div>
+}
 
 @code {
-    /// <summary>Строка таблицы раздела: поля — ячейки строки под заголовками колонок листа (образец заливки и перенос строк — в <see cref="PropertyValue"/>).</summary>
+    /// <summary>Строка раздела: у тегов General и Range; у остальных — ячейки строки под заголовками колонок листа.</summary>
     [Parameter, EditorRequired]
     public SectionRow Row { get; set; } = null!;
 }

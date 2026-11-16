@@ -1,4 +1,5 @@
 using FlexRt.Export;
+using FlexRt.Model.Panel;
 
 namespace FlexRt.Ui.Panel.Sections;
 
@@ -10,6 +11,9 @@ namespace FlexRt.Ui.Panel.Sections;
 /// <param name="Error">Причина, по которой таблицу построить не удалось (таблица тогда пустая); <c>null</c> — построена.</param>
 public sealed record PanelSection(string Title, string Path, string Icon, ReportSheet Report, string? Error = null)
 {
+    /// <summary>Исходные HMI-теги в порядке строк листа «Теги»; у остальных разделов — null.</summary>
+    public IReadOnlyList<HmiTag>? HmiTags { get; init; }
+
     /// <summary>Имя листа Excel, из которого таблица: <c>Теги</c>, <c>0x409</c>.</summary>
     public string Sheet => Report.Name;
 

@@ -22,4 +22,7 @@ public sealed record HmiTag(int Index, string Name, int TypeCode, int Elements, 
     /// AREAPTR дискретных алармов и другие.
     /// </summary>
     public IReadOnlyList<VarReference> References { get; init; } = [];
+
+    /// <summary>Range из именованного LIMIT; null — нет данных в FWC, IsRead false — запись не разобрана.</summary>
+    public TagRange? Range { get; init; }
 }
