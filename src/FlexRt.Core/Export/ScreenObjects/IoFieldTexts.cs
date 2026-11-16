@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using FlexRt.Export.PanelData.Tags;
 using FlexRt.Model.Panel.Screens;
 
@@ -21,7 +21,7 @@ public static class IoFieldTexts
         _ => "?"
     };
 
-    /// <summary>Flashing → Type, как в списке TIA. Advanced на TP700 в файл не попадает (шаг 59 совпал с Disabled).</summary>
+    /// <summary>Flashing → Type. В опыте шага 59 на TP700 Advanced дал тот же FWC, что Disabled; другие конфигурации не проверены.</summary>
     /// <returns><c>Standard</c> или <c>Disabled</c>.</returns>
     public static string Flashing(IoField field) => field.Flashing ? "Standard" : "Disabled";
 
@@ -164,18 +164,20 @@ public static class IoFieldTexts
 
     /// <summary>
     /// Текст в поле на холсте — как в редакторе TIA, значения тега в файле нет: шаблон нулями (<c>0000000</c>,
-    /// <c>+00000.00</c>; знак <c>+</c> — догадка), у String — пусто; Units — через пробел.
+    /// <c>+00000.00</c>), у Date/Time — фиксированный образец редактора на выбранном языке, у String — пусто;
+    /// Units присоединяются без добавления пробела (поле A603 с единицей N); крайние пробелы по-прежнему удаляются.
     /// </summary>
     /// <returns>Текст поля.</returns>
-    public static string Sample(IoField field)
+    public static string Sample(IoField field, int? language = null)
     {
         var text = field.DisplayFormat switch
         {
             Decimal => Number(field, "+", '0'),
             Hexadecimal or Binary => new string('0', field.PatternLength),
+            DateFormat or TimeFormat or DateTimeFormat => IoFieldDateTimeSample.Of(field, language),
             _ => ""
         };
-        return $"{text} {field.Unit}".Trim();
+        return (text + field.Unit).Trim();
     }
 
     /// <summary>

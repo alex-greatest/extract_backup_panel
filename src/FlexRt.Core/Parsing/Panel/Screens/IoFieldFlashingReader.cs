@@ -4,8 +4,8 @@ namespace FlexRt.Parsing.Panel.Screens;
 
 /// <summary>
 /// Flashing I/O field: ссылка элемента на TIMER со словом <see cref="FlashingWord"/>. Сверено с TIA на шаге
-/// <c>data/real/steps-iofield/50_flashing.fwc</c> (Input/output, Project1, V21); у поля Output шага нет — правило то же,
-/// не проверено.
+/// <c>data/real/steps-iofield/50_flashing.fwc</c> (Input/output, Project1, V21) и на Output
+/// <c>data/real/iofield-rendering-flashing-20261116/ui/05_output_standard.fwc</c> (TP700 Comfort, TIA V21 Update 1).
 /// </summary>
 internal static class IoFieldFlashingReader
 {

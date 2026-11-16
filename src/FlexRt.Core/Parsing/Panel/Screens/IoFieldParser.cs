@@ -181,8 +181,8 @@ public static class IoFieldParser
     }
 
     /// <summary>
-    /// Цвета Limits и Flash on limit violation: сначала мигание по пределам (<see cref="IoFieldLimitFlashReader"/>, цвета
-    /// из SYMB); его нет — цвета из ADAPTVALUECHANG (<see cref="IoFieldLimitReader"/>): есть ссылка на них — флажок снят
+    /// Цвета Limits и Flash on limit violation: сначала состояние пределов (<see cref="IoFieldLimitFlashReader"/>, цвета
+    /// из SYMB и флажок по биту мигания, включая VARLIST); его нет — цвета из ADAPTVALUECHANG (<see cref="IoFieldLimitReader"/>): есть ссылка на них — флажок снят
     /// (в том числе если элемент с цветами не сходится: ссылка есть — Range задан), нет — в файле нет. Мигание не
     /// прочитано (элемент ADAPTDYNATTRIBU или SYMB не сходится, в том числе у анимации Appearance) — предупреждение,
     /// флажок «не прочитано», цвета — из ADAPTVALUECHANG, если они там есть, иначе «не прочитано». Элемент с цветами не
@@ -199,7 +199,7 @@ public static class IoFieldParser
         {
             if (IoFieldLimitFlashReader.Read(doc, links, who) is { } flashing)
             {
-                return (flashing, LimitFlashing.On);
+                return flashing;
             }
         }
         catch (FwxFormatException e)

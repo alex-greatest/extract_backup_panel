@@ -86,6 +86,7 @@
 .screen-object.io-field .io-glyph {
     flex: none;
     white-space: pre;
+    transform: translate(var(--io-snap-x, 0), var(--io-snap-y, 0));
 }
 
 /* выбранный щелчком объект — как в редакторе TIA: восемь маркеров 6×6 (синяя рамка, голубая середина) внутри объекта

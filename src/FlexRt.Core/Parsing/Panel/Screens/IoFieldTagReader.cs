@@ -4,7 +4,7 @@ using FlexRt.Model.Panel;
 namespace FlexRt.Parsing.Panel.Screens;
 
 /// <summary>
-/// Тег I/O field (Process → Tag) по ссылкам элемента поля: прямая ссылка на VAR (сверено с TIA на шаговых копиях
+/// Тег I/O field (Process → Tag) по ссылкам элемента поля: прямая ссылка на VAR или VARLIST (сверено с TIA на шаговых копиях
 /// <c>data/real/steps-iofield/</c>: внутренние теги и тег ПЛК) или первая ссылка на ADAPTVALUECHANG, первая ссылка
 /// которого ведёт на VAR или на элемент VARLIST с именем тега (сверено с TIA через Openness: <c>IO Field_2</c>
 /// A603A0097 → <c>Step_Number</c>).
@@ -18,7 +18,7 @@ internal static class IoFieldTagReader
     private const string VarListTable = "VARLIST";
 
     /// <summary>
-    /// Тег поля: прямая ссылка на VAR, иначе — через ADAPTVALUECHANG первой ссылки. Тип — код типа записи VAR
+    /// Тег поля: прямая ссылка на VAR / VARLIST, иначе — через ADAPTVALUECHANG первой ссылки. Тип — код типа записи VAR
     /// (<see cref="HmiTag.TypeCode"/>; номер записи у тега — с единицы); у тега из VARLIST типа нет.
     /// </summary>
     /// <param name="doc">Документ панели (теги VAR уже прочитаны).</param>
@@ -35,7 +35,8 @@ internal static class IoFieldTagReader
             return (null, null, null);
         }
         var varId = doc.FindTable(VarTable)?.Id;
-        var direct = links.ToList().FindIndex(r => r.Table == varId);
+        var varListId = doc.FindTable(VarListTable)?.Id;
+        var direct = links.ToList().FindIndex(r => r.Table == varId || r.Table == varListId);
         var link = direct >= 0 ? links[direct] : Through(doc, links[0]);
         if (link is { } tag && Tag(doc, tag) is { } found)
         {

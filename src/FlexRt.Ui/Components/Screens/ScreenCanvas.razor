@@ -172,8 +172,9 @@
                 else
                 {
                     var font = IoFieldFonts.Of(field, Language);
-                    <span style="@IoFieldCss.Text(field, o.Bounds, font)">
-                        @if (IoFieldGlyphs.Layout(field, font) is { } glyphs)
+                    var glyphs = IoFieldGlyphs.Layout(field, font, Language);
+                    <span style="@IoFieldCss.Text(field, o.Bounds, font, glyphs?.Sum(g => g.Width), IoFieldGlyphs.LineHeight(font))">
+                        @if (glyphs is not null)
                         {
                             foreach (var (glyph, width) in glyphs)
                             {
@@ -182,7 +183,7 @@
                         }
                         else
                         {
-                            @IoFieldTexts.Sample(field)
+                            @IoFieldTexts.Sample(field, Language)
                         }
                     </span>
                 }
