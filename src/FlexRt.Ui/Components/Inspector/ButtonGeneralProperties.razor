@@ -1,0 +1,149 @@
+@using FlexRt.Model.Panel.Screens
+
+<div class="button-general">
+    <div class="button-general-settings">
+        <PropertyGroup Title="Mode">
+            <div class="button-options">
+                @foreach (var mode in Modes)
+                {
+                    <label><input type="radio" checked="@(mode == DisplayMode)" disabled /> @ButtonTexts.Mode(mode)</label>
+                }
+                <label class="button-option-unavailable" title="Режим не различается в проверенном FWC">
+                    <input type="radio" disabled /> Graphics or text
+                </label>
+            </div>
+        </PropertyGroup>
+    </div>
+    @if (HasText || HasPicture)
+    {
+        <div class="button-general-labels">
+            @if (HasText)
+            {
+                <PropertyGroup Title="Label">
+                    @if (Button.Mode == ButtonMode.Text)
+                    {
+                        @LabelOptions
+                    }
+                    <label class="button-caption-label">Text when button is "not pressed"
+                        <textarea class="button-caption-text" readonly>@Texts.Text(Button.Off, Language)</textarea>
+                    </label>
+                    @PressedLabel("Text when button is pressed")
+                    <textarea class="button-caption-text" aria-label="Text when button is pressed" readonly
+                              disabled="@(!HasPressedCaption)">@(HasPressedCaption ? Texts.Text(Button.On, Language) : "")</textarea>
+                </PropertyGroup>
+            }
+            @if (HasPicture)
+            {
+                <PropertyGroup Title="Graphic">
+                    @if (Button.Mode == ButtonMode.Graphic)
+                    {
+                        @LabelOptions
+                    }
+                    <label class="button-caption-label">Graphic when button is "not pressed"
+                        <input class="button-picture-value" readonly value="@Texts.Picture(Button.Off)" />
+                    </label>
+                    @PressedLabel("Graphic when button is pressed")
+                    <input class="button-picture-value" aria-label="Graphic when button is pressed" readonly
+                           disabled="@(!HasPressedCaption)" value="@(HasPressedCaption ? Texts.Picture(Button.On) : "")" />
+                </PropertyGroup>
+            }
+        </div>
+    }
+    @if (UsesList)
+    {
+        <div class="button-general-list">
+            <PropertyGroup Title="@(IsTextList ? "Label" : "Graphic")">
+                @LabelOptions
+                <label class="button-caption-label">Tag
+                    <input class="button-picture-value" readonly value="@Texts.Tag(Button.List)" />
+                </label>
+                @if (Button.List?.Entries is not { } entries)
+                {
+                    <div class="muted">Не разобрано</div>
+                }
+                else
+                {
+                    <div class="button-list">
+                        <table aria-label="Список подписей кнопки" aria-readonly="true">
+                            <thead><tr><th scope="col">От</th><th scope="col">До</th><th scope="col">@(IsTextList ? "Текст" : "Картинка")</th></tr></thead>
+                            <tbody>
+                                @foreach (var entry in entries)
+                                {
+                                    <tr><td>@entry.From</td><td>@entry.To</td><td>@Caption(entry.Caption)</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </PropertyGroup>
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>Прочитанные свойства General выбранной кнопки.</summary>
+    [Parameter, EditorRequired]
+    public ButtonGeneral Button { get; set; } = null!;
+
+    /// <summary>Тексты, имена тегов и файлов картинок открытой панели.</summary>
+    [Parameter, EditorRequired]
+    public ButtonTexts Texts { get; set; } = null!;
+
+    /// <summary>Выбранный язык Runtime; null — первый язык панели.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
+    /// <summary>Режимы кнопки, которые различаются в FWC.</summary>
+    private static readonly ButtonMode[] Modes =
+        [ButtonMode.Text, ButtonMode.Graphic, ButtonMode.GraphicAndText, ButtonMode.Invisible];
+
+    /// <summary>Режим для переключателей. Списки относятся к Text или Graphic.</summary>
+    private ButtonMode DisplayMode => Button.Mode switch
+    {
+        ButtonMode.TextList => ButtonMode.Text,
+        ButtonMode.GraphicList => ButtonMode.Graphic,
+        _ => Button.Mode
+    };
+
+    /// <summary>У режима есть текстовая подпись.</summary>
+    private bool HasText => Button.Mode is ButtonMode.Text or ButtonMode.GraphicAndText;
+
+    /// <summary>У режима есть графическая подпись.</summary>
+    private bool HasPicture => Button.Mode is ButtonMode.Graphic or ButtonMode.GraphicAndText;
+
+    /// <summary>Подпись берётся из текстового или графического списка.</summary>
+    private bool UsesList => Button.Mode is ButtonMode.TextList or ButtonMode.GraphicList;
+
+    /// <summary>Строки списка содержат текстовые подписи.</summary>
+    private bool IsTextList => Button.Mode == ButtonMode.TextList;
+
+    /// <summary>Включена отдельная подпись нажатого состояния.</summary>
+    private bool HasPressedCaption => Button.Pressed == true;
+
+    /// <summary>Тип подписи внутри режима Text или Graphic.</summary>
+    private RenderFragment LabelOptions => @<div class="button-options button-label-options">
+        <label><input type="radio" checked="@(!UsesList)" disabled />
+            @(DisplayMode == ButtonMode.Text ? "Text" : "Graphic")</label>
+        <label><input type="radio" checked="@UsesList" disabled />
+            @(DisplayMode == ButtonMode.Text ? "Text list" : "Graphic list")</label>
+    </div>;
+
+    /// <summary>Флажок отдельной подписи нажатого состояния с полной подписью.</summary>
+    /// <returns>Разметка флажка или сообщения о непрочитанном состоянии.</returns>
+    private RenderFragment PressedLabel(string label) => @<div class="button-pressed-label">
+        @if (Button.Pressed is { } pressed)
+        {
+            <label><input type="checkbox" checked="@pressed" disabled /> @label</label>
+        }
+        else
+        {
+            <span>@label — не прочитано</span>
+        }
+    </div>;
+
+    /// <summary>Подпись диапазона на выбранном языке либо имя файла картинки.</summary>
+    /// <returns>Текст ячейки списка.</returns>
+    private string Caption(ButtonCaption caption) => IsTextList
+        ? Texts.Text(caption, Language)
+        : Texts.Picture(caption);
+}

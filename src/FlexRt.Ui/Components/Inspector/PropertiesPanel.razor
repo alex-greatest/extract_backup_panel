@@ -64,7 +64,12 @@ else if (Selection.Of(Item) is { } selected)
     @* @key: RadzenTabs запоминает содержимое вкладок — при смене объекта вкладки пересоздаются *@
     <RadzenTabs @key="selected" class="inspector-tabs" @bind-SelectedIndex="_objectTab">
         <Tabs>
-            <RadzenTabsItem Text="Properties"><ObjectProperties Object="selected" Field="@Field(selected)" Language="Language" Tooltip="@Item?.Tooltips.Text(selected.Element, Language)" Tags="Tags" @bind-Section="_objectSection" /></RadzenTabsItem>
+            <RadzenTabsItem Text="Properties">
+                <ObjectProperties Object="selected" Field="@Field(selected)" Language="Language"
+                                  Tooltip="@Item?.Tooltips.Text(selected.Element, Language)" Tags="Tags"
+                                  Button="@Item?.Buttons.GetValueOrDefault(selected.Element)" ButtonTexts="@Item?.ButtonTexts"
+                                  @bind-Section="_objectSection" />
+            </RadzenTabsItem>
             @foreach (var tab in ObjectTabs)
             {
                 <RadzenTabsItem Text="@tab"><ObjectTab Tab="@tab" Field="@Field(selected)" ObjectName="@selected.Name" Tooltips="@Item?.Tooltips" Events="@Item?.FieldEvents.GetValueOrDefault(selected.Element)" /></RadzenTabsItem>

@@ -32,6 +32,8 @@ namespace FlexRt.Ui.Panel.Screens;
 /// События I/O field для вкладки Events объекта по элементу поля (<see cref="ScreenEventTexts.Of(IoField)"/>, один словарь
 /// на все экраны).
 /// </param>
+/// <param name="Buttons">Подтверждённые свойства General кнопок по элементу объекта.</param>
+/// <param name="ButtonTexts">Тексты и картинки General кнопок открытой панели.</param>
 public sealed record ScreenItem(
     Screen Screen,
     string Name,
@@ -44,4 +46,6 @@ public sealed record ScreenItem(
     IReadOnlyList<ScreenObject> Objects,
     IReadOnlyDictionary<VarReference, IoField> Fields,
     IoFieldTooltips Tooltips,
-    IReadOnlyDictionary<VarReference, IReadOnlyList<ScreenEventView>> FieldEvents);
+    IReadOnlyDictionary<VarReference, IReadOnlyList<ScreenEventView>> FieldEvents,
+    IReadOnlyDictionary<VarReference, ButtonGeneral> Buttons,
+    ButtonTexts ButtonTexts);

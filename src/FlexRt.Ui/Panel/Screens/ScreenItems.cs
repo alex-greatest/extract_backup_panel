@@ -41,6 +41,8 @@ public static class ScreenItems
         var events = new ScreenEventTexts(doc);
         var fields = doc.IoFields.ToDictionary(f => f.Element);
         var tooltips = new IoFieldTooltips(doc);
+        var buttons = doc.Buttons.ToDictionary(b => b.Element);
+        var buttonTexts = new ButtonTexts(doc);
         var fieldEvents = fields.ToDictionary(f => f.Key, f => events.Of(f.Value));
         return
         [
@@ -56,7 +58,9 @@ public static class ScreenItems
                 [.. objects[s.Screen.Index]],
                 fields,
                 tooltips,
-                fieldEvents))
+                fieldEvents,
+                buttons,
+                buttonTexts))
         ];
     }
 

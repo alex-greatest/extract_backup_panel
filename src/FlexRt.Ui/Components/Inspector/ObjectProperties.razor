@@ -5,16 +5,9 @@
     <PropertyList Sections="Sections()" Selected="@Current()" SelectedChanged="SectionChanged" />
     <div class="props-body object-body">
         <div class="object-title">@Current()</div>
-        @* Поля раздела блоками, как в TIA. General I/O field — Process (тег через неразобранную таблицу — «? (таблица N)»;
-           PLC tag, Address и Data type рядом с ним — TagCell, серые, как в TIA), Type и Format (Decimal places, Field
-           length и шаблон — IoFieldTexts; недоступные в TIA — серые); Appearance — Background (Fill pattern — серый Solid),
-           Text и Border; Characteristics — Field (Hidden input); Layout — Position & size, у поля ещё Margins; Text
-           format — Format: (Font и Orientation из файла) и Alignment друг под другом; Flashing — Settings: Type
-           Disabled или Standard (серый при Flash on limit violation, как в TIA) и флажок Flash on limit violation (без
-           Range у тега — текст «нет в файле»); Limits — Colors: High limit violated и Low limit violated, как в TIA (в файле нет —
-           IoFieldTexts.LimitsAbsent); Miscellaneous — Object (Name) и Tooltip на выбранном языке; Security —
-           Authorization и Allow operator control; Styles/Designs — текст, что панель стиль не хранит. У объекта другого типа General — имя
-           и таблица. *@
+        @* General: I/O field — Process, Type и Format; кнопка — режим, подписи и списки.
+           Остальные разобранные свойства поля — в разделах TIA; прочие объекты имеют имя и рамку.
+           Значения и языки берутся из ядра; изменение свойств здесь недоступно. *@
         @switch (Current())
         {
             case General when Field is { } f:
@@ -39,6 +32,12 @@
                         </PropertyGroup>
                     </div>
                 </div>
+                break;
+            case General when Button is { } button && ButtonTexts is { } texts:
+                <ButtonGeneralProperties Button="button" Texts="texts" Language="Language" />
+                break;
+            case General when Object.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO":
+                <div class="muted">@NotParsed</div>
                 break;
             case General:
                 <PropertyGroup Title="General">
@@ -223,6 +222,12 @@
     /// <summary>Объект, выбранный на холсте: имя, таблица, положение.</summary>
     [Parameter, EditorRequired]
     public ScreenObject Object { get; set; } = null!;
+
+    /// <summary>General кнопки; неподтверждённый вид или другой объект — null.</summary>
+    [Parameter] public ButtonGeneral? Button { get; set; }
+
+    /// <summary>Тексты и имена файлов картинок General кнопки.</summary>
+    [Parameter] public ButtonTexts? ButtonTexts { get; set; }
 
     /// <summary>I/O field объекта; объект другого типа — <c>null</c>.</summary>
     [Parameter]

@@ -985,3 +985,82 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
+
+/* General кнопки: режим слева, подписи и списки справа. */
+.button-general {
+    display: grid;
+    grid-template-columns: minmax(145px, 1fr) minmax(0, 3fr);
+    align-items: start;
+    gap: 8px;
+}
+.button-general .object-group {
+    min-width: 0;
+}
+.button-general-labels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 8px;
+    align-items: start;
+}
+.button-options {
+    display: grid;
+    gap: 5px;
+}
+.button-options label, .button-pressed-label label {
+    display: flex;
+    align-items: baseline;
+    column-gap: 6px;
+}
+.button-options input, .button-pressed-label input {
+    flex: none;
+    margin: 0;
+    align-self: center;
+}
+.button-option-unavailable {
+    color: var(--muted);
+}
+.button-label-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 14px;
+    margin-bottom: 8px;
+}
+.button-caption-label {
+    display: block;
+    margin-top: 6px;
+}
+.button-pressed-label {
+    margin-top: 8px;
+}
+.button-caption-text, .button-picture-value {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 3px;
+    padding: 4px 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--panel-bg);
+    color: inherit;
+    font: inherit;
+}
+.button-caption-text {
+    min-height: 42px;
+    resize: vertical;
+}
+.button-caption-text:disabled, .button-picture-value:disabled {
+    background: var(--panel-group-bg);
+}
+.button-list {
+    overflow: auto;
+    max-height: 220px;
+}
+.button-list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.button-list th, .button-list td {
+    border: 1px solid var(--border);
+    padding: 3px 6px;
+    text-align: left;
+    white-space: pre-wrap;
+}
