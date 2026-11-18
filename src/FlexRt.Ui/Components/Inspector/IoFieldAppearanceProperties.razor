@@ -1,0 +1,32 @@
+@using FlexRt.Model.Panel.Screens
+
+<div class="object-blocks">
+    <div class="object-column">
+        <PropertyGroup Title="Background">
+            <ObjectRow Name="Color" Value="RgbText.Cell(Field.Fill.ColorRgb)" Control="ObjectRowControl.Combo" />
+            <ObjectRow Name="Fill pattern" Value="SolidFill" Disabled="true" />
+            <ObjectRow Name="Corner radius" Value="Field.Border.CornerRadius" Control="ObjectRowControl.Spin" />
+        </PropertyGroup>
+        <PropertyGroup Title="Text">
+            <ObjectRow Name="Color" Value="RgbText.Cell(Field.Text.ColorRgb)" Control="ObjectRowControl.Combo" />
+            <ObjectRow Name="Unit" Value="Field.Unit" />
+        </PropertyGroup>
+    </div>
+    <div class="object-column">
+        <PropertyGroup Title="Border">
+            <ObjectRow Name="Width" Value="Field.Border.Width" Control="ObjectRowControl.Spin" />
+            <ObjectRow Name="Style" Value="@IoFieldTexts.EdgeStyle(Field.Border.EdgeStyle)" Control="ObjectRowControl.Combo" />
+            <ObjectRow Name="Color" Value="RgbText.Cell(Field.Border.ColorRgb)" Control="ObjectRowControl.Combo" />
+            <ObjectRow Name="Background color" Value="RgbText.Cell(Field.Border.BackColorRgb)" Control="ObjectRowControl.Combo" />
+        </PropertyGroup>
+    </div>
+</div>
+
+@code {
+    /// <summary>Разобранные свойства оформления выбранного поля ввода-вывода.</summary>
+    [Parameter, EditorRequired]
+    public IoField Field { get; set; } = null!;
+
+    /// <summary>В проверенных полях Fill pattern не различает Transparent и Solid; сохранён прежний вывод.</summary>
+    private const string SolidFill = "Solid";
+}

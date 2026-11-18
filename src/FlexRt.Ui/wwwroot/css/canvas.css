@@ -89,6 +89,65 @@
     transform: translate(var(--io-snap-x, 0), var(--io-snap-y, 0));
 }
 
+/* Кнопка: исходная рамка TILED_PICTURE, эффективная заливка и ненажатая подпись из FWC. */
+.screen-object.panel-button {
+    box-shadow: none;
+    background: transparent;
+}
+
+.button-face,
+.button-border,
+.button-skin,
+.button-text {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.button-face {
+    overflow: hidden;
+}
+
+.button-border {
+    border-radius: inherit;
+}
+
+.button-skin {
+    border-style: solid;
+    border-color: transparent;
+    border-image-repeat: stretch;
+}
+
+.button-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: inherit;
+    white-space: pre;
+}
+
+.button-glyph {
+    flex: none;
+    white-space: pre;
+    transform: translateX(var(--button-snap-x, 0));
+}
+
+.button-caption {
+    white-space: pre-wrap;
+}
+
+.button-picture {
+    position: absolute;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+}
+
 /* выбранный щелчком объект — как в редакторе TIA: восемь маркеров 6×6 (синяя рамка, голубая середина) внутри объекта
    по углам и серединам сторон, без обводки. Маркер — векторная картинка: её размер делится на масштаб (--zoom у
    .screen-scale), и маркер на экране всегда 6 px без дробных смещений внутри */

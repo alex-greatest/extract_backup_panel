@@ -46,27 +46,25 @@
                 </PropertyGroup>
                 break;
             case Appearance when Field is { } f:
-                <div class="object-blocks">
-                    <div class="object-column">
-                        <PropertyGroup Title="Background">
-                            <ObjectRow Name="Color" Value="RgbText.Cell(f.Fill.ColorRgb)" Control="ObjectRowControl.Combo" />
-                            <ObjectRow Name="Fill pattern" Value="SolidFill" Disabled="true" />
-                            <ObjectRow Name="Corner radius" Value="f.Border.CornerRadius" Control="ObjectRowControl.Spin" />
-                        </PropertyGroup>
-                        <PropertyGroup Title="Text">
-                            <ObjectRow Name="Color" Value="RgbText.Cell(f.Text.ColorRgb)" Control="ObjectRowControl.Combo" />
-                            <ObjectRow Name="Unit" Value="f.Unit" />
-                        </PropertyGroup>
-                    </div>
-                    <div class="object-column">
-                        <PropertyGroup Title="Border">
-                            <ObjectRow Name="Width" Value="f.Border.Width" Control="ObjectRowControl.Spin" />
-                            <ObjectRow Name="Style" Value="@IoFieldTexts.EdgeStyle(f.Border.EdgeStyle)" Control="ObjectRowControl.Combo" />
-                            <ObjectRow Name="Color" Value="RgbText.Cell(f.Border.ColorRgb)" Control="ObjectRowControl.Combo" />
-                            <ObjectRow Name="Background color" Value="RgbText.Cell(f.Border.BackColorRgb)" Control="ObjectRowControl.Combo" />
-                        </PropertyGroup>
-                    </div>
-                </div>
+                <IoFieldAppearanceProperties Field="f" />
+                break;
+            case Appearance when Button is { } button:
+                <ButtonAppearanceProperties Button="button" />
+                break;
+            case Appearance when Object.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO":
+                <div class="muted">Appearance не прочитана</div>
+                break;
+            case FillPattern when Button is { } button:
+                <ButtonFillProperties Button="button" />
+                break;
+            case FillPattern:
+                <div class="muted">Fill pattern не прочитан</div>
+                break;
+            case Design when Button?.Appearance?.Focus is { } focus:
+                <PropertyGroup Title="Focus" Class="wide">
+                    <ObjectRow Name="Width" Value="focus.Width" Control="ObjectRowControl.Spin" />
+                    <ObjectRow Name="Color" Value="@RgbText.Cell(focus.ColorRgb)" Control="ObjectRowControl.Combo" />
+                </PropertyGroup>
                 break;
             case Characteristics when Field is { } f:
                 <PropertyGroup Title="Field" Class="wide">
@@ -160,6 +158,12 @@
     /// <summary>Раздел Appearance.</summary>
     private const string Appearance = "Appearance";
 
+    /// <summary>Раздел Fill pattern кнопки.</summary>
+    private const string FillPattern = "Fill pattern";
+
+    /// <summary>Раздел Design кнопки с оформлением фокуса.</summary>
+    private const string Design = "Design";
+
     /// <summary>Раздел Layout.</summary>
     private const string Layout = "Layout";
 
@@ -184,11 +188,6 @@
     /// <summary>Раздел Security.</summary>
     private const string Security = "Security";
 
-    /// <summary>
-    /// Fill pattern поля: в TIA на Comfort-панелях недоступен и Solid; в файле Transparent и Solid не различаются (шаг 22).
-    /// </summary>
-    private const string SolidFill = "Solid";
-
     /// <summary>Текст раздела, свойства которого программа не читает.</summary>
     private const string NotParsed = "Не разобрано";
 
@@ -198,6 +197,9 @@
 
     /// <summary>Разделы объекта другого типа: известны только имя, таблица и положение.</summary>
     private static readonly string[] ObjectSections = [General, Layout];
+
+    /// <summary>Разделы кнопки: General, Appearance, Fill pattern, Design, положение и размеры.</summary>
+    private static readonly string[] ButtonSections = [General, Appearance, FillPattern, Design, Layout];
 
     /// <summary>
     /// Выбранный раздел; <c>null</c> или раздела нет у объекта — первый. Хранит панель свойств: при щелчке по другому
@@ -287,9 +289,11 @@
         return row is not null && index >= 0 ? row[index] : "";
     }
 
-    /// <summary>Разделы слева: у I/O field — все разделы TIA, у другого объекта — General и Layout.</summary>
+    /// <summary>Разделы слева по типу объекта: I/O field, кнопка или прочий объект.</summary>
     /// <returns>Имена разделов.</returns>
-    private string[] Sections() => Field is null ? ObjectSections : FieldSections;
+    private string[] Sections() => Field is not null
+        ? FieldSections
+        : Object.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO" ? ButtonSections : ObjectSections;
 
     /// <summary>Показываемый раздел: выбранный, если он есть у объекта, иначе первый.</summary>
     /// <returns>Имя раздела.</returns>

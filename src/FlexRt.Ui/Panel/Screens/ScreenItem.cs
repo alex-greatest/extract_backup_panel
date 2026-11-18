@@ -34,6 +34,7 @@ namespace FlexRt.Ui.Panel.Screens;
 /// </param>
 /// <param name="Buttons">Подтверждённые свойства General кнопок по элементу объекта.</param>
 /// <param name="ButtonTexts">Тексты и картинки General кнопок открытой панели.</param>
+/// <param name="ButtonImages">Исходные картинки оформления и графических подписей кнопок.</param>
 public sealed record ScreenItem(
     Screen Screen,
     string Name,
@@ -48,4 +49,5 @@ public sealed record ScreenItem(
     IoFieldTooltips Tooltips,
     IReadOnlyDictionary<VarReference, IReadOnlyList<ScreenEventView>> FieldEvents,
     IReadOnlyDictionary<VarReference, ButtonGeneral> Buttons,
-    ButtonTexts ButtonTexts);
+    ButtonTexts ButtonTexts,
+    ButtonImages ButtonImages);

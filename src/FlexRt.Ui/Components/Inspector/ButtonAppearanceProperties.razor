@@ -1,0 +1,77 @@
+@using FlexRt.Model.Panel.Screens
+
+@if (Button.Mode == ButtonMode.Invisible)
+{
+    <div class="muted">У невидимой кнопки нет оформления.</div>
+}
+else if (Button.Appearance?.Normal is not { } normal)
+{
+    <div class="muted">Appearance не прочитана</div>
+}
+else
+{
+    var pattern = ButtonFillTexts.Pattern(normal);
+    <div class="object-blocks button-appearance">
+        <div class="object-column">
+            <PropertyGroup Title="Background">
+                <ObjectRow Name="Color" Value="@Color(normal.Fill?.ColorRgb)" Control="ObjectRowControl.Combo"
+                           Disabled="@(ButtonFillTexts.HasGradient(normal) || normal.Fill?.Transparent == true)" />
+                <div class="button-appearance-pattern">
+                    <ObjectRow Name="Fill pattern" Value="@pattern" Control="ObjectRowControl.Combo" />
+                    @if (pattern != NotRead)
+                    {
+                        <span class="button-appearance-preview" style="@ButtonCss.Background(normal, preview: true)" aria-hidden="true"></span>
+                    }
+                </div>
+                <ObjectRow Name="Corner radius" Value="@Number(normal.Border?.CornerRadius)" Control="ObjectRowControl.Spin" />
+            </PropertyGroup>
+            <PropertyGroup Title="Text">
+                <ObjectRow Name="Color" Value="@TextColor(normal)" Control="ObjectRowControl.Combo"
+                           Disabled="@(Button.Mode is ButtonMode.Graphic or ButtonMode.GraphicList)" />
+            </PropertyGroup>
+        </div>
+        <div class="object-column">
+            <PropertyGroup Title="Border">
+                <ObjectRow Name="Width" Value="@Number(normal.Border?.Width)" Control="ObjectRowControl.Spin" />
+                <ObjectRow Name="Style" Value="@EdgeStyle(normal.Border?.EdgeStyle)" Control="ObjectRowControl.Combo" />
+                <ObjectRow Name="Color" Value="@Color(normal.Border?.ColorRgb)" Control="ObjectRowControl.Combo" />
+                <ObjectRow Name="Background color" Value="@Color(normal.Border?.BackColorRgb)" Control="ObjectRowControl.Combo"
+                           Disabled="@(normal.Border?.EdgeStyle == 1)" />
+            </PropertyGroup>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>Прочитанные свойства выбранной кнопки; Appearance показывает ненажатое состояние.</summary>
+    [Parameter, EditorRequired]
+    public ButtonGeneral Button { get; set; } = null!;
+
+    /// <summary>Текст отсутствующего или непрочитанного свойства оформления.</summary>
+    private const string NotRead = "не прочитано";
+
+    /// <summary>Цвет с образцом RGB либо сообщение о непрочитанном значении.</summary>
+    /// <returns>Ячейка свойства.</returns>
+    private static ReportCell Color(int? rgb) => rgb is { } color ? RgbText.Cell(color) : NotRead;
+
+    /// <summary>Число свойства либо сообщение о непрочитанном значении.</summary>
+    /// <returns>Ячейка свойства.</returns>
+    private static ReportCell Number(int? value) => (ReportCell?)value ?? NotRead;
+
+    /// <summary>Цвет текста; у графического режима текстовое оформление неприменимо.</summary>
+    /// <returns>Цвет с образцом либо текст неприменимости или ошибки чтения.</returns>
+    private ReportCell TextColor(ButtonStateAppearance state) => Button.Mode is ButtonMode.Graphic or ButtonMode.GraphicList
+        ? "не применяется"
+        : Color(state.Text?.ColorRgb);
+
+    /// <summary>Стиль рамки; пунктирные варианты с кодом 3 в проверенных FWC не различаются.</summary>
+    /// <returns>Название стиля либо сообщение о непрочитанном коде.</returns>
+    private static string EdgeStyle(int? code) => code switch
+    {
+        1 => "Solid",
+        2 => "Double line",
+        3 => "Dash / Dot / DashDot / DashDotDot",
+        _ => NotRead
+    };
+
+}

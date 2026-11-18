@@ -13,4 +13,8 @@ public sealed record ButtonGeneral(
     bool? Pressed,
     ButtonCaption Off,
     ButtonCaption On,
-    ButtonCaptionList? List);
+    ButtonCaptionList? List)
+{
+    /// <summary>Оформление обоих состояний; неподтверждённая раскладка или невидимая кнопка — null.</summary>
+    public ButtonAppearance? Appearance { get; init; }
+}

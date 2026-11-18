@@ -1,0 +1,77 @@
+@using FlexRt.Model.Panel.Screens
+
+@if (Button.Appearance?.Normal is { } state)
+{
+    <div class="button-face" style="@ButtonCss.Box(state)">
+        @if (state.Frame is { } frame && Images.Frame(frame) is { } image)
+        {
+            <div class="button-skin" style="@ButtonCss.Skin(frame, image)"></div>
+        }
+        else
+        {
+            <div class="button-border" style="@ButtonCss.Border(state.Border)"></div>
+        }
+        @if (Images.Caption(Button.Off) is { } picture)
+        {
+            var inset = state.Border?.Width ?? 0;
+            <img class="button-picture" style="inset:@(inset)px; width:calc(100% - @(2 * inset)px); height:calc(100% - @(2 * inset)px);"
+                 src="@picture" alt="" draggable="false" />
+        }
+        @if (_text.Length > 0)
+        {
+            <div class="button-text" style="@ButtonCss.Text(state, Bounds, _font, _glyphs?.Sum(glyph => glyph.Width))">
+                @if (_glyphs is not null)
+                {
+                    foreach (var (glyph, width) in _glyphs)
+                    {
+                        <span class="button-glyph" style="width:@(width)px;">@glyph</span>
+                    }
+                }
+                else
+                {
+                    <span class="button-caption">@_text</span>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    /// <summary>Кнопка с оформлением ненажатого состояния, как в редакторе TIA.</summary>
+    [Parameter, EditorRequired]
+    public ButtonGeneral Button { get; set; } = null!;
+
+    /// <summary>Размер кнопки на панели.</summary>
+    [Parameter, EditorRequired]
+    public ScreenRect Bounds { get; set; }
+
+    /// <summary>Строки подписи открытой панели.</summary>
+    [Parameter, EditorRequired]
+    public ButtonTexts Texts { get; set; } = null!;
+
+    /// <summary>Исходные картинки оформления и подписей кнопок.</summary>
+    [Parameter, EditorRequired]
+    public ButtonImages Images { get; set; } = null!;
+
+    /// <summary>Выбранный язык Runtime; null — первый язык.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
+    /// <summary>Прочитанная подпись кнопки на выбранном языке.</summary>
+    private string _text = "";
+
+    /// <summary>Шрифт подписи на выбранном языке.</summary>
+    private PanelFont? _font;
+
+    /// <summary>Целочисленные ширины символов подписи.</summary>
+    private IReadOnlyList<(char Glyph, int Width)>? _glyphs;
+
+    /// <summary>Выбрать язык шрифта и измерить подпись после смены кнопки или языка.</summary>
+    protected override void OnParametersSet()
+    {
+        _text = Texts.Text(Button.Off, Language);
+        var fonts = Button.Appearance?.Fonts;
+        _font = fonts?.FirstOrDefault(font => font.Language == Language)?.Font ?? fonts?.FirstOrDefault()?.Font;
+        _glyphs = _font is null ? null : ScreenTextGlyphs.Measure(_text, _font);
+    }
+}

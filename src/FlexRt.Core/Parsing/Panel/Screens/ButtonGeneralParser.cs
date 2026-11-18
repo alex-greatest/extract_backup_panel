@@ -87,7 +87,10 @@ public static class ButtonGeneralParser
         var styleEnd = BlockOffset + blockSize;
         var captionOffset = body + (styleEnd + CaptionAlignment - 1) / CaptionAlignment * CaptionAlignment;
         var (off, on) = ButtonCaptionReader.Read(doc, item, captionOffset, table.Name);
-        return new ButtonGeneral(obj.Element, mode, pressed, off, on, ReadList(doc, item, body, table.Name, mode));
+        return new ButtonGeneral(obj.Element, mode, pressed, off, on, ReadList(doc, item, body, table.Name, mode))
+        {
+            Appearance = ButtonAppearanceReader.Read(doc, table, item, body)
+        };
     }
 
     /// <summary>Прочитать список отдельно: ошибка списка сохраняет режим и прочие свойства кнопки.</summary>

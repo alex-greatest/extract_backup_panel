@@ -1064,3 +1064,33 @@
     text-align: left;
     white-space: pre-wrap;
 }
+
+/* Appearance кнопки: образец эффективной заливки внутри строки Fill pattern. */
+.button-appearance-pattern {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.button-appearance-pattern .object-field {
+    padding-left: 24px;
+}
+
+.button-appearance-preview {
+    position: absolute;
+    left: 119px;
+    top: 9px;
+    width: 18px;
+    height: 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--text-secondary);
+    pointer-events: none;
+}
+
+.button-appearance .object-column {
+    flex-basis: 380px;
+}
+
+.button-appearance .object-group {
+    min-width: 340px;
+}

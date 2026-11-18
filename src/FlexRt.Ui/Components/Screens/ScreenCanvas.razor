@@ -148,8 +148,8 @@
     /// <summary>
     /// Объекты экрана в порядке списка: положение и размер как в Layout TIA, в пикселях экрана. I/O field
     /// (<see cref="ScreenItem.Fields"/>) — как в редакторе TIA: фон, рамка, шаблон нулями шрифтом и цветом из файла
-    /// (<see cref="IoFieldCss"/>, <see cref="IoFieldTexts.Sample"/>); остальные — рамка с именем объекта (решение
-    /// пользователя 2026-11-02), у линии ширина или высота 0 — рамка в 1 px. Щелчок выбирает объект
+    /// (<see cref="IoFieldCss"/>, <see cref="IoFieldTexts.Sample"/>). Кнопка с прочитанным оформлением рисуется
+    /// в состоянии Normal. Прочие объекты — рамка с именем, у линии ширина или высота 0 — рамка в 1 px. Щелчок выбирает объект
     /// (<see cref="SelectAt"/>, <see cref="ObjectSelection"/>): первым — самый маленький под курсором (решение пользователя
     /// 2026-11-05), повторный щелчок в той же точке перебирает по кругу остальные, так добирается и до большого под
     /// маленьким (решение пользователя 2026-11-04); у выбранного — маркеры
@@ -162,30 +162,37 @@
         foreach (var o in objects)
         {
             var field = item.Fields.GetValueOrDefault(o.Element);
-            var css = (Equals(o, selected) ? "screen-object selected" : "screen-object") + (field is null ? "" : " io-field");
+            var button = item.Buttons.GetValueOrDefault(o.Element);
+            var renderedButton = button?.Appearance is not null && button.Mode != ButtonMode.Invisible;
+            var css = (Equals(o, selected) ? "screen-object selected" : "screen-object")
+                + (field is not null ? " io-field" : renderedButton ? " panel-button" : "");
             <div class="@css" style="@FrameStyle(o.Bounds) @(field is null ? "" : IoFieldCss.Box(field))" title="@o.Name"
                  @onclick="e => SelectAt(item, objects, o, e)" @onclick:stopPropagation="true">
-                @if (field is null)
+                @switch (field)
                 {
-                    <span>@o.Name</span>
-                }
-                else
-                {
-                    var font = IoFieldFonts.Of(field, Language);
-                    var glyphs = IoFieldGlyphs.Layout(field, font, Language);
-                    <span style="@IoFieldCss.Text(field, o.Bounds, font, glyphs?.Sum(g => g.Width), IoFieldGlyphs.LineHeight(font))">
-                        @if (glyphs is not null)
-                        {
-                            foreach (var (glyph, width) in glyphs)
+                    case null when renderedButton:
+                        <ButtonFace Button="button!" Bounds="o.Bounds" Texts="item.ButtonTexts" Images="item.ButtonImages" Language="Language" />
+                        break;
+                    case null:
+                        <span>@o.Name</span>
+                        break;
+                    default:
+                        var font = IoFieldFonts.Of(field, Language);
+                        var glyphs = IoFieldGlyphs.Layout(field, font, Language);
+                        <span style="@IoFieldCss.Text(field, o.Bounds, font, glyphs?.Sum(g => g.Width), IoFieldGlyphs.LineHeight(font))">
+                            @if (glyphs is not null)
                             {
-                                <span class="io-glyph" style="width:@(width)px">@glyph</span>
+                                foreach (var (glyph, width) in glyphs)
+                                {
+                                    <span class="io-glyph" style="width:@(width)px">@glyph</span>
+                                }
                             }
-                        }
-                        else
-                        {
-                            @IoFieldTexts.Sample(field, Language)
-                        }
-                    </span>
+                            else
+                            {
+                                @IoFieldTexts.Sample(field, Language)
+                            }
+                        </span>
+                        break;
                 }
             </div>
         }

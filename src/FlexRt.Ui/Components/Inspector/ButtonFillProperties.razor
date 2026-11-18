@@ -1,0 +1,50 @@
+@using FlexRt.Model.Panel.Screens
+
+@if (Button.Mode == ButtonMode.Invisible)
+{
+    <div class="muted">У невидимой кнопки нет оформления.</div>
+}
+else if (Button.Appearance?.Normal is not { } normal)
+{
+    <div class="muted">Fill pattern не прочитан</div>
+}
+else
+{
+    var transparent = normal.Fill?.Transparent == true;
+    <div class="object-blocks button-appearance">
+        <div class="object-column">
+            <PropertyGroup Title="Background settings">
+                <ObjectRow Name="Fill pattern" Value="@ButtonFillTexts.Pattern(normal)" Control="ObjectRowControl.Combo" />
+                <ObjectRow Name="Background color" Value="@Color(normal.Fill?.ColorRgb)" Control="ObjectRowControl.Combo"
+                           Disabled="transparent" />
+            </PropertyGroup>
+        </div>
+        <div class="object-column">
+            <PropertyGroup Title="Gradient">
+                @Transition("Gradient 1", normal.FirstGradient, transparent)
+                @Transition("Gradient 2", normal.SecondGradient, transparent)
+            </PropertyGroup>
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>Кнопка с прочитанными компонентами оформления Normal.</summary>
+    [Parameter, EditorRequired]
+    public ButtonGeneral Button { get; set; } = null!;
+
+    /// <summary>Цвет с образцом или сообщение о непрочитанном компоненте.</summary>
+    /// <returns>Ячейка цвета.</returns>
+    private static ReportCell Color(int? rgb) => rgb is { } color ? RgbText.Cell(color) : "не прочитано";
+
+    /// <summary>Переход: состояние, направление, цвет и ширина; прозрачная заливка не использует сохранённый переход.</summary>
+    /// <returns>Строки одного перехода.</returns>
+    private RenderFragment Transition(string name, ButtonGradient? gradient, bool transparent) =>
+        @<div>
+            <ObjectRow Name="@name" Value="@(transparent ? "не применяется при Transparent" : ButtonFillTexts.Enabled(gradient))"
+                       Checked="@(!transparent && gradient is { Width: > 0 } ? true : null)" />
+            <ObjectRow Name="Направление" Value="@(gradient is null ? "не прочитано" : gradient.Vertical ? "Vertical" : "Horizontal")" />
+            <ObjectRow Name="Color" Value="@Color(gradient?.ColorRgb)" Control="ObjectRowControl.Combo" />
+            <ObjectRow Name="Width" Value="@((ReportCell?)gradient?.Width ?? "не прочитано")" Control="ObjectRowControl.Spin" />
+        </div>;
+}
