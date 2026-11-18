@@ -25,7 +25,7 @@ internal static class ButtonDataReader
         {
             return null;
         }
-        if (value > int.MaxValue || !doc.Strings.Any(s => s.Idx == value))
+        if (value > int.MaxValue || doc.Strings.All(s => s.Idx != value))
         {
             throw new FwxFormatException(section, offset, $"строка подписи кнопки {value} отсутствует в STRINGSTORE");
         }

@@ -48,11 +48,9 @@ internal static class ButtonListReader
             }
             var table = doc.FindTable(link.Table)
                 ?? throw new FwxFormatException(section, position, "таблица списка кнопки отсутствует в TOC");
-            if (table.Name != "SYMB")
-            {
-                return new ButtonCaptionList(null, null);
-            }
-            return ReadSymbol(doc, table, ElementLink.Item(doc, table, link.Index, "кнопка"), mode);
+            return table.Name == "SYMB"
+                ? ReadSymbol(doc, table, ElementLink.Item(doc, table, link.Index, "кнопка"), mode)
+                : new ButtonCaptionList(null, null);
         }
         return null;
     }
