@@ -7,10 +7,12 @@ namespace FlexRt.Model.Panel.Screens;
 /// <param name="FirstGradient">Первый скомпилированный переход градиента.</param>
 /// <param name="SecondGradient">Второй скомпилированный переход градиента.</param>
 /// <param name="Frame">Картинка оформления и границы её растягиваемой области.</param>
+/// <param name="Picture">Поля и выравнивание графической подписи.</param>
 public sealed record ButtonStateAppearance(
     BorderStyle? Border,
     TextStyle? Text,
     ButtonFill? Fill,
     ButtonGradient? FirstGradient,
     ButtonGradient? SecondGradient,
-    ButtonFrame? Frame);
+    ButtonFrame? Frame,
+    ButtonPictureLayout? Picture);

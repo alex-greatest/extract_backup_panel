@@ -46,6 +46,27 @@ public static class ButtonCss
         + $" border-width:{frame.Top}px {frame.Right}px {frame.Bottom}px {frame.Left}px;"
         + $" border-image-width:{frame.Top}px {frame.Right}px {frame.Bottom}px {frame.Left}px;";
 
+    /// <summary>Область графической подписи внутри рамки: поля и выравнивание из PS_Position.</summary>
+    /// <returns>CSS положения и flex-выравнивания.</returns>
+    public static string PictureArea(ButtonStateAppearance state)
+    {
+        var border = state.Border?.Width ?? 0;
+        var margins = state.Picture?.Margins;
+        var top = border + (margins?.Top ?? 0);
+        var right = border + (margins?.Right ?? 0);
+        var bottom = border + (margins?.Bottom ?? 0);
+        var left = border + (margins?.Left ?? 0);
+        var horizontal = state.Picture?.HorizontalAlignment switch { 0 => "flex-end", 2 => "flex-start", _ => "center" };
+        var vertical = state.Picture?.VerticalAlignment switch { 0 => "flex-start", 2 => "flex-end", _ => "center" };
+        return $"inset:{top}px {right}px {bottom}px {left}px;justify-content:{horizontal};align-items:{vertical};";
+    }
+
+    /// <summary>Размер графической подписи: растянуть по области или оставить исходные пиксели.</summary>
+    /// <returns>CSS размера картинки.</returns>
+    public static string Picture(bool? stretch) => stretch == false
+        ? "width:auto;height:auto;max-width:none;max-height:none;object-fit:none;"
+        : "width:100%;height:100%;max-width:none;max-height:none;object-fit:fill;";
+
     /// <summary>Рамка без картинки: рисуются только подтверждённые Solid и Double line.</summary>
     /// <returns>CSS внутренних линий; стиль пунктиров без исходной картинки не угадывается.</returns>
     public static string Border(BorderStyle? border)

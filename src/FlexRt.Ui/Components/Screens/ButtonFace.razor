@@ -13,9 +13,10 @@
         }
         @if (Images.Caption(Button.Off) is { } picture)
         {
-            var inset = state.Border?.Width ?? 0;
-            <img class="button-picture" style="inset:@(inset)px; width:calc(100% - @(2 * inset)px); height:calc(100% - @(2 * inset)px);"
-                 src="@picture" alt="" draggable="false" />
+            <div class="button-picture-area" style="@ButtonCss.PictureArea(state)">
+                <img class="button-picture" style="@ButtonCss.Picture(Button.StretchPicture)"
+                     src="@picture" alt="" draggable="false" />
+            </div>
         }
         @if (_text.Length > 0)
         {

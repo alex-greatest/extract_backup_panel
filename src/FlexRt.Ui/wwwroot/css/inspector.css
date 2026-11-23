@@ -603,6 +603,58 @@
     max-width: 460px;
 }
 
+.button-layout .object-column {
+    flex-basis: 320px;
+}
+
+.button-layout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 110px));
+    grid-template-rows: auto repeat(2, minmax(18px, auto));
+    grid-auto-flow: column;
+    gap: 4px 12px;
+}
+
+.button-layout-grid > .object-group-title {
+    grid-column: 1 / -1;
+    margin-bottom: 2px;
+}
+
+.button-layout-grid > .object-row {
+    margin-top: 0;
+}
+
+.button-layout-grid .object-row-label {
+    width: 52px;
+}
+
+.button-layout .anim-radio.disabled.checked .anim-radio-box {
+    background: radial-gradient(circle, var(--disabled-text) 0 2.5px, var(--disabled-bg) 3px);
+}
+
+.button-fit-unknown {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+    min-height: 18px;
+}
+
+.button-fit-mark {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    width: 13px;
+    height: 13px;
+    border: 1px solid var(--field-border);
+    background: var(--disabled-bg);
+    line-height: 1;
+}
+
+.button-fit-note {
+    color: var(--text-secondary);
+}
+
 /* блоки раздела друг под другом во всю ширину (Text format, как в TIA) */
 .object-stack {
     display: flex;

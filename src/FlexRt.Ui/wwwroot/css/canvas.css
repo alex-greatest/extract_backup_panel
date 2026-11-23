@@ -98,6 +98,7 @@
 .button-face,
 .button-border,
 .button-skin,
+.button-picture-area,
 .button-text {
     position: absolute;
     inset: 0;
@@ -139,13 +140,14 @@
 }
 
 .button-picture {
-    position: absolute;
-    width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: fill;
+    display: block;
+    flex: none;
     pointer-events: none;
+}
+
+.button-picture-area {
+    display: flex;
+    overflow: hidden;
 }
 
 /* выбранный щелчком объект — как в редакторе TIA: восемь маркеров 6×6 (синяя рамка, голубая середина) внутри объекта

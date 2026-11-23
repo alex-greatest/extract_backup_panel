@@ -58,7 +58,8 @@ internal static class ButtonAppearanceReader
         var border = borderReference is { } link ? ButtonAppearanceStyleReader.ReadBorder(doc, link) : default;
         var text = ReadStyle(doc, table, item, offset + 4, TextStyleReader.Table, TextStyleReader.Read);
         var fill = ReadStyle(doc, table, item, offset + 8, FillStyleReader.Table, ButtonAppearanceStyleReader.ReadFill);
-        return new ButtonStateAppearance(border.Border, text, fill, border.First, border.Second, border.Frame);
+        var picture = ReadStyle(doc, table, item, offset + 0x0c, ButtonPictureLayoutReader.Table, ButtonPictureLayoutReader.Read);
+        return new ButtonStateAppearance(border.Border, text, fill, border.First, border.Second, border.Frame, picture);
     }
 
     /// <summary>Прочитать один стиль; ошибка ссылки или записи не удаляет остальные свойства кнопки.</summary>

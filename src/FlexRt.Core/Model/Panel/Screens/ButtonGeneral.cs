@@ -17,4 +17,7 @@ public sealed record ButtonGeneral(
 {
     /// <summary>Оформление обоих состояний; неподтверждённая раскладка или невидимая кнопка — null.</summary>
     public ButtonAppearance? Appearance { get; init; }
+
+    /// <summary>Растягивать графическую подпись; неизвестный код или невидимая кнопка — null.</summary>
+    public bool? StretchPicture { get; init; }
 }

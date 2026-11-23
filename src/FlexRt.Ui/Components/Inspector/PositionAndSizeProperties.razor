@@ -1,0 +1,18 @@
+@using FlexRt.Model.Panel.Screens
+
+<PropertyGroup Title="Position & size" Class="@Class">
+    <ObjectRow Name="X" Value="Bounds.Left" Control="ObjectRowControl.Spin" />
+    <ObjectRow Name="Y" Value="Bounds.Top" Control="ObjectRowControl.Spin" />
+    <ObjectRow Name="Width" Value="Bounds.Width" Control="ObjectRowControl.Spin" />
+    <ObjectRow Name="Height" Value="Bounds.Height" Control="ObjectRowControl.Spin" />
+</PropertyGroup>
+
+@code {
+    /// <summary>Положение и размер объекта в пикселях экрана.</summary>
+    [Parameter, EditorRequired]
+    public ScreenRect Bounds { get; set; }
+
+    /// <summary>Дополнительный CSS-класс блока или null.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+}

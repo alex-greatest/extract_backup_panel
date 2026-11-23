@@ -4,8 +4,8 @@ using FlexRt.Model.Panel;
 namespace FlexRt.Parsing.Panel.Screens;
 
 /// <summary>
-/// Элемент таблицы стиля объекта (PS_BorderedShap, PS_Text, PS_Fill_Color) или FONT по ссылке из элемента объекта: элемент
-/// по номеру с проверкой длины; таблицу по Id ссылки и её имя проверяет вызывающий.
+/// Элемент таблицы стиля объекта (PS_BorderedShap, PS_Text, PS_Fill_Color, PS_Position) или FONT по ссылке из элемента
+/// объекта: элемент по номеру с проверкой длины; таблицу по Id ссылки и её имя проверяет вызывающий.
 /// </summary>
 internal static class StyleElement
 {

@@ -25,6 +25,9 @@ public static class ButtonGeneralParser
     /// <summary>Признак отдельной нажатой подписи на +0x24; в опытах 0 или 2.</summary>
     private const int PressedOffset = 0x24;
 
+    /// <summary>PictureAutoSizing на +0x28: 0 — None, 1 — StretchPicture.</summary>
+    private const int PictureAutoSizingOffset = 0x28;
+
     /// <summary>Обычная кнопка Text, Graphic или список.</summary>
     private const long ButtonKind = 0x54C000;
 
@@ -89,8 +92,35 @@ public static class ButtonGeneralParser
         var (off, on) = ButtonCaptionReader.Read(doc, item, captionOffset, table.Name);
         return new ButtonGeneral(obj.Element, mode, pressed, off, on, ReadList(doc, item, body, table.Name, mode))
         {
-            Appearance = ButtonAppearanceReader.Read(doc, table, item, body)
+            Appearance = ButtonAppearanceReader.Read(doc, table, item, body),
+            StretchPicture = ReadPictureStretch(doc, item, body, table.Name)
         };
+    }
+
+    /// <summary>Прочитать PictureAutoSizing независимо от остальных свойств кнопки.</summary>
+    /// <returns><c>true</c> для StretchPicture, <c>false</c> для None; ошибка или неизвестный код — null.</returns>
+    private static bool? ReadPictureStretch(FwxDocument doc, TableItem item, long body, string section)
+    {
+        try
+        {
+            ButtonDataReader.Check(item, body, PictureAutoSizingOffset + 4, section);
+            var offset = item.Offset + body + PictureAutoSizingOffset;
+            return doc.Binary.D4(offset) switch
+            {
+                0 => false,
+                1 => true,
+                var code => throw new FwxFormatException(section, offset,
+                    $"код PictureAutoSizing кнопки 0x{code:X} не разобран")
+            };
+        }
+        catch (FwxFormatException error)
+        {
+            if (!doc.Warnings.Contains(error.Message))
+            {
+                doc.Warnings.Add(error.Message);
+            }
+            return null;
+        }
     }
 
     /// <summary>Прочитать список отдельно: ошибка списка сохраняет режим и прочие свойства кнопки.</summary>
