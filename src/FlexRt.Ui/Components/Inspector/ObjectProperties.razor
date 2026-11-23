@@ -108,11 +108,12 @@
                 <PositionAndSizeProperties Bounds="Object.Bounds" Class="wide" />
                 break;
             case Flashing when Field is { } f:
+                var flashOnLimit = IoFieldTexts.FlashOnLimitChecked(f.FlashOnLimit);
                 <PropertyGroup Title="Settings" Class="wide">
                     <ObjectRow Name="Type" Value="@IoFieldTexts.Flashing(f)" Control="ObjectRowControl.Combo"
-                               Disabled="f.FlashOnLimit == LimitFlashing.On" />
+                               Disabled="@(flashOnLimit == true)" />
                     <ObjectRow Name="Flash on limit violation" Value="@IoFieldTexts.FlashOnLimit(f.FlashOnLimit)"
-                               Checked="IoFieldTexts.FlashOnLimitChecked(f.FlashOnLimit)" />
+                               Checked="flashOnLimit" />
                 </PropertyGroup>
                 break;
             case StylesDesigns when Field is not null:
