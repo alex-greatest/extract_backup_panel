@@ -71,8 +71,7 @@
     protected override void OnParametersSet()
     {
         _text = Texts.Text(Button.Off, Language);
-        var fonts = Button.Appearance?.Fonts;
-        _font = fonts?.FirstOrDefault(font => font.Language == Language)?.Font ?? fonts?.FirstOrDefault()?.Font;
+        _font = ButtonFonts.Of(Button, Language);
         _glyphs = _font is null ? null : ScreenTextGlyphs.Measure(_text, _font);
     }
 }

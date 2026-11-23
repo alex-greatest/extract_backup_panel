@@ -85,24 +85,61 @@ public static class ButtonCss
             : "";
     }
 
-    /// <summary>Текст внутри рамки: цвет, шрифт, отступы и подтверждённые направления выравнивания.</summary>
+    /// <summary>Текст внутри рамки: цвет, шрифт, отступы, выравнивание и угол из PS_Text.</summary>
     /// <returns>CSS области текста кнопки.</returns>
     public static string Text(ButtonStateAppearance state, ScreenRect bounds, PanelFont? font, int? width)
     {
         var border = state.Border?.Width ?? 0;
         var css = $"inset:{border}px;";
+        var fontCss = font is null ? "" : Font(font);
         if (state.Text is not { } text)
         {
-            return css + (font is null ? "" : Font(font));
+            return css + fontCss;
         }
-        css += $"color:{CssColor.Hex(text.ColorRgb)}; justify-content:{Horizontal(text.HorizontalAlignment)};"
+        css += $"color:{CssColor.Hex(text.ColorRgb)};";
+        css += text.Orientation is 90 or 270
+            ? VerticalText(text, bounds, border, width)
+            : HorizontalText(text, bounds, border, width);
+        return css + fontCss;
+    }
+
+    /// <summary>Выравнивание, отступы и центрирование горизонтальной подписи.</summary>
+    /// <returns>CSS положения текста.</returns>
+    private static string HorizontalText(TextStyle text, ScreenRect bounds, int border, int? width)
+    {
+        var css = $" justify-content:{Horizontal(text.HorizontalAlignment)};"
             + $" align-items:{Vertical(text.VerticalAlignment)};";
-        if (text.Margins is { } margins)
+        var margins = text.Margins;
+        if (margins is not null)
         {
             css += $"padding:{margins.Top}px {margins.Right}px {margins.Bottom}px {margins.Left}px;";
         }
-        css += Snap(text, bounds, border, width);
-        return css + (font is null ? "" : Font(font));
+        var available = bounds.Width - 2 * border - (margins?.Left ?? 0) - (margins?.Right ?? 0);
+        return css + Snap(text.HorizontalAlignment, available, width);
+    }
+
+    /// <summary>Повернуть область подписи и перевести отступы и выравнивание в её координаты.</summary>
+    /// <returns>CSS поворота, положения и обрезки текста внутри рамки.</returns>
+    private static string VerticalText(TextStyle text, ScreenRect bounds, int border, int? width)
+    {
+        var leftRotation = text.Orientation == 270;
+        var boxWidth = Math.Max(0, bounds.Height - 2 * border);
+        var boxHeight = Math.Max(0, bounds.Width - 2 * border);
+        var horizontal = leftRotation ? Horizontal(text.VerticalAlignment) : Vertical(text.VerticalAlignment);
+        var vertical = leftRotation ? Horizontal(text.HorizontalAlignment) : Vertical(text.HorizontalAlignment);
+        var css = $" inset:auto;left:50%;top:50%;width:{boxWidth}px;height:{boxHeight}px;"
+            + $" transform:translate(-50%,-50%) rotate({text.Orientation}deg);"
+            + $" justify-content:{horizontal};align-items:{vertical};";
+        var margins = text.Margins;
+        if (margins is not null)
+        {
+            var edges = leftRotation
+                ? $"{margins.Left}px {margins.Top}px {margins.Right}px {margins.Bottom}px"
+                : $"{margins.Right}px {margins.Bottom}px {margins.Left}px {margins.Top}px";
+            css += $" padding:{edges};clip-path:inset({edges});";
+        }
+        var available = boxWidth - (margins?.Top ?? 0) - (margins?.Bottom ?? 0);
+        return css + Snap(text.VerticalAlignment, available, width);
     }
 
     /// <summary>Шрифт подписи на выбранном языке; размер TIA измеряется в пикселях панели.</summary>
@@ -125,15 +162,14 @@ public static class ButtonCss
             + (ScreenTextGlyphs.LineHeight(font) is { } height ? $"line-height:{height}px;" : "");
     }
 
-    /// <summary>Сдвиг центрированной подписи к целому пикселю при нечётной свободной ширине.</summary>
+    /// <summary>Сдвиг центрированной подписи вдоль строки к целому пикселю.</summary>
     /// <returns>CSS сдвига глифов; измеренной ширины нет — пусто.</returns>
-    private static string Snap(TextStyle text, ScreenRect bounds, int border, int? width)
+    private static string Snap(int alignment, int available, int? width)
     {
-        if (text.HorizontalAlignment != 1 || width is not { } measured)
+        if (alignment != 1 || width is not { } measured)
         {
             return "";
         }
-        var available = bounds.Width - 2 * border - (text.Margins?.Left ?? 0) - (text.Margins?.Right ?? 0);
         return (available - measured) % 2 == 0 ? "" : $"--button-snap-x:{(available < measured ? "0.5" : "-0.5")}px;";
     }
 

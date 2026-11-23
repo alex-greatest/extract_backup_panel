@@ -10,5 +10,8 @@ public enum ObjectRowControl
     Combo,
 
     /// <summary>Число со стрелками вверх и вниз.</summary>
-    Spin
+    Spin,
+
+    /// <summary>Поле с многоточием справа.</summary>
+    Dialog
 }

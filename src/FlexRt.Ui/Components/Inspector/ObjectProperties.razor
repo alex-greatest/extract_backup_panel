@@ -135,6 +135,9 @@
                     </div>
                 </div>
                 break;
+            case TextFormat when Button is { } button:
+                <ButtonTextFormatProperties Button="button" Language="Language" />
+                break;
             case TextFormat when Field is { } f:
                 <div class="object-stack">
                     <PropertyGroup Title="Format:" Class="wide">
@@ -201,8 +204,8 @@
     /// <summary>Разделы объекта другого типа: известны только имя, таблица и положение.</summary>
     private static readonly string[] ObjectSections = [General, Layout];
 
-    /// <summary>Разделы кнопки: General, Appearance, Fill pattern, Design и Layout.</summary>
-    private static readonly string[] ButtonSections = [General, Appearance, FillPattern, Design, Layout];
+    /// <summary>Разделы кнопки в порядке свойств TIA.</summary>
+    private static readonly string[] ButtonSections = [General, Appearance, FillPattern, Design, Layout, TextFormat];
 
     /// <summary>
     /// Выбранный раздел; <c>null</c> или раздела нет у объекта — первый. Хранит панель свойств: при щелчке по другому

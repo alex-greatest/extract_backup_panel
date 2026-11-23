@@ -16,6 +16,9 @@
                 case ObjectRowControl.Spin:
                     <span class="object-spin" aria-hidden="true"><span></span><span></span></span>
                     break;
+                case ObjectRowControl.Dialog:
+                    <span class="object-dialog-mark" aria-hidden="true">…</span>
+                    break;
                 case ObjectRowControl.Text:
                 default:
                     break;
@@ -45,7 +48,7 @@
     [Parameter]
     public ReportCell? Second { get; set; }
 
-    /// <summary>Вид поля: простое, список или число со стрелками.</summary>
+    /// <summary>Вид поля: простое, список, число со стрелками или поле с многоточием.</summary>
     [Parameter]
     public ObjectRowControl Control { get; set; }
 

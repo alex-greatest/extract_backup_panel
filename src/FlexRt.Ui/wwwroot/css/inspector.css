@@ -755,6 +755,7 @@
 }
 
 .object-combo-arrow,
+.object-dialog-mark,
 .object-spin {
     flex: 0 0 15px;
     align-self: stretch;
@@ -771,6 +772,12 @@
     border-left: 3.5px solid transparent;
     border-right: 3.5px solid transparent;
     border-top: 4px solid var(--text);
+}
+
+.object-dialog-mark {
+    display: grid;
+    place-items: center;
+    line-height: 1;
 }
 
 .object-spin {
@@ -818,6 +825,7 @@
 }
 
 .object-row.disabled .object-combo-arrow,
+.object-row.disabled .object-dialog-mark,
 .object-row.disabled .object-spin {
     border-left-color: var(--panel-group-bg);
     background: var(--disabled-bg);

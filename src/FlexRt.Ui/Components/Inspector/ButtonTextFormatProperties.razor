@@ -1,0 +1,44 @@
+@using FlexRt.Model.Panel.Screens
+
+@{
+    var font = ButtonFonts.Of(Button, Language);
+    var text = Button.Appearance?.Normal.Text;
+}
+
+<div class="object-stack">
+    <PropertyGroup Title="Format" Class="wide">
+        <ObjectRow Name="Font" Value="@(font is null ? NotRead : IoFieldTexts.Font(font))"
+                   Control="ObjectRowControl.Dialog" />
+        <ObjectRow Name="Orientation" Value="@IoFieldTexts.Orientation(text?.Orientation)"
+                   Control="ObjectRowControl.Combo" />
+    </PropertyGroup>
+    <PropertyGroup Title="Alignment" Class="wide">
+        <ObjectRow Name="Horizontal" Value="@Horizontal(text?.HorizontalAlignment)" Control="ObjectRowControl.Combo" />
+        <ObjectRow Name="Vertical" Value="@(text is null ? NotRead : IoFieldTexts.Vertical(text.VerticalAlignment))"
+                   Control="ObjectRowControl.Combo" />
+    </PropertyGroup>
+</div>
+
+@code {
+    /// <summary>Значение отсутствует в прочитанном оформлении.</summary>
+    private const string NotRead = "не прочитано";
+
+    /// <summary>Оформление выбранной кнопки.</summary>
+    [Parameter, EditorRequired]
+    public ButtonGeneral Button { get; set; } = null!;
+
+    /// <summary>Выбранный язык Runtime; без выбора используется первый шрифт.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
+    /// <summary>Название горизонтального выравнивания подписи в свойствах кнопки TIA.</summary>
+    /// <returns>Выравнивание либо сообщение о непрочитанном значении.</returns>
+    private static string Horizontal(int? alignment)
+    {
+        if (alignment is not { } code)
+        {
+            return NotRead;
+        }
+        return code == 1 ? "Centered" : IoFieldTexts.Horizontal(code);
+    }
+}
