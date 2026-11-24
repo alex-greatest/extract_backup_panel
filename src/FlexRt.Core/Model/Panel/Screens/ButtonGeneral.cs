@@ -1,6 +1,6 @@
 namespace FlexRt.Model.Panel.Screens;
 
-/// <summary>Подтверждённые свойства General кнопки; имя и положение находятся у ScreenObject.</summary>
+/// <summary>Подтверждённые свойства кнопки; имя и положение находятся у ScreenObject.</summary>
 /// <param name="Element">Элемент VIEW_BUTTONS или VIEW_STATEBUTTO.</param>
 /// <param name="Mode">Режим кнопки.</param>
 /// <param name="Pressed">Отдельная подпись нажатого состояния; неизвестно или неприменимо — null.</param>
@@ -20,4 +20,16 @@ public sealed record ButtonGeneral(
 
     /// <summary>Растягивать графическую подпись; неизвестный код или невидимая кнопка — null.</summary>
     public bool? StretchPicture { get; init; }
+
+    /// <summary>Разрешено ли управление оператору; неизвестно — null.</summary>
+    public bool? AllowOperatorControl { get; init; }
+
+    /// <summary>Номер права Authorization; ссылки на право нет — null.</summary>
+    public long? Authorization { get; init; }
+
+    /// <summary>Ссылки на Authorization проверены, в том числе когда ссылки на право нет.</summary>
+    public bool AuthorizationRead { get; init; }
+
+    /// <summary>Flashing Standard; не прочитано — null.</summary>
+    public bool? Flashing { get; init; }
 }

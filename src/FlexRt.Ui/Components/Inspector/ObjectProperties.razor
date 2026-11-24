@@ -36,7 +36,7 @@
             case General when Button is { } button && ButtonTexts is { } texts:
                 <ButtonGeneralProperties Button="button" Texts="texts" Language="Language" />
                 break;
-            case General when Object.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO":
+            case General when IsButton:
                 <div class="muted">@NotParsed</div>
                 break;
             case General:
@@ -51,7 +51,7 @@
             case Appearance when Button is { } button:
                 <ButtonAppearanceProperties Button="button" />
                 break;
-            case Appearance when Object.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO":
+            case Appearance when IsButton:
                 <div class="muted">Appearance не прочитана</div>
                 break;
             case FillPattern when Button is { } button:
@@ -81,12 +81,11 @@
                 </PropertyGroup>
                 break;
             case Security when Field is { } f:
-                <PropertyGroup Title="Runtime security" Class="wide">
-                    <ObjectRow Name="Authorization" Value="@IoFieldTexts.Authorization(f.Authorization)" />
-                </PropertyGroup>
-                <PropertyGroup Title="Operator control" Class="wide operator-control">
-                    <ObjectRow Name="Allow operator control" Value="@(f.AllowOperatorControl ? "Yes" : "No")" Checked="f.AllowOperatorControl" />
-                </PropertyGroup>
+                <SecurityProperties Authorization="@IoFieldTexts.Authorization(f.Authorization)" AllowOperatorControl="f.AllowOperatorControl" />
+                break;
+            case Security when IsButton:
+                <SecurityProperties Authorization="@(Button is { AuthorizationRead: true } securedButton ? IoFieldTexts.Authorization(securedButton.Authorization) : "Не прочитано")"
+                                    AllowOperatorControl="Button?.AllowOperatorControl" />
                 break;
             case Layout when Field is { } f:
                 <div class="object-blocks">
@@ -109,32 +108,29 @@
                 break;
             case Flashing when Field is { } f:
                 var flashOnLimit = IoFieldTexts.FlashOnLimitChecked(f.FlashOnLimit);
-                <PropertyGroup Title="Settings" Class="wide">
-                    <ObjectRow Name="Type" Value="@IoFieldTexts.Flashing(f)" Control="ObjectRowControl.Combo"
-                               Disabled="@(flashOnLimit == true)" />
+                <FlashingProperties Standard="f.Flashing" TypeDisabled="@(flashOnLimit == true)">
                     <ObjectRow Name="Flash on limit violation" Value="@IoFieldTexts.FlashOnLimit(f.FlashOnLimit)"
                                Checked="flashOnLimit" />
-                </PropertyGroup>
+                </FlashingProperties>
+                break;
+            case Flashing when IsButton:
+                <FlashingProperties Standard="Button?.Flashing" />
                 break;
             case StylesDesigns when Field is not null:
                 <div class="muted">@IoFieldTexts.StylesAbsent</div>
                 break;
+            case StylesDesigns when IsButton:
+                <ButtonStylesProperties />
+                break;
             case Miscellaneous when Field is { } f:
-                <div class="object-blocks">
-                    <div class="object-column">
-                        <PropertyGroup Title="Object">
-                            <ObjectRow Name="Name" Value="Object.Name" />
-                            <ObjectRow Name="Tab order" Value="@((ReportCell?)f.TabOrder ?? "нет в файле")" />
-                        </PropertyGroup>
-                    </div>
-                    <div class="object-column">
-                        <PropertyGroup Title="Tooltip">
-                            <div class="object-field tooltip-field">
-                                <RadzenTextArea Value="@Tooltip" ReadOnly="true" class="tooltip-text" />
-                            </div>
-                        </PropertyGroup>
-                    </div>
-                </div>
+                <MiscellaneousProperties ObjectName="@Object.Name" Tooltip="@Tooltip">
+                    <ObjectRow Name="Tab order" Value="@((ReportCell?)f.TabOrder ?? "нет в файле")" />
+                </MiscellaneousProperties>
+                break;
+            case Miscellaneous when IsButton:
+                <MiscellaneousProperties ObjectName="@Object.Name" Tooltip="@Tooltip">
+                    <ObjectRow Name="Layer" Value="@NotInFile" Disabled="true" />
+                </MiscellaneousProperties>
                 break;
             case TextFormat when Button is { } button:
                 <ButtonTextFormatProperties Button="button" Language="Language" />
@@ -198,6 +194,9 @@
     /// <summary>Текст раздела, свойства которого программа не читает.</summary>
     private const string NotParsed = "Не разобрано";
 
+    /// <summary>Значение TIA не сохраняется отдельным свойством в файле панели.</summary>
+    private const string NotInFile = "Нет в файле";
+
     /// <summary>Разделы I/O field в Property list TIA, в его порядке (решение пользователя 2026-11-02: все разделы).</summary>
     private static readonly string[] FieldSections =
         [General, Appearance, Characteristics, Layout, TextFormat, Flashing, Limits, StylesDesigns, Miscellaneous, Security];
@@ -206,7 +205,8 @@
     private static readonly string[] ObjectSections = [General, Layout];
 
     /// <summary>Разделы кнопки в порядке свойств TIA.</summary>
-    private static readonly string[] ButtonSections = [General, Appearance, FillPattern, Design, Layout, TextFormat];
+    private static readonly string[] ButtonSections =
+        [General, Appearance, FillPattern, Design, Layout, TextFormat, Flashing, StylesDesigns, Miscellaneous, Security];
 
     /// <summary>
     /// Выбранный раздел; <c>null</c> или раздела нет у объекта — первый. Хранит панель свойств: при щелчке по другому
@@ -246,7 +246,7 @@
     [Parameter]
     public int? Language { get; set; }
 
-    /// <summary>Tooltip I/O field на выбранном языке; подсказки нет или объект другого типа — пусто.</summary>
+    /// <summary>Tooltip поля или кнопки на выбранном языке.</summary>
     [Parameter]
     public string? Tooltip { get; set; }
 
@@ -289,7 +289,10 @@
     /// <returns>Имена разделов.</returns>
     private string[] Sections() => Field is not null
         ? FieldSections
-        : Object.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO" ? ButtonSections : ObjectSections;
+        : IsButton ? ButtonSections : ObjectSections;
+
+    /// <summary>Выбран объект кнопки, в том числе с отдельным нажатым состоянием.</summary>
+    private bool IsButton => Object.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO";
 
     /// <summary>Показываемый раздел: выбранный, если он есть у объекта, иначе первый.</summary>
     /// <returns>Имя раздела.</returns>

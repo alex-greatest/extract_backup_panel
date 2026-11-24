@@ -1,0 +1,27 @@
+<PropertyGroup Title="Settings" Class="wide">
+    <ObjectRow Name="Type" Value="@FlashingText()" Control="ObjectRowControl.Combo" Disabled="TypeDisabled" />
+    @ChildContent
+</PropertyGroup>
+
+@code {
+    /// <summary>Режим мигания Standard или Disabled; неизвестен — null.</summary>
+    [Parameter]
+    public bool? Standard { get; set; }
+
+    /// <summary>Недоступна ли строка Type при мигании по пределам.</summary>
+    [Parameter]
+    public bool TypeDisabled { get; set; }
+
+    /// <summary>Дополнительные строки настроек мигания.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Название режима мигания.</summary>
+    /// <returns>Standard, Disabled или пояснение об отсутствии значения.</returns>
+    private string FlashingText() => Standard switch
+    {
+        true => "Standard",
+        false => "Disabled",
+        null => "Не прочитано"
+    };
+}

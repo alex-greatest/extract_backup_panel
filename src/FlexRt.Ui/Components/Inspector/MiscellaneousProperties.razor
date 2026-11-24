@@ -1,0 +1,29 @@
+<div class="object-blocks">
+    <div class="object-column">
+        <PropertyGroup Title="Object">
+            <ObjectRow Name="Name" Value="ObjectName" />
+            @ChildContent
+        </PropertyGroup>
+    </div>
+    <div class="object-column">
+        <PropertyGroup Title="Tooltip">
+            <div class="object-field tooltip-field">
+                <RadzenTextArea Value="@Tooltip" ReadOnly="true" class="tooltip-text" />
+            </div>
+        </PropertyGroup>
+    </div>
+</div>
+
+@code {
+    /// <summary>Имя объекта экрана.</summary>
+    [Parameter]
+    public string ObjectName { get; set; } = "";
+
+    /// <summary>Подсказка на выбранном языке панели.</summary>
+    [Parameter]
+    public string? Tooltip { get; set; }
+
+    /// <summary>Дополнительные строки свойств объекта.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

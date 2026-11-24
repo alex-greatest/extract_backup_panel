@@ -21,10 +21,6 @@ public static class IoFieldTexts
         _ => "?"
     };
 
-    /// <summary>Flashing → Type. В опыте шага 59 на TP700 Advanced дал тот же FWC, что Disabled; другие конфигурации не проверены.</summary>
-    /// <returns><c>Standard</c> или <c>Disabled</c>.</returns>
-    public static string Flashing(IoField field) => field.Flashing ? "Standard" : "Disabled";
-
     /// <summary>
     /// Flashing → Flash on limit violation: установлен или снят — флажок; без Range у тега — текст, что в файле нет;
     /// не прочитан — «не прочитано».

@@ -977,6 +977,10 @@
     overflow: visible;
 }
 
+.button-styles .object-row-label {
+    width: 160px;
+}
+
 /* Диапазоны анимации: компактная сетка свойств только для чтения. */
 .animation-grid {
     border-collapse: collapse;

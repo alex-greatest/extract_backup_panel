@@ -38,9 +38,9 @@
     [Parameter]
     public string ObjectName { get; set; } = "";
 
-    /// <summary>Подсказки полей на языках Runtime; объект другого типа — null.</summary>
+    /// <summary>Подсказки объектов на языках Runtime для вкладки Texts поля.</summary>
     [Parameter]
-    public IoFieldTooltips? Tooltips { get; set; }
+    public ScreenObjectTooltips? Tooltips { get; set; }
 
     /// <summary>События поля (<see cref="ScreenEventTexts.Of(IoField)"/>); нет — <c>null</c>.</summary>
     [Parameter]

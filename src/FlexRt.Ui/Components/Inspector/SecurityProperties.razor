@@ -1,0 +1,25 @@
+<PropertyGroup Title="Runtime security" Class="wide">
+    <ObjectRow Name="Authorization" Value="@Authorization" />
+</PropertyGroup>
+<PropertyGroup Title="Operator control" Class="wide operator-control">
+    <ObjectRow Name="Allow operator control" Value="@OperatorControlText()" Checked="AllowOperatorControl" />
+</PropertyGroup>
+
+@code {
+    /// <summary>Название права доступа или пояснение, если значение не прочитано.</summary>
+    [Parameter]
+    public string Authorization { get; set; } = "";
+
+    /// <summary>Разрешено ли управление оператору; неизвестно — null.</summary>
+    [Parameter]
+    public bool? AllowOperatorControl { get; set; }
+
+    /// <summary>Текст разрешения управления оператору.</summary>
+    /// <returns>Yes, No или пояснение об отсутствии значения.</returns>
+    private string OperatorControlText() => AllowOperatorControl switch
+    {
+        true => "Yes",
+        false => "No",
+        null => "Не прочитано"
+    };
+}

@@ -27,7 +27,7 @@ namespace FlexRt.Ui.Panel.Screens;
 /// I/O field панели по элементу объекта (<see cref="FlexRt.Model.Panel.FwxDocument.IoFields"/>, один словарь на все
 /// экраны): объект с полем рисуется как поле, остальные — рамкой.
 /// </param>
-/// <param name="Tooltips">Подсказки I/O field панели (один набор на все экраны).</param>
+/// <param name="Tooltips">Подсказки полей и кнопок панели (один набор на все экраны).</param>
 /// <param name="FieldEvents">
 /// События I/O field для вкладки Events объекта по элементу поля (<see cref="ScreenEventTexts.Of(IoField)"/>, один словарь
 /// на все экраны).
@@ -46,7 +46,7 @@ public sealed record ScreenItem(
     IReadOnlyList<ScreenEventView> Events,
     IReadOnlyList<ScreenObject> Objects,
     IReadOnlyDictionary<VarReference, IoField> Fields,
-    IoFieldTooltips Tooltips,
+    ScreenObjectTooltips Tooltips,
     IReadOnlyDictionary<VarReference, IReadOnlyList<ScreenEventView>> FieldEvents,
     IReadOnlyDictionary<VarReference, ButtonGeneral> Buttons,
     ButtonTexts ButtonTexts,

@@ -77,7 +77,8 @@ public static class ButtonGeneralParser
         {
             ButtonDataReader.Check(item, body + BlockOffset, blockSize, table.Name);
             var emptyCaption = new ButtonCaption(null, null);
-            return new ButtonGeneral(obj.Element, ButtonMode.Invisible, null, emptyCaption, emptyCaption, null);
+            var invisible = new ButtonGeneral(obj.Element, ButtonMode.Invisible, null, emptyCaption, emptyCaption, null);
+            return ReadOperatorProperties(doc, item, body, invisible);
         }
         ButtonDataReader.Check(item, body, PressedOffset + 4, table.Name);
         var code = b.D4(item.Offset + body + ModeOffset);
@@ -90,10 +91,38 @@ public static class ButtonGeneralParser
         var styleEnd = BlockOffset + blockSize;
         var captionOffset = body + (styleEnd + CaptionAlignment - 1) / CaptionAlignment * CaptionAlignment;
         var (off, on) = ButtonCaptionReader.Read(doc, item, captionOffset, table.Name);
-        return new ButtonGeneral(obj.Element, mode, pressed, off, on, ReadList(doc, item, body, table.Name, mode))
+        var button = new ButtonGeneral(obj.Element, mode, pressed, off, on, ReadList(doc, item, body, table.Name, mode))
         {
             Appearance = ButtonAppearanceReader.Read(doc, table, item, body),
             StretchPicture = ReadPictureStretch(doc, item, body, table.Name)
+        };
+        return ReadOperatorProperties(doc, item, body, button);
+    }
+
+    /// <summary>Прочитать Flashing и Security из заголовка кнопки. Ошибка права сохраняет остальные свойства.</summary>
+    /// <returns>Кнопка со считанными свойствами управления.</returns>
+    private static ButtonGeneral ReadOperatorProperties(FwxDocument doc, TableItem item, long body, ButtonGeneral button)
+    {
+        var links = NamedElement.TryReferences(doc.Binary, item) ?? [];
+        var allowOperatorControl = ScreenObjectSecurityReader.AllowsOperatorControl(doc.Binary.D4(item.Offset + body));
+        var flashing = ScreenObjectFlashingReader.ReadButton(doc, links);
+        long? authorization = null;
+        var authorizationRead = false;
+        try
+        {
+            authorization = ScreenObjectSecurityReader.ReadAuthorization(doc, links);
+            authorizationRead = true;
+        }
+        catch (FwxFormatException error)
+        {
+            doc.Warnings.Add(error.Message);
+        }
+        return button with
+        {
+            AllowOperatorControl = allowOperatorControl,
+            Authorization = authorization,
+            AuthorizationRead = authorizationRead,
+            Flashing = flashing
         };
     }
 

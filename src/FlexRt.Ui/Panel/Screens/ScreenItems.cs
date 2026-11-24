@@ -40,7 +40,7 @@ public static class ScreenItems
         var strip = Strip(doc, area, objects);
         var events = new ScreenEventTexts(doc);
         var fields = doc.IoFields.ToDictionary(f => f.Element);
-        var tooltips = new IoFieldTooltips(doc);
+        var tooltips = new ScreenObjectTooltips(doc);
         var buttons = doc.Buttons.ToDictionary(b => b.Element);
         var buttonTexts = new ButtonTexts(doc);
         var buttonImages = new ButtonImages(doc);

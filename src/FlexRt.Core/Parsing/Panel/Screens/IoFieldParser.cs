@@ -12,9 +12,6 @@ namespace FlexRt.Parsing.Panel.Screens;
 /// </summary>
 public static class IoFieldParser
 {
-    /// <summary>Бит отключения Allow operator control в стиле: шаги 54–55, V21.</summary>
-    private const long DisabledStyle = 0x08000000;
-
     /// <summary>Таблица полей Input и Input/output.</summary>
     private const string InTable = "VIEW_IN";
 
@@ -168,9 +165,9 @@ public static class IoFieldParser
             Read(doc, table, item, styles, FillStyleReader.Table, who, FillStyleReader.Read),
             Font(doc, table, item, mark, who, out var fonts),
             limits,
-            (b.D4(p + e) & DisabledStyle) == 0,
-            IoFieldSecurityReader.Read(doc, links),
-            IoFieldFlashingReader.Read(doc, item, e, links),
+            ScreenObjectSecurityReader.AllowsOperatorControl(b.D4(p + e)),
+            ScreenObjectSecurityReader.ReadAuthorization(doc, links),
+            ScreenObjectFlashingReader.HasStandardTimer(doc, item, e, links),
             flashOnLimit,
             IoFieldEventReader.Read(doc, table, item, e, links, who),
             AppearanceAnimationReader.Read(doc, table, item, e, links),
