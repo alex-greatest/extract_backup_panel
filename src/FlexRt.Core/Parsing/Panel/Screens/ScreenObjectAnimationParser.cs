@@ -4,31 +4,49 @@ using FlexRt.Model.Panel.Screens;
 
 namespace FlexRt.Parsing.Panel.Screens;
 
-/// <summary>Анимации обёрток I/O field: условия VIEW_DARK и движения VIEW_MOVE; после IoFieldParser.</summary>
-public static class IoFieldAnimationParser
+/// <summary>Условия VIEW_DARK и движения VIEW_MOVE для прочитанных I/O field и Button.</summary>
+public static class ScreenObjectAnimationParser
 {
     /// <summary>Предел вложенности обёрток, как у ScreenObjectParser.</summary>
     private const int MaxDepth = 8;
 
-    /// <summary>Прочитать анимации только обёрток, содержащих распознанные поля; общая обёртка читается один раз.</summary>
+    /// <summary>Прочитать общие обёртки анимаций после разбора полей и кнопок.</summary>
     public static void Parse(FwxDocument doc)
     {
-        var fields = doc.IoFields.Select((field, index) => (field.Element, Index: index)).ToDictionary(f => f.Element, f => f.Index);
-        var collected = new Dictionary<VarReference, IReadOnlyList<int>>();
-        foreach (var element in doc.Screens.Where(s => !s.IsService).SelectMany(s => s.Objects))
+        var settings = doc.IoFields.Select(field => field.Element).Concat(doc.Buttons.Select(button => button.Element))
+            .ToDictionary(element => element, _ => (Conditions: new List<FieldCondition>(), Movements: new List<FieldMovement>()));
+        var collected = new Dictionary<VarReference, IReadOnlyList<VarReference>>();
+        foreach (var element in doc.Screens.Where(screen => !screen.IsService).SelectMany(screen => screen.Objects))
         {
-            Collect(doc, element, fields, collected, 0);
+            Collect(doc, element, settings, collected, 0);
+        }
+        for (var i = 0; i < doc.IoFields.Count; i++)
+        {
+            var field = doc.IoFields[i];
+            var (conditions, movements) = settings[field.Element];
+            doc.IoFields[i] = field with
+            {
+                Conditions = conditions.Count > 0 ? conditions : field.Conditions,
+                Movements = movements.Count > 0 ? movements : field.Movements
+            };
+        }
+        for (var i = 0; i < doc.Buttons.Count; i++)
+        {
+            var button = doc.Buttons[i];
+            var (conditions, movements) = settings[button.Element];
+            doc.Buttons[i] = button with { Conditions = conditions, Movements = movements };
         }
     }
 
-    /// <summary>Найти поля внутри обёртки; сбой её настройки не скрывает найденные поля от внешних обёрток.</summary>
-    /// <returns>Индексы полей документа в поддереве.</returns>
-    private static IReadOnlyList<int> Collect(FwxDocument doc, VarReference element, IReadOnlyDictionary<VarReference, int> fields,
-        Dictionary<VarReference, IReadOnlyList<int>> collected, int depth)
+    /// <summary>Найти объекты внутри обёртки; сбой её настройки не скрывает объекты от внешних обёрток.</summary>
+    /// <returns>Ссылки на поля и кнопки в поддереве.</returns>
+    private static IReadOnlyList<VarReference> Collect(FwxDocument doc, VarReference element,
+        IReadOnlyDictionary<VarReference, (List<FieldCondition> Conditions, List<FieldMovement> Movements)> settings,
+        Dictionary<VarReference, IReadOnlyList<VarReference>> collected, int depth)
     {
-        if (fields.TryGetValue(element, out var index))
+        if (settings.ContainsKey(element))
         {
-            return [index];
+            return [element];
         }
         if (collected.TryGetValue(element, out var previous))
         {
@@ -44,7 +62,7 @@ public static class IoFieldAnimationParser
             var item = ElementLink.Item(doc, table, element.Index);
             var (end, links) = ReferenceHeader.Read(doc.Binary, item, table.Name);
             var inner = Inner(doc, table, item, end);
-            var nested = inner.SelectMany(child => Collect(doc, child, fields, collected, depth + 1)).Distinct().ToArray();
+            var nested = inner.SelectMany(child => Collect(doc, child, settings, collected, depth + 1)).Distinct().ToArray();
             collected[element] = nested;
             if (nested.Length == 0)
             {
@@ -54,7 +72,7 @@ public static class IoFieldAnimationParser
             {
                 throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1}: назначение условия поля не прочитано");
             }
-            Apply(doc, table, item, links, nested);
+            Apply(doc, table, item, links, nested, settings);
             return nested;
         }
         catch (FwxFormatException e)
@@ -83,34 +101,30 @@ public static class IoFieldAnimationParser
             : throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1}: {count} объектов не помещаются в {item.Length} байт");
     }
 
-    /// <summary>Добавить условие либо движение всем полям внутри обёртки; остальные свойства поля сохраняются.</summary>
-    private static void Apply(FwxDocument doc, TocEntry table, TableItem item, IReadOnlyList<VarReference> links, IReadOnlyList<int> fields)
+    /// <summary>Добавить настройки обёртки всем прочитанным объектам внутри неё.</summary>
+    private static void Apply(FwxDocument doc, TocEntry table, TableItem item, IReadOnlyList<VarReference> links,
+        IReadOnlyList<VarReference> objects,
+        IReadOnlyDictionary<VarReference, (List<FieldCondition> Conditions, List<FieldMovement> Movements)> settings)
     {
-        if (table.Name == "VIEW_MOVE")
+        if (table.Name != "VIEW_MOVE")
         {
-            ApplyMovement(doc, item, links, fields);
+            ApplyConditions(doc, table, item, links, objects, settings);
             return;
         }
-        ApplyConditions(doc, table, item, links, fields);
-    }
-
-    /// <summary>Прочитать движение обёртки и добавить его каждому вложенному полю.</summary>
-    private static void ApplyMovement(FwxDocument doc, TableItem item, IReadOnlyList<VarReference> links, IReadOnlyList<int> fields)
-    {
         if (FieldMovementReader.Read(doc, item, links) is not { } movement)
         {
             return;
         }
-        foreach (var index in fields)
+        foreach (var element in objects)
         {
-            var field = doc.IoFields[index];
-            doc.IoFields[index] = field with { Movements = [.. field.Movements ?? [], movement] };
+            settings[element].Movements.Add(movement);
         }
     }
 
     /// <summary>Прочитать условия по порядку; неизвестная роль даёт предупреждение, остальные ссылки продолжаются.</summary>
     private static void ApplyConditions(FwxDocument doc, TocEntry table, TableItem item,
-        IReadOnlyList<VarReference> links, IReadOnlyList<int> fields)
+        IReadOnlyList<VarReference> links, IReadOnlyList<VarReference> objects,
+        IReadOnlyDictionary<VarReference, (List<FieldCondition> Conditions, List<FieldMovement> Movements)> settings)
     {
         for (var i = 0; i < links.Count; i++)
         {
@@ -124,10 +138,9 @@ public static class IoFieldAnimationParser
             }
             var condition = FieldConditionReader.Read(doc, links[i],
                 role == 0x19 ? FieldConditionKind.ControlEnable : FieldConditionKind.Visibility, item.Offset + 0x08 + i * 8L);
-            foreach (var index in fields)
+            foreach (var element in objects)
             {
-                var field = doc.IoFields[index];
-                doc.IoFields[index] = field with { Conditions = [.. field.Conditions ?? [], condition] };
+                settings[element].Conditions.Add(condition);
             }
         }
     }

@@ -18,6 +18,15 @@ public sealed record ButtonGeneral(
     /// <summary>Оформление обоих состояний; неподтверждённая раскладка или невидимая кнопка — null.</summary>
     public ButtonAppearance? Appearance { get; init; }
 
+    /// <summary>Анимация цветов и мигания; ссылки на анимацию нет — null.</summary>
+    public AppearanceAnimation? AnimatedAppearance { get; init; }
+
+    /// <summary>Условия Visibility и Control enable из обёрток кнопки.</summary>
+    public IReadOnlyList<FieldCondition> Conditions { get; init; } = [];
+
+    /// <summary>Движения из обёрток кнопки, от внутренней к внешней.</summary>
+    public IReadOnlyList<FieldMovement> Movements { get; init; } = [];
+
     /// <summary>Растягивать графическую подпись; неизвестный код или невидимая кнопка — null.</summary>
     public bool? StretchPicture { get; init; }
 

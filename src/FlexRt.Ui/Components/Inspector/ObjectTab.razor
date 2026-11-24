@@ -3,8 +3,11 @@
 
 @switch (Tab)
 {
-    case "Animations" when Field is not null:
-        <IoFieldAnimations Field="Field" />
+    case "Animations" when Field is not null || Button is not null:
+        <ObjectAnimations AnimatedAppearance="@(Field?.Appearance ?? Button?.AnimatedAppearance)"
+                          Conditions="@(Field?.Conditions ?? Button?.Conditions ?? [])"
+                          Movements="@(Field?.Movements ?? Button?.Movements ?? [])"
+                          ProcessTag="@AnimationTag()" Subject="@(Field is null ? "кнопки" : "поля")" />
         break;
     case "Texts" when Field is not null && Tooltips is not null:
         <IoFieldTextTable Texts="@Tooltips.Texts(Field.Element)" ObjectName="@ObjectName" />
@@ -25,7 +28,7 @@
     private const string EventsTab = "Events";
 
     /// <summary>
-    /// Вкладка объекта: Animations, Events и Texts I/O field; неподдерживаемые вкладки — «Не разобрано».
+    /// Вкладка объекта: Animations у Button, Animations, Events и Texts у I/O field; неподдерживаемые вкладки — «Не разобрано».
     /// </summary>
     [Parameter]
     public string Tab { get; set; } = "";
@@ -33,6 +36,14 @@
     /// <summary>I/O field выбранного объекта; объект другого типа — <c>null</c>.</summary>
     [Parameter]
     public IoField? Field { get; set; }
+
+    /// <summary>Кнопка выбранного объекта; другой тип — null.</summary>
+    [Parameter]
+    public ButtonGeneral? Button { get; set; }
+
+    /// <summary>Тег селектора списка кнопки.</summary>
+    [Parameter]
+    public string ProcessTag { get; set; } = "";
 
     /// <summary>Имя выбранного объекта для Reference вкладки Texts.</summary>
     [Parameter]
@@ -45,4 +56,15 @@
     /// <summary>События поля (<see cref="ScreenEventTexts.Of(IoField)"/>); нет — <c>null</c>.</summary>
     [Parameter]
     public IReadOnlyList<ScreenEventView>? Events { get; set; }
+
+    /// <summary>Взять тег значения поля или прочитанный селектор списка кнопки.</summary>
+    /// <returns>Отображаемый тег; null, если связь кнопки отсутствует.</returns>
+    private string? AnimationTag()
+    {
+        if (Field is { } field)
+        {
+            return field.Tag ?? (field.TagVia is { } via ? $"? ({via})" : "");
+        }
+        return Button is { Mode: ButtonMode.TextList or ButtonMode.GraphicList, List: not null } ? ProcessTag : null;
+    }
 }

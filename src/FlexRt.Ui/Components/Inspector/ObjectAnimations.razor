@@ -1,0 +1,198 @@
+@using FlexRt.Model.Panel.Screens
+
+<div class="props-layout object-props">
+    <nav class="object-nav anim-nav" aria-label="Анимации объекта">
+        @NavRow(Overview, Overview, "list_alt")
+        @NavRow(Connections, Connections, "link", true)
+        @if (HasProcessValue)
+        {
+            @NavRow(ProcessValue, ProcessValue, "link")
+        }
+        @NavRow(Display, Display, "tv", true)
+        @if (AnimatedAppearance is not null)
+        {
+            @NavRow(Appearance, Appearance, "palette")
+        }
+        @foreach (var kind in ConditionOrder)
+        {
+            @for (var i = 0; i < Conditions.Count; i++)
+            {
+                var condition = Conditions[i];
+                if (condition.Kind == kind)
+                {
+                    @NavRow($"condition-{i}", FieldAnimationTexts.Name(condition), ConditionIcon(kind))
+                }
+            }
+        }
+        @NavRow(MovementGroup, MovementGroup, "open_with", true)
+        @for (var i = 0; i < Movements.Count; i++)
+        {
+            @NavRow($"movement-{i}", FieldAnimationTexts.Name(Movements[i]), "open_with")
+        }
+    </nav>
+    <div class="props-body object-body object-animations-body">
+        @switch (_selected)
+        {
+            case Overview:
+            case Connections:
+            case Display:
+            case MovementGroup:
+                @Catalog()
+                break;
+            case ProcessValue:
+                <div class="object-title">Process value</div>
+                <PropertyGroup Title="Tag">
+                    <ObjectRow Name="Tag" Value="@(ProcessTag ?? "")" />
+                </PropertyGroup>
+                break;
+            case Appearance when AnimatedAppearance is { } appearance:
+                <div class="object-title">Appearance</div>
+                <AppearanceProperties Animation="appearance" />
+                break;
+            case var _ when Conditions.Where((_, i) => _selected == $"condition-{i}").FirstOrDefault() is { } condition:
+                <div class="object-title">@FieldAnimationTexts.Name(condition)</div>
+                <FieldConditionProperties Condition="condition" />
+                break;
+            case var _ when Movements.Where((_, i) => _selected == $"movement-{i}").FirstOrDefault() is { } movement:
+                <div class="object-title">@FieldAnimationTexts.Name(movement)</div>
+                <FieldMovementProperties Movement="movement" Subject="@Subject" />
+                break;
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Первый пункт инспектора анимаций.</summary>
+    private const string Overview = "Overview";
+
+    /// <summary>Группа связей с тегами.</summary>
+    private const string Connections = "Tag connections";
+
+    /// <summary>Группа анимаций отображения и управления.</summary>
+    private const string Display = "Display";
+
+    /// <summary>Группа перемещений.</summary>
+    private const string MovementGroup = "Movements";
+
+    /// <summary>Связь значения поля или селектора списка.</summary>
+    private const string ProcessValue = "Process value";
+
+    /// <summary>Анимация цветов и мигания.</summary>
+    private const string Appearance = "Appearance";
+
+    /// <summary>Порядок условий в Display.</summary>
+    private static readonly FieldConditionKind[] ConditionOrder = [FieldConditionKind.ControlEnable, FieldConditionKind.Visibility];
+
+    /// <summary>Названия и значки типов движения в порядке редактора.</summary>
+    private static readonly (string Prefix, string Icon)[] MovementTypes =
+        [("Direct", "open_with"), ("Diagonal", "north_east"), ("Horizontal", "swap_horiz"), ("Vertical", "swap_vert")];
+
+    /// <summary>Выбранный пункт; при смене объекта инспектор пересоздаётся.</summary>
+    private string _selected = Overview;
+
+    /// <summary>Анимация цветов и мигания выбранного объекта.</summary>
+    [Parameter]
+    public AppearanceAnimation? AnimatedAppearance { get; set; }
+
+    /// <summary>Прочитанные условия видимости и разрешения управления.</summary>
+    [Parameter]
+    public IReadOnlyList<FieldCondition> Conditions { get; set; } = [];
+
+    /// <summary>Прочитанные движения выбранного объекта.</summary>
+    [Parameter]
+    public IReadOnlyList<FieldMovement> Movements { get; set; } = [];
+
+    /// <summary>Тег значения или селектора; null означает отсутствие пункта Process value.</summary>
+    [Parameter]
+    public string? ProcessTag { get; set; }
+
+    /// <summary>Название объекта в сообщении о непрочитанном движении.</summary>
+    [Parameter, EditorRequired]
+    public string Subject { get; set; } = "";
+
+    /// <summary>Значение I/O field или селектор списка Button доступен в инспекторе.</summary>
+    private bool HasProcessValue => ProcessTag is not null;
+
+    /// <summary>Каталог всех типов либо выбранной группы.</summary>
+    /// <returns>Группы каталога в порядке редактора.</returns>
+    private RenderFragment Catalog() => @<div class="object-animation-catalog">
+        <div class="object-title">Animation types</div>
+        @if (_selected is Overview or Connections)
+        {
+            <PropertyGroup Title="@Connections" Class="object-animation-types">
+                @OverviewRow("Tag connection", "link", HasProcessValue ? ProcessValue : null)
+            </PropertyGroup>
+        }
+        @if (_selected is Overview or Display)
+        {
+            <PropertyGroup Title="@Display" Class="object-animation-types">
+                @OverviewRow(Appearance, "palette", AnimatedAppearance is null ? null : Appearance)
+                @OverviewRow("Control enable", "touch_app", ConditionKey(FieldConditionKind.ControlEnable))
+                @OverviewRow("Visibility", "visibility", ConditionKey(FieldConditionKind.Visibility))
+            </PropertyGroup>
+        }
+        @if (_selected is Overview or MovementGroup)
+        {
+            <PropertyGroup Title="@MovementGroup" Class="object-animation-types">
+                @foreach (var (prefix, icon) in MovementTypes)
+                {
+                    @MovementOverview(prefix, icon)
+                }
+            </PropertyGroup>
+        }
+    </div>;
+
+    /// <summary>Строка навигации по настройкам объекта.</summary>
+    /// <returns>Кнопка выбора раздела.</returns>
+    private RenderFragment NavRow(string key, string label, string icon, bool group = false) => @<button type="button"
+        class="object-nav-item @(group ? "object-animation-group" : key == Overview ? "object-animation-overview" : "") @(_selected == key ? "selected" : "")"
+        aria-current="@(_selected == key ? "true" : null)" aria-label="@label" title="@label" @onclick="() => _selected = key">
+        <span class="object-nav-text"><RadzenIcon Icon="@icon" />@label</span>
+    </button>;
+
+    /// <summary>Строка каталога; найденная настройка открывается для просмотра.</summary>
+    /// <returns>Ссылка на настройку или строка без действия, если настройки в файле нет.</returns>
+    private RenderFragment OverviewRow(string label, string icon, string? key, string? note = null) => @<div class="object-animation-type">
+        <RadzenIcon Icon="@icon" />
+        @if (key is not null)
+        {
+            <button type="button" class="object-animation-link" @onclick="() => _selected = key">@label</button>
+            @if (note is null)
+            {
+                <RadzenIcon Icon="chevron_right" />
+            }
+            else
+            {
+                <span class="muted-inline">@note</span>
+            }
+        }
+        else
+        {
+            <span>@label</span><span class="muted-inline">Нет в файле</span>
+        }
+    </div>;
+
+    /// <summary>Ключ первого условия данного вида.</summary>
+    /// <returns>Ключ пункта либо null, если условия нет.</returns>
+    private string? ConditionKey(FieldConditionKind kind) => Conditions.Select((value, index) => (value, index))
+        .Where(pair => pair.value.Kind == kind).Select(pair => $"condition-{pair.index}").FirstOrDefault();
+
+    /// <summary>Строка типа движения; соседние возможные типы открывают те же параметры.</summary>
+    /// <returns>Доступная строка с отметкой о неоднозначности либо отсутствующая настройка.</returns>
+    private RenderFragment MovementOverview(string prefix, string icon)
+    {
+        var label = $"{prefix} movement";
+        var movements = Movements.Select((movement, index) => (Name: FieldAnimationTexts.Name(movement), Index: index)).ToArray();
+        var match = movements.FirstOrDefault(item => item.Name == label);
+        if (match.Name is null)
+        {
+            match = movements.FirstOrDefault(item => item.Name.Contains(prefix, StringComparison.Ordinal));
+        }
+        return OverviewRow(label, icon, match.Name is null ? null : $"movement-{match.Index}",
+            match.Name is not null && match.Name != label ? "Тип не различается" : null);
+    }
+
+    /// <summary>Значок условия в дереве.</summary>
+    /// <returns>Значок Visibility или Control enable.</returns>
+    private static string ConditionIcon(FieldConditionKind kind) => kind == FieldConditionKind.Visibility ? "visibility" : "touch_app";
+}

@@ -78,7 +78,7 @@ public static class ButtonGeneralParser
             ButtonDataReader.Check(item, body + BlockOffset, blockSize, table.Name);
             var emptyCaption = new ButtonCaption(null, null);
             var invisible = new ButtonGeneral(obj.Element, ButtonMode.Invisible, null, emptyCaption, emptyCaption, null);
-            return ReadOperatorProperties(doc, item, body, invisible);
+            return ReadOperatorProperties(doc, table, item, body, invisible);
         }
         ButtonDataReader.Check(item, body, PressedOffset + 4, table.Name);
         var code = b.D4(item.Offset + body + ModeOffset);
@@ -96,12 +96,12 @@ public static class ButtonGeneralParser
             Appearance = ButtonAppearanceReader.Read(doc, table, item, body),
             StretchPicture = ReadPictureStretch(doc, item, body, table.Name)
         };
-        return ReadOperatorProperties(doc, item, body, button);
+        return ReadOperatorProperties(doc, table, item, body, button);
     }
 
-    /// <summary>Прочитать Flashing и Security из заголовка кнопки. Ошибка права сохраняет остальные свойства.</summary>
+    /// <summary>Прочитать Appearance, Flashing и Security из заголовка кнопки. Ошибка права сохраняет остальные свойства.</summary>
     /// <returns>Кнопка со считанными свойствами управления.</returns>
-    private static ButtonGeneral ReadOperatorProperties(FwxDocument doc, TableItem item, long body, ButtonGeneral button)
+    private static ButtonGeneral ReadOperatorProperties(FwxDocument doc, TocEntry table, TableItem item, long body, ButtonGeneral button)
     {
         var links = NamedElement.TryReferences(doc.Binary, item) ?? [];
         var allowOperatorControl = ScreenObjectSecurityReader.AllowsOperatorControl(doc.Binary.D4(item.Offset + body));
@@ -122,6 +122,7 @@ public static class ButtonGeneralParser
             AllowOperatorControl = allowOperatorControl,
             Authorization = authorization,
             AuthorizationRead = authorizationRead,
+            AnimatedAppearance = AppearanceAnimationReader.Read(doc, table, item, body, links),
             Flashing = flashing
         };
     }

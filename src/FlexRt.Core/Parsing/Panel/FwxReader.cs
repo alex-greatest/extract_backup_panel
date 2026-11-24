@@ -63,7 +63,7 @@ public static class FwxReader
         // только после ScreenObjectParser: поля читаются по элементам из doc.ScreenObjects
         TryParse(doc, IoFieldParser.Parse);
         TryParse(doc, ButtonGeneralParser.Parse);
-        TryParse(doc, IoFieldAnimationParser.Parse);
+        TryParse(doc, ScreenObjectAnimationParser.Parse);
         TryParse(doc, InfoHandlerParser.Parse);
         TryParse(doc, UserGroupParser.Parse);
         TryParse(doc, PictureParser.Parse);

@@ -1,4 +1,4 @@
-﻿/* Инспектор: заголовок с вкладками Properties и Info справа (как в TIA), вкладки Radzen, группы и поля свойств */
+/* Инспектор: заголовок с вкладками Properties и Info справа (как в TIA), вкладки Radzen, группы и поля свойств */
 .inspector-head {
     align-items: stretch;
     gap: 0;
@@ -1157,4 +1157,47 @@
 
 .button-appearance .object-group {
     min-width: 340px;
+}
+
+/* Animations объектов: дерево и каталог настроек для просмотра. */
+.object-animation-catalog .object-animation-types {
+    width: min(100%, 640px);
+    max-width: none;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+}
+
+.object-animation-type {
+    display: grid;
+    grid-template-columns: 17px minmax(140px, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+    min-height: 22px;
+    padding: 0 4px;
+}
+
+.object-animation-type .rzi {
+    font-size: 16px;
+}
+
+.object-animation-link {
+    justify-self: start;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    font: inherit;
+    padding: 2px 4px;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.anim-nav .object-animation-overview .object-nav-text {
+    margin-left: -12px;
+}
+
+.anim-nav .object-animation-group .object-nav-text {
+    margin-left: -15px;
+    font-weight: 600;
 }

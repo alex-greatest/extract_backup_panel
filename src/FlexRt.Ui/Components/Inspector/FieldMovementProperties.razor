@@ -2,7 +2,7 @@
 
 @if (!Movement.IsRead)
 {
-    <div class="muted">Движение поля не прочитано</div>
+    <div class="muted">Движение @Subject не прочитано</div>
 }
 else if (Movement.Direct)
 {
@@ -31,7 +31,11 @@ else
 }
 
 @code {
-    /// <summary>Настройки движения выбранного поля; просмотр без воспроизведения анимации.</summary>
+    /// <summary>Настройки движения выбранного объекта; просмотр без воспроизведения анимации.</summary>
     [Parameter, EditorRequired]
     public FieldMovement Movement { get; set; } = null!;
+
+    /// <summary>Название объекта в сообщении о непрочитанном движении.</summary>
+    [Parameter]
+    public string Subject { get; set; } = "поля";
 }
