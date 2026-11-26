@@ -1,6 +1,7 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Parsing.Panel.Alarms;
+using FlexRt.Parsing.Panel.Functions.Scripts;
 using FlexRt.Parsing.Panel.Pictures;
 using FlexRt.Parsing.Panel.Screens;
 
@@ -19,7 +20,8 @@ public static class FwxReader
     /// После TOC разбираются таблицы STRINGSTORE, VAR, DATALINK_READWR, DATALINK, CONNECTION_OMSP, DEVICE_OMSP,
     /// SYSMSGHANDLER, MSG_NUMHANDLER, MSG_NUMEVENT, AREAPTR, MSG_ANALOGHANDL, MSG_ANALOGCREAT,
     /// MSG_ANALOG_OBSE, RECMSG, ARCHIVES, MSG_LOGGER, FUNC_SEND_EMAIL, SCREEN, LIMIT, ADAPTVALUECHANG, GUI,
-    /// VIEW_DYN, события экранов (FUNC_LIST, ADAPTDEMULTIPLE, FUNC_*), объекты экранов (VIEW_*), I/O field со стилями
+    /// VIEW_DYN, каталог имён VB-скриптов (FUNC_COMMONSCRI), события экранов (FUNC_LIST, ADAPTDEMULTIPLE, FUNC_*),
+    /// объекты экранов (VIEW_*), I/O field со стилями
     /// (PS_BorderedShap, PS_Text, PS_Fill_Color, FONT), анимации полей (SYMB, LIMIT, VIEW_DARK, VIEW_MOVE_ADAPT),
     /// General кнопок (VIEW_BUTTONS, VIEW_STATEBUTTO), INFO_HANDLER, SECURITY_UNIT, PICTURE и TILED_PICTURE; последней — раскладка всех таблиц TOC (<see cref="TableLayoutCheck"/>).
     /// </summary>
@@ -56,6 +58,7 @@ public static class FwxReader
         TryParse(doc, GuiParser.Parse);
         // только после ScreenParser: элемент VIEW_DYN выбирается по ссылке записи Overview из doc.Screens
         TryParse(doc, ViewDynParser.Parse);
+        TryParse(doc, ScriptNameCatalogReader.Parse);
         // только после ScreenParser: события читаются по ссылкам записей из doc.Screens
         TryParse(doc, ScreenEventParser.Parse);
         // только после ScreenParser: объекты читаются по спискам записей из doc.Screens

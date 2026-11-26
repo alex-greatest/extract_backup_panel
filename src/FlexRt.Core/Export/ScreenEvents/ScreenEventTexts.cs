@@ -123,11 +123,12 @@ public sealed class ScreenEventTexts
     private static string ParameterName(FunctionCall call, int index) =>
         call.ParameterNames.ElementAtOrDefault(index) is { Length: > 0 } name ? name : $"Параметр {index + 1}";
 
-    /// <summary>Первый числовой параметр ActivateScreen и активации экранных контролов — имя экрана; остальные параметры форматируются по виду.</summary>
+    /// <summary>Первый числовой параметр системной активации экрана или контрола — имя экрана.</summary>
     /// <returns>Имя найденного экрана; сопоставления нет — исходное значение параметра.</returns>
     private string Value(FunctionCall call, int index, FunctionArgument argument)
     {
-        if (index == 0 && call.Names is ["ActivateScreen" or "ActivatePLCCodeView" or "ActivateSystemDiagnosticsView"]
+        if (index == 0 && call.Table != "FUNC_SCRIPT"
+            && call.Names is ["ActivateScreen" or "ActivatePLCCodeView" or "ActivateSystemDiagnosticsView"]
             && argument.Kind is FunctionArgumentKind.Integer or FunctionArgumentKind.UInt32
             && _screenNames.TryGetValue(argument.Number, out var name))
         {

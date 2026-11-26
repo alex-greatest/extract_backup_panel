@@ -75,6 +75,8 @@ public sealed class FwxDocument
     public List<IoField> IoFields { get; } = [];
     /// <summary>Свойства General кнопок, по элементу один раз; неподтверждённые виды не включаются.</summary>
     public List<ButtonGeneral> Buttons { get; } = [];
+    /// <summary>Имена VB-скриптов из FUNC_COMMONSCRI в порядке номеров из FUNC_SCRIPT.</summary>
+    internal IReadOnlyList<string> ScriptNames { get; set; } = [];
     /// <summary>События экранов Loaded и Cleared из FUNC_LIST и ADAPTDEMULTIPLE, в порядке <see cref="Screens"/>, Loaded перед Cleared.</summary>
     public List<ScreenEvent> ScreenEvents { get; } = [];
     /// <summary>Номера экранов из элемента ADAPTVALUECHANG со ссылкой на GUI, в порядке файла.</summary>
