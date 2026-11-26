@@ -1,0 +1,105 @@
+@using FlexRt.Model.Panel.Screens
+@using FlexRt.Ui.Components.Inspector.Animations
+@using FlexRt.Ui.Components.Inspector.Events
+@using FlexRt.Ui.Components.Inspector.Objects.IoFields
+
+@{
+    var field = Item.Fields.GetValueOrDefault(Object.Element);
+    var button = Item.Buttons.GetValueOrDefault(Object.Element);
+}
+@* RadzenTabs запоминает содержимое вкладок: при смене объекта вкладки пересоздаются. *@
+<RadzenTabs @key="Object" class="inspector-tabs" SelectedIndex="SelectedIndex" SelectedIndexChanged="SelectedIndexChanged">
+    <Tabs>
+        <RadzenTabsItem Text="Properties">
+            <ObjectProperties Object="Object" Field="field" Language="Language"
+                              Tooltip="@Item.Tooltips.Text(Object.Element, Language)" Tags="Tags"
+                              Button="button" ButtonTexts="Item.ButtonTexts"
+                              Section="@Section" SectionChanged="SectionChanged" />
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Animations">
+            @if (field is not null || button is not null)
+            {
+                <ObjectAnimations AnimatedAppearance="@(field?.Appearance ?? button?.AnimatedAppearance)"
+                                  Conditions="@(field?.Conditions ?? button?.Conditions ?? [])"
+                                  Movements="@(field?.Movements ?? button?.Movements ?? [])"
+                                  ProcessTag="@AnimationTag(field, button)" Subject="@(field is null ? "кнопки" : "поля")" />
+            }
+            else
+            {
+                <div class="muted">Не разобрано</div>
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Events">
+            @{ var events = Item.ObjectEvents.GetValueOrDefault((Object.ScreenIndex, Object.Element)); }
+            @if (events is null)
+            {
+                <div class="muted">Не разобрано</div>
+            }
+            else if (field is { Mode: IoFieldMode.Output })
+            {
+                <div class="muted">@IoFieldTexts.OutputEventsAbsent</div>
+            }
+            else
+            {
+                <ScreenEvents Events="events" />
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Texts">
+            @if (field is not null)
+            {
+                <IoFieldTextTable Texts="@Item.Tooltips.Texts(field.Element)" ObjectName="@Object.Name" />
+            }
+            else
+            {
+                <div class="muted">Не разобрано</div>
+            }
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
+
+@code {
+    /// <summary>Экран, на холсте которого выбран объект.</summary>
+    [Parameter, EditorRequired]
+    public ScreenItem Item { get; set; } = null!;
+
+    /// <summary>Выбранный объект холста.</summary>
+    [Parameter, EditorRequired]
+    public ScreenObject Object { get; set; } = null!;
+
+    /// <summary>Таблица листа «Теги» для PLC tag и Address I/O field; нет — <c>null</c>.</summary>
+    [Parameter]
+    public ReportTable? Tags { get; set; }
+
+    /// <summary>Язык окна для свойств с переводами.</summary>
+    [Parameter]
+    public int? Language { get; set; }
+
+    /// <summary>Номер открытой вкладки, который хранит панель свойств.</summary>
+    [Parameter]
+    public int SelectedIndex { get; set; }
+
+    /// <summary>Передать панели свойств выбор вкладки.</summary>
+    [Parameter]
+    public EventCallback<int> SelectedIndexChanged { get; set; }
+
+    /// <summary>Раздел Property list, который хранит панель свойств.</summary>
+    [Parameter]
+    public string? Section { get; set; }
+
+    /// <summary>Передать панели свойств выбор раздела Property list.</summary>
+    [Parameter]
+    public EventCallback<string> SectionChanged { get; set; }
+
+    /// <summary>Взять тег значения поля или прочитанный селектор списка кнопки.</summary>
+    /// <returns>Отображаемый тег; <c>null</c>, если связь кнопки отсутствует.</returns>
+    private string? AnimationTag(IoField? field, ButtonGeneral? button)
+    {
+        if (field is not null)
+        {
+            return field.Tag ?? (field.TagVia is { } via ? $"? ({via})" : "");
+        }
+        return button is { Mode: ButtonMode.TextList or ButtonMode.GraphicList, List: not null }
+            ? Item.ButtonTexts.Tag(button.List)
+            : null;
+    }
+}

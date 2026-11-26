@@ -19,8 +19,8 @@ public static class ScreenItems
     /// сводятся попарно. Имя берётся из колонки Name по её заголовку; стартовый — экран с номером из GUI
     /// (<see cref="FwxDocument.StartScreenNumber"/>). Служебные записи pop-up не входят. Высота на холсте — высота ядра
     /// (<see cref="ScreensTable.Screens"/>, та же, что в колонке Height); над обычными экранами и экранами
-    /// неопознанного вида — полоса Permanent area (<see cref="Strip"/>), как в редакторе экранов TIA. События Loaded и
-    /// Cleared — тексты ядра <see cref="ScreenEventTexts"/>. Объекты — <see cref="FwxDocument.ScreenObjects"/> записи экрана, поля — <see cref="FwxDocument.IoFields"/>, их события — тоже <see cref="ScreenEventTexts"/>.
+    /// неопознанного вида — полоса Permanent area (<see cref="Strip"/>), как в редакторе экранов TIA. События экрана
+    /// и его объектов — тексты ядра <see cref="ScreenEventTexts"/>.
     /// </summary>
     /// <returns>Экраны для дерева, холста и панели свойств; экранов нет — пустой список.</returns>
     /// <exception cref="InvalidOperationException">
@@ -44,11 +44,7 @@ public static class ScreenItems
         var buttons = doc.Buttons.ToDictionary(b => b.Element);
         var buttonTexts = new ButtonTexts(doc);
         var buttonImages = new ButtonImages(doc);
-        var fieldEvents = fields.ToDictionary(f => f.Key, f => events.Of(f.Value));
-        var objectEvents = doc.ScreenObjects.Where(item => fields.ContainsKey(item.Element) || buttons.ContainsKey(item.Element))
-            .DistinctBy(item => (item.ScreenIndex, item.Element))
-            .ToDictionary(item => (item.ScreenIndex, item.Element), item => buttons.TryGetValue(item.Element, out var button)
-                ? events.Of(button, item.ScreenIndex) : fieldEvents[item.Element]);
+        var objectEvents = ObjectEvents(doc.ScreenObjects, fields, buttons, events);
         return
         [
             .. screens.Zip(table.Rows, (s, row) => new ScreenItem(
@@ -68,6 +64,24 @@ public static class ScreenItems
                 buttonTexts,
                 buttonImages))
         ];
+    }
+
+    /// <summary>
+    /// События поля общие для всех его вхождений, у кнопки учитывается экран вхождения. Если элемент есть у поля
+    /// и кнопки, в инспектор передаются события кнопки. Повторные вхождения элемента на одном экране используют один список.
+    /// </summary>
+    /// <returns>События для инспектора по номеру экрана и элементу объекта.</returns>
+    private static Dictionary<(int ScreenIndex, VarReference Element), IReadOnlyList<ScreenEventView>> ObjectEvents(
+        IReadOnlyList<ScreenObject> objects,
+        Dictionary<VarReference, IoField> fields,
+        Dictionary<VarReference, ButtonGeneral> buttons,
+        ScreenEventTexts events)
+    {
+        var fieldEvents = fields.ToDictionary(field => field.Key, field => events.Of(field.Value));
+        return objects.Where(item => fieldEvents.ContainsKey(item.Element) || buttons.ContainsKey(item.Element))
+            .DistinctBy(item => (item.ScreenIndex, item.Element))
+            .ToDictionary(item => (item.ScreenIndex, item.Element), item => buttons.TryGetValue(item.Element, out var button)
+                ? events.Of(button, item.ScreenIndex) : fieldEvents[item.Element]);
     }
 
     /// <summary>

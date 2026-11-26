@@ -1,0 +1,41 @@
+@using FlexRt.Model.Panel.Screens
+
+<div class="object-blocks">
+    <div class="object-column">
+        <PropertyGroup Title="Process">
+            <ObjectRow Name="Tag" Value="@(Field.Tag ?? (Field.TagVia is { } via ? $"? ({via})" : ""))" />
+            <ObjectRow Name="PLC tag" Value="PlcTag" Disabled="true" />
+            <ObjectRow Name="Address" Value="Address" Second="DataType" Disabled="true" />
+        </PropertyGroup>
+        <PropertyGroup Title="Type"><ObjectRow Name="Mode" Value="@IoFieldTexts.Mode(Field.Mode)" Control="ObjectRowControl.Combo" /></PropertyGroup>
+    </div>
+    <div class="object-column">
+        <PropertyGroup Title="Format">
+            <ObjectRow Name="Display format" Value="@IoFieldTexts.Format(Field.DisplayFormat)" Control="ObjectRowControl.Combo" />
+            <ObjectRow Name="Decimal places" Value="@IoFieldTexts.DecimalPlaces(Field)" Control="ObjectRowControl.Spin"
+                       Disabled="!IoFieldTexts.DecimalPlacesEnabled(Field)" />
+            <ObjectRow Name="Field length" Value="@IoFieldTexts.FieldLength(Field)" Control="ObjectRowControl.Spin"
+                       Disabled="!IoFieldTexts.FieldLengthEnabled(Field)" />
+            <ObjectRow Name="Leading zeros" Value="@(Field.LeadingZeros ? "Yes" : "No")" Checked="Field.LeadingZeros" />
+            <ObjectRow Name="Format pattern" Value="@IoFieldTexts.Pattern(Field)" Control="ObjectRowControl.Combo" />
+        </PropertyGroup>
+    </div>
+</div>
+
+@code {
+    /// <summary>Выбранное поле ввода-вывода.</summary>
+    [Parameter, EditorRequired]
+    public IoField Field { get; set; } = null!;
+
+    /// <summary>Ячейка PLC tag на листе «Теги».</summary>
+    [Parameter]
+    public ReportCell PlcTag { get; set; } = "";
+
+    /// <summary>Ячейка Address на листе «Теги».</summary>
+    [Parameter]
+    public ReportCell Address { get; set; } = "";
+
+    /// <summary>Тип данных из листа «Теги», показываемый рядом с адресом.</summary>
+    [Parameter]
+    public ReportCell DataType { get; set; } = "";
+}

@@ -1,5 +1,4 @@
 using System.Globalization;
-using FlexRt.Export.PanelData.Screens;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Functions;
 using FlexRt.Model.Panel.Screens;
@@ -14,6 +13,9 @@ public sealed class ScreenEventTexts
 {
     /// <summary>Имя функции или значение, которое не прочитано.</summary>
     public const string NotRead = "не прочитано";
+
+    /// <summary>Значение параметра, которое не удалось определить.</summary>
+    private const string UnknownValue = "?";
 
     /// <summary>Разделитель имён функций с одинаковыми байтами.</summary>
     private const string NameSeparator = " / ";
@@ -138,14 +140,14 @@ public sealed class ScreenEventTexts
     /// <returns>Текст; не известно — <c>?</c>.</returns>
     private string Value(FunctionArgument argument) => argument.Kind switch
     {
-        FunctionArgumentKind.Tag => _tagNames.Of(argument.Reference) ?? ScreensTable.Unknown,
+        FunctionArgumentKind.Tag => _tagNames.Of(argument.Reference) ?? UnknownValue,
         FunctionArgumentKind.Integer or FunctionArgumentKind.UInt32 => argument.Number.ToString(CultureInfo.InvariantCulture),
         FunctionArgumentKind.Real => RealText(argument.Real),
         FunctionArgumentKind.Text or FunctionArgumentKind.ScreenObject => argument.Text,
         FunctionArgumentKind.ProjectObject =>
             $"{ProjectObjectNames.GetValueOrDefault(argument.ObjectKind, $"объект 0x{argument.ObjectKind:x}")} #{argument.Number}",
         FunctionArgumentKind.Reference => $"{argument.Text} {argument.Number + 1}",
-        _ => ScreensTable.Unknown
+        _ => UnknownValue
     };
 
     /// <summary>Число f64: целое — без дробной части, дробное — в инвариантной культуре.</summary>

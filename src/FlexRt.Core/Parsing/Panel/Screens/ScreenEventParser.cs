@@ -64,6 +64,6 @@ public static class ScreenEventParser
             doc.ScreenEvents.Add(new ScreenEvent(screen.Index, kind, null));
             return;
         }
-        doc.ScreenEvents.Add(new ScreenEvent(screen.Index, kind, [.. functions.Select(f => FunctionReader.ReadOrUnread(doc, f))]));
+        doc.ScreenEvents.Add(new ScreenEvent(screen.Index, kind, [.. FunctionReader.ReadCalls(doc, functions)]));
     }
 }

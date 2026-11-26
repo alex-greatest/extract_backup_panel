@@ -6,7 +6,7 @@ namespace FlexRt.Parsing.Panel.Screens;
 /// <summary>
 /// Список пар элемента ADAPTVALUECHANG за ссылками: u16 (наблюдение: всегда 0x12, не разобрано), u16 K, u32 вид списка
 /// (наблюдение: 2 — номера экранов, <see cref="AdaptValueChangParser"/>; 3 — цвета Limits I/O field,
-/// <see cref="IoFieldLimitReader"/>), K пар своего размера.
+/// <see cref="Objects.Fields.IoFieldLimitReader"/>), K пар своего размера.
 /// </summary>
 internal static class ValueChangeList
 {
@@ -48,10 +48,8 @@ internal static class ValueChangeList
             throw new FwxFormatException(section, p, $"запись {item.Index + 1}: число пар не помещается в {item.Length} байт");
         }
         var count = b.D2(p + end + CountOffset);
-        if (end + PairsOffset + count * (long)pairSize > item.Length)
-        {
-            throw new FwxFormatException(section, p, $"запись {item.Index + 1}: {count} пар не помещаются в {item.Length} байт");
-        }
-        return (p + end + PairsOffset, count, b.D4(p + end + KindOffset));
+        return end + PairsOffset + count * (long)pairSize <= item.Length
+            ? (p + end + PairsOffset, count, b.D4(p + end + KindOffset))
+            : throw new FwxFormatException(section, p, $"запись {item.Index + 1}: {count} пар не помещаются в {item.Length} байт");
     }
 }

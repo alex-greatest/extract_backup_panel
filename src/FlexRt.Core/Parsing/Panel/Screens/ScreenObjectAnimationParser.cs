@@ -1,15 +1,14 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
+using FlexRt.Parsing.Panel.Screens.Objects;
+using FlexRt.Parsing.Panel.Screens.Objects.Animations;
 
 namespace FlexRt.Parsing.Panel.Screens;
 
 /// <summary>Условия VIEW_DARK и движения VIEW_MOVE для прочитанных I/O field и Button.</summary>
 public static class ScreenObjectAnimationParser
 {
-    /// <summary>Предел вложенности обёрток, как у ScreenObjectParser.</summary>
-    private const int MaxDepth = 8;
-
     /// <summary>Прочитать общие обёртки анимаций после разбора полей и кнопок.</summary>
     public static void Parse(FwxDocument doc)
     {
@@ -53,7 +52,7 @@ public static class ScreenObjectAnimationParser
             return previous;
         }
         collected[element] = [];
-        if (depth > MaxDepth || doc.FindTable(element.Table) is not { Name: "VIEW_DARK" or "VIEW_MOVE" } table)
+        if (depth > ObjectWrapperReader.MaxDepth || doc.FindTable(element.Table) is not { Name: ObjectWrapperReader.DarkTable or ObjectWrapperReader.MoveTable } table)
         {
             return [];
         }
@@ -61,14 +60,14 @@ public static class ScreenObjectAnimationParser
         {
             var item = ElementLink.Item(doc, table, element.Index);
             var (end, links) = ReferenceHeader.Read(doc.Binary, item, table.Name);
-            var inner = Inner(doc, table, item, end);
+            var inner = ObjectWrapperReader.Read(doc.Binary, table, item, end);
             var nested = inner.SelectMany(child => Collect(doc, child, settings, collected, depth + 1)).Distinct().ToArray();
             collected[element] = nested;
             if (nested.Length == 0)
             {
                 return nested;
             }
-            if (table.Name == "VIEW_DARK" && (links.Count == 0 || end + 8 > item.Length))
+            if (table.Name == ObjectWrapperReader.DarkTable && (links.Count == 0 || end + 8 > item.Length))
             {
                 throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1}: назначение условия поля не прочитано");
             }
@@ -85,28 +84,12 @@ public static class ScreenObjectAnimationParser
         }
     }
 
-    /// <summary>Пары объектов обёртки: одна у VIEW_DARK, список после двух u16 у VIEW_MOVE.</summary>
-    /// <returns>Ссылки на дочерние объекты.</returns>
-    /// <exception cref="FwxFormatException">Пары не помещаются в элемент.</exception>
-    private static List<VarReference> Inner(FwxDocument doc, TocEntry table, TableItem item, long end)
-    {
-        if (table.Name == "VIEW_MOVE" && end + 4 > item.Length)
-        {
-            throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1}: число объектов не помещается в {item.Length} байт");
-        }
-        var count = table.Name == "VIEW_DARK" ? 1 : doc.Binary.D2(item.Offset + end + 2);
-        var offset = table.Name == "VIEW_DARK" ? end : end + 4;
-        return offset + count * (long)ObjectPairs.Size <= item.Length
-            ? ObjectPairs.Read(doc.Binary, item.Offset + offset, count)
-            : throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1}: {count} объектов не помещаются в {item.Length} байт");
-    }
-
     /// <summary>Добавить настройки обёртки всем прочитанным объектам внутри неё.</summary>
     private static void Apply(FwxDocument doc, TocEntry table, TableItem item, IReadOnlyList<VarReference> links,
         IReadOnlyList<VarReference> objects,
         IReadOnlyDictionary<VarReference, (List<FieldCondition> Conditions, List<FieldMovement> Movements)> settings)
     {
-        if (table.Name != "VIEW_MOVE")
+        if (table.Name != ObjectWrapperReader.MoveTable)
         {
             ApplyConditions(doc, table, item, links, objects, settings);
             return;

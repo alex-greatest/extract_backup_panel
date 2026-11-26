@@ -1,6 +1,11 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
+using FlexRt.Parsing.Panel.Screens.Buttons;
+using FlexRt.Parsing.Panel.Screens.Buttons.Appearance;
+using FlexRt.Parsing.Panel.Screens.Buttons.Captions;
+using FlexRt.Parsing.Panel.Screens.Objects;
+using FlexRt.Parsing.Panel.Screens.Objects.Animations;
 
 namespace FlexRt.Parsing.Panel.Screens;
 
@@ -134,9 +139,8 @@ public static class ButtonGeneralParser
 
     /// <summary>Прочитать PictureAutoSizing независимо от остальных свойств кнопки.</summary>
     /// <returns><c>true</c> для StretchPicture, <c>false</c> для None; ошибка или неизвестный код — null.</returns>
-    private static bool? ReadPictureStretch(FwxDocument doc, TableItem item, long body, string section)
-    {
-        try
+    private static bool? ReadPictureStretch(FwxDocument doc, TableItem item, long body, string section) =>
+        ButtonDataReader.ReadValue<bool?>(doc, () =>
         {
             ButtonDataReader.Check(item, body, PictureAutoSizingOffset + 4, section);
             var offset = item.Offset + body + PictureAutoSizingOffset;
@@ -147,16 +151,7 @@ public static class ButtonGeneralParser
                 var code => throw new FwxFormatException(section, offset,
                     $"код PictureAutoSizing кнопки 0x{code:X} не разобран")
             };
-        }
-        catch (FwxFormatException error)
-        {
-            if (!doc.Warnings.Contains(error.Message))
-            {
-                doc.Warnings.Add(error.Message);
-            }
-            return null;
-        }
-    }
+        }, null);
 
     /// <summary>Прочитать список отдельно: ошибка списка сохраняет режим и прочие свойства кнопки.</summary>
     /// <returns>Список; его нет — null, ошибка — Entries null с предупреждением.</returns>

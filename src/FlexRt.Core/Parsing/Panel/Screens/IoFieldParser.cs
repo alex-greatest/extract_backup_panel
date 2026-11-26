@@ -1,6 +1,10 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Screens;
+using FlexRt.Parsing.Panel.Screens.Objects;
+using FlexRt.Parsing.Panel.Screens.Objects.Animations;
+using FlexRt.Parsing.Panel.Screens.Objects.Fields;
+using FlexRt.Parsing.Panel.Screens.Styles;
 
 namespace FlexRt.Parsing.Panel.Screens;
 

@@ -18,6 +18,9 @@ internal static class ReferenceHeader
     /// <summary>Размер ссылки: u16 Id таблицы, u16 номер элемента и два слова.</summary>
     private const int ReferenceSize = 8;
 
+    /// <summary>Смещение второго служебного слова u16 от начала ссылки.</summary>
+    private const int SecondWordOffset = 0x06;
+
     /// <summary>Размер u32 числа ссылок R.</summary>
     private const int CountSize = 4;
 
@@ -89,6 +92,14 @@ internal static class ReferenceHeader
         var end = countOffset + CountSize + references * ReferenceSize;
         return references > MaxReferences || end > item.Length ? null : end;
     }
+
+    /// <summary>Прочитать второе служебное слово ссылки из уже прочитанного заголовка.</summary>
+    /// <param name="b">Байты файла.</param>
+    /// <param name="referencesEnd">Абсолютное смещение конца ссылок.</param>
+    /// <param name="remaining">Число ссылок до конца, включая читаемую.</param>
+    /// <returns>Второе служебное слово ссылки.</returns>
+    public static int ReadSecondWord(FwxBinary b, long referencesEnd, int remaining) =>
+        b.D2(referencesEnd - remaining * ReferenceSize + SecondWordOffset);
 
     /// <summary>
     /// Прочитать u16 на <paramref name="offset"/> от конца ссылок (<see cref="Read(FwxBinary, TableItem)"/>): номер стартового экрана GUI,

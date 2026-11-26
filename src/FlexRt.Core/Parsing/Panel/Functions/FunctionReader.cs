@@ -1,6 +1,7 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
 using FlexRt.Model.Panel.Functions;
+using FlexRt.Parsing.Panel.Functions.Projections;
 
 namespace FlexRt.Parsing.Panel.Functions;
 
@@ -93,17 +94,27 @@ internal static class FunctionReader
         return ScreenFunctionCalls.Project(doc, call);
     }
 
-    /// <summary>Функция списка события; сбой — функция «не прочитана» и предупреждение, чтобы остальные функции события остались.</summary>
+    /// <summary>Прочитать функции события при перечислении, сохраняя порядок и повторы ссылок.</summary>
+    /// <param name="doc">Документ панели.</param>
+    /// <param name="functions">Ссылки из списка события.</param>
+    /// <param name="project">Дополнительное преобразование функции для объекта.</param>
+    /// <returns>Вызовы, включая непрочитанные функции.</returns>
+    public static IEnumerable<FunctionCall> ReadCalls(
+        FwxDocument doc, IReadOnlyList<VarReference> functions, Func<FwxDocument, FunctionCall, FunctionCall>? project = null) =>
+        functions.Select(function => ReadOrUnread(doc, function, project));
+
+    /// <summary>Сбой чтения или преобразования функции даёт предупреждение и непрочитанный вызов.</summary>
     /// <param name="doc">Документ панели.</param>
     /// <param name="function">Ссылка из списка; таблица есть в TOC (проверяет читатель списка).</param>
+    /// <param name="project">Дополнительное преобразование функции для объекта.</param>
     /// <returns>Вызов функции; не прочитана — <see cref="FunctionCall.Arguments"/> <c>null</c>.</returns>
-    public static FunctionCall ReadOrUnread(FwxDocument doc, VarReference function, bool forButton = false)
+    private static FunctionCall ReadOrUnread(FwxDocument doc, VarReference function, Func<FwxDocument, FunctionCall, FunctionCall>? project)
     {
         var table = doc.FindTable(function.Table)!;
         try
         {
             var call = Read(doc, table, function.Index);
-            return forButton ? ButtonFunctionCalls.Project(doc, call) : call;
+            return project is null ? call : project(doc, call);
         }
         catch (FwxFormatException e)
         {

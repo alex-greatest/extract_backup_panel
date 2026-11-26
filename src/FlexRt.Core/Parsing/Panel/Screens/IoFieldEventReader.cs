@@ -1,6 +1,5 @@
 using FlexRt.Binary;
 using FlexRt.Model.Panel;
-using FlexRt.Model.Panel.Functions;
 using FlexRt.Model.Panel.Screens;
 using FlexRt.Parsing.Panel.Functions;
 
@@ -27,12 +26,6 @@ internal static class IoFieldEventReader
     /// <summary>Значение ADAPTDEMULTIPLE у Deactivate.</summary>
     private const long DeactivateValue = 0;
 
-    /// <summary>Размер ссылки: u16 Id таблицы, u16 номер элемента, два слова.</summary>
-    private const int ReferenceSize = 8;
-
-    /// <summary>Смещение второго слова в ссылке.</summary>
-    private const int SecondWordOffset = 6;
-
     /// <summary>
     /// Прочитать события поля: на событие — первая ссылка. Сбой ADAPTDEMULTIPLE (в том числе значение не 0 и не 1) —
     /// предупреждение, события нет (не известно, Activate это или Deactivate); сбой OnFinishInput — предупреждение,
@@ -55,7 +48,7 @@ internal static class IoFieldEventReader
             {
                 continue;
             }
-            var word = doc.Binary.D2(item.Offset + end - (links.Count - k) * ReferenceSize + SecondWordOffset);
+            var word = ReferenceHeader.ReadSecondWord(doc.Binary, item.Offset + end, links.Count - k);
             var read = target.Name == DemultiplexerTable ? Demultiplexed(doc, target, link, who)
                 : word == FinishInputWord ? FinishInput(doc, table, item, link, who)
                 : null;
@@ -81,7 +74,7 @@ internal static class IoFieldEventReader
                 _ => throw new FwxFormatException(target.Name, ElementLink.Item(doc, target, link.Index).Offset,
                     $"запись {link.Index + 1}: значение {value} не 0 и не 1 ({who}: событие не прочитано)")
             };
-            return new ObjectEvent(kind, Calls(doc, functions));
+            return new ObjectEvent(kind, FunctionReader.ReadCalls(doc, functions).ToList());
         }
         catch (FwxFormatException e)
         {
@@ -97,7 +90,7 @@ internal static class IoFieldEventReader
         try
         {
             var functions = FunctionListReader.AuthorizedFunctions(doc, table, item, link, who, $" ({who})");
-            return new ObjectEvent(ObjectEventKind.OnFinishInput, Calls(doc, functions));
+            return new ObjectEvent(ObjectEventKind.OnFinishInput, FunctionReader.ReadCalls(doc, functions).ToList());
         }
         catch (FwxFormatException e)
         {
@@ -105,9 +98,4 @@ internal static class IoFieldEventReader
             return new ObjectEvent(ObjectEventKind.OnFinishInput, null);
         }
     }
-
-    /// <summary>Функции события; сбой одной — она «не прочитана».</summary>
-    /// <returns>Вызовы функций по порядку.</returns>
-    private static List<FunctionCall> Calls(FwxDocument doc, IReadOnlyList<VarReference> functions) =>
-        [.. functions.Select(f => FunctionReader.ReadOrUnread(doc, f))];
 }

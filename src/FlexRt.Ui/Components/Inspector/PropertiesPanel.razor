@@ -1,5 +1,8 @@
 @using FlexRt.Export.PanelData.Screens
 @using FlexRt.Model.Panel.Screens
+@using FlexRt.Ui.Components.Inspector.Animations
+@using FlexRt.Ui.Components.Inspector.Events
+@using FlexRt.Ui.Components.Inspector.Objects
 @implements IDisposable
 @inject ObjectSelection Selection
 
@@ -59,24 +62,10 @@ else if (Hint is not null)
 {
     <div class="muted">@Hint</div>
 }
-else if (Selection.Of(Item) is { } selected)
+else if (Item is { } item && Selection.Of(item) is { } selected)
 {
-    var button = Item?.Buttons.GetValueOrDefault(selected.Element);
-    @* @key: RadzenTabs запоминает содержимое вкладок — при смене объекта вкладки пересоздаются *@
-    <RadzenTabs @key="selected" class="inspector-tabs" @bind-SelectedIndex="_objectTab">
-        <Tabs>
-            <RadzenTabsItem Text="Properties">
-                <ObjectProperties Object="selected" Field="@Field(selected)" Language="Language"
-                                  Tooltip="@Item?.Tooltips.Text(selected.Element, Language)" Tags="Tags"
-                                  Button="button" ButtonTexts="@Item?.ButtonTexts"
-                                  @bind-Section="_objectSection" />
-            </RadzenTabsItem>
-            @foreach (var tab in ObjectTabs)
-            {
-                <RadzenTabsItem Text="@tab"><ObjectTab Tab="@tab" Field="@Field(selected)" Button="button" ProcessTag="@(Item?.ButtonTexts.Tag(button?.List) ?? string.Empty)" ObjectName="@selected.Name" Tooltips="@Item?.Tooltips" Events="@Item?.ObjectEvents.GetValueOrDefault((selected.ScreenIndex, selected.Element))" /></RadzenTabsItem>
-            }
-        </Tabs>
-    </RadzenTabs>
+    <ObjectInspector Item="item" Object="selected" Language="Language" Tags="Tags"
+                     @bind-SelectedIndex="_objectTab" @bind-Section="_objectSection" />
 }
 else
 {
@@ -112,9 +101,6 @@ else
         ["Width"] = "Layout",
         ["Height"] = "Layout"
     };
-
-    /// <summary>Вкладки объекта холста после Properties, как в TIA; ObjectTab показывает Animations, Events и Texts I/O field.</summary>
-    private static readonly string[] ObjectTabs = ["Animations", "Events", "Texts"];
 
     /// <summary>Открытая вкладка объекта холста (Properties, Animations, Events, Texts).</summary>
     private int _objectTab;
