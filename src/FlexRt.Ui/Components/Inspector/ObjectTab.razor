@@ -15,7 +15,7 @@
     case EventsTab when Field is { Mode: IoFieldMode.Output } && Events is not null:
         <div class="muted">@IoFieldTexts.OutputEventsAbsent</div>
         break;
-    case EventsTab when Field is not null && Events is not null:
+    case EventsTab when Events is not null:
         <ScreenEvents Events="Events" />
         break;
     default:
@@ -24,11 +24,11 @@
 }
 
 @code {
-    /// <summary>Вкладка Events: у I/O field — события поля.</summary>
+    /// <summary>Вкладка Events поля или кнопки.</summary>
     private const string EventsTab = "Events";
 
     /// <summary>
-    /// Вкладка объекта: Animations у Button, Animations, Events и Texts у I/O field; неподдерживаемые вкладки — «Не разобрано».
+    /// Вкладка объекта: Animations и Events у Button, Animations, Events и Texts у I/O field.
     /// </summary>
     [Parameter]
     public string Tab { get; set; } = "";
@@ -53,7 +53,7 @@
     [Parameter]
     public ScreenObjectTooltips? Tooltips { get; set; }
 
-    /// <summary>События поля (<see cref="ScreenEventTexts.Of(IoField)"/>); нет — <c>null</c>.</summary>
+    /// <summary>События поля или кнопки для инспектора; нет — <c>null</c>.</summary>
     [Parameter]
     public IReadOnlyList<ScreenEventView>? Events { get; set; }
 

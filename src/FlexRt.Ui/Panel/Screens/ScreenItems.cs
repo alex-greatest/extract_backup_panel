@@ -45,6 +45,10 @@ public static class ScreenItems
         var buttonTexts = new ButtonTexts(doc);
         var buttonImages = new ButtonImages(doc);
         var fieldEvents = fields.ToDictionary(f => f.Key, f => events.Of(f.Value));
+        var objectEvents = doc.ScreenObjects.Where(item => fields.ContainsKey(item.Element) || buttons.ContainsKey(item.Element))
+            .DistinctBy(item => (item.ScreenIndex, item.Element))
+            .ToDictionary(item => (item.ScreenIndex, item.Element), item => buttons.TryGetValue(item.Element, out var button)
+                ? events.Of(button, item.ScreenIndex) : fieldEvents[item.Element]);
         return
         [
             .. screens.Zip(table.Rows, (s, row) => new ScreenItem(
@@ -59,7 +63,7 @@ public static class ScreenItems
                 [.. objects[s.Screen.Index]],
                 fields,
                 tooltips,
-                fieldEvents,
+                objectEvents,
                 buttons,
                 buttonTexts,
                 buttonImages))

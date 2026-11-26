@@ -5,8 +5,8 @@
 таблицу и различаются подкодом. Программа читает элемент в
 `Parsing/Panel/Functions/FunctionReader.cs`, имена берёт из словаря
 `Parsing/Panel/Functions/SystemFunctions.json`. На функции ссылаются списки
-событий экрана ([таблица-func-list.md](таблица-func-list.md)) и I/O field
-([поле-ввода-вывода.md](поле-ввода-вывода.md#события)).
+событий [экрана](таблица-func-list.md),
+[I/O field](поле-ввода-вывода.md#события) и [Button](события-кнопок.md).
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md).
 Проверено на 148 функциях копий `data/real/steps-events/` 20–22 (Project1,
@@ -42,7 +42,7 @@ SimulateTag); остальные ссылки — параметры вида 01
 | `ADAPTLOOPBREAKE` (u32 0, R = 1, ссылка на `VAR`) | тег; элемент один на тег, общий для функций | установлено: внутренние теги, теги ПЛК с символьным доступом (`Bool_I0_0`), с абсолютным адресом (`Bool_I1_5`), член DB (`xxxx_2.Element_1`, копия 24) |
 | `VAR` прямо | тег (ShiftAndMask, Encode, LookupText) | установлено |
 | `LIMIT`, элемент с именем `тег~N` | тег: первая ссылка элемента → `ADAPTLOOPBREAKE` → `VAR` (SetTag A603A0097, `Diag_SelectIn~20`) | установлено (сверено с TIA через Openness, 7 экранов A603A0097) |
-| `RECVAR` | второй параметр LogTag (в TIA у LogTag один параметр — Tag) | наблюдение; таблица не разобрана, окно — `RECVAR 4` |
+| `RECVAR` | вторая сырая ссылка LogTag. Для Button подтверждён элемент с u32 1 и единственной ссылкой на `VAR` | установлено для проверенной раскладки Button. В общем разборе сохраняется ссылка вида `RECVAR 4` |
 | Id 0 (нет в TOC) | второй тег GetDataRecordName (в TIA — `WString`) | не установлено, окно — `?` |
 
 ## VARIANT (10)
@@ -52,6 +52,7 @@ SimulateTag); остальные ссылки — параметры вида 01
 | Тип | Слово | Значение | Статус |
 |---|---|---|---|
 | 3 | 0 | i32 на +8 | установлено (86) |
+| 3 | 1 | для `FUNC_CHANGE_PLC` при `0xffffffff` на +0x0c: u32 Id таблицы соединения на +8 | проверено для EtherNet/IP с одной записью в таблице. При другом числе записей сохраняется Id |
 | 3 | 2 | объект: u16 номер элемента на +8, u16 Id таблицы на +0x0a, `ffffffff` (VIEW_OCX, QtContainer, SCREEN_SYS, CONNECTION_S7) | установлено (69) |
 | 5 | | f64 на +8 | установлено (7) |
 | 8 | | строка: на +8 u32 смещение текста от начала блока, перед текстом u32 длина в байтах без нуля, текст UTF-16LE | установлено (19); у StartProgram имя программы TIA сам берёт в кавычки |
@@ -139,6 +140,51 @@ PLCCodeView в `FUNC_COMMAND`: 1 Symbols, 2 PreviousNetwork, 3 NextNetwork,
   с именем SCREEN. Пары нет — показывается исходный номер.
   ActivateScreenByNumber продолжает показывать имя тега, без подстановки
   конкретного экрана.
+
+## Системные вызовы Button
+
+Общий разбор функций и порядок параметров используются повторно.
+Для Button `ButtonFunctionCalls` добавляет следующие разобранные пары
+и учитывает подтверждённые варианты представления.
+
+| Таблица, подкод | Функция | Параметры в окне |
+| --- | --- | --- |
+| `FUNC_NOTIFYUSER 0` | NotifyUserAction | Confirmation type, Mandatory commenting, Category, Object name, Description |
+| `FUNC_ARCHVAR 0` | LogTag | Tag из `RECVAR → VAR` при подтверждённой раскладке |
+| `FUNC_SETGETPLCM 0` | SetPLCMode | Connection, Mode |
+| `FUNC_SETGETPLCM 1` | GetPLCMode | Connection, Mode (Output) |
+| `FUNC_DATETIME_S 3` | SetPLCDateTime | Connection, Time |
+| `FUNC_SETDAYLIGH 0` | SetDaylightSavingTime | Daylight saving time |
+| `FUNC_CHANGE_PLC 0` | ChangeConnectionEIP | Connection, Address, Communication path при двух строковых аргументах после Connection |
+| `FUNC_COMMAND 0x9` | PLCCodeViewActualOrTriggerValues | Screen object |
+| `FUNC_COMMAND 0xa` | PLCCodeViewSupervisionOrFBCall | Screen object |
+| `FUNC_COMMAND 0x404` | AlarmViewUpdate / SystemDiagnosticViewUpdatePlcBuffer | Screen object |
+
+В подтверждённой раскладке LogTag внутренний номер журнала и ссылка
+`RECVAR` заменяются одним тегом. При другой раскладке сохраняются сырые
+параметры. У GetPLCMode выходной тег восстанавливается по дополнительной
+ссылке `ADAPTLOOPBREAKE`, если параметр ссылается на `DATALINK`.
+Подкод `0x404` показывает только AlarmViewUpdate при наличии у объекта
+ссылки на `MSG_ACKFOCUS`. В остальных случаях видны оба имени.
+
+## FUNC_SCRIPT — вызов VB
+
+В проверенных записях Button заголовок начинается словами u32 `1`, `0`.
+Смещение `+0x0a` содержит номер скрипта u16 в пределах файла.
+На `+0x0c` лежит пара u16 «Id таблицы, индекс» для результата, если
+он задан. В контрольном вызове Function ссылка идёт через
+`ADAPTLOOPBREAKE` к `VAR`. Число входных аргументов u16 на `+0x12`
+не включает результат. Аргументы с `+0x14` идут в порядке вызова.
+
+| Флаги, тип (u16, u16) | Данные после заголовка аргумента |
+| --- | --- |
+| `1, 1` | u16 индекс `VAR` и служебное слово u16 |
+| `0, 3` | i32 |
+| `0, 8` | u32 длина в байтах и UTF-16LE с завершающим нулём |
+
+В окне отображается «VB-скрипт #N», затем параметры. Если задан выходной
+тег, строка «Результат» идёт перед входными параметрами. Имя скрипта из
+проверенных записей `FUNC_SCRIPT` не извлекается.
 
 ## Как читает программа
 

@@ -5,6 +5,8 @@
 `Parsing/Panel/Screens/FunctionListReader.cs`, события — в
 `ScreenEventParser.cs`, функции — в [функции-func.md](функции-func.md).
 Cleared ведёт к функциям через [таблица-adaptdemultiple.md](таблица-adaptdemultiple.md).
+Тот же формат пар используется для нескольких вызовов
+[события кнопки](события-кнопок.md), включая системные функции и VB.
 
 Статусы — как в [таблица-datalink-readwr.md](таблица-datalink-readwr.md):
 установлено на файлах, наблюдение, гипотеза.

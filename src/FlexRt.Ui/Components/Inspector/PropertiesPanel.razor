@@ -73,7 +73,7 @@ else if (Selection.Of(Item) is { } selected)
             </RadzenTabsItem>
             @foreach (var tab in ObjectTabs)
             {
-                <RadzenTabsItem Text="@tab"><ObjectTab Tab="@tab" Field="@Field(selected)" Button="button" ProcessTag="@(Item?.ButtonTexts.Tag(button?.List) ?? string.Empty)" ObjectName="@selected.Name" Tooltips="@Item?.Tooltips" Events="@Item?.FieldEvents.GetValueOrDefault(selected.Element)" /></RadzenTabsItem>
+                <RadzenTabsItem Text="@tab"><ObjectTab Tab="@tab" Field="@Field(selected)" Button="button" ProcessTag="@(Item?.ButtonTexts.Tag(button?.List) ?? string.Empty)" ObjectName="@selected.Name" Tooltips="@Item?.Tooltips" Events="@Item?.ObjectEvents.GetValueOrDefault((selected.ScreenIndex, selected.Element))" /></RadzenTabsItem>
             }
         </Tabs>
     </RadzenTabs>

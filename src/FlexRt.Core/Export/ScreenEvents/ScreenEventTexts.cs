@@ -18,6 +18,17 @@ public sealed class ScreenEventTexts
     /// <summary>Разделитель имён функций с одинаковыми байтами.</summary>
     private const string NameSeparator = " / ";
 
+    /// <summary>Порядок событий I/O field на вкладке Events.</summary>
+    private static readonly ObjectEventKind[] FieldKinds =
+        [ObjectEventKind.Activate, ObjectEventKind.Deactivate, ObjectEventKind.OnFinishInput];
+
+    /// <summary>Порядок событий Button на вкладке Events в TIA.</summary>
+    private static readonly ObjectEventKind[] ButtonKinds =
+    [
+        ObjectEventKind.Click, ObjectEventKind.Press, ObjectEventKind.Release,
+        ObjectEventKind.Activate, ObjectEventKind.Deactivate, ObjectEventKind.Change
+    ];
+
     /// <summary>Имя объекта проекта по виду (VARIANT тип 0x12; таблицы объектов не разобраны, имён нет).</summary>
     private static readonly Dictionary<long, string> ProjectObjectNames = new()
     {
@@ -59,11 +70,20 @@ public sealed class ScreenEventTexts
     /// </summary>
     /// <param name="field">Поле.</param>
     /// <returns>События в порядке <see cref="ObjectEventKind"/>.</returns>
-    public IReadOnlyList<ScreenEventView> Of(IoField field) =>
-    [
-        .. Enum.GetValues<ObjectEventKind>().Select(kind =>
-            View(kind.ToString(), field.Events?.FirstOrDefault(e => e.Kind == kind) is { } found ? found.Functions : []))
-    ];
+    public IReadOnlyList<ScreenEventView> Of(IoField field) => ObjectViews(FieldKinds, field.Events);
+
+    /// <summary>События Button в порядке TIA, в том числе события без назначений.</summary>
+    /// <returns>Шесть событий кнопки.</returns>
+    public IReadOnlyList<ScreenEventView> Of(ButtonGeneral button, int screenIndex) =>
+        ObjectViews(ButtonKinds, button.Events, button.DirectKeys?[screenIndex]);
+
+    /// <summary>Подготовить события заданного объекта для вкладки Events.</summary>
+    /// <returns>События с функциями в порядке <paramref name="kinds"/>.</returns>
+    private IReadOnlyList<ScreenEventView> ObjectViews(
+        ObjectEventKind[] kinds, IReadOnlyList<ObjectEvent>? events, IEnumerable<FunctionCall>? directKeys = null) =>
+        [.. kinds.Select(kind =>
+            View(kind.ToString(), events?.FirstOrDefault(e => e.Kind == kind) is { } found ? found.Functions : [],
+                kind == ObjectEventKind.Press ? directKeys : null))];
 
     /// <summary>Одно событие экрана.</summary>
     /// <returns>Событие для окна.</returns>
@@ -73,11 +93,10 @@ public sealed class ScreenEventTexts
     /// <summary>Событие для окна по списку функций.</summary>
     /// <param name="name">Имя события.</param>
     /// <param name="functions">Функции; <c>null</c> — список не прочитан.</param>
+    /// <param name="directKeys">Аппаратные клавиши экрана, отображаемые перед функциями Press.</param>
     /// <returns>Событие для окна.</returns>
-    private ScreenEventView View(string name, IReadOnlyList<FunctionCall>? functions) =>
-        functions is null
-            ? new ScreenEventView(name, false, [])
-            : new ScreenEventView(name, true, [.. functions.Select((f, i) => Function(f, i + 1))]);
+    private ScreenEventView View(string name, IReadOnlyList<FunctionCall>? functions, IEnumerable<FunctionCall>? directKeys = null) =>
+        new(name, functions is not null, [.. (directKeys ?? []).Concat(functions ?? []).Select((f, i) => Function(f, i + 1))]);
 
     /// <summary>Функция: имя и параметры; не прочитана — <see cref="NotRead"/> без параметров.</summary>
     /// <returns>Функция для окна.</returns>

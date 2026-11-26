@@ -40,13 +40,17 @@ public static class ButtonGeneralParser
     /// <summary>Прочитать General каждого элемента один раз; неизвестные виды пропускаются, ошибка не удаляет рамку объекта.</summary>
     public static void Parse(FwxDocument doc)
     {
-        foreach (var obj in doc.ScreenObjects.Where(o => o.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO").DistinctBy(o => o.Element))
+        var objects = doc.ScreenObjects.Where(o => o.Table is "VIEW_BUTTONS" or "VIEW_STATEBUTTO").ToList();
+        var directKeys = ButtonDirectKeyReader.Read(doc, objects);
+        foreach (var obj in objects.DistinctBy(o => o.Element))
         {
             try
             {
                 if (ReadRecord(doc, obj) is { } button)
                 {
-                    doc.Buttons.Add(button);
+                    doc.Buttons.Add(directKeys.Contains(obj.Element)
+                        ? button with { DirectKeys = directKeys[obj.Element].ToLookup(key => key.Screen, key => key.Call) }
+                        : button);
                 }
             }
             catch (FwxFormatException error)
@@ -123,6 +127,7 @@ public static class ButtonGeneralParser
             Authorization = authorization,
             AuthorizationRead = authorizationRead,
             AnimatedAppearance = AppearanceAnimationReader.Read(doc, table, item, body, links),
+            Events = ButtonEventReader.Read(doc, table, item, body, links),
             Flashing = flashing
         };
     }

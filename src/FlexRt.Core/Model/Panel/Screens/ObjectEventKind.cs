@@ -1,8 +1,7 @@
 namespace FlexRt.Model.Panel.Screens;
 
 /// <summary>
-/// Событие I/O field (вкладка Events объекта в TIA), имена — как в Openness. Click TIA принимает, но в файл не пишет
-/// (шаг 81); у поля Output события в файл не попадают (шаг 86) — копии <c>data/real/steps-iofield/</c>, V21, TP700.
+/// Событие объекта на вкладке Events в TIA, имя как в Openness.
 /// </summary>
 public enum ObjectEventKind
 {
@@ -13,5 +12,17 @@ public enum ObjectEventKind
     Deactivate,
 
     /// <summary>OnFinishInput: ссылка поля со словом <c>0x8141</c> — на функцию, FUNC_LIST или SECURITY_MONITO (шаги 84, 85, A603A0097).</summary>
-    OnFinishInput
+    OnFinishInput,
+
+    /// <summary>Щелчок по кнопке.</summary>
+    Click,
+
+    /// <summary>Нажатие кнопки.</summary>
+    Press,
+
+    /// <summary>Отпускание кнопки.</summary>
+    Release,
+
+    /// <summary>Изменение состояния кнопки.</summary>
+    Change
 }

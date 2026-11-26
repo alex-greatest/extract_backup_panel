@@ -18,12 +18,6 @@ internal static class IoFieldEventReader
     /// <summary>Таблица событий Activate и Deactivate.</summary>
     private const string DemultiplexerTable = "ADAPTDEMULTIPLE";
 
-    /// <summary>Таблица права, через которую идёт OnFinishInput поля с Authorization.</summary>
-    private const string SecurityTable = "SECURITY_MONITO";
-
-    /// <summary>Таблица групп пользователей: ссылка SECURITY_MONITO на неё — не функция.</summary>
-    private const string SecurityUnitTable = "SECURITY_UNIT";
-
     /// <summary>Второе слово ссылки поля на функции OnFinishInput (у ссылки на запись тега и у остальных — другое; шаги 84, 85).</summary>
     private const int FinishInputWord = 0x8141;
 
@@ -63,7 +57,7 @@ internal static class IoFieldEventReader
             }
             var word = doc.Binary.D2(item.Offset + end - (links.Count - k) * ReferenceSize + SecondWordOffset);
             var read = target.Name == DemultiplexerTable ? Demultiplexed(doc, target, link, who)
-                : word == FinishInputWord ? FinishInput(doc, table, item, target, link, who)
+                : word == FinishInputWord ? FinishInput(doc, table, item, link, who)
                 : null;
             if (read is not null)
             {
@@ -98,20 +92,12 @@ internal static class IoFieldEventReader
 
     /// <summary>OnFinishInput: функции по ссылке поля, через SECURITY_MONITO — по его ссылке не на SECURITY_UNIT.</summary>
     /// <returns>Событие; не прочитано — функции <c>null</c> и предупреждение.</returns>
-    private static ObjectEvent FinishInput(FwxDocument doc, TocEntry table, TableItem item, TocEntry target, VarReference link, string who)
+    private static ObjectEvent FinishInput(FwxDocument doc, TocEntry table, TableItem item, VarReference link, string who)
     {
         try
         {
-            if (target.Name != SecurityTable)
-            {
-                return new ObjectEvent(ObjectEventKind.OnFinishInput, Calls(doc, FunctionListReader.Functions(doc, table, item, link)));
-            }
-            var security = ElementLink.Item(doc, target, link.Index, who);
-            var (_, references) = ReferenceHeader.Read(doc.Binary, security, target.Name);
-            var actions = references.Where(r => doc.FindTable(r.Table)?.Name != SecurityUnitTable).ToList();
-            return actions.Count > 0
-                ? new ObjectEvent(ObjectEventKind.OnFinishInput, Calls(doc, FunctionListReader.Functions(doc, target, security, actions[0])))
-                : throw new FwxFormatException(target.Name, security.Offset, $"запись {link.Index + 1}: нет ссылки на функцию ({who})");
+            var functions = FunctionListReader.AuthorizedFunctions(doc, table, item, link, who, $" ({who})");
+            return new ObjectEvent(ObjectEventKind.OnFinishInput, Calls(doc, functions));
         }
         catch (FwxFormatException e)
         {

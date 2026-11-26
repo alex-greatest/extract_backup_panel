@@ -1,3 +1,5 @@
+using FlexRt.Model.Panel.Functions;
+
 namespace FlexRt.Model.Panel.Screens;
 
 /// <summary>Подтверждённые свойства кнопки; имя и положение находятся у ScreenObject.</summary>
@@ -41,4 +43,10 @@ public sealed record ButtonGeneral(
 
     /// <summary>Flashing Standard; не прочитано — null.</summary>
     public bool? Flashing { get; init; }
+
+    /// <summary>События кнопки с назначенными функциями.</summary>
+    public IReadOnlyList<ObjectEvent> Events { get; init; } = [];
+
+    /// <summary>Вызовы DirectKey по номеру записи SCREEN; назначений нет — null.</summary>
+    public ILookup<int, FunctionCall>? DirectKeys { get; init; }
 }

@@ -55,7 +55,7 @@ public static class ScreenParser
         {
             foreach (var item in FwxReader.CheckedItems(doc.Binary, table))
             {
-                var screen = ReadRecord(doc.Binary, item);
+                var screen = ReadRecord(doc, item);
                 doc.Screens.Add(screen);
                 if (screen.BackgroundRgb is null)
                 {
@@ -84,15 +84,15 @@ public static class ScreenParser
     /// u16 длина имени в символах, имя UTF-16LE, нули до кратности 4, u32 R — число ссылок, R ссылок по 8 байт
     /// (u16 Id таблицы, u16 номер элемента, два слова не читаются; у экрана — на SOFTKEY и, если есть, FUNC_LIST,
     /// ADAPTDEMULTIPLE или LIMIT), 8 байт, u16 ширина, u16 высота, 6 байт, u16 N — число
-    /// объектов, N пар (u16 номер элемента, u16 Id таблицы); на длине записи − 12 — цвет фона R, G, B
-    /// (<see cref="Background"/>). Остальные байты после объектов не читаются.
+    /// объектов, N пар (u16 номер элемента, u16 Id таблицы); цвет фона R, G, B перед блоком DirectKey или на длине записи − 12.
     /// </summary>
     /// <returns>Запись экрана; после объектов меньше 12 байт — без цвета фона.</returns>
     /// <exception cref="FwxFormatException">
     /// Элемент короче 4 байт, первое слово не 3 и не 1, R больше 0x20 или имя, ссылки, размер и объекты не помещаются в элемент.
     /// </exception>
-    private static Screen ReadRecord(FwxBinary b, TableItem item)
+    private static Screen ReadRecord(FwxDocument doc, TableItem item)
     {
+        var b = doc.Binary;
         var p = item.Offset;
         var number = item.Index + 1;
         if (item.Length < 4)
@@ -130,8 +130,10 @@ public static class ScreenParser
         var name = b.GetNameLen(p + 4, chars);
         var width = b.D2(p + body + SizeOffset);
         var height = b.D2(p + body + SizeOffset + 2);
-        var background = Background(b, item, first + objects * (long)ObjectPairs.Size);
-        return new Screen(item.Index, marker == ServiceMarker, name, width, height, list, background, links);
+        var objectsEnd = first + objects * (long)ObjectPairs.Size;
+        var (colorOffset, keys) = marker == ScreenMarker ? ScreenDirectKeyReader.Read(doc, item, objectsEnd, objects) : (null, []);
+        var background = colorOffset is { } color ? StyleElement.Rgb(b, item.Offset + color) : Background(b, item, objectsEnd);
+        return new Screen(item.Index, marker == ServiceMarker, name, width, height, list, background, links) { DirectKeys = keys };
     }
 
     /// <summary>

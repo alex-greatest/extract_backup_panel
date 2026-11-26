@@ -35,6 +35,11 @@ internal static class FunctionListReader
     /// <summary>Начало имени таблиц функций (FUNC_BIT, FUNC_ASSIGN, …) и списка FUNC_LIST.</summary>
     private const string FunctionPrefix = "FUNC_";
 
+    /// <summary>Таблица функций или списка, включая таблицы словаря без префикса FUNC_.</summary>
+    /// <returns>Распознано ли имя таблицы функций.</returns>
+    internal static bool IsFunctionTable(string name) =>
+        name.StartsWith(FunctionPrefix, StringComparison.Ordinal) || SystemFunctionCatalog.HasTable(name);
+
     /// <summary>Функции Loaded: элемент FUNC_LIST, на который ссылается экран.</summary>
     /// <param name="doc">Документ панели.</param>
     /// <param name="table">Таблица FUNC_LIST.</param>
@@ -77,9 +82,19 @@ internal static class FunctionListReader
     /// </exception>
     public static (IReadOnlyList<VarReference> Functions, long Value) Demultiplexed(FwxDocument doc, TocEntry table, int index, string owner)
     {
+        var (item, target, value) = DemultiplexedTarget(doc, table, index, owner);
+        return (Functions(doc, table, item, target), value);
+    }
+
+    /// <summary>Прочитать условие ADAPTDEMULTIPLE и ссылку на список без чтения целевой записи.</summary>
+    /// <returns>Элемент, ссылка на действие и значение условия.</returns>
+    /// <exception cref="FwxFormatException">Элемент посредника или его значение повреждены.</exception>
+    public static (TableItem Item, VarReference Target, long Value) DemultiplexedTarget(
+        FwxDocument doc, TocEntry table, int index, string owner)
+    {
         var (item, end, target) = Demultiplexer(doc, table, index, owner);
         return end + ValueSize <= item.Length
-            ? (Functions(doc, table, item, target), doc.Binary.D4(item.Offset + end))
+            ? (item, target, doc.Binary.D4(item.Offset + end))
             : throw new FwxFormatException(table.Name, item.Offset, $"запись {index + 1}: значение не помещается в {item.Length} байт");
     }
 
@@ -110,13 +125,35 @@ internal static class FunctionListReader
     public static IReadOnlyList<VarReference> Functions(FwxDocument doc, TocEntry table, TableItem item, VarReference target)
     {
         var targetTable = TableOf(doc, table, item, target);
-        if (!targetTable.Name.StartsWith(FunctionPrefix, StringComparison.Ordinal) && !SystemFunctionCatalog.HasTable(targetTable.Name))
+        if (!IsFunctionTable(targetTable.Name))
         {
             throw new FwxFormatException(table.Name, item.Offset, $"запись {item.Index + 1}: ссылка на {targetTable.Name}, ожидалась FUNC_LIST или функция FUNC_*");
         }
         return targetTable.Name == ListTable
             ? List(doc, targetTable, ElementLink.Item(doc, targetTable, target.Index))
             : [target];
+    }
+
+    /// <summary>Функции объекта по ссылке, при праве через SECURITY_MONITO и его ссылку на действие.</summary>
+    /// <returns>Ссылки на функции в исходном порядке.</returns>
+    /// <exception cref="FwxFormatException">Ссылка, обёртка права или список повреждены.</exception>
+    internal static IReadOnlyList<VarReference> AuthorizedFunctions(
+        FwxDocument doc, TocEntry owner, TableItem item, VarReference link, string who, string missingActionContext = "")
+    {
+        if (doc.FindTable(link.Table) is not { Name: "SECURITY_MONITO" } table)
+        {
+            return Functions(doc, owner, item, link);
+        }
+        var security = ElementLink.Item(doc, table, link.Index, who);
+        var (_, links) = ReferenceHeader.Read(doc.Binary, security, table.Name);
+        foreach (var action in links)
+        {
+            if (doc.FindTable(action.Table)?.Name != "SECURITY_UNIT")
+            {
+                return Functions(doc, table, security, action);
+            }
+        }
+        throw new FwxFormatException(table.Name, security.Offset, $"запись {link.Index + 1}: нет ссылки на функцию{missingActionContext}");
     }
 
     /// <summary>Чья ссылка — для сообщения о ссылке за последний элемент.</summary>

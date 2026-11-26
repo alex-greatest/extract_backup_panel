@@ -25,4 +25,8 @@ public sealed record Screen(
     int Height,
     IReadOnlyList<VarReference> Objects,
     int? BackgroundRgb,
-    IReadOnlyList<VarReference> References);
+    IReadOnlyList<VarReference> References)
+{
+    /// <summary>Аппаратные клавиши записи SCREEN: рамка в координатах панели и номер бита.</summary>
+    public IReadOnlyList<(ScreenRect Bounds, int Bit)> DirectKeys { get; init; } = [];
+}

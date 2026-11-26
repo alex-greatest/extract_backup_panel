@@ -58,6 +58,10 @@ internal static class FunctionReader
     public static FunctionCall Read(FwxDocument doc, TocEntry table, int index)
     {
         var item = ElementLink.Item(doc, table, index);
+        if (table.Name == "FUNC_SCRIPT")
+        {
+            return ScriptFunctionReader.Read(doc, table, item);
+        }
         var b = doc.Binary;
         var p = item.Offset;
         var (end, links) = ReferenceHeader.Read(b, item, table.Name);
@@ -93,12 +97,13 @@ internal static class FunctionReader
     /// <param name="doc">Документ панели.</param>
     /// <param name="function">Ссылка из списка; таблица есть в TOC (проверяет читатель списка).</param>
     /// <returns>Вызов функции; не прочитана — <see cref="FunctionCall.Arguments"/> <c>null</c>.</returns>
-    public static FunctionCall ReadOrUnread(FwxDocument doc, VarReference function)
+    public static FunctionCall ReadOrUnread(FwxDocument doc, VarReference function, bool forButton = false)
     {
         var table = doc.FindTable(function.Table)!;
         try
         {
-            return Read(doc, table, function.Index);
+            var call = Read(doc, table, function.Index);
+            return forButton ? ButtonFunctionCalls.Project(doc, call) : call;
         }
         catch (FwxFormatException e)
         {

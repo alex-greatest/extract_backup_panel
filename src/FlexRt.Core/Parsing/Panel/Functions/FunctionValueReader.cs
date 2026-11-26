@@ -31,6 +31,9 @@ internal static class FunctionValueReader
     /// <summary>Слово +2 типа 3 у целого.</summary>
     private const int IntegerFlag = 0;
 
+    /// <summary>Флаг номера таблицы соединения у ChangeConnectionEIP; в контрольной таблице одна запись.</summary>
+    private const int EipConnectionFlag = 1;
+
     /// <summary>Слово +2 типа 3 у объекта: на +8 u16 номер элемента, на +0x0a u16 Id таблицы, на +0x0c <c>ffffffff</c>.</summary>
     private const int ObjectFlag = 2;
 
@@ -69,6 +72,8 @@ internal static class FunctionValueReader
         {
             IntegerType when flag == IntegerFlag => new FunctionArgument(FunctionArgumentKind.Integer, Number: (int)b.D4(pos + ValueOffset)),
             IntegerType when flag == ObjectFlag => ScreenObjects.Argument(doc, b.D2(pos + ObjectTableOffset), b.D2(pos + ValueOffset)),
+            IntegerType when flag == EipConnectionFlag && table.Name == "FUNC_CHANGE_PLC"
+                && b.D4(pos + ProjectKindOffset) == uint.MaxValue => EipConnection(doc, b.D4(pos + ValueOffset)),
             RealType => new FunctionArgument(FunctionArgumentKind.Real, Real: b.F64(pos + ValueOffset)),
             TextType => new FunctionArgument(FunctionArgumentKind.Text, Text: Text(b, table, item, pos)),
             ProjectObjectType => new FunctionArgument(
@@ -79,6 +84,14 @@ internal static class FunctionValueReader
             _ => Unknown(doc, table, item, parameter, type, flag)
         };
     }
+
+    /// <summary>Соединение EtherNet/IP: номер таблицы без индекса.</summary>
+    /// <returns>Имя единственной записи таблицы или исходный номер таблицы.</returns>
+    /// <exception cref="FwxFormatException">Элемент соединения повреждён.</exception>
+    private static FunctionArgument EipConnection(FwxDocument doc, long tableId) =>
+        tableId <= ushort.MaxValue && doc.FindTable((int)tableId) is { Entries: 1 }
+            ? ScreenObjects.Argument(doc, (int)tableId, 0)
+            : new FunctionArgument(FunctionArgumentKind.UInt32, Number: tableId);
 
     /// <summary>
     /// Строка блока типа 8: текст UTF-16LE на смещении из блока (от начала блока), перед ним u32 длина в байтах без
