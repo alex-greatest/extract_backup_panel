@@ -146,7 +146,8 @@
         item.Height is null ? Hints.PermanentAreaHeightUnknown : Hints.NoPermanentArea;
 
     /// <summary>
-    /// Объекты экрана в порядке списка: положение и размер как в Layout TIA, в пикселях экрана. I/O field
+    /// Объекты экрана от задних к передним: на проверенных копиях список SCREEN идёт от передних к задним.
+    /// Положение и размер как в Layout TIA, в пикселях экрана. I/O field
     /// (<see cref="ScreenItem.Fields"/>) — как в редакторе TIA: фон, рамка, шаблон нулями шрифтом и цветом из файла
     /// (<see cref="IoFieldCss"/>, <see cref="IoFieldTexts.Sample"/>). Кнопка с прочитанным оформлением рисуется
     /// в состоянии Normal. Прочие объекты — рамка с именем, у линии ширина или высота 0 — рамка в 1 px. Щелчок выбирает объект
@@ -159,8 +160,9 @@
     private RenderFragment ObjectFrames(ScreenItem item, IReadOnlyList<ScreenObject> objects) => __builder =>
     {
         var selected = Selection.Of(item);
-        foreach (var o in objects)
+        for (var index = objects.Count - 1; index >= 0; index--)
         {
+            var o = objects[index];
             var field = item.Fields.GetValueOrDefault(o.Element);
             var button = item.Buttons.GetValueOrDefault(o.Element);
             var renderedButton = button?.Appearance is not null && button.Mode != ButtonMode.Invisible;
@@ -202,7 +204,7 @@
     /// Выбрать объект по щелчку, перебирая перекрытые. Точка щелчка в пикселях экрана — левый верхний угол объекта
     /// <paramref name="clicked"/> плюс смещение внутри него (<see cref="MouseEventArgs.OffsetX"/> считается от внутреннего
     /// края рамки, поэтому прибавляется ширина рамки I/O field; текст не ловит клик, CSS <c>pointer-events: none</c>).
-    /// Стопка — объекты под точкой от меньшего к большему (<see cref="Under"/>); округление вынесло точку за
+    /// Стопка — объекты под точкой от меньшего к большему (<see cref="ObjectsAtPoint"/>); округление вынесло точку за
     /// <paramref name="clicked"/> — он добавляется первым, стопка не пуста. Та же точка (<see cref="IsLastClick"/>) и выбран
     /// объект стопки — следующий по кругу; иначе — первый в стопке, а не <paramref name="clicked"/>: выбранный объект поднят
     /// над соседями и перехватывает щелчок. Выбор идёт через <see cref="ObjectSelection"/>.
@@ -212,7 +214,7 @@
         var border = item.Fields.TryGetValue(clicked.Element, out var field) ? IoFieldCss.BorderWidth(field) : 0;
         var x = clicked.Bounds.Left + (int)Math.Floor(e.OffsetX + border);
         var y = clicked.Bounds.Top + (int)Math.Floor(e.OffsetY + border);
-        var under = Under(objects, x, y);
+        var under = ObjectsAtPoint(objects, x, y);
         if (!under.Contains(clicked))
         {
             under.Insert(0, clicked);
@@ -235,28 +237,27 @@
         && Math.Abs(e.ClientY - last.Y) <= SamePointTolerance;
 
     /// <summary>
-    /// Объекты, накрывающие точку (<paramref name="x"/>, <paramref name="y"/>) экрана, от меньшей площади к большей (решение
-    /// пользователя 2026-11-05). При равной площади первым идёт верхний: позже в списке — выше на холсте, поэтому список
-    /// обходится с конца, а сортировка устойчива. Линия с шириной или высотой 0 накрывает 1 px, как нарисована.
+    /// Объекты под точкой от меньшей площади к большей. При равных площадях устойчивая сортировка сохраняет
+    /// порядок SCREEN: первым идёт передний объект.
     /// </summary>
-    /// <returns>Список объектов, самый маленький первым; под точкой никого — пустой список.</returns>
-    private static List<ScreenObject> Under(IReadOnlyList<ScreenObject> objects, int x, int y)
-    {
-        var hits = new List<ScreenObject>();
-        for (var i = objects.Count - 1; i >= 0; i--)
+    /// <returns>Объекты для перебора щелчками; под точкой никого — пустой список.</returns>
+    private static List<ScreenObject> ObjectsAtPoint(IReadOnlyList<ScreenObject> objects, int x, int y) =>
+    [
+        .. objects.Where(item =>
         {
-            var b = objects[i].Bounds;
-            if (x >= b.Left && x < b.Left + Math.Max(b.Width, 1) && y >= b.Top && y < b.Top + Math.Max(b.Height, 1))
-            {
-                hits.Add(objects[i]);
-            }
-        }
-        return [..hits.OrderBy(o => Area(o.Bounds))];
-    }
+            var bounds = item.Bounds;
+            return x >= bounds.Left && x < bounds.Left + DrawnSize(bounds.Width)
+                && y >= bounds.Top && y < bounds.Top + DrawnSize(bounds.Height);
+        }).OrderBy(item => Area(item.Bounds))
+    ];
 
-    /// <summary>Площадь объекта на холсте: нулевая ширина или высота считается 1 px, как нарисована.</summary>
+    /// <summary>Вычислить площадь рамки с учётом минимального размера каждой стороны.</summary>
     /// <returns>Площадь в пикселях экрана.</returns>
-    private static long Area(ScreenRect r) => (long)Math.Max(r.Width, 1) * Math.Max(r.Height, 1);
+    private static long Area(ScreenRect bounds) => (long)DrawnSize(bounds.Width) * DrawnSize(bounds.Height);
+
+    /// <summary>Учесть минимальную сторону рамки в CSS: линия нулевой ширины или высоты занимает 1 px.</summary>
+    /// <returns>Размер стороны в пикселях экрана.</returns>
+    private static int DrawnSize(int size) => Math.Max(size, 1);
 
     /// <summary>Положение рамки объекта в CSS.</summary>
     /// <returns>Текст CSS, например <c>left:720px; top:360px; width:78px; height:58px;</c>.</returns>

@@ -72,10 +72,14 @@ internal static class ReferenceHeader
         return
         [
             .. Enumerable.Range(0, (int)((end - first) / ReferenceSize))
-                .Select(i => item.Offset + first + i * ReferenceSize)
-                .Select(o => new VarReference(b.D2(o), b.D2(o + 2)))
+                .Select(i => ReadPair(b, item.Offset + first + i * ReferenceSize))
         ];
     }
+
+    /// <summary>Прочитать два u16 в порядке «Id таблицы, индекс элемента». Границы элемента проверяет вызывающий код.</summary>
+    /// <returns>Ссылка на элемент таблицы.</returns>
+    /// <exception cref="FwxFormatException">Одно из слов выходит за пределы файла.</exception>
+    public static VarReference ReadPair(FwxBinary b, long offset) => new(b.D2(offset), b.D2(offset + 2));
 
     /// <summary>
     /// Конец ссылок, как в <see cref="TryReadAt"/>: u32 R на <paramref name="countOffset"/> от начала элемента и R ссылок

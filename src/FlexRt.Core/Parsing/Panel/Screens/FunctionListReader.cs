@@ -182,7 +182,7 @@ internal static class FunctionListReader
         var functions = new List<VarReference>();
         for (var k = 0; k < count; k++)
         {
-            var function = new VarReference(b.D2(pairs + k * PairSize), b.D2(pairs + k * PairSize + 2));
+            var function = ReferenceHeader.ReadPair(b, pairs + k * PairSize);
             TableOf(doc, table, item, function);
             functions.Add(function);
         }

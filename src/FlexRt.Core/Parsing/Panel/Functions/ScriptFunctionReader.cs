@@ -22,12 +22,15 @@ internal static class ScriptFunctionReader
     /// <summary>Смещение пары результата без списка зависимостей.</summary>
     private const int ResultOffset = 0x0c;
 
+    /// <summary>Смещение служебного u16 относительно пары результата; в проверенных вызовах с зависимостями равно нулю.</summary>
+    private const int ResultServiceWordOffset = 0x04;
+
     /// <summary>Смещение u16 числа аргументов без списка зависимостей.</summary>
     private const int ArgumentCountOffset = 0x12;
 
     /// <summary>
     /// Прочитать номер сценария, назначение результата и параметры вызова VB. Список зависимостей VAR перед
-    /// номером сценария не входит в аргументы. В A603A0097 подтверждены вызовы с зависимостями и без параметров и результата.
+    /// номером сценария не входит в аргументы. Сдвиг полей результата и параметров подтверждён компиляциями с зависимостями.
     /// </summary>
     /// <returns>Вызов с именем из каталога или подписью «VB-скрипт #N», если имя недоступно.</returns>
     /// <exception cref="FwxFormatException">Заголовок, список зависимостей или аргумент не соответствует проверенной раскладке.</exception>
@@ -41,20 +44,21 @@ internal static class ScriptFunctionReader
             throw new FwxFormatException(table.Name, p, "неизвестный заголовок вызова VB");
         }
         var dependencyBytes = b.D2(p + DependencyCountOffset) * DependencySize;
-        if (dependencyBytes > 0)
+        var hasDependencies = dependencyBytes > 0;
+        if (hasDependencies)
         {
             CheckDependencies(doc, table, item, dependencyBytes);
         }
         var script = b.D2(p + DependencyStart + dependencyBytes);
         var resultOffset = p + ResultOffset + dependencyBytes;
-        var result = new VarReference(b.D2(resultOffset), b.D2(resultOffset + 2));
+        var result = ReadResult(doc, table, item, resultOffset, hasDependencies);
         var count = b.D2(p + ArgumentCountOffset + dependencyBytes);
         var arguments = new List<FunctionArgument>();
         var parameterNames = new List<string>();
         var cursor = (long)HeaderSize + dependencyBytes;
-        if (result.Table != 0)
+        if (result is not null)
         {
-            arguments.Add(FunctionReferences.Argument(doc, result));
+            arguments.Add(result);
             parameterNames.Add("Результат");
         }
         for (var index = 0; index < count; index++)
@@ -62,44 +66,67 @@ internal static class ScriptFunctionReader
             arguments.Add(Argument(doc, table, item, ref cursor));
             parameterNames.Add($"Параметр {index + 1}");
         }
+        var padding = item.Length - cursor;
+        if (hasDependencies && (padding is not (0 or 2) || (padding == 2 && b.D2(p + cursor) != 0)))
+        {
+            throw UnrecognizedDependentTail(table, item, resultOffset);
+        }
         var name = script < doc.ScriptNames.Count && doc.ScriptNames[script] is { Length: > 0 } catalogName
             ? catalogName
             : $"VB-скрипт #{script}";
         return new FunctionCall(new VarReference(table.Id, item.Index), table.Name, script, [name], parameterNames, arguments);
     }
 
-    /// <summary>
-    /// Проверить индексы VAR и нулевой хвост заголовка у вызова с зависимостями.
-    /// В одной записи после заголовка наблюдались два нулевых байта.
-    /// </summary>
-    /// <exception cref="FwxFormatException">Список выходит за запись, индекс VAR не существует или хвост вызова не разобран.</exception>
+    /// <summary>Проверить, что список зависимостей и сдвинутый заголовок помещаются в запись, а индексы VAR существуют.</summary>
+    /// <exception cref="FwxFormatException">Заголовок выходит за запись или индекс VAR не существует.</exception>
     private static void CheckDependencies(FwxDocument doc, TocEntry table, TableItem item, int dependencyBytes)
     {
         Check(table, item, DependencyStart, HeaderSize - DependencyStart + dependencyBytes);
         var b = doc.Binary;
         var tagCount = doc.FindTable("VAR")?.Entries ?? 0;
         var dependencies = item.Offset + DependencyStart;
-        for (var offset = 0; offset < dependencyBytes; offset += DependencySize)
+        for (var offset = dependencies; offset < dependencies + dependencyBytes; offset += DependencySize)
         {
-            var tag = b.D2(dependencies + offset);
+            var tag = b.D2(offset);
             if (tag >= tagCount)
             {
-                throw new FwxFormatException(table.Name, dependencies + offset,
+                throw new FwxFormatException(table.Name, offset,
                     $"запись {item.Index + 1}: зависимость вызова VB ссылается на отсутствующий элемент VAR {tag + 1}");
             }
         }
-        var result = item.Offset + ResultOffset + dependencyBytes;
-        var end = HeaderSize + dependencyBytes;
-        var padding = item.Length - end;
-        if (b.D4(result) != 0 || b.D4(result + 4) != 0 || padding is not (0 or 2)
-            || (padding == 2 && b.D2(item.Offset + end) != 0))
-        {
-            throw new FwxFormatException(table.Name, result, $"запись {item.Index + 1}: хвост вызова VB с зависимостями не разобран");
-        }
     }
 
+    /// <summary>Прочитать привязку результата. У вызова с зависимостями подтверждена цепочка ADAPTLOOPBREAKE → VAR.</summary>
+    /// <returns>Значение «Результат» или <c>null</c>, если привязка не задана.</returns>
+    /// <exception cref="FwxFormatException">Неразобранная форма результата или повреждённая запись посредника.</exception>
+    private static FunctionArgument? ReadResult(FwxDocument doc, TocEntry table, TableItem item, long offset, bool hasDependencies)
+    {
+        var b = doc.Binary;
+        var link = ReferenceHeader.ReadPair(b, offset);
+        if (hasDependencies && (b.D2(offset + ResultServiceWordOffset) != 0
+            || (link.Table == 0 ? link.Index != 0 : doc.FindTable(link.Table)?.Name != "ADAPTLOOPBREAKE")))
+        {
+            throw UnrecognizedDependentTail(table, item, offset);
+        }
+        if (link.Table == 0)
+        {
+            return null;
+        }
+        var result = FunctionReferences.Argument(doc, link);
+        if (hasDependencies && (result.Reference is not { } tag || tag.Index >= (doc.FindTable("VAR")?.Entries ?? 0)))
+        {
+            throw UnrecognizedDependentTail(table, item, offset);
+        }
+        return result;
+    }
+
+    /// <summary>Создать ошибку для неподтверждённой раскладки хвоста вызова с зависимостями.</summary>
+    /// <returns>Ошибка с позицией пары результата.</returns>
+    private static FwxFormatException UnrecognizedDependentTail(TocEntry table, TableItem item, long offset) =>
+        new(table.Name, offset, $"запись {item.Index + 1}: хвост вызова VB с зависимостями не разобран");
+
     /// <summary>Прочитать заголовок параметра и проверенную раскладку значения.</summary>
-    /// <returns>Тег, целое или строка UTF-16LE.</returns>
+    /// <returns>Тег, целое, число f64 или строка UTF-16LE.</returns>
     /// <exception cref="FwxFormatException">Неизвестный вид параметра или значение не помещается.</exception>
     private static FunctionArgument Argument(FwxDocument doc, TocEntry table, TableItem item, ref long cursor)
     {
@@ -126,6 +153,13 @@ internal static class ScriptFunctionReader
                 var value = (int)b.D4(item.Offset + cursor);
                 cursor += 4;
                 return new FunctionArgument(FunctionArgumentKind.Integer, Number: value);
+            }
+            case (0, 5):
+            {
+                Check(table, item, cursor, 8);
+                var value = b.F64(item.Offset + cursor);
+                cursor += 8;
+                return new FunctionArgument(FunctionArgumentKind.Real, Real: value);
             }
             case (0, 8):
             {
